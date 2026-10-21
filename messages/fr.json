@@ -531,6 +531,30 @@
     }
   },
   "errors": {
+    "generic": {
+      "title": "Une erreur s’est produite",
+      "explanation": "Nous n’avons pas encore de correction en un clic pour cette erreur. Les détails ont été enregistrés. Utilisez « Signaler sur GitHub » — le ticket sera prérempli pour le mainteneur.",
+      "step1": "Réessayez l’action — beaucoup d’erreurs sont passagères",
+      "step2": "Si ça persiste, redémarrez le serveur (bouton power en bas à droite)",
+      "step3": "Toujours bloqué ? Signalez sur GitHub (ci-dessous) — ~10 secondes"
+    },
+    "page": {
+      "badge": "Erreur",
+      "tryThis": "Essayez ceci",
+      "retryPage": "Réessayer cette page",
+      "dashboard": "Tableau de bord",
+      "goBack": "Retour",
+      "restartServer": "Redémarrer le serveur",
+      "restartConfirm": "Redémarrer le serveur ? La page se rechargera une fois le service revenu.",
+      "stillStuck": "Toujours bloqué ?",
+      "githubHint": "Ouvrir un ticket GitHub prérempli — tout ce qu’il faut pour le mainteneur est déjà dans le corps. ~10 secondes.",
+      "reportGithub": "Signaler sur GitHub",
+      "copyDetails": "Copier les détails",
+      "copied": "Copié",
+      "rawError": "Erreur brute",
+      "loggedTo": "Déjà enregistré dans",
+      "errorLogLink": "Paramètres → Journal d’erreurs"
+    },
     "notFound": {
       "badge": "404 · Page introuvable",
       "title": "Cette page n’existe pas — voici où aller.",

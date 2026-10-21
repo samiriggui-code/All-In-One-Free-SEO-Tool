@@ -531,6 +531,30 @@
     }
   },
   "errors": {
+    "generic": {
+      "title": "Something went wrong",
+      "explanation": "We don't have a one-click fix for this exact error yet. The details below have been logged. Use the 'Report on GitHub' button — your error will be pre-filled so the maintainer can fix it fast.",
+      "step1": "Try the action again — many errors are transient",
+      "step2": "If it keeps happening, restart the server (power button bottom-right)",
+      "step3": "Still broken? Report on GitHub (button below) — takes 10 seconds"
+    },
+    "page": {
+      "badge": "Error",
+      "tryThis": "Try this",
+      "retryPage": "Try this page again",
+      "dashboard": "Go to dashboard",
+      "goBack": "Go back",
+      "restartServer": "Restart the server",
+      "restartConfirm": "Restart the server? The page will reload itself once it's back.",
+      "stillStuck": "Still stuck?",
+      "githubHint": "Open a pre-filled GitHub issue — everything the maintainer needs is already in the body. Takes ~10 seconds.",
+      "reportGithub": "Report on GitHub",
+      "copyDetails": "Copy details",
+      "copied": "Copied",
+      "rawError": "Raw error",
+      "loggedTo": "Already logged to",
+      "errorLogLink": "Settings → Error log"
+    },
     "notFound": {
       "badge": "404 · Page not found",
       "title": "That page doesn't exist — but here's what does.",

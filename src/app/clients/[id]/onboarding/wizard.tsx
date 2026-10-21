@@ -2,6 +2,7 @@
 
 import {
   useActionState,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -64,16 +65,33 @@ type WizardClient = {
   techStack: string[] | null;
 };
 
+/** Advance once when a server action returns ok — stable deps, no render loops. */
 function useAdvanceWhenOk(ok: boolean | undefined, onNext: () => void) {
+  const onNextRef = useRef(onNext);
+  onNextRef.current = onNext;
+  const advanced = useRef(false);
+
   useEffect(() => {
-    if (ok) onNext();
-  }, [ok, onNext]);
+    if (ok === true) {
+      if (!advanced.current) {
+        advanced.current = true;
+        onNextRef.current();
+      }
+    } else {
+      advanced.current = false;
+    }
+  }, [ok]);
 }
 
 export function OnboardingWizard({ client }: { client: WizardClient }) {
   const initial: Step =
     client.onboardingStep === "pending" ? "brand" : client.onboardingStep;
   const [step, setStep] = useState<Step>(initial);
+
+  const goKeywords = useCallback(() => setStep("keywords"), []);
+  const goTargeting = useCallback(() => setStep("targeting"), []);
+  const goSurfaces = useCallback(() => setStep("surfaces"), []);
+  const goCompleted = useCallback(() => setStep("completed"), []);
 
   return (
     <>
@@ -85,16 +103,16 @@ export function OnboardingWizard({ client }: { client: WizardClient }) {
       <AuditProgressBar clientId={client.id} />
 
       {step === "brand" && (
-        <BrandStep client={client} onNext={() => setStep("keywords")} />
+        <BrandStep client={client} onNext={goKeywords} />
       )}
       {step === "keywords" && (
-        <KeywordsStep client={client} onNext={() => setStep("targeting")} />
+        <KeywordsStep client={client} onNext={goTargeting} />
       )}
       {step === "targeting" && (
-        <TargetingStep client={client} onNext={() => setStep("surfaces")} />
+        <TargetingStep client={client} onNext={goSurfaces} />
       )}
       {step === "surfaces" && (
-        <SurfacesStep client={client} onNext={() => setStep("completed")} />
+        <SurfacesStep client={client} onNext={goCompleted} />
       )}
       {step === "completed" && <CompletedStep client={client} />}
     </>
