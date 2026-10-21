@@ -558,6 +558,7 @@
     "signIn": "Connexion",
     "signingIn": "Connexion…",
     "loginFailed": "Échec de la connexion",
+    "badCredentials": "E-mail ou mot de passe incorrect.",
     "noAccount": "Pas de compte ?",
     "register": "Créer un compte"
   },

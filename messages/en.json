@@ -558,6 +558,7 @@
     "signIn": "Sign in",
     "signingIn": "Signing in…",
     "loginFailed": "Login failed",
+    "badCredentials": "Email or password is incorrect.",
     "noAccount": "No account?",
     "register": "Register"
   },
