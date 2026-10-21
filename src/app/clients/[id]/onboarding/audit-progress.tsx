@@ -2,16 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, Loader2, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getAuditProgress, type AuditProgress } from "./actions";
 
 /**
  * Live state of the site crawl that starts the moment a client is added.
- *
- * It runs in the background so the wizard stays usable, but background is
- * not the same as invisible: without this the user spends the whole wizard
- * unaware that anything is happening, then wonders why an audit appeared.
  */
 export function AuditProgressBar({ clientId }: { clientId: number }) {
+  const t = useTranslations("onboarding.audit");
   const [p, setP] = useState<AuditProgress | null>(null);
 
   useEffect(() => {
@@ -23,13 +21,10 @@ export function AuditProgressBar({ clientId }: { clientId: number }) {
         const next = await getAuditProgress(clientId);
         if (!alive) return;
         setP(next);
-        // Stop polling once there is nothing left to watch, rather than
-        // hammering the DB for the rest of the session.
         if (next.status === "running" || next.status === "queued") {
           timer = setTimeout(tick, 2000);
         }
       } catch {
-        // Transient — try again rather than leaving a dead bar on screen.
         if (alive) timer = setTimeout(tick, 5000);
       }
     }
@@ -44,8 +39,6 @@ export function AuditProgressBar({ clientId }: { clientId: number }) {
   if (!p || p.status === "none") return null;
 
   const running = p.status === "running" || p.status === "queued";
-  // Cap at 95% while running: hitting 100% before the findings are scored
-  // would claim it is finished when it isn't.
   const pct = running
     ? Math.min(95, Math.round((p.pagesCrawled / p.maxPages) * 100))
     : 100;
@@ -61,13 +54,13 @@ export function AuditProgressBar({ clientId }: { clientId: number }) {
           <TriangleAlert className="size-4 text-amber-400" />
         )}
         <span className="font-medium">
-          {running && "Checking your site…"}
-          {p.status === "completed" && "Site check done"}
-          {p.status === "failed" && "Couldn’t finish the site check"}
+          {running && t("checking")}
+          {p.status === "completed" && t("done")}
+          {p.status === "failed" && t("failed")}
         </span>
         {running && p.pagesCrawled > 0 && (
           <span className="text-xs text-muted-foreground">
-            {p.pagesCrawled} {p.pagesCrawled === 1 ? "page" : "pages"} so far
+            {t("pagesSoFar", { count: p.pagesCrawled })}
           </span>
         )}
       </div>
@@ -86,14 +79,15 @@ export function AuditProgressBar({ clientId }: { clientId: number }) {
       </div>
 
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-        {running &&
-          "This runs in the background — carry on with the steps below, it’ll be ready by the time you finish."}
+        {running && t("runningHint")}
         {p.status === "completed" &&
-          `Found ${p.issuesCount} ${p.issuesCount === 1 ? "thing" : "things"} to look at${
-            p.score !== null ? `, health score ${p.score}/100` : ""
-          }. It’s all in the report at the end.`}
-        {p.status === "failed" &&
-          "The site may have been unreachable. You can re-run it from the client page — the rest of onboarding still works."}
+          (p.score !== null
+            ? t("completedHintScore", {
+                issues: p.issuesCount,
+                score: p.score,
+              })
+            : t("completedHint", { issues: p.issuesCount }))}
+        {p.status === "failed" && t("failedHint")}
       </p>
     </div>
   );

@@ -1,6 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   Circle,
@@ -25,6 +33,7 @@ import {
 import { COUNTRIES } from "./countries";
 import { SURFACES, surfacesFor } from "@/lib/engagement-surfaces";
 import { AuditProgressBar } from "./audit-progress";
+import { inferClientProfile } from "@/lib/infer-client-profile";
 
 type Step =
   | "pending"
@@ -52,15 +61,14 @@ type WizardClient = {
   surfacesJson: string[] | null;
   onboardingStep: Step;
   planGeneratedAt: Date | null;
+  techStack: string[] | null;
 };
 
-const STEPS: { id: Step; label: string }[] = [
-  { id: "brand", label: "Brand" },
-  { id: "keywords", label: "Keywords" },
-  { id: "targeting", label: "Targeting" },
-  { id: "surfaces", label: "Scope" },
-  { id: "completed", label: "Plan" },
-];
+function useAdvanceWhenOk(ok: boolean | undefined, onNext: () => void) {
+  useEffect(() => {
+    if (ok) onNext();
+  }, [ok, onNext]);
+}
 
 export function OnboardingWizard({ client }: { client: WizardClient }) {
   const initial: Step =
@@ -94,6 +102,14 @@ export function OnboardingWizard({ client }: { client: WizardClient }) {
 }
 
 function Stepper({ current }: { current: Step }) {
+  const t = useTranslations("onboarding.steps");
+  const STEPS: { id: Step; label: string }[] = [
+    { id: "brand", label: t("brand") },
+    { id: "keywords", label: t("keywords") },
+    { id: "targeting", label: t("targeting") },
+    { id: "surfaces", label: t("surfaces") },
+    { id: "completed", label: t("completed") },
+  ];
   const idx = STEPS.findIndex((s) => s.id === current);
   return (
     <ol className="flex items-center gap-3 text-xs">
@@ -139,13 +155,67 @@ function BrandStep({
   client: WizardClient;
   onNext: () => void;
 }) {
+  const t = useTranslations("onboarding.brand");
+  const tCommon = useTranslations("onboarding");
   const [state, formAction, pending] = useActionState<
     SaveBrandResult | null,
     FormData
   >(saveBrandStep, null);
 
-  if (state?.ok) {
-    queueMicrotask(onNext);
+  const initialInfer = useMemo(
+    () =>
+      inferClientProfile({
+        description: client.description,
+        businessType: client.businessType,
+        name: client.name,
+        techStack: client.techStack,
+        gbpUrl: client.gbpUrl,
+        city: client.city,
+        existingNiche: client.niche,
+      }),
+    [client],
+  );
+
+  const [businessType, setBusinessType] = useState(
+    client.businessType ?? initialInfer.businessType ?? "",
+  );
+  const [niche, setNiche] = useState<string>(
+    client.niche ?? initialInfer.niche ?? "",
+  );
+  const nicheTouched = useRef(Boolean(client.niche));
+  const typeTouched = useRef(Boolean(client.businessType?.trim()));
+  const [showInferredHint, setShowInferredHint] = useState(
+    !client.niche && initialInfer.niche != null,
+  );
+
+  useAdvanceWhenOk(state?.ok, onNext);
+
+  useEffect(() => {
+    if (client.description && !client.niche) {
+      applyInference(client.description);
+    }
+    // Only seed autofill once from stored description.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount seed
+  }, []);
+
+  function applyInference(description: string) {
+    const next = inferClientProfile({
+      description,
+      businessType: businessType || client.businessType,
+      name: client.name,
+      techStack: client.techStack,
+      gbpUrl: client.gbpUrl,
+      city: client.city,
+      existingNiche: client.niche,
+    });
+    if (!nicheTouched.current && next.niche) {
+      setNiche(next.niche);
+      setShowInferredHint(true);
+    }
+    if (!typeTouched.current && next.businessType) {
+      setBusinessType(next.businessType);
+      setShowInferredHint(true);
+    }
   }
 
   return (
@@ -156,54 +226,71 @@ function BrandStep({
       <input type="hidden" name="clientId" value={client.id} />
       <h2 className="text-base font-semibold flex items-center gap-2">
         <Sparkles className="size-4 text-violet-300" />
-        Tell me about the business
+        {t("title")}
       </h2>
-      <p className="text-xs text-muted-foreground">
-        One paragraph + a niche is all I need to start finding keywords. The
-        details inform the 30-day plan that comes out the other end.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("intro")}</p>
 
       <label className="block space-y-1 text-xs">
         <span className="text-muted-foreground">
-          What does {client.name} do? (1-3 sentences)
+          {t("descriptionLabel", { name: client.name })}
         </span>
         <textarea
           name="description"
           rows={4}
           maxLength={2000}
           defaultValue={client.description ?? ""}
-          placeholder="Bakery in Portland specializing in sourdough, croissants, and Saturday cinnamon rolls. We deliver locally, run a small wholesale program for restaurants, and host a weekly bread-making class."
+          placeholder={t("descriptionPlaceholder")}
+          onBlur={(e) => applyInference(e.target.value)}
           className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
       </label>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Business type</span>
+          <span className="text-muted-foreground">{t("businessType")}</span>
           <input
             name="businessType"
             maxLength={120}
-            defaultValue={client.businessType ?? ""}
-            placeholder="bakery / dentist / SaaS / law firm…"
+            value={businessType}
+            onChange={(e) => {
+              typeTouched.current = true;
+              setBusinessType(e.target.value);
+            }}
+            placeholder={t("businessTypePlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Niche</span>
+          <span className="text-muted-foreground">{t("niche")}</span>
           <select
             name="niche"
-            defaultValue={client.niche ?? ""}
+            value={niche}
+            onChange={(e) => {
+              nicheTouched.current = true;
+              setNiche(e.target.value);
+              setShowInferredHint(false);
+            }}
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="">— pick one —</option>
-            <option value="local">Local business (Maps + GBP-driven)</option>
-            <option value="ecommerce">E-commerce</option>
-            <option value="saas">SaaS / B2B</option>
-            <option value="blog">Blog / Content</option>
-            <option value="services">Services / Professional</option>
+            <option value="">{t("nichePick")}</option>
+            <option value="local">{t("nicheLocal")}</option>
+            <option value="ecommerce">{t("nicheEcommerce")}</option>
+            <option value="saas">{t("nicheSaas")}</option>
+            <option value="blog">{t("nicheBlog")}</option>
+            <option value="services">{t("nicheServices")}</option>
           </select>
         </label>
       </div>
+
+      {(niche === "local" || (!niche && initialInfer.niche === "local")) && (
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {t("nicheLocalHelp")}
+        </p>
+      )}
+
+      {showInferredHint && (
+        <p className="text-xs text-violet-300/90">{t("inferredHint")}</p>
+      )}
 
       <div className="flex items-center justify-between gap-2">
         <SkipButton clientId={client.id} />
@@ -212,7 +299,7 @@ function BrandStep({
           disabled={pending}
           className="inline-flex h-9 items-center rounded-md bg-violet-500/15 px-4 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
         >
-          {pending ? "Saving…" : "Continue → keyword discovery"}
+          {pending ? tCommon("saving") : t("continue")}
         </button>
       </div>
 
@@ -242,26 +329,37 @@ function KeywordsStep({
   >(acceptDiscoveredKeywords, null);
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const t = useTranslations("onboarding.keywords");
+  const tCommon = useTranslations("onboarding");
 
-  if (accepted?.ok) queueMicrotask(onNext);
+  useAdvanceWhenOk(accepted?.ok, onNext);
 
   const all = state?.ok ? state.keywords : [];
-  // Pre-select top 12 on first arrival of results
-  if (state?.ok && selected.size === 0 && all.length > 0) {
-    const top = new Set(all.slice(0, 12).map((k) => k.query));
-    setSelected(top);
-  }
+
+  const resultKey =
+    state?.ok === true
+      ? state.keywords
+          .slice(0, 20)
+          .map((k) => k.query)
+          .join("\0")
+      : "";
+
+  useEffect(() => {
+    if (!resultKey || state?.ok !== true) return;
+    setSelected((prev) => {
+      if (prev.size > 0) return prev;
+      return new Set(state.keywords.slice(0, 12).map((k) => k.query));
+    });
+  }, [resultKey, state]);
 
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl p-6 space-y-4">
       <h2 className="text-base font-semibold flex items-center gap-2">
         <Search className="size-4 text-cyan-300" />
-        Auto keyword discovery
+        {t("title")}
       </h2>
       <p className="text-xs text-muted-foreground">
-        Pulls from {client.gscProperty ? "real GSC data + " : ""}AI brand
-        analysis + Google autocomplete. Pick the ones that look right —
-        they&apos;ll be tracked from day one.
+        {t("intro", { gsc: client.gscProperty ? "true" : "false" })}
       </p>
 
       {!state?.ok && (
@@ -275,10 +373,10 @@ function KeywordsStep({
             {discovering ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                Searching for keywords…
+                {t("searching")}
               </>
             ) : (
-              "Run keyword discovery"
+              t("run")
             )}
           </button>
         </form>
@@ -291,27 +389,21 @@ function KeywordsStep({
       {state?.ok && (
         <>
           <div className="flex flex-wrap items-center gap-3 rounded-md bg-black/20 px-4 py-3 text-xs text-muted-foreground">
-            <span>Found {state.keywords.length} keywords</span>
+            <span>{t("found", { count: state.keywords.length })}</span>
             {state.gscRowsUsed > 0 && (
-              <span>· {state.gscRowsUsed} from real GSC data</span>
+              <span>{t("fromGsc", { count: state.gscRowsUsed })}</span>
             )}
-            {/* Where the words came from. The old version read one meta
-                tag and said nothing about it, so a client whose tag was
-                vague got bad keywords with no way to tell why. */}
             {state.siteRead.pagesRead > 0 && (
               <span>
-                · read {state.siteRead.pagesRead}{" "}
-                {state.siteRead.pagesRead === 1 ? "page" : "pages"} of the site
+                {t("pagesRead", { count: state.siteRead.pagesRead })}
               </span>
             )}
-            <span>· {state.seedsUsed.length} seeds used</span>
+            <span>{t("seedsUsed", { count: state.seedsUsed.length })}</span>
           </div>
 
           {state.siteRead.note && (
             <p className="text-xs text-amber-300/80">
-              We could not read the site&rsquo;s own words for what it sells:{" "}
-              {state.siteRead.note}. These keywords come from the description
-              and niche instead, so check them carefully before tracking any.
+              {t("siteReadNote", { note: state.siteRead.note })}
             </p>
           )}
 
@@ -380,7 +472,7 @@ function KeywordsStep({
               value={JSON.stringify(Array.from(selected))}
             />
             <p className="text-xs text-muted-foreground">
-              {selected.size} selected to track
+              {t("selectedCount", { count: selected.size })}
             </p>
             <button
               type="submit"
@@ -388,8 +480,8 @@ function KeywordsStep({
               className="inline-flex h-9 items-center rounded-md bg-violet-500/15 px-4 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
             >
               {accepting
-                ? "Saving…"
-                : `Track ${selected.size} keywords → next step`}
+                ? tCommon("saving")
+                : t("trackContinue", { count: selected.size })}
             </button>
           </form>
           {accepted && !accepted.ok && (
@@ -415,7 +507,10 @@ function TargetingStep({
     FormData
   >(saveTargetingStep, null);
 
-  if (state?.ok) queueMicrotask(onNext);
+  const t = useTranslations("onboarding.targeting");
+  const tCommon = useTranslations("onboarding");
+
+  useAdvanceWhenOk(state?.ok, onNext);
 
   return (
     <form
@@ -426,17 +521,13 @@ function TargetingStep({
 
       <h2 className="text-base font-semibold flex items-center gap-2">
         <MapPin className="size-4 text-emerald-300" />
-        Where should we rank?
+        {t("title")}
       </h2>
-      <p className="text-xs text-muted-foreground">
-        This drives every rank check, autocomplete suggestion, and
-        country-specific citation directory. Picking the right country alone
-        usually moves measured rank by 10+ positions.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("intro")}</p>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Country</span>
+          <span className="text-muted-foreground">{t("country")}</span>
           <select
             name="country"
             defaultValue={client.country}
@@ -451,7 +542,7 @@ function TargetingStep({
           </select>
         </label>
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Language</span>
+          <span className="text-muted-foreground">{t("language")}</span>
           <select
             name="language"
             defaultValue={client.language}
@@ -475,35 +566,31 @@ function TargetingStep({
 
       <div className="grid gap-3 md:grid-cols-[1fr_180px]">
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">
-            City (only if business serves a specific area)
-          </span>
+          <span className="text-muted-foreground">{t("city")}</span>
           <input
             name="city"
             maxLength={120}
             defaultValue={client.city ?? ""}
-            placeholder="Portland"
+            placeholder={t("cityPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Geo-target mode</span>
+          <span className="text-muted-foreground">{t("geoTarget")}</span>
           <select
             name="geoTarget"
             defaultValue={client.geoTarget}
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="country">Country-wide</option>
-            <option value="city">City / local</option>
-            <option value="multi">Multi-country</option>
+            <option value="country">{t("geoCountry")}</option>
+            <option value="city">{t("geoCity")}</option>
+            <option value="multi">{t("geoMulti")}</option>
           </select>
         </label>
       </div>
 
       <label className="block space-y-1 text-xs">
-        <span className="text-muted-foreground">
-          Service radius (km, optional — only for local businesses)
-        </span>
+        <span className="text-muted-foreground">{t("radius")}</span>
         <input
           name="serviceRadiusKm"
           type="number"
@@ -522,7 +609,7 @@ function TargetingStep({
           disabled={pending}
           className="inline-flex h-9 items-center rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
         >
-          {pending ? "Saving…" : "Continue → generate plan"}
+          {pending ? tCommon("saving") : t("continue")}
         </button>
       </div>
 
@@ -559,9 +646,28 @@ function SurfacesStep({
     FormData
   >(saveSurfacesStep, null);
 
-  useEffect(() => {
-    if (state?.ok) onNext();
-  }, [state, onNext]);
+  const t = useTranslations("onboarding.surfaces");
+  const tBrand = useTranslations("onboarding.brand");
+  const tCommon = useTranslations("onboarding");
+
+  useAdvanceWhenOk(state?.ok, onNext);
+
+  function nicheLabel(n: string | null): string {
+    switch (n) {
+      case "local":
+        return tBrand("nicheLocal");
+      case "ecommerce":
+        return tBrand("nicheEcommerce");
+      case "saas":
+        return tBrand("nicheSaas");
+      case "blog":
+        return tBrand("nicheBlog");
+      case "services":
+        return tBrand("nicheServices");
+      default:
+        return n ?? "—";
+    }
+  }
 
   function toggle(id: string) {
     setPicked((prev) => {
@@ -584,14 +690,13 @@ function SurfacesStep({
       <div>
         <h2 className="text-base font-semibold flex items-center gap-2">
           <Layers className="size-4 text-violet-300" />
-          Where will you be working?
+          {t("title")}
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          This goes straight into the document {client.name}
-          {" "}approves — both what you&apos;re doing and, just as usefully,
-          what you&apos;re not. We&apos;ve ticked the usual set for a{" "}
-          {client.niche ?? "business"}
-          {" "}site; change anything that doesn&apos;t fit.
+          {t("intro", {
+            name: client.name,
+            niche: nicheLabel(client.niche),
+          })}
         </p>
       </div>
 
@@ -630,9 +735,9 @@ function SurfacesStep({
           forget they are writing. */}
       {out.length > 0 && (
         <p className="rounded-md bg-white/[0.03] px-3 py-2 text-xs leading-relaxed text-muted-foreground ring-1 ring-inset ring-white/5">
-          <strong className="text-foreground">Not included:</strong>{" "}
-          {out.map((sf) => sf.label.toLowerCase()).join(", ")}. The document
-          will say so, so nobody assumes otherwise later.
+          <strong className="text-foreground">{t("notIncluded")}</strong>{" "}
+          {out.map((sf) => sf.label.toLowerCase()).join(", ")}.{" "}
+          {t("notIncludedTail")}
         </p>
       )}
 
@@ -650,10 +755,10 @@ function SurfacesStep({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Saving…
+              {tCommon("saving")}
             </>
           ) : (
-            "Continue → the plan"
+            t("continue")
           )}
         </button>
       </div>
@@ -664,6 +769,7 @@ function SurfacesStep({
 // =========== Step 5: Completed / generate plan ===========
 
 function CompletedStep({ client }: { client: WizardClient }) {
+  const t = useTranslations("onboarding.plan");
   const [, startTransition] = useTransition();
   const [planState, setPlanState] = useState<
     | null
@@ -694,19 +800,15 @@ function CompletedStep({ client }: { client: WizardClient }) {
     <section className="glass-apple relative overflow-hidden rounded-2xl p-6 space-y-4">
       <h2 className="text-base font-semibold flex items-center gap-2">
         <Globe className="size-4 text-violet-300" />
-        Ready to generate your 30-day plan
+        {t("title")}
       </h2>
-      <p className="text-xs text-muted-foreground">
-        Builds 30 daily tasks tailored to this client&apos;s niche, locale,
-        tech stack, and (when connected) real GSC data. Tasks land directly
-        in the Tasks board with due dates spread across the next month.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("intro")}</p>
 
       {learnedRules && learnedRules.length > 0 && (
         <div className="rounded-md border border-violet-500/20 bg-violet-500/5 p-4 text-xs">
           <h3 className="font-semibold text-violet-200 flex items-center gap-1.5">
             <Sparkles className="size-3.5" />
-            What the tool has learned about your style
+            {t("learnedTitle")}
           </h3>
           <ul className="mt-2 space-y-1 text-muted-foreground">
             {learnedRules.slice(0, 5).map((r, i) => (
@@ -717,22 +819,18 @@ function CompletedStep({ client }: { client: WizardClient }) {
             ))}
           </ul>
           <p className="mt-2 text-[10px] text-muted-foreground/70">
-            These rules are auto-applied to AI output for this client. Manage them in{" "}
-            <a href="/settings/ai-learning" className="underline">
-              Settings → AI learning
-            </a>
-            .
+            {t("learnedFooter")}
           </p>
         </div>
       )}
 
       {planState?.ok ? (
         <div className="rounded-md bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-          ✓ Generated {planState.tasksCreated} tasks under plan{" "}
-          <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">
-            {planState.planRef}
-          </code>
-          .
+          ✓{" "}
+          {t("generated", {
+            count: planState.tasksCreated,
+            planRef: planState.planRef,
+          })}
           <span className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
             {/*
               The plan first, the board second.
@@ -744,16 +842,16 @@ function CompletedStep({ client }: { client: WizardClient }) {
               you showed no plan at all.
             */}
             <a href={`/clients/${client.id}/plan`} className="font-medium underline">
-              Read the 30-day plan →
+              {t("readPlan")}
             </a>
             <a href={`/clients/${client.id}/plan/plan.pdf`} className="underline">
-              Download PDF
+              {t("downloadPdf")}
             </a>
             <a href={`/clients/${client.id}/plan/export.csv`} className="underline opacity-80">
-              CSV
+              {t("csv")}
             </a>
             <a href={`/tasks?client=${client.id}`} className="underline opacity-80">
-              Tasks board
+              {t("tasksBoard")}
             </a>
           </span>
         </div>
@@ -774,10 +872,10 @@ function CompletedStep({ client }: { client: WizardClient }) {
           {generating ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Generating 30-day plan…
+              {t("generating")}
             </>
           ) : (
-            "Generate 30-day plan"
+            t("generate")
           )}
         </button>
       )}
@@ -799,6 +897,7 @@ function CompletedStep({ client }: { client: WizardClient }) {
  * it can only be produced at the end, and only once those exist.
  */
 function KickoffReportCard({ clientId }: { clientId: number }) {
+  const t = useTranslations("onboarding.plan");
   const [state, setState] = useState<
     { ok: true; id: number } | { ok: false; error: string } | null
   >(null);
@@ -807,14 +906,9 @@ function KickoffReportCard({ clientId }: { clientId: number }) {
 
   return (
     <div className="rounded-md border border-white/5 bg-black/20 p-4">
-      <strong className="text-sm text-foreground">
-        Send the client something to approve
-      </strong>
+      <strong className="text-sm text-foreground">{t("kickoffTitle")}</strong>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-        One document: what we found on the site, where their keywords stand
-        today, and what happens in which week. The starting numbers are frozen
-        into it, so next month&apos;s report has something to be measured
-        against.
+        {t("kickoffIntro")}
       </p>
 
       {state?.ok ? (
@@ -825,13 +919,13 @@ function KickoffReportCard({ clientId }: { clientId: number }) {
             rel="noreferrer"
             className="inline-flex h-9 items-center rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
           >
-            Open the PDF
+            {t("openPdf")}
           </a>
           <a
             href="/proposals"
             className="inline-flex h-9 items-center rounded-md px-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-foreground"
           >
-            Edit it before sending
+            {t("editBeforeSend")}
           </a>
         </div>
       ) : (
@@ -854,10 +948,10 @@ function KickoffReportCard({ clientId }: { clientId: number }) {
           {busy ? (
             <>
               <Loader2 className="mr-2 size-3.5 animate-spin" />
-              Putting it together…
+              {t("creatingDoc")}
             </>
           ) : (
-            "Create the approval document"
+            t("createDoc")
           )}
         </button>
       )}
@@ -878,6 +972,7 @@ function KickoffReportCard({ clientId }: { clientId: number }) {
  * transition instead.
  */
 function SkipButton({ clientId }: { clientId: number }) {
+  const t = useTranslations("onboarding");
   const [pending, start] = useTransition();
   return (
     <button
@@ -890,7 +985,7 @@ function SkipButton({ clientId }: { clientId: number }) {
       }
       className="text-xs text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50"
     >
-      {pending ? "Skipping…" : "Skip onboarding"}
+      {pending ? t("skipping") : t("skip")}
     </button>
   );
 }
