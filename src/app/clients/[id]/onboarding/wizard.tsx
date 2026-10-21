@@ -190,14 +190,6 @@ function BrandStep({
 
   useAdvanceWhenOk(state?.ok, onNext);
 
-  useEffect(() => {
-    if (client.description && !client.niche) {
-      applyInference(client.description);
-    }
-    // Only seed autofill once from stored description.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount seed
-  }, []);
-
   function applyInference(description: string) {
     const next = inferClientProfile({
       description,
@@ -217,6 +209,12 @@ function BrandStep({
       setShowInferredHint(true);
     }
   }
+
+  useEffect(() => {
+    if (client.description && !client.niche) {
+      applyInference(client.description);
+    }
+  }, [client.description, client.id, client.niche]);
 
   return (
     <form
