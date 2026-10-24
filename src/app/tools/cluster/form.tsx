@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, Layers, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCluster, type ClusterState } from "./actions";
 
 const INTENT_TONE: Record<string, string> = {
@@ -12,7 +13,18 @@ const INTENT_TONE: Record<string, string> = {
   local: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
 };
 
+const INTENT_LABEL_KEY: Record<string, string> = {
+  informational: "intentInformational",
+  commercial: "intentCommercial",
+  transactional: "intentTransactional",
+  navigational: "intentNavigational",
+  local: "intentLocal",
+};
+
 export function ClusterForm() {
+  const t = useTranslations("tools.ui.cluster");
+  const intentLabel = (intent: string) =>
+    INTENT_LABEL_KEY[intent] ? t(INTENT_LABEL_KEY[intent]) : intent;
   const [state, formAction, pending] = useActionState<
     ClusterState | null,
     FormData
@@ -65,7 +77,7 @@ export function ClusterForm() {
           <input
             name="topic"
             required
-            placeholder="home espresso machines"
+            placeholder={t("topicPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <input
@@ -82,12 +94,12 @@ export function ClusterForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Mining + planning…
+                {t("running")}
               </>
             ) : (
               <>
                 <Layers className="mr-2 size-3" />
-                Build cluster
+                {t("submit")}
               </>
             )}
           </button>
@@ -104,7 +116,7 @@ export function ClusterForm() {
         <>
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Pillar (hub) page</h3>
+              <h3 className="text-sm font-semibold">{t("pillarTitle")}</h3>
               <button
                 type="button"
                 onClick={copyAsCsv}
@@ -113,12 +125,12 @@ export function ClusterForm() {
                 {copied ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied CSV
+                    {t("copiedCsv")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy CSV (pillar + spokes)
+                    {t("copyCsv")}
                   </>
                 )}
               </button>
@@ -135,7 +147,7 @@ export function ClusterForm() {
                 <span
                   className={`rounded-full px-2 py-0.5 uppercase tracking-wider ring-1 ring-inset ${INTENT_TONE[state.plan.pillar.intent]}`}
                 >
-                  {state.plan.pillar.intent}
+                  {intentLabel(state.plan.pillar.intent)}
                 </span>
                 <span className="rounded-full bg-white/5 px-2 py-0.5 text-muted-foreground ring-1 ring-inset ring-white/10">
                   {state.plan.pillar.format}
@@ -147,7 +159,7 @@ export function ClusterForm() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
               <h3 className="text-sm font-semibold">
-                Spoke pages ({state.plan.spokes.length})
+                {t("spokesTitle", { count: state.plan.spokes.length })}
               </h3>
             </header>
             <ul className="divide-y divide-white/[0.05]">
@@ -164,7 +176,7 @@ export function ClusterForm() {
                       <span
                         className={`rounded-full px-2 py-0.5 uppercase tracking-wider ring-1 ring-inset ${INTENT_TONE[s.intent]}`}
                       >
-                        {s.intent}
+                        {intentLabel(s.intent)}
                       </span>
                       <span className="rounded-full bg-white/5 px-2 py-0.5 text-muted-foreground ring-1 ring-inset ring-white/10">
                         {s.format}
@@ -174,7 +186,7 @@ export function ClusterForm() {
                   <p className="text-muted-foreground">{s.angle}</p>
                   {s.links.length > 0 && (
                     <p className="text-[10px] text-muted-foreground">
-                      Links to:{" "}
+                      {t("linksTo")}{" "}
                       {s.links.map((l) => (
                         <code key={l} className="mr-1.5 rounded bg-white/5 px-1.5 py-0.5">
                           {l}
@@ -188,11 +200,11 @@ export function ClusterForm() {
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-semibold">Signals used</h3>
+            <h3 className="text-sm font-semibold">{t("signalsTitle")}</h3>
             <div className="grid gap-2 text-xs sm:grid-cols-2 md:grid-cols-4">
               <SignalGroup label="PAA" items={state.plan.signals.paa} />
-              <SignalGroup label="Related" items={state.plan.signals.related} />
-              <SignalGroup label="Autocomplete" items={state.plan.signals.autocomplete} />
+              <SignalGroup label={t("signalRelated")} items={state.plan.signals.related} />
+              <SignalGroup label={t("signalAutocomplete")} items={state.plan.signals.autocomplete} />
               <SignalGroup label="Reddit" items={state.plan.signals.reddit} />
             </div>
           </section>
@@ -203,6 +215,7 @@ export function ClusterForm() {
 }
 
 function SignalGroup({ label, items }: { label: string; items: string[] }) {
+  const t = useTranslations("tools.ui.cluster");
   return (
     <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -215,7 +228,7 @@ function SignalGroup({ label, items }: { label: string; items: string[] }) {
           </li>
         ))}
         {items.length > 5 && (
-          <li className="text-[10px] text-muted-foreground">+ {items.length - 5} more</li>
+          <li className="text-[10px] text-muted-foreground">{t("more", { count: items.length - 5 })}</li>
         )}
       </ul>
     </div>

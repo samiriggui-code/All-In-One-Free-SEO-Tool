@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { callAI } from "@/lib/ai-call";
@@ -43,13 +44,14 @@ export async function generateMetaTags(
   formData: FormData,
 ): Promise<MetaTagState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.meta-tag-generator");
   const topic = String(formData.get("topic") ?? "").trim();
   const keyword = String(formData.get("keyword") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();
   const intent = String(formData.get("intent") ?? "informational").trim();
   const audience = String(formData.get("audience") ?? "").trim();
 
-  if (!topic) return { ok: false, error: "Page topic required." };
+  if (!topic) return { ok: false, error: t("topicRequired") };
 
   const user = `Generate 3 meta tag options.
 
@@ -79,7 +81,7 @@ Return JSON only.`;
   if (!raw) {
     return {
       ok: false,
-      error: "AI provider not configured. Add an API key in Settings → AI.",
+      error: t("aiNotConfigured"),
     };
   }
 
@@ -95,11 +97,11 @@ Return JSON only.`;
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    return { ok: false, error: "Couldn't parse AI response — try again." };
+    return { ok: false, error: t("parseFailed") };
   }
 
   if (!parsed.options || parsed.options.length === 0) {
-    return { ok: false, error: "AI returned no options. Try again." };
+    return { ok: false, error: t("noOptions") };
   }
 
   const result: MetaTagState = {
@@ -115,7 +117,10 @@ Return JSON only.`;
 
   await saveToolRun({
     toolId: "meta-tag-generator",
-    label: `${topic.slice(0, 60)} · ${parsed.options.length} options`,
+    label: t("runLabel", {
+      topic: topic.slice(0, 60),
+      count: parsed.options.length,
+    }),
     input: { topic, keyword, brand, intent, audience },
     result,
   }).catch(() => undefined);

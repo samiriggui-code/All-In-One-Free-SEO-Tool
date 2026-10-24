@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -108,12 +109,13 @@ function parseHttpLinkHeader(linkHeader: string | null): {
 
 export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
+  const t = await getTranslations("tools.ui.hreflang");
+  if (!rawUrl?.trim()) return { ok: false, error: t("urlRequired") };
   const url = normalize(rawUrl.trim());
 
   const res = await fetchHtml(url);
   if (!res.ok) {
-    return { ok: false, error: `Couldn't fetch ${url} (${res.status})` };
+    return { ok: false, error: t("fetchFailed", { url, status: String(res.status) }) };
   }
 
   const htmlLinks = parseHtmlLinks(res.body);
@@ -136,7 +138,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
     let hint: string | undefined;
     if (!VALID_LANG.test(lang)) {
       status = "error";
-      hint = "Invalid hreflang format. Use lang or lang-region (e.g. en, en-US).";
+      hint = t("invalidFormat");
     }
     entries.push({ lang, href: absHref, source, status, hint });
   }
@@ -148,9 +150,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
   const hasXDefault = entries.some((e) => e.lang.toLowerCase() === "x-default");
 
   if (entries.length === 0) {
-    issues.push(
-      "No hreflang tags found. If this site has language/region variants, add them.",
-    );
+    issues.push(t("issueNoTags"));
     const empty: HreflangResult = {
       ok: true,
       url,
@@ -173,7 +173,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
     // check trains people to ignore it.
     await recordToolRun({
       toolId: "hreflang",
-      label: `${url} · no hreflang tags`,
+      label: t("runLabelEmpty", { url }),
       input: { url: rawUrl },
       result: empty,
       findings: [],
@@ -182,9 +182,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
   }
 
   if (!hasXDefault) {
-    issues.push(
-      "Missing x-default. Recommended as the fallback for unmatched locales.",
-    );
+    issues.push(t("issueNoXDefault"));
   }
 
   // Self-reference check
@@ -195,9 +193,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
       e.href + "/" === res.finalUrl,
   );
   if (!selfReference) {
-    issues.push(
-      "Page doesn't include a self-referencing hreflang. Each variant should reference itself.",
-    );
+    issues.push(t("issueNoSelfReference"));
   }
 
   // Duplicate language codes (different hrefs for the same lang)
@@ -209,9 +205,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
   }
   for (const [lang, hrefs] of langCounts.entries()) {
     if (hrefs.size > 1) {
-      issues.push(
-        `Multiple hrefs for "${lang}". Each language should point to one URL.`,
-      );
+      issues.push(t("issueDuplicateLang", { lang }));
     }
   }
 
@@ -250,9 +244,7 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
 
   for (const r of reciprocal) {
     if (r.reachable && !r.pointsBack) {
-      issues.push(
-        `${r.url} doesn't point back at this URL. Reciprocal links are required for hreflang.`,
-      );
+      issues.push(t("issueNotReciprocal", { url: r.url }));
     }
   }
 
@@ -267,10 +259,14 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
   };
   await recordToolRun({
     toolId: "hreflang",
-    label: `${url} · ${entries.length} entries · ${issues.length} issues`,
+    label: t("runLabel", {
+      url,
+      entries: entries.length,
+      issues: issues.length,
+    }),
     input: { url: rawUrl },
     result,
-    findings: hreflangFindings({ entries, hasXDefault, reciprocal }),
+    findings: hreflangFindings({ entries, hasXDefault, reciprocal }, t),
   });
   return result;
 }
@@ -288,11 +284,14 @@ export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
  * visitors to the wrong page. Which URL should be canonical for a locale
  * is a decision about the business, not a mechanical edit.
  */
-function hreflangFindings(r: {
-  entries: HreflangEntry[];
-  hasXDefault: boolean;
-  reciprocal: ReciprocalCheck[];
-}): FindingDraft[] {
+function hreflangFindings(
+  r: {
+    entries: HreflangEntry[];
+    hasXDefault: boolean;
+    reciprocal: ReciprocalCheck[];
+  },
+  t: (key: string, values?: Record<string, string | number>) => string,
+): FindingDraft[] {
   // A site with no hreflang at all is not a site with an hreflang
   // problem. Most sites are monolingual and reporting this on every one
   // of them would train the reader to ignore the section.
@@ -303,12 +302,10 @@ function hreflangFindings(r: {
   if (!r.hasXDefault) {
     out.push({
       signature: "hreflang.no_x_default",
-      title: "No x-default set for unmatched locales",
+      title: t("findingNoXDefaultTitle"),
       severity: "low",
       category: "international",
-      details:
-        "x-default is what Google falls back to for a visitor whose language matches none " +
-        "of the versions listed. Without it, that choice is made for you.",
+      details: t("findingNoXDefaultDetails"),
     });
   }
 
@@ -319,13 +316,14 @@ function hreflangFindings(r: {
   if (oneWay.length > 0) {
     out.push({
       signature: "hreflang.not_reciprocal",
-      title: `${oneWay.length} alternate${oneWay.length === 1 ? " does" : "s do"} not link back`,
+      title: t("findingNotReciprocalTitle", { count: oneWay.length }),
       severity: "high",
       category: "international",
       details:
-        "Hreflang has to be mutual. Google ignores a set whose members disagree, so these " +
-        `alternates currently do nothing: ${oneWay.slice(0, 6).map((x) => x.url).join(", ")}` +
-        (oneWay.length > 6 ? ` and ${oneWay.length - 6} more.` : "."),
+        t("findingNotReciprocalDetails", {
+          urls: oneWay.slice(0, 6).map((x) => x.url).join(", "),
+        }) +
+        (oneWay.length > 6 ? t("andMore", { count: oneWay.length - 6 }) : "."),
     });
   }
 
@@ -333,13 +331,16 @@ function hreflangFindings(r: {
   if (unreachable.length > 0) {
     out.push({
       signature: "hreflang.unreachable_alternate",
-      title: `${unreachable.length} alternate URL${unreachable.length === 1 ? "" : "s"} could not be fetched`,
+      title: t("findingUnreachableTitle", { count: unreachable.length }),
       severity: "medium",
       category: "international",
       details:
-        "An alternate that does not load cannot be indexed, so the visitors it was meant " +
-        `for land on the wrong version: ${unreachable.slice(0, 6).map((x) => x.url).join(", ")}` +
-        (unreachable.length > 6 ? ` and ${unreachable.length - 6} more.` : "."),
+        t("findingUnreachableDetails", {
+          urls: unreachable.slice(0, 6).map((x) => x.url).join(", "),
+        }) +
+        (unreachable.length > 6
+          ? t("andMore", { count: unreachable.length - 6 })
+          : "."),
     });
   }
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -41,7 +42,9 @@ export async function runPersonalize(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error:
+        parsed.error.issues[0]?.message ??
+        (await getTranslations("tools.ui.outreach-personalize"))("invalidInput"),
     };
   }
   const r = await personalizeOutreach(parsed.data);

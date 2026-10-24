@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -23,7 +24,10 @@ import type { CanonicalIssue } from "@/lib/canonical-audit";
  * crawls deeper than the audit does, so it earns its place as a view for
  * a person — not as a second source of the same action.
  */
-function canonicalFindings(issues: CanonicalIssue[]): FindingDraft[] {
+function canonicalFindings(
+  issues: CanonicalIssue[],
+  t: (key: string, values?: Record<string, string | number>) => string,
+): FindingDraft[] {
   const byKind = new Map<string, CanonicalIssue[]>();
   for (const i of issues) {
     if (i.kind === "ok") continue;
@@ -33,26 +37,26 @@ function canonicalFindings(issues: CanonicalIssue[]): FindingDraft[] {
   }
 
   const LABEL: Record<string, string> = {
-    missing: "Pages with no canonical tag",
-    "off-host": "Canonicals pointing at another domain",
-    "broken-target": "Canonicals pointing at a URL that does not load",
-    "redirect-target": "Canonicals pointing at a redirect",
-    "self-mismatch": "Canonicals that disagree with the page's own URL",
-    multiple: "Pages with more than one canonical tag",
-    "noindex-conflict": "Pages both canonicalised and noindexed",
+    missing: t("findingMissing"),
+    "off-host": t("findingOffHost"),
+    "broken-target": t("findingBrokenTarget"),
+    "redirect-target": t("findingRedirectTarget"),
+    "self-mismatch": t("findingSelfMismatch"),
+    multiple: t("findingMultiple"),
+    "noindex-conflict": t("findingNoindexConflict"),
   };
 
   return [...byKind.entries()].map(([kind, list]) => ({
     signature: `canonical-audit.${kind}`,
-    title: `${LABEL[kind] ?? kind} — ${list.length} page${list.length === 1 ? "" : "s"}`,
+    title: t("findingTitle", { label: LABEL[kind] ?? kind, count: list.length }),
     // The worst instance sets the severity. Averaging would let one
     // critical hide behind fifty lows.
     severity: worstSeverity(list),
     category: "canonicalisation",
     details:
       (list[0]?.reason ? list[0].reason + " " : "") +
-      `Affected: ${list.slice(0, 12).map((i) => i.url).join(", ")}` +
-      (list.length > 12 ? ` and ${list.length - 12} more.` : "."),
+      t("findingAffected", { urls: list.slice(0, 12).map((i) => i.url).join(", ") }) +
+      (list.length > 12 ? t("findingAndMore", { count: list.length - 12 }) : "."),
   }));
 }
 
@@ -85,8 +89,9 @@ export async function runCanonical(
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || 80,
   });
+  const t = await getTranslations("tools.ui.canonical-audit");
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidInput") };
   const clientId = clientIdFrom(formData);
   const r = await auditCanonicals(parsed.data);
   if (!r.ok && r.error) return { ok: false, error: r.error };
@@ -96,7 +101,7 @@ export async function runCanonical(
     clientId,
     input: { ...parsed.data, clientId },
     result: { ok: true, result: r },
-    findings: canonicalFindings(r.issues),
+    findings: canonicalFindings(r.issues, t),
   });
   return { ok: true, result: r };
 }

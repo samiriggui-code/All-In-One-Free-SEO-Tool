@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { scanSerp } from "@/lib/serp-scanner";
@@ -49,6 +50,7 @@ export async function checkRank(
   formData: FormData,
 ): Promise<RankWhereState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.rank-where");
   const domain = normalizeDomain(String(formData.get("domain") ?? ""));
   const query = String(formData.get("query") ?? "").trim();
   const country = String(formData.get("country") ?? "US").trim().toUpperCase();
@@ -59,8 +61,8 @@ export async function checkRank(
     | 50
     | 100;
 
-  if (!domain) return { ok: false, error: "Domain required." };
-  if (!query) return { ok: false, error: "Keyword required." };
+  if (!domain) return { ok: false, error: t("domainRequired") };
+  if (!query) return { ok: false, error: t("keywordRequired") };
 
   const serp = await scanSerp({
     query,
@@ -71,7 +73,7 @@ export async function checkRank(
   if (!serp.ok) {
     return {
       ok: false,
-      error: serp.error ?? "Couldn't fetch SERP. Try again in a minute.",
+      error: serp.error ?? t("serpFailed"),
     };
   }
 
@@ -115,55 +117,38 @@ export async function checkRank(
   // Recommendations
   const recommendations: string[] = [];
   if (!found) {
-    recommendations.push(
-      `Not in top ${topN} for "${query}" in ${country}. Start with content audit: do you have a page targeting this query at all?`,
-    );
-    recommendations.push(
-      "Build a dedicated landing page for this query — the Writing studio (/content) can draft it from the SERP.",
-    );
+    recommendations.push(t("recoNotFound", { topN, query, country }));
+    recommendations.push(t("recoLandingPage"));
     if (
       top3.length > 0 &&
       top3.some((c) => /reddit\.com|wikipedia\.org|youtube\.com/i.test(c.domain))
     ) {
-      recommendations.push(
-        "The SERP has Wikipedia/Reddit/YouTube in top 3 — entrenched. You'll likely never beat them; instead target long-tail variants or capture Reddit/YouTube real estate directly.",
-      );
+      recommendations.push(t("recoEntrenched"));
     }
   } else if (found.position > 10) {
     recommendations.push(
-      `Currently at #${found.position}. You're on page ${Math.ceil(found.position / 10)} — needs major work to crack page 1.`,
+      t("recoBeyondPage1", {
+        position: found.position,
+        page: Math.ceil(found.position / 10),
+      }),
     );
-    recommendations.push(
-      "Run the GEO composite score (/tools/geo-score) on the ranking page to find the weakest dimension.",
-    );
-    recommendations.push(
-      "Run the AIO passage optimizer (/tools/aio-passage) — if AI Overview is present, the cited result usually outranks others.",
-    );
+    recommendations.push(t("recoGeoScore"));
+    recommendations.push(t("recoAioPassage"));
   } else if (found.position > 3) {
-    recommendations.push(
-      `Solid position #${found.position} — striking distance. Refresh the page's content, add more E-E-A-T signals, target the 134-167 word AIO passages.`,
-    );
-    recommendations.push(
-      "Use the /tools/refresh detector to find specific gaps vs the top 3 ranking pages.",
-    );
+    recommendations.push(t("recoStriking", { position: found.position }));
+    recommendations.push(t("recoRefresh"));
   } else {
-    recommendations.push(
-      `Already at #${found.position}. Maintain — focus on freshness (update content quarterly) and earn 1-2 new authoritative backlinks.`,
-    );
+    recommendations.push(t("recoTop3", { position: found.position }));
   }
   if (serp.aiOverviewPresent && !citedInAiOverview) {
-    recommendations.push(
-      "AI Overview triggers for this query but you're NOT cited. Add Article + Person schema, build 134-167 word self-contained answer passages.",
-    );
+    recommendations.push(t("recoAioNotCited"));
   }
   if (
     !found &&
     serp.featuredSnippet &&
     normalizeDomain(serp.featuredSnippet.url).includes(domain)
   ) {
-    recommendations.push(
-      "Featured snippet is yours but you don't show in classic top 10 — Google may be using a different page. Audit which URL holds the snippet.",
-    );
+    recommendations.push(t("recoSnippetOnly"));
   }
 
   const result: RankWhereResult = {
@@ -190,7 +175,7 @@ export async function checkRank(
   };
   await saveToolRun({
     toolId: "rank-where",
-    label: `${domain} · "${query}" (${country}) · ${found ? `#${found.position}` : `not in top ${topN}`}`,
+    label: `${domain} · "${query}" (${country}) · ${found ? `#${found.position}` : t("runNotInTop", { topN })}`,
     input: { domain, query, country, topN },
     result: { ok: true, result },
   }).catch(() => undefined);

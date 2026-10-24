@@ -11,12 +11,23 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { analyzeLinks, type LinkAnalysisResult } from "./actions";
 
+const FILTER_LABEL_KEY = {
+  all: "filterAll",
+  internal: "filterInternal",
+  external: "filterExternal",
+  follow: "filterFollow",
+  nofollow: "filterNofollow",
+} as const;
+
 export default function LinkCheckerPage() {
+  const t = useTranslations("tools.ui.link-checker");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<LinkAnalysisResult | null>(null);
   const [filter, setFilter] = useState<"all" | "internal" | "external" | "nofollow" | "follow">(
@@ -52,7 +63,7 @@ export default function LinkCheckerPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -61,19 +72,19 @@ export default function LinkCheckerPage() {
             <LinkIcon className="size-5 text-cyan-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Link analyzer</span>
+            <span className="text-gradient-brand">{t("pageTitle")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Paste any URL — we extract every <code>&lt;a&gt;</code> link, classify
-          internal vs external, dofollow vs nofollow, and surface the most-used
-          anchor texts. Critical for outbound link audits before publishing.
+          {t.rich("pageDescription", {
+            code: (chunks) => <code>{chunks}</code>,
+          })}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <Label htmlFor="lc-url" className="text-sm">
-          Page URL
+          {t("pageUrl")}
         </Label>
         <div className="mt-2 flex gap-2">
           <Input
@@ -91,12 +102,12 @@ export default function LinkCheckerPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scanning…
+                {t("scanning")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Analyze
+                {tCommon("analyze")}
               </>
             )}
           </Button>
@@ -113,23 +124,23 @@ export default function LinkCheckerPage() {
       {result?.ok && (
         <>
           <section className="grid gap-3 sm:grid-cols-4">
-            <Stat label="Total links" value={result.totalLinks} tone="violet" />
+            <Stat label={t("totalLinks")} value={result.totalLinks} tone="violet" />
             <Stat
-              label="Internal"
+              label={t("filterInternal")}
               value={result.internalCount}
               tone="cyan"
               onClick={() => setFilter("internal")}
               active={filter === "internal"}
             />
             <Stat
-              label="External"
+              label={t("filterExternal")}
               value={result.externalCount}
               tone="amber"
               onClick={() => setFilter("external")}
               active={filter === "external"}
             />
             <Stat
-              label="Nofollow"
+              label={t("filterNofollow")}
               value={result.nofollowCount}
               tone="rose"
               onClick={() => setFilter("nofollow")}
@@ -139,10 +150,9 @@ export default function LinkCheckerPage() {
 
           {result.topAnchors.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-              <h2 className="text-base font-semibold">Top anchor texts</h2>
+              <h2 className="text-base font-semibold">{t("topAnchors")}</h2>
               <p className="text-[11px] text-muted-foreground">
-                Heavy repetition of one anchor text is a keyword-stuffing
-                smell — vary your anchors.
+                {t("topAnchorsHint")}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {result.topAnchors.map((a) => (
@@ -177,13 +187,13 @@ export default function LinkCheckerPage() {
                           : "rounded-full px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
                       }
                     >
-                      {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+                      {t(FILTER_LABEL_KEY[f])}
                     </button>
                   ),
                 )}
               </div>
               <span className="text-[11px] text-muted-foreground">
-                Showing {visible.length} of {result.totalLinks}
+                {t("showing", { shown: visible.length, total: result.totalLinks })}
               </span>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -197,7 +207,7 @@ export default function LinkCheckerPage() {
                           : "shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 ring-1 ring-inset ring-amber-500/30"
                       }
                     >
-                      {l.scope}
+                      {l.scope === "internal" ? t("scopeInternal") : t("scopeExternal")}
                     </span>
                     {l.nofollow ? (
                       <span className="shrink-0 rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-rose-300 ring-1 ring-inset ring-rose-500/30">

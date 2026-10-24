@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Loader2, Network, TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runPagerank, type PrState } from "./actions";
 
 export function PagerankForm() {
+  const t = useTranslations("tools.ui.pagerank");
   const [state, formAction, pending] = useActionState<PrState | null, FormData>(
     runPagerank,
     null,
@@ -24,7 +26,7 @@ export function PagerankForm() {
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Max pages</span>
+            <span className="text-muted-foreground">{t("maxPages")}</span>
             <input
               name="maxPages"
               type="number"
@@ -42,12 +44,12 @@ export function PagerankForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Crawling + computing…
+                {t("running")}
               </>
             ) : (
               <>
                 <Network className="mr-2 size-3" />
-                Simulate
+                {t("submit")}
               </>
             )}
           </button>
@@ -63,23 +65,23 @@ export function PagerankForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Pages crawled" value={state.result.totalPages.toString()} />
-            <Stat label="Internal links" value={state.result.totalLinks.toString()} />
-            <Stat label="Iterations" value={`${state.result.iterations} (d=${state.result.damping})`} />
+            <Stat label={t("pagesCrawled")} value={state.result.totalPages.toString()} />
+            <Stat label={t("internalLinks")} value={state.result.totalLinks.toString()} />
+            <Stat label={t("iterations")} value={`${state.result.iterations} (d=${state.result.damping})`} />
           </div>
 
           <Section
-            title="Authority hubs"
+            title={t("hubsTitle")}
             icon={<TrendingUp className="size-4 text-emerald-300" />}
-            note="Pages with the highest computed PageRank — these power the rest of your site."
+            note={t("hubsNote")}
             rows={state.result.hubs}
             tone="emerald"
           />
 
           <Section
-            title="Starved pages"
+            title={t("starvedTitle")}
             icon={<TrendingDown className="size-4 text-rose-300" />}
-            note="Bottom-PR pages with ≤1 inbound link. Add internal links to these from your hubs."
+            note={t("starvedNote")}
             rows={state.result.starved}
             tone="rose"
           />
@@ -102,6 +104,7 @@ function Section({
   rows: import("@/lib/pagerank").PageRankRow[];
   tone: "emerald" | "rose";
 }) {
+  const t = useTranslations("tools.ui.pagerank");
   if (rows.length === 0) return null;
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -128,7 +131,7 @@ function Section({
               {r.title}
             </a>
             <span className="shrink-0 text-muted-foreground tabular-nums">
-              in {r.inbound} · out {r.outbound} ·{" "}
+              {t("inOut", { inbound: r.inbound, outbound: r.outbound })} ·{" "}
               <span className={tone === "emerald" ? "text-emerald-300" : "text-rose-300"}>
                 {r.pagerankPct.toFixed(0)}%
               </span>

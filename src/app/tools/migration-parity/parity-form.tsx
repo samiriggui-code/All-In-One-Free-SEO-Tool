@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { GitMerge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runParity, type ParityState } from "./actions";
 
 const TONE: Record<string, string> = {
@@ -12,7 +13,18 @@ const TONE: Record<string, string> = {
   error: "bg-white/5 text-muted-foreground ring-white/10",
 };
 
+const OUTCOME_LABEL_KEY: Record<string, string> = {
+  ok: "outcomeOk",
+  redirected_to_unrelated: "outcomeRedirectedToUnrelated",
+  "404": "outcome404",
+  "5xx": "outcome5xx",
+  error: "outcomeError",
+};
+
 export function ParityForm() {
+  const t = useTranslations("tools.ui.migration-parity");
+  const outcomeLabel = (k: string) =>
+    OUTCOME_LABEL_KEY[k] ? t(OUTCOME_LABEL_KEY[k]) : k;
   const [state, formAction, pending] = useActionState<
     ParityState | null,
     FormData
@@ -26,11 +38,11 @@ export function ParityForm() {
       >
         <input
           name="newDomain"
-          placeholder="new domain (optional, e.g. newsite.com — used to flag redirects that drift off-host)"
+          placeholder={t("newDomainPlaceholder")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Old URLs (1 per line, max 500)</span>
+          <span className="text-muted-foreground">{t("oldUrlsLabel")}</span>
           <textarea
             name="oldUrls"
             required
@@ -48,12 +60,12 @@ export function ParityForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Auditing…
+              {t("running")}
             </>
           ) : (
             <>
               <GitMerge className="mr-2 size-4" />
-              Audit parity
+              {t("submit")}
             </>
           )}
         </button>
@@ -74,7 +86,7 @@ export function ParityForm() {
                 className="rounded-xl border border-white/5 bg-black/20 px-4 py-3"
               >
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {k}
+                  {outcomeLabel(k)}
                 </div>
                 <div className="mt-1 text-2xl font-semibold tabular-nums">
                   {v}
@@ -88,11 +100,11 @@ export function ParityForm() {
               <table className="w-full text-xs">
                 <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2 text-left">Old URL</th>
-                    <th className="px-4 py-2 text-left">Outcome</th>
-                    <th className="px-4 py-2 text-right">Status</th>
-                    <th className="px-4 py-2 text-right">Hops</th>
-                    <th className="px-4 py-2 text-left">Notes</th>
+                    <th className="px-4 py-2 text-left">{t("colOldUrl")}</th>
+                    <th className="px-4 py-2 text-left">{t("colOutcome")}</th>
+                    <th className="px-4 py-2 text-right">{t("colStatus")}</th>
+                    <th className="px-4 py-2 text-right">{t("colHops")}</th>
+                    <th className="px-4 py-2 text-left">{t("colNotes")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -103,7 +115,7 @@ export function ParityForm() {
                         <span
                           className={`rounded-full px-2 py-0.5 text-[9px] uppercase tracking-wider ring-1 ring-inset ${TONE[r.outcome]}`}
                         >
-                          {r.outcome}
+                          {outcomeLabel(r.outcome)}
                         </span>
                       </td>
                       <td className="px-4 py-1.5 text-right tabular-nums">

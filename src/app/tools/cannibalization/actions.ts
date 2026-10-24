@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { fetchGscPerformance } from "@/lib/google-oauth";
@@ -63,8 +64,9 @@ export async function runCannibalScan(
   formData: FormData,
 ): Promise<CannibalState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.cannibalization");
   const siteUrl = String(formData.get("site") ?? "").trim();
-  if (!siteUrl) return { ok: false, error: "Pick a GSC property." };
+  if (!siteUrl) return { ok: false, error: t("pickProperty") };
 
   try {
     const rows = await fetchGscPerformance({
@@ -158,7 +160,7 @@ export async function runCannibalScan(
       },
     };
   } catch (e) {
-    const message = e instanceof Error ? e.message : "GSC fetch failed.";
+    const message = e instanceof Error ? e.message : t("gscFetchFailed");
     return { ok: false, error: message };
   }
 }

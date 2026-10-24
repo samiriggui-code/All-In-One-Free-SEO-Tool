@@ -3,9 +3,19 @@
 import { useActionState, useState } from "react";
 import { usePresetUrl } from "@/components/use-preset-url";
 import { Camera, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runRender, type RenderState } from "./actions";
 
+const TAB_LABEL_KEY = {
+  screenshot: "tabScreenshot",
+  html: "tabHtml",
+  headers: "tabHeaders",
+  console: "tabConsole",
+} as const;
+
 export function RenderForm() {
+  const t = useTranslations("tools.ui.render");
+  const tCommon = useTranslations("tools.common");
   // Prefilled when opened from a client, so the domain is not retyped.
   const presetUrl = usePresetUrl();
   const [state, formAction, pending] = useActionState<
@@ -24,7 +34,7 @@ export function RenderForm() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">URL</span>
+            <span className="text-muted-foreground">{tCommon("urlLabel")}</span>
             <input
               name="url"
               defaultValue={presetUrl}
@@ -35,26 +45,26 @@ export function RenderForm() {
           </label>
           <div className="grid grid-cols-3 gap-2">
             <label className="space-y-1 text-xs">
-              <span className="text-muted-foreground">Device</span>
+              <span className="text-muted-foreground">{t("device")}</span>
               <select
                 name="device"
                 defaultValue="desktop"
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-2 text-sm"
               >
-                <option value="desktop">Desktop</option>
-                <option value="mobile">Mobile</option>
+                <option value="desktop">{t("desktop")}</option>
+                <option value="mobile">{t("mobile")}</option>
               </select>
             </label>
             <label className="space-y-1 text-xs">
-              <span className="text-muted-foreground">Wait</span>
+              <span className="text-muted-foreground">{t("wait")}</span>
               <select
                 name="waitUntil"
                 defaultValue="load"
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-2 text-sm"
               >
                 <option value="domcontentloaded">DOM</option>
-                <option value="load">Load</option>
-                <option value="networkidle">Idle</option>
+                <option value="load">{t("waitLoad")}</option>
+                <option value="networkidle">{t("waitIdle")}</option>
               </select>
             </label>
             <label className="flex items-end space-y-1 text-xs">
@@ -64,7 +74,7 @@ export function RenderForm() {
                 defaultChecked
                 className="mr-2 size-4"
               />
-              <span>Full page</span>
+              <span>{t("fullPage")}</span>
             </label>
           </div>
         </div>
@@ -76,12 +86,12 @@ export function RenderForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Rendering in Chrome…
+              {t("running")}
             </>
           ) : (
             <>
               <Camera className="mr-2 size-4" />
-              Capture
+              {t("submit")}
             </>
           )}
         </button>
@@ -99,7 +109,7 @@ export function RenderForm() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-base font-semibold">
-                  {state.result.page.title ?? "(no title)"}
+                  {state.result.page.title ?? t("noTitle")}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground truncate">
                   {state.result.finalUrl ?? state.result.url}
@@ -107,7 +117,7 @@ export function RenderForm() {
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[10px]">
                 <Tag>
-                  status{" "}
+                  {t("tagStatus")}{" "}
                   <span
                     className={
                       state.result.status && state.result.status < 400
@@ -119,20 +129,19 @@ export function RenderForm() {
                   </span>
                 </Tag>
                 <Tag>
-                  load {state.result.loadMs ?? "—"}
-                  ms
+                  {t("tagLoad", { ms: String(state.result.loadMs ?? "—") })}
                 </Tag>
-                <Tag>links {state.result.page.linkCount}</Tag>
-                <Tag>imgs {state.result.page.imageCount}</Tag>
-                <Tag>scripts {state.result.page.scriptCount}</Tag>
+                <Tag>{t("tagLinks", { count: state.result.page.linkCount })}</Tag>
+                <Tag>{t("tagImages", { count: state.result.page.imageCount })}</Tag>
+                <Tag>{t("tagScripts", { count: state.result.page.scriptCount })}</Tag>
                 {state.result.consoleErrors.length > 0 && (
                   <Tag tone="rose">
-                    {state.result.consoleErrors.length} console err
+                    {t("tagConsoleErrors", { count: state.result.consoleErrors.length })}
                   </Tag>
                 )}
                 {state.result.networkErrors.length > 0 && (
                   <Tag tone="rose">
-                    {state.result.networkErrors.length} net err
+                    {t("tagNetworkErrors", { count: state.result.networkErrors.length })}
                   </Tag>
                 )}
               </div>
@@ -140,7 +149,7 @@ export function RenderForm() {
 
             {state.result.redirects.length > 0 && (
               <div className="text-xs text-muted-foreground">
-                Redirect chain ({state.result.redirects.length}):{" "}
+                {t("redirectChain", { count: state.result.redirects.length })}{" "}
                 {state.result.redirects.map((r, i) => (
                   <span key={i}>
                     <code className="rounded bg-white/5 px-1.5 py-0.5">
@@ -155,12 +164,12 @@ export function RenderForm() {
             {state.result.page.schemaTypes.length > 0 && (
               <div className="text-xs">
                 <span className="text-muted-foreground">Schema: </span>
-                {state.result.page.schemaTypes.map((t) => (
+                {state.result.page.schemaTypes.map((type) => (
                   <span
-                    key={t}
+                    key={type}
                     className="ml-1 rounded-md bg-violet-500/10 px-1.5 py-0.5 text-violet-200 ring-1 ring-inset ring-violet-500/30"
                   >
-                    {t}
+                    {type}
                   </span>
                 ))}
               </div>
@@ -170,18 +179,18 @@ export function RenderForm() {
           {/* Tabs */}
           <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
             {(["screenshot", "html", "headers", "console"] as const).map(
-              (t) => (
+              (key) => (
                 <button
-                  key={t}
+                  key={key}
                   type="button"
-                  onClick={() => setTab(t)}
+                  onClick={() => setTab(key)}
                   className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
-                    tab === t
+                    tab === key
                       ? "border-cyan-400 text-cyan-300"
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {t}
+                  {t(TAB_LABEL_KEY[key])}
                 </button>
               ),
             )}
@@ -192,14 +201,14 @@ export function RenderForm() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={state.result.screenshot}
-                alt="rendered page"
+                alt={t("screenshotAlt")}
                 className="w-full rounded-lg ring-1 ring-inset ring-white/5"
               />
             </section>
           )}
           {tab === "screenshot" && !state.result.screenshot && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm text-muted-foreground">
-              No screenshot captured.
+              {t("noScreenshot")}
             </section>
           )}
 
@@ -213,7 +222,7 @@ export function RenderForm() {
 
           {tab === "headers" && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-              <h3 className="mb-3 text-sm font-semibold">Response headers</h3>
+              <h3 className="mb-3 text-sm font-semibold">{t("responseHeaders")}</h3>
               <div className="space-y-1 text-xs">
                 {Object.entries(state.result.responseHeaders).map(([k, v]) => (
                   <div
@@ -234,14 +243,14 @@ export function RenderForm() {
               state.result.consoleWarnings.length === 0 &&
               state.result.networkErrors.length === 0 ? (
                 <p className="text-sm text-emerald-300">
-                  No console / network issues during page load. ✓
+                  {t("noIssues")} ✓
                 </p>
               ) : (
                 <>
                   {state.result.consoleErrors.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold text-rose-300">
-                        Console errors ({state.result.consoleErrors.length})
+                        {t("consoleErrors", { count: state.result.consoleErrors.length })}
                       </h3>
                       <ul className="space-y-1 text-xs">
                         {state.result.consoleErrors.map((c, i) => (
@@ -258,8 +267,7 @@ export function RenderForm() {
                   {state.result.consoleWarnings.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold text-amber-300">
-                        Console warnings (
-                        {state.result.consoleWarnings.length})
+                        {t("consoleWarnings", { count: state.result.consoleWarnings.length })}
                       </h3>
                       <ul className="space-y-1 text-xs">
                         {state.result.consoleWarnings.slice(0, 10).map((c, i) => (
@@ -276,7 +284,7 @@ export function RenderForm() {
                   {state.result.networkErrors.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-sm font-semibold text-rose-300">
-                        Network failures ({state.result.networkErrors.length})
+                        {t("networkFailures", { count: state.result.networkErrors.length })}
                       </h3>
                       <ul className="space-y-1 text-xs">
                         {state.result.networkErrors.map((e, i) => (
