@@ -560,21 +560,3 @@ html[data-ui-mode="pro"] {
 html[data-embed="1"] main {
   padding: 1rem !important;
 }
-
-/* Audit report status tabs (components/audits/report-filters.tsx). */
-.engine-report[data-filter="fail"] [data-status]:not([data-status="fail"]),
-.engine-report[data-filter="warn"] [data-status]:not([data-status="warn"]),
-.engine-report[data-filter="pass"] [data-status]:not([data-status="pass"]),
-.engine-report[data-filter="not-measured"] [data-status]:not([data-status="not-measured"]) {
-  display: none;
-}
-.engine-report[data-filter="fail"] [data-category]:not(:has([data-status="fail"])),
-.engine-report[data-filter="warn"] [data-category]:not(:has([data-status="warn"])),
-.engine-report[data-filter="pass"] [data-category]:not(:has([data-status="pass"])),
-.engine-report[data-filter="not-measured"] [data-category]:not(:has([data-status="not-measured"])) {
-  display: none;
-}
-.engine-report[data-filter="fail"] details[data-quiet],
-.engine-report[data-filter="warn"] details[data-quiet] {
-  display: none;
-}

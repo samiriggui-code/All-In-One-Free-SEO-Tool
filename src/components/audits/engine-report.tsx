@@ -5,12 +5,16 @@ import type { CategoryRow, EngineReport, RuleRow } from "@/lib/engine-report";
 import { verdictForScore } from "@/lib/seomator-meta";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { setStatusForType } from "@/app/audits/issue-actions";
-import { ReportFilters } from "./report-filters";
+import { ReportLayout, type ReportNavGroup } from "./report-layout";
 
 /**
- * The engine's results, laid out like SEOmator's HTML report: summary,
- * page snapshot, what to fix first, then every rule by category.
+ * The engine's results, laid out like SEOmator's HTML report and read like a
+ * Settings page: a sidebar lists every section of the audit (the summary,
+ * the analysed page, each rule category, then SEO Tool's own checks) and the
+ * section picked in it fills the rest of the page.
  */
+
+export type ExtraSection = { id: string; label: string; count?: number; content: React.ReactNode };
 
 const PASS_THRESHOLD = 70;
 
@@ -72,6 +76,8 @@ export async function EngineReportView({
   issuesCount,
   badge,
   afterSnapshot,
+  preview,
+  extra = [],
 }: {
   report: EngineReport;
   auditId: number;
@@ -80,8 +86,12 @@ export async function EngineReportView({
   pagesCrawled: number | null;
   issuesCount: number;
   badge: React.ReactNode;
-  /** Rendered between the page snapshot and the fix-first list (CWV, caps) */
+  /** Rendered under the page snapshot (CWV, caps) */
   afterSnapshot?: React.ReactNode;
+  /** The landing page screenshot, when the audit rendered one */
+  preview?: React.ReactNode;
+  /** SEO Tool's own sections (GEO, its checks), listed after the categories */
+  extra?: ExtraSection[];
 }) {
   const t = await getTranslations("audits.report");
   const ogImage = report.page?.og.image ? absoluteUrl(report.page.og.image, report.pages[0]) : null;
@@ -98,8 +108,10 @@ export async function EngineReportView({
     { id: "total", label: t("total"), value: report.totals.total, tone: "text-foreground" },
   ];
 
-  return (
-    <div className="space-y-6">
+  const catLabel = (c: CategoryRow) => (t.has(`cat.${c.id}`) ? t(`cat.${c.id}`) : c.name);
+
+  const overview = (
+    <>
       {/* SUMMARY */}
       <section className="flex flex-col gap-6 rounded-2xl border border-white/5 bg-card/40 p-6 backdrop-blur-md sm:flex-row sm:items-center">
         <ScoreGauge score={report.score} size={140} label={verdict.label} />
@@ -137,7 +149,15 @@ export async function EngineReportView({
         </div>
       </section>
 
-      {/* PAGE SNAPSHOT */}
+      <CategoryScores report={report} label={catLabel} t={t} />
+
+      <FixFirst report={report} multiPage={multiPage} issueTotal={issueTotal} label={catLabel} t={t} />
+    </>
+  );
+
+  const snapshot = (
+    <>
+      {preview}
       {report.page ? (
         <>
           <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md sm:grid-cols-6">
@@ -219,137 +239,152 @@ export async function EngineReportView({
       ) : null}
 
       {afterSnapshot}
+    </>
+  );
 
-      {/* FIX THESE FIRST */}
-      {report.top.length > 0 ? (
-        <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
-          <h2 className="border-b border-white/5 px-5 py-3 text-sm font-semibold">
-            {t("fixFirst", { count: report.top.length, total: issueTotal })}
-          </h2>
-          <table className="w-full text-sm">
-            <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-              <tr className="border-b border-white/5">
-                <th className="px-5 py-2 font-medium">{t("issue")}</th>
-                {multiPage ? <th className="px-3 py-2 font-medium">{t("pagesCol")}</th> : null}
-                <th className="px-5 py-2 font-medium">{t("severity")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {report.top.map((r) => {
-                const pages = new Set(r.findings.flatMap((f) => f.pages));
-                return (
-                  <tr key={r.ruleId}>
-                    <td className="px-5 py-2.5">
-                      <a href={`#rule-${r.ruleId}`} className="flex items-center gap-3 hover:underline">
-                        <StatusIcon status={r.status} />
-                        <span>
-                          <span className="block">{r.name}</span>
-                          <span className="block text-xs text-muted-foreground">{r.categoryName}</span>
-                        </span>
-                      </a>
-                    </td>
-                    {multiPage ? (
-                      <td className="px-3 py-2.5 text-xs text-muted-foreground">
-                        {pages.size === 1 ? shortUrl([...pages][0]) : pages.size > 1 ? t("pagesCount", { count: pages.size }) : "—"}
-                      </td>
-                    ) : null}
-                    <td className="px-5 py-2.5">
-                      <span
-                        className={`rounded px-2 py-0.5 font-mono text-xs ring-1 ring-inset ${
-                          r.status === "fail" ? "bg-rose-500/15 text-rose-200 ring-rose-400/30" : "bg-amber-500/15 text-amber-200 ring-amber-400/30"
-                        }`}
-                      >
-                        {r.status === "fail" ? t("critical") : t("warning")}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </section>
-      ) : null}
+  const groups: ReportNavGroup[] = [
+    {
+      label: t("navOverview"),
+      items: [
+        { id: "overview", label: t("navSummary"), fail: report.totals.fail, warn: report.totals.warn },
+        { id: "page", label: multiPage ? t("navStartPage") : t("navPage") },
+      ],
+    },
+    {
+      label: t("navCategories", { count: report.categories.length }),
+      items: report.categories.map((c) => ({
+        id: `cat-${c.id}`,
+        label: catLabel(c),
+        score: c.score,
+        fail: c.counts.fail,
+        warn: c.counts.warn,
+      })),
+    },
+  ];
+  if (extra.length) {
+    groups.push({ label: t("navSeoTool"), items: extra.map((e) => ({ id: e.id, label: e.label, warn: e.count })) });
+  }
 
-      {/* EVERY RULE, BY CATEGORY */}
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <nav className="hidden lg:block">
-          <div className="sticky top-20 space-y-0.5">
-            <div className="px-2 pb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              {t("categories")}
-            </div>
-            {report.categories.map((c) => {
-              const n = c.counts.fail + c.counts.warn;
-              return (
-                <a
-                  key={c.id}
-                  href={`#cat-${c.id}`}
-                  className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                >
-                  <span className="truncate">{c.name}</span>
-                  {n > 0 ? (
-                    <span
-                      className={`rounded px-1.5 text-[11px] tabular-nums ${
-                        c.counts.fail > 0 ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300"
-                      }`}
-                    >
-                      {n}
-                    </span>
-                  ) : null}
-                </a>
-              );
-            })}
-          </div>
-        </nav>
-
-        <ReportFilters
-          label={t("filterByStatus")}
-          tabs={[
-            { id: "all", label: t("all"), count: report.totals.total },
-            { id: "fail", label: t("failures"), count: report.totals.fail },
-            { id: "warn", label: t("warnings"), count: report.totals.warn },
-            { id: "pass", label: t("passed"), count: report.totals.pass },
-            { id: "not-measured", label: t("notMeasured"), count: report.totals["not-measured"] },
-          ]}
-        >
-          <section className="rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
-            <h2 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              {t("categoryScores")}
-            </h2>
-            <div className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
-              {report.categories.map((c) => {
-                const tone = scoreTone(c.score);
-                return (
-                  <a key={c.id} href={`#cat-${c.id}`} className="grid grid-cols-[minmax(0,1fr)_80px_40px] items-center gap-3 text-sm hover:text-foreground">
-                    <span className="truncate text-muted-foreground">{c.name}</span>
-                    <span className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <span className={`block h-full rounded-full ${tone.bar}`} style={{ width: `${c.score}%` }} />
-                    </span>
-                    <span className={`text-right font-mono text-xs ${tone.text}`}>{c.score}%</span>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
-
-          {report.categories.map((c) => (
-            <CategoryCard key={c.id} category={c} auditId={auditId} activeTypes={activeTypes} multiPage={multiPage} t={t} />
-          ))}
-        </ReportFilters>
-      </div>
-    </div>
+  return (
+    <ReportLayout
+      navLabel={t("navAria")}
+      groups={groups}
+      panels={[
+        { id: "overview", content: overview },
+        { id: "page", content: snapshot },
+        ...report.categories.map((c) => ({
+          id: `cat-${c.id}`,
+          content: (
+            <CategoryCard category={c} name={catLabel(c)} auditId={auditId} activeTypes={activeTypes} multiPage={multiPage} t={t} />
+          ),
+        })),
+        ...extra.map((e) => ({ id: e.id, content: e.content })),
+      ]}
+    />
   );
 }
 
 type T = Awaited<ReturnType<typeof getTranslations<"audits.report">>>;
 
+function CategoryScores({ report, label, t }: { report: EngineReport; label: (c: CategoryRow) => string; t: T }) {
+  return (
+    <section className="rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
+      <h2 className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        {t("categoryScores")}
+      </h2>
+      <div className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
+        {report.categories.map((c) => {
+          const tone = scoreTone(c.score);
+          return (
+            <a key={c.id} href={`#cat-${c.id}`} className="grid grid-cols-[minmax(0,1fr)_80px_40px] items-center gap-3 text-sm hover:text-foreground">
+              <span className="truncate text-muted-foreground">{label(c)}</span>
+              <span className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                <span className={`block h-full rounded-full ${tone.bar}`} style={{ width: `${c.score}%` }} />
+              </span>
+              <span className={`text-right font-mono text-xs ${tone.text}`}>{c.score}%</span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function FixFirst({
+  report,
+  multiPage,
+  issueTotal,
+  label,
+  t,
+}: {
+  report: EngineReport;
+  multiPage: boolean;
+  issueTotal: number;
+  label: (c: CategoryRow) => string;
+  t: T;
+}) {
+  if (report.top.length === 0) return null;
+  const names = new Map(report.categories.map((c) => [c.id, label(c)]));
+  return (
+    <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
+      <h2 className="border-b border-white/5 px-5 py-3 text-sm font-semibold">
+        {t("fixFirst", { count: report.top.length, total: issueTotal })}
+      </h2>
+      <table className="w-full text-sm">
+        <thead className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+          <tr className="border-b border-white/5">
+            <th className="px-5 py-2 font-medium">{t("issue")}</th>
+            {multiPage ? <th className="px-3 py-2 font-medium">{t("pagesCol")}</th> : null}
+            <th className="px-5 py-2 font-medium">{t("severity")}</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/5">
+          {report.top.map((r) => {
+            const pages = new Set(r.findings.flatMap((f) => f.pages));
+            return (
+              <tr key={r.ruleId}>
+                <td className="px-5 py-2.5">
+                  <a href={`#rule-${r.ruleId}`} className="flex items-center gap-3 hover:underline">
+                    <StatusIcon status={r.status} />
+                    <span>
+                      <span className="block">{r.name}</span>
+                      <span className="block text-xs text-muted-foreground">{names.get(r.categoryId) ?? r.categoryName}</span>
+                    </span>
+                  </a>
+                </td>
+                {multiPage ? (
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                    {pages.size === 1 ? shortUrl([...pages][0]) : pages.size > 1 ? t("pagesCount", { count: pages.size }) : "—"}
+                  </td>
+                ) : null}
+                <td className="px-5 py-2.5">
+                  <span
+                    className={`rounded px-2 py-0.5 font-mono text-xs ring-1 ring-inset ${
+                      r.status === "fail" ? "bg-rose-500/15 text-rose-200 ring-rose-400/30" : "bg-amber-500/15 text-amber-200 ring-amber-400/30"
+                    }`}
+                  >
+                    {r.status === "fail" ? t("critical") : t("warning")}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 function CategoryCard({
   category: c,
+  name,
   auditId,
   activeTypes,
   multiPage,
   t,
 }: {
   category: CategoryRow;
+  name: string;
   auditId: number;
   activeTypes: Set<string>;
   multiPage: boolean;
@@ -357,10 +392,10 @@ function CategoryCard({
 }) {
   const tone = scoreTone(c.score);
   return (
-    <section id={`cat-${c.id}`} data-category={c.id} className="scroll-mt-24 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
+    <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 px-5 py-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold">{c.name}</h2>
+          <h2 className="text-base font-semibold">{name}</h2>
           <span className={`rounded-md px-2 py-0.5 font-mono text-sm ring-1 ring-inset ${tone.pill}`}>{c.score}/100</span>
         </div>
         <div className="flex flex-wrap gap-3 text-xs">
@@ -380,13 +415,13 @@ function CategoryCard({
       </ul>
 
       {c.quiet.length > 0 ? (
-        <details data-quiet className="group border-t border-white/5">
+        <details className="group border-t border-white/5">
           <summary className="cursor-pointer px-5 py-2.5 text-sm text-muted-foreground hover:text-foreground">
             {t("quiet", { count: c.quiet.length })}
           </summary>
           <ul className="divide-y divide-white/5 border-t border-white/5">
             {c.quiet.map((r) => (
-              <li key={r.ruleId} data-status={r.status} className="flex items-center gap-3 px-5 py-2 text-sm">
+              <li key={r.ruleId} className="flex items-center gap-3 px-5 py-2 text-sm">
                 <StatusIcon status={r.status} />
                 <span>{r.name}</span>
                 <span className="font-mono text-[11px] text-muted-foreground">{r.ruleId}</span>
@@ -418,7 +453,7 @@ function RuleItem({
 }) {
   const type = `seomator:${r.ruleId}`;
   return (
-    <li id={`rule-${r.ruleId}`} data-status={r.status} className="scroll-mt-24 px-5 py-4">
+    <li id={`rule-${r.ruleId}`} className="scroll-mt-24 px-5 py-4">
       <div className="flex gap-3">
         <StatusIcon status={r.status} />
         <div className="min-w-0 flex-1 space-y-1.5">

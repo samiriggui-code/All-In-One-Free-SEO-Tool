@@ -381,131 +381,7 @@ export default async function AuditDetailPage({
     </>
   );
 
-  return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
-      {/* HERO */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 px-6 py-7 backdrop-blur-md">
-        <div className="pointer-events-none absolute -left-20 -top-20 size-72 rounded-full bg-gradient-to-br from-cyan-500/30 to-violet-500/15 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-16 -bottom-16 size-56 rounded-full bg-fuchsia-500/15 blur-[80px]" />
-
-        <nav className="relative flex items-center gap-1 text-xs text-muted-foreground">
-          <Link
-            href="/clients"
-            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
-          >
-            {t("breadcrumbClients")}
-          </Link>
-          <span>/</span>
-          <Link
-            href={`/clients/${client.id}`}
-            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
-          >
-            {client.name}
-          </Link>
-          <span>/</span>
-          <span className="text-foreground">{t("auditNumber", { id: audit.id })}</span>
-        </nav>
-
-        <div className="relative z-10 mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-400/30">
-                <ClipboardList className="size-5 text-cyan-300" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  <span className="text-gradient-brand">{t("resultsTitle")}</span>
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {audit.completedAt
-                    ? t("completedAt", {
-                        date: audit.completedAt.toLocaleString(),
-                      })
-                    : t("startedAt", {
-                        date: (audit.startedAt ?? audit.createdAt).toLocaleString(),
-                      })}{" "}
-                  · {client.name}
-                  {" · "}
-                  {audit.kind === "seomator"
-                    ? t("seomatorKind")
-                    : audit.kind === "ai_full"
-                      ? t("aiKind")
-                      : audit.mode === "full"
-                        ? t("fullKind")
-                        : audit.mode === "quick"
-                          ? t("quickKind")
-                          : t("crawlerKind")}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={`/clients/${client.id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-              >
-                <ExternalLink className="size-3" />
-                View client
-              </Link>
-              {hasEngine && audit.status === "completed" ? (
-                <>
-                  <Link
-                    href={`/audits/${auditId}/export?format=markdown`}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                  >
-                    Export Markdown
-                  </Link>
-                  <Link
-                    href={`/audits/${auditId}/export?format=llm`}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                  >
-                    Export LLM
-                  </Link>
-                  <Link
-                    href={`/audits/c/${client.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                  >
-                    All audits
-                  </Link>
-                </>
-              ) : null}
-            </div>
-          </div>
-
-          {!report ? (
-            <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
-              <div className="origin-center scale-90 sm:scale-100">
-                <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Health score
-                </div>
-                <div className="text-sm font-medium">
-                  {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
-                  {pagesCrawled !== null
-                    ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
-                    : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {audit.status === "completed"
-                    ? verdict
-                      ? `${verdict.grade} · ${verdict.label}`
-                      : "Out of 100"
-                    : audit.status}
-                </div>
-                {/* The number most likely to end up in front of a client,
-                    and the one whose basis is least obvious. It describes
-                    what our crawler saw on the pages it reached — not
-                    what Google has indexed, and not every page on the
-                    site. */}
-                {sourceBadge}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {showLandingPreview ? (
+  const landingPreview = showLandingPreview ? (
         <section className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -517,89 +393,19 @@ export default async function AuditDetailPage({
             Landing page as rendered during the audit (Playwright).
           </p>
         </section>
-      ) : null}
+      ) : null;
 
-      {report ? (
-        <EngineReportView
-          report={report}
-          auditId={auditId}
-          activeTypes={new Set(issues.map((i) => i.type))}
-          pagesCrawled={pagesCrawled}
-          issuesCount={audit.issuesCount}
-          badge={sourceBadge}
-          afterSnapshot={measured}
-        />
-      ) : null}
-
-      {!report ? measured : null}
-
-      {!report && hasEngine && audit.status === "completed" ? (
-        <SeomatorGeoPanel
-          categoryScores={audit.categoryScores}
-          geoIssues={geoIssues}
-        />
-      ) : null}
-
-      {audit.status === "completed" &&
+  const geoPanel = audit.status === "completed" &&
       (audit.geoScore != null || audit.geoEnvelopeJson) ? (
         <GeoAuditPanel
           geoScore={audit.geoScore}
           envelope={audit.geoEnvelopeJson}
         />
-      ) : null}
+      ) : null;
 
-      {report ? null : hasEngine && audit.categoryScores ? (
-        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
-          <h2 className="text-sm font-semibold tracking-tight">
-            Category scores
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            20 weighted categories, 373 rules. Lowest scores first.
-          </p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {Object.entries(audit.categoryScores)
-              .sort(([, a], [, b]) => a.score - b.score)
-              .map(([cat, vals]) => {
-                const tone =
-                  vals.fail > 0
-                    ? "text-rose-300"
-                    : vals.warn > 0
-                      ? "text-amber-300"
-                      : "text-emerald-300";
-                return (
-                  <div
-                    key={cat}
-                    className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"
-                  >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[11px] font-medium tracking-wide text-muted-foreground">
-                        {categoryLabel(cat)}
-                      </span>
-                      <span className={`text-lg font-semibold tabular-nums ${tone}`}>
-                        {vals.score}
-                      </span>
-                    </div>
-                    <div className="mt-1 flex gap-2 text-[10px] text-muted-foreground">
-                      <span>{vals.pass} pass</span>
-                      <span>{vals.warn} warn</span>
-                      <span>{vals.fail} fail</span>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </section>
-      ) : hasEngine && audit.summary ? (
-        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
-          <h2 className="text-sm font-semibold tracking-tight">
-            Category breakdown
-          </h2>
-          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-muted-foreground">
-            {audit.summary}
-          </pre>
-        </section>
-      ) : null}
-
+  // SEO Tool's own findings: the ones that feed tasks and the agent.
+  const checks = (
+    <>
       {closedCount > 0 && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-xs text-emerald-200">
           {closedCount} issue{closedCount === 1 ? "" : "s"} marked resolved /
@@ -607,13 +413,6 @@ export default async function AuditDetailPage({
           below.
         </div>
       )}
-
-      {report && sorted.length > 0 ? (
-        <div className="pt-2">
-          <h2 className="text-lg font-semibold tracking-tight">{tr("seoToolChecks")}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">{tr("seoToolChecksHint")}</p>
-        </div>
-      ) : null}
 
       {/* SEVERITY STATS */}
       <div className="grid gap-3 sm:grid-cols-4">
@@ -875,6 +674,230 @@ export default async function AuditDetailPage({
           </section>
         );
       })}
+    </>
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      {/* HERO */}
+      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 px-6 py-7 backdrop-blur-md">
+        <div className="pointer-events-none absolute -left-20 -top-20 size-72 rounded-full bg-gradient-to-br from-cyan-500/30 to-violet-500/15 blur-[100px]" />
+        <div className="pointer-events-none absolute -right-16 -bottom-16 size-56 rounded-full bg-fuchsia-500/15 blur-[80px]" />
+
+        <nav className="relative flex items-center gap-1 text-xs text-muted-foreground">
+          <Link
+            href="/clients"
+            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
+          >
+            {t("breadcrumbClients")}
+          </Link>
+          <span>/</span>
+          <Link
+            href={`/clients/${client.id}`}
+            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
+          >
+            {client.name}
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{t("auditNumber", { id: audit.id })}</span>
+        </nav>
+
+        <div className="relative z-10 mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-400/30">
+                <ClipboardList className="size-5 text-cyan-300" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight">
+                  <span className="text-gradient-brand">{t("resultsTitle")}</span>
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {audit.completedAt
+                    ? t("completedAt", {
+                        date: audit.completedAt.toLocaleString(),
+                      })
+                    : t("startedAt", {
+                        date: (audit.startedAt ?? audit.createdAt).toLocaleString(),
+                      })}{" "}
+                  · {client.name}
+                  {" · "}
+                  {audit.kind === "seomator"
+                    ? t("seomatorKind")
+                    : audit.kind === "ai_full"
+                      ? t("aiKind")
+                      : audit.mode === "full"
+                        ? t("fullKind")
+                        : audit.mode === "quick"
+                          ? t("quickKind")
+                          : t("crawlerKind")}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/clients/${client.id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+              >
+                <ExternalLink className="size-3" />
+                View client
+              </Link>
+              {hasEngine && audit.status === "completed" ? (
+                <>
+                  <Link
+                    href={`/audits/${auditId}/export?format=markdown`}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                  >
+                    Export Markdown
+                  </Link>
+                  <Link
+                    href={`/audits/${auditId}/export?format=llm`}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                  >
+                    Export LLM
+                  </Link>
+                  <Link
+                    href={`/audits/c/${client.id}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                  >
+                    All audits
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          {!report ? (
+            <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
+              <div className="origin-center scale-90 sm:scale-100">
+                <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
+              </div>
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Health score
+                </div>
+                <div className="text-sm font-medium">
+                  {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
+                  {pagesCrawled !== null
+                    ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
+                    : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {audit.status === "completed"
+                    ? verdict
+                      ? `${verdict.grade} · ${verdict.label}`
+                      : "Out of 100"
+                    : audit.status}
+                </div>
+                {/* The number most likely to end up in front of a client,
+                    and the one whose basis is least obvious. It describes
+                    what our crawler saw on the pages it reached — not
+                    what Google has indexed, and not every page on the
+                    site. */}
+                {sourceBadge}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      {report ? (
+        <EngineReportView
+          report={report}
+          auditId={auditId}
+          activeTypes={new Set(issues.map((i) => i.type))}
+          pagesCrawled={pagesCrawled}
+          issuesCount={audit.issuesCount}
+          badge={sourceBadge}
+          afterSnapshot={measured}
+          preview={landingPreview}
+          extra={[
+            ...(geoPanel ? [{ id: "geo", label: tr("navGeo"), content: geoPanel }] : []),
+            {
+              id: "checks",
+              label: tr("navChecks"),
+              count: issues.length,
+              content: (
+                <>
+                  <div>
+                    <h2 className="text-lg font-semibold tracking-tight">{tr("seoToolChecks")}</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">{tr("seoToolChecksHint")}</p>
+                  </div>
+                  {checks}
+                </>
+              ),
+            },
+          ]}
+        />
+      ) : null}
+
+      {report ? null : landingPreview}
+
+
+      {!report ? measured : null}
+
+      {!report && hasEngine && audit.status === "completed" ? (
+        <SeomatorGeoPanel
+          categoryScores={audit.categoryScores}
+          geoIssues={geoIssues}
+        />
+      ) : null}
+
+      {report ? null : geoPanel}
+
+      {report ? null : hasEngine && audit.categoryScores ? (
+        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
+          <h2 className="text-sm font-semibold tracking-tight">
+            Category scores
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            20 weighted categories, 373 rules. Lowest scores first.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {Object.entries(audit.categoryScores)
+              .sort(([, a], [, b]) => a.score - b.score)
+              .map(([cat, vals]) => {
+                const tone =
+                  vals.fail > 0
+                    ? "text-rose-300"
+                    : vals.warn > 0
+                      ? "text-amber-300"
+                      : "text-emerald-300";
+                return (
+                  <div
+                    key={cat}
+                    className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"
+                  >
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="truncate text-[11px] font-medium tracking-wide text-muted-foreground">
+                        {categoryLabel(cat)}
+                      </span>
+                      <span className={`text-lg font-semibold tabular-nums ${tone}`}>
+                        {vals.score}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex gap-2 text-[10px] text-muted-foreground">
+                      <span>{vals.pass} pass</span>
+                      <span>{vals.warn} warn</span>
+                      <span>{vals.fail} fail</span>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </section>
+      ) : hasEngine && audit.summary ? (
+        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
+          <h2 className="text-sm font-semibold tracking-tight">
+            Category breakdown
+          </h2>
+          <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-muted-foreground">
+            {audit.summary}
+          </pre>
+        </section>
+      ) : null}
+
+      {report ? null : checks}
 
       {issues.length === 0 && !report && audit.status === "completed" && (
         <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-6 py-12 text-center backdrop-blur-md">
