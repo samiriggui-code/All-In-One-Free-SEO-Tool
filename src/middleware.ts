@@ -137,6 +137,10 @@ const PUBLIC_PATHS = [
   // writes a lead row. SSRF is refused inside runAudit and the endpoint
   // is rate-limited per IP prefix (see lib/grader-public.ts).
   "/embed/grader",
+  // The public landing page. A signed-out visitor at `/` is sent here
+  // instead of straight to the login form. It shows the agency's
+  // branding and links to /login, and reads no client data.
+  "/accueil",
 ];
 
 /**
@@ -206,6 +210,14 @@ function applyEmbedHeader(req: NextRequest): Headers {
   if (req.nextUrl.pathname.startsWith("/embed/")) {
     requestHeaders.set("x-embed", "1");
   }
+  // And for the public landing page: a stranger must not receive the
+  // sidebar either, and the page draws its own full-screen frame.
+  if (
+    req.nextUrl.pathname === "/accueil" ||
+    req.nextUrl.pathname.startsWith("/accueil/")
+  ) {
+    requestHeaders.set("x-embed", "1");
+  }
   return requestHeaders;
 }
 
@@ -264,6 +276,11 @@ export async function middleware(req: NextRequest) {
 function challenge(req: NextRequest, pathname: string, to: string) {
   // Browser-style request → redirect to the login page.
   const accept = req.headers.get("accept") ?? "";
+  // The root is the front door: a signed-out visitor sees the landing
+  // page first, and signs in from there.
+  if (pathname === "/" && accept.includes("text/html")) {
+    return NextResponse.redirect(new URL("/accueil", req.url));
+  }
   if (accept.includes("text/html")) {
     const url = new URL(to, req.url);
     url.searchParams.set("next", pathname);

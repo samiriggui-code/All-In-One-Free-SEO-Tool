@@ -1628,5 +1628,125 @@
       "invalid": "Vérifiez les champs de la facture.",
       "noLines": "Ajoutez au moins une ligne."
     }
+  },
+  "landing": {
+    "metaTitle": "{name} · Votre bureau SEO complet",
+    "metaDescription": "Audit technique, rédaction, diffusion, devis et suivi : tout le référencement de votre site au même endroit.",
+    "navServices": "Services",
+    "navMethod": "Méthode",
+    "navPortal": "Espace client",
+    "navSignIn": "Se connecter",
+    "heroKicker": "Bureau SEO tout-en-un",
+    "heroTitleStart": "Le référencement de votre site,",
+    "heroTitleAccent": "de l'audit aux résultats.",
+    "heroBody": "Audit technique, rédaction, diffusion, devis et suivi des positions : {name} réunit tout le travail d'une agence SEO au même endroit, avec un espace client où chaque livrable reste consultable.",
+    "heroPrimary": "Accéder à mon espace",
+    "heroSecondary": "Voir les services",
+    "heroTrust": "Vos données restent sur notre propre serveur.",
+    "preview": {
+      "label": "Audit du site",
+      "site": "www.votre-site.fr",
+      "done": "Terminé",
+      "score": "Score",
+      "bars": {
+        "technical": "Technique",
+        "content": "Contenu",
+        "performance": "Performance",
+        "ai": "Visibilité IA"
+      },
+      "issues": {
+        "critical": "critiques",
+        "warning": "à corriger",
+        "notice": "conseils"
+      },
+      "planTitle": "Plan d'action prêt",
+      "planBody": "Corrections classées par priorité",
+      "chip": "Rapport envoyé au client"
+    },
+    "stats": {
+      "rules": {
+        "value": "373",
+        "label": "règles d'audit"
+      },
+      "tools": {
+        "value": "99",
+        "label": "outils SEO"
+      },
+      "languages": {
+        "value": "FR · EN",
+        "label": "rapports bilingues"
+      },
+      "brand": {
+        "value": "100 %",
+        "label": "à nos couleurs"
+      }
+    },
+    "servicesEyebrow": "Services",
+    "servicesTitle": "Tout ce qu'il faut pour être trouvé, au même endroit",
+    "servicesBody": "Chaque étape du référencement est couverte, du diagnostic à la publication, sans jongler entre dix outils.",
+    "services": {
+      "audit": {
+        "title": "Audit technique complet",
+        "body": "373 règles vérifiées page par page : indexation, balises, maillage, vitesse, données structurées et accessibilité, avec un rapport clair."
+      },
+      "rank": {
+        "title": "Positions et mots-clés",
+        "body": "Suivi des positions sur Google, recherche de mots-clés, analyse des concurrents et du référencement local."
+      },
+      "content": {
+        "title": "Rédaction optimisée",
+        "body": "Articles et pages écrits pour vos lecteurs et pour les moteurs : plan, intention de recherche, score de contenu et maillage interne."
+      },
+      "publish": {
+        "title": "Diffusion",
+        "body": "Publication sur WordPress, exports pour votre CMS, posts pour les réseaux sociaux et newsletter, depuis le même espace."
+      },
+      "quote": {
+        "title": "Devis et facturation",
+        "body": "Un devis chiffré à partir des problèmes trouvés par l'audit, puis la facture, sans ressaisie."
+      },
+      "portal": {
+        "title": "Espace client",
+        "body": "Vos rapports, devis, articles et factures en ligne, consultables à tout moment, avec un assistant qui explique les résultats."
+      }
+    },
+    "methodEyebrow": "Méthode",
+    "methodTitle": "Une méthode simple, en quatre étapes",
+    "methodBody": "Vous savez toujours où en est votre site, ce qui a été fait et ce qui vient ensuite.",
+    "steps": {
+      "one": {
+        "title": "Audit",
+        "body": "On analyse votre site en profondeur et on mesure votre visibilité, sur Google comme dans les IA."
+      },
+      "two": {
+        "title": "Plan et devis",
+        "body": "Les problèmes sont classés par gravité. Vous recevez un plan d'action et un devis clair."
+      },
+      "three": {
+        "title": "Corrections et contenus",
+        "body": "On corrige, on rédige et on publie les contenus qui font progresser votre site."
+      },
+      "four": {
+        "title": "Suivi et rapports",
+        "body": "Positions, trafic et score d'audit sont suivis dans le temps, avec des rapports réguliers."
+      }
+    },
+    "portalEyebrow": "Espace client",
+    "portalTitle": "Un espace client clair, sans jargon",
+    "portalBody": "Chaque client dispose de son propre espace sécurisé. Il y retrouve l'avancement de son référencement et tous ses documents, sans avoir à les demander.",
+    "portalPoints": {
+      "reports": "Rapports d'audit et suivi des positions",
+      "quotes": "Devis et factures en ligne",
+      "content": "Articles publiés et livrables",
+      "assistant": "Un assistant qui répond à vos questions"
+    },
+    "aiTitle": "Visible sur Google, et dans les réponses des IA",
+    "aiBody": "Vos clients posent aussi leurs questions à ChatGPT, Perplexity ou Gemini. On mesure si votre site y est cité et on l'optimise pour qu'il le soit.",
+    "ctaTitle": "Prêt à voir où en est votre site ?",
+    "ctaBody": "Connectez-vous pour suivre votre référencement, ou écrivez-nous pour démarrer par un audit.",
+    "ctaPrimary": "Se connecter",
+    "ctaContact": "Nous contacter",
+    "ctaMailSubject": "Demande d'audit SEO",
+    "footerTagline": "Audit, rédaction et suivi SEO."
   }
 }
