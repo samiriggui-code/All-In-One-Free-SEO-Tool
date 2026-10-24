@@ -25,7 +25,17 @@ const safeUrl = (u: string) => !UNSAFE_SCHEME.test(u.replace(/[\u0000-\u0020\u00
 export function markdownToHtml(md: string): string {
   // Escaping first also covers link text and attributes: everything the
   // replacements below copy into the output is already escaped.
-  let html = xmlEscape(md)
+  // Link and image tags are parked behind \u0000 placeholders until the
+  // end, so no later pass (or a link wrapping an image) can rewrite markup
+  // inside an attribute.
+  const tags: string[] = [];
+  const park = (tag: string) => `\u0000${tags.push(tag) - 1}\u0000`;
+  let html = xmlEscape(md.replace(/\u0000/g, ""))
+    .replace(/(!?)\[([^\]]*)\]\(([^)]+)\)/g, (m, bang: string, text: string, url: string) => {
+      if (bang) return safeUrl(url) ? park(`<img src="${url}" alt="${text}">`) : text;
+      if (!text) return m;
+      return safeUrl(url) ? `${park(`<a href="${url}">`)}${text}</a>` : text;
+    })
     .replace(/^#{1}\s+(.+)$/gm, "<h1>$1</h1>")
     .replace(/^#{2}\s+(.+)$/gm, "<h2>$1</h2>")
     .replace(/^#{3}\s+(.+)$/gm, "<h3>$1</h3>")
@@ -33,19 +43,13 @@ export function markdownToHtml(md: string): string {
     .replace(/^- (.+)$/gm, "<li>$1</li>")
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) =>
-      safeUrl(src) ? `<img src="${src}" alt="${alt}">` : alt,
-    )
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text: string, href: string) =>
-      safeUrl(href) ? `<a href="${href}">${text}</a>` : text,
-    );
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
   html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\n<li>)/g, (m) => `<ul>${m}</ul>`);
   html = html
     .split(/\n\s*\n/)
     .map((p) => (p.trim().startsWith("<") ? p : `<p>${p.trim()}</p>`))
     .join("\n\n");
-  return html;
+  return html.replace(/\u0000(\d+)\u0000/g, (_m, i: string) => tags[Number(i)]);
 }
 
 export function xmlEscape(s: string): string {

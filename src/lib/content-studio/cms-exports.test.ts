@@ -74,6 +74,10 @@ describe("CMS exporters", () => {
     expect(markdownToHtml('![The "best" bread](a.png)')).toContain('alt="The &quot;best&quot; bread"');
     expect(markdownToHtml("<script>alert(1)</script>")).toBe("<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
     expect(markdownToHtml("[<img src=x onerror=alert(1)>](https://example.com)")).not.toContain("<img");
+    const nested = markdownToHtml("[go](https://safe/![x](foo onmouseover=alert(1) ))");
+    // The whole destination stays inside one quoted href: no new attribute.
+    expect(nested).toBe('<p><a href="https://safe/![x](foo onmouseover=alert(1">go</a> ))</p>');
+    expect(markdownToHtml("[a](https://x.com/*y*)")).toContain('href="https://x.com/*y*"');
     expect(markdownToHtml("[a](https://example.com/?a=1&b=2)")).toContain('href="https://example.com/?a=1&amp;b=2"');
   });
 });
