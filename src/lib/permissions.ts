@@ -39,16 +39,15 @@ export const OWNER_ONLY_PREFIXES = [
  * tools, the agent and the admin pages are the agency's workbench, not
  * the client's.
  */
+// Not /morning, /digest or /welcome: those summarise the whole agency
+// and are not filtered by client.
 export const VIEWER_PAGES = [
   "/",
-  "/welcome",
   "/clients",
   "/audits",
   "/tasks",
   "/reports",
   "/keywords",
-  "/morning",
-  "/digest",
 ] as const;
 
 /** Requests a viewer may still make that are not plain reads. */

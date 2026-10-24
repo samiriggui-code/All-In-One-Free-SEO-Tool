@@ -16,6 +16,7 @@ import {
   Sparkles,
   TrendingDown,
 } from "lucide-react";
+import { scopedClientIds } from "@/lib/client-scope";
 
 type BriefItem = {
   kind: "page-change" | "audit-issue" | "stale-task" | "decay";
@@ -171,7 +172,10 @@ async function gatherBriefing(): Promise<BriefItem[]> {
     });
   }
 
+  // A member or client viewer only hears about their own clients.
+  const scope = await scopedClientIds();
   return items
+    .filter((it) => scope === null || (it.client !== null && scope.includes(it.client.id)))
     .sort((a, b) => b.detectedAt.getTime() - a.detectedAt.getTime())
     .slice(0, 8);
 }
