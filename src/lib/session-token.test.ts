@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   SESSION_TTL_MS,
@@ -87,9 +88,12 @@ describe("verifySession", () => {
   });
 
   it("rejects tokens from before roles were signed in (v1)", async () => {
+    // A genuine v1 token: no role, correctly signed with the same secret.
     const token = await signSession(claims(), SECRET);
-    const [, id, exp, fp, , sig] = token.split(".");
-    expect(await verifySession(`v1.${id}.${exp}.${fp}.${sig}`, SECRET)).toBeNull();
+    const [, id, exp, fp] = token.split(".");
+    const payload = `v1.${id}.${exp}.${fp}`;
+    const sig = createHmac("sha256", SECRET).update(payload).digest("base64url");
+    expect(await verifySession(`${payload}.${sig}`, SECRET)).toBeNull();
   });
 
   it("rejects junk, empty and missing tokens", async () => {

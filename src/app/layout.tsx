@@ -19,7 +19,7 @@ import { ShortcutsHelpHotkey } from "@/components/shell/shortcuts-help-hotkey";
 import { getUnreadCounts } from "@/lib/unread-counts";
 import { redirect } from "next/navigation";
 import { accountsEnabled, currentUser } from "@/lib/auth";
-import { isAuthPage, PATHNAME_HEADER } from "@/lib/auth-routes";
+import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
@@ -97,8 +97,11 @@ export default async function RootLayout({
   // that fails. That null used to fall through to "solo install": the
   // shell rendered as "Local user" with every tool and every client.
   // With accounts on, null means signed out, so go and sign in.
-  if (accountsEnabled() && !me && !onAuthPage && !isEmbed) {
-    const next = pathname && pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
+  // Not `isEmbed`: `?embed=1` only hides the shell, and any page accepts
+  // it, so it would let a revoked session read any page shell-less.
+  if (accountsEnabled() && !me && !onAuthPage && !isPublicPage(pathname)) {
+    const returnTo = requestHeaders.get(RETURN_TO_HEADER) ?? pathname;
+    const next = returnTo && returnTo !== "/" ? `?next=${encodeURIComponent(returnTo)}` : "";
     redirect(`/login${next}`);
   }
 

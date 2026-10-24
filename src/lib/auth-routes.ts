@@ -18,3 +18,22 @@ export function isAuthPage(pathname: string): boolean {
 
 /** Request header carrying the pathname from middleware to the root layout. */
 export const PATHNAME_HEADER = "x-pathname";
+
+/**
+ * Request header carrying the path plus query string, for the `next=`
+ * the layout sends a signed-out visitor back to after login.
+ */
+export const RETURN_TO_HEADER = "x-return-to";
+
+/**
+ * Pages that are public by design and draw no shell: the client portal
+ * (authenticated by its share token) and the embeddable grader. They are
+ * the only pages a signed-out visitor may see with accounts on.
+ * `?embed=1` hides the shell too, but it is a display switch any URL
+ * can carry, so it must never stand in for this.
+ */
+const PUBLIC_PAGES = ["/portal", "/embed/grader"];
+
+export function isPublicPage(pathname: string): boolean {
+  return PUBLIC_PAGES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}

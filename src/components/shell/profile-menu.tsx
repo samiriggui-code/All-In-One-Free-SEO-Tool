@@ -66,7 +66,9 @@ export function ProfileMenu() {
   const signedOut = status?.mode === "accounts" && !me;
   // Workspace administration is the owner's (see lib/permissions.ts);
   // without accounts there is nobody else, so the menu shows it all.
-  const isOwner = !signedOut && (!me || me.role === "owner");
+  // Until the status has loaded (or if it fails) nobody is assumed to
+  // be the owner.
+  const isOwner = status !== null && !signedOut && (!me || me.role === "owner");
   const isViewer = me?.role === "viewer";
   const initial = (me?.name || me?.email || "P").trim().charAt(0).toUpperCase();
 
