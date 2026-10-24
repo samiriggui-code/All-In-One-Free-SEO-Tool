@@ -1,4 +1,5 @@
 import { CheckCircle2, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function LatestSnapshots({
   latest,
@@ -15,30 +16,31 @@ export function LatestSnapshots({
     capturedAt: Date;
   }[];
 }) {
+  const t = useTranslations("tools.ui.serp-features");
   if (latest.length === 0) {
     return (
       <section className="glass-apple rounded-2xl p-5 text-sm text-muted-foreground">
-        No snapshots yet. Capture one above.
+        {t("empty")}
       </section>
     );
   }
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-3">
-        <h3 className="text-sm font-semibold">Latest SERP snapshots</h3>
+        <h3 className="text-sm font-semibold">{t("latestTitle")}</h3>
       </header>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-4 py-2 text-left">Query</th>
-              <th className="px-4 py-2 text-center">Pos</th>
-              <th className="px-4 py-2 text-center">AIO</th>
-              <th className="px-4 py-2 text-center">in AIO</th>
-              <th className="px-4 py-2 text-center">FS</th>
-              <th className="px-4 py-2 text-center">own FS</th>
-              <th className="px-4 py-2 text-right">PAA</th>
-              <th className="px-4 py-2 text-right">When</th>
+              <th className="px-4 py-2 text-left">{t("colQuery")}</th>
+              <th className="px-4 py-2 text-center">{t("colPos")}</th>
+              <th className="px-4 py-2 text-center">{t("colAio")}</th>
+              <th className="px-4 py-2 text-center">{t("colInAio")}</th>
+              <th className="px-4 py-2 text-center">{t("colFs")}</th>
+              <th className="px-4 py-2 text-center">{t("colOwnFs")}</th>
+              <th className="px-4 py-2 text-right">{t("colPaa")}</th>
+              <th className="px-4 py-2 text-right">{t("colWhen")}</th>
             </tr>
           </thead>
           <tbody>

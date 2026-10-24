@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { runHealthCheck } from "@/app/tools/health-check/actions";
 import { saveSnapshot } from "@/lib/snapshots";
@@ -47,6 +48,7 @@ export async function runBulkScan(opts: {
   saveSnapshots?: boolean;
 }): Promise<BulkScanResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.bulk-scan");
   const startedAt = new Date();
   const urls = parseUrls(opts.urls);
   // Server-side enforcement: the UI says "max 25" but a determined caller
@@ -83,7 +85,7 @@ export async function runBulkScan(opts: {
                 clientId: null,
                 kind: "cwv",
                 label: r.finalUrl,
-                note: "Bulk scan",
+                note: t("snapshotNote"),
                 data: r,
                 primaryMetric: r.summary.score,
                 primaryMetricLabel: "health",
@@ -139,7 +141,10 @@ export async function runBulkScan(opts: {
   };
   await recordToolRun({
     toolId: "bulk-scan",
-    label: `${rows.length} URLs · ${rows.filter((r) => r.ok).length} ok`,
+    label: t("runLabel", {
+      count: rows.length,
+      ok: rows.filter((r) => r.ok).length,
+    }),
     input: { urls: urls.join("\n") },
     result: out,
     findings: bulkScanFindings(rows),

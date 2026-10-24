@@ -12,6 +12,7 @@ import {
   Loader2,
   Wand2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { generateCode, type CodeGenState } from "./actions";
 import {
@@ -22,64 +23,9 @@ import {
 import { RecentRuns } from "@/components/recent-runs";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
-const PRESETS: Record<
-  GeneratorTarget,
-  { task: string; constraints?: string } | undefined
-> = {
-  "wp-plugin-simple": {
-    task: "Add auto-generated meta description to all posts that don't have one yet. Pull the first 155 chars of post content as the fallback.",
-  },
-  "wp-plugin-advanced": {
-    task: "Build a 'Local SEO Schema' plugin with an admin settings page where I can enter business name, address, phone, opening hours, and it injects LocalBusiness JSON-LD on every page.",
-  },
-  "wp-functions": {
-    task: "Add a canonical tag self-referencing every post / page automatically, but allow override via a custom field 'custom_canonical'.",
-  },
-  "html-snippet": {
-    task: "An FAQ accordion (5 questions about my product) with FAQ schema JSON-LD baked in. Pure HTML/CSS, no JS.",
-  },
-  "elementor-html": {
-    task: "Pricing-comparison table for 3 plans (Starter $9, Pro $29, Agency $99) styled clean modern violet. Each plan has 5 features + a CTA button.",
-  },
-  "shopify-liquid": {
-    task: "Add Product schema with reviews + breadcrumb schema to product pages. Use Shopify's product, shop, request objects.",
-  },
-  "schema-jsonld": {
-    task: "Article schema for a blog post titled 'How to Speed Up WordPress' by author Jane Doe published 2026-03-15, with reading time 8 min.",
-  },
-  htaccess: {
-    task: "Force HTTPS, force www, remove trailing slashes, redirect /old-blog/* to /blog/*. Add HSTS, X-Frame-Options, Referrer-Policy headers.",
-  },
-  "nginx-config": {
-    task: "Permanent redirect /products/old-name → /products/new-name. Add security headers (CSP, HSTS, X-Frame-Options). Cache static assets for 1 year.",
-  },
-  "robots-txt": {
-    task: "Allow all search engines on the public site. Block /admin, /api, /cart. Block AI scrapers (GPTBot, ClaudeBot, PerplexityBot, CCBot, Bytespider) from training but allow user-agent AI assistants. Include sitemap.",
-  },
-  "tracking-js": {
-    task: "Track scroll depth (25, 50, 75, 100%) and time-on-page in 30-second buckets. Send to Google Analytics 4 as custom events.",
-  },
-  "react-component": {
-    task: "An SEO-optimized hero section: H1, sub-headline, CTA button, optional secondary CTA. Server component. Tailwind styled. Accept props for title, subtitle, ctaLabel, ctaHref.",
-  },
-  "nextjs-route": {
-    task: "A /pricing route. Server component. Tailwind. 3-tier pricing table with FAQ schema injected via JSON-LD. metadata export with optimized title + description.",
-  },
-  "drupal-twig": {
-    task: "Override node--blog-post.html.twig to inject Article + BreadcrumbList JSON-LD in the head.",
-  },
-  "ghost-injection": {
-    task: "Add LocalBusiness JSON-LD (name, address, phone, geo coords) site-wide via the Site Header injection field.",
-  },
-  "webflow-embed": {
-    task: "Newsletter signup form (name + email) styled clean dark theme, with privacy disclaimer below. POST to /api/subscribe.",
-  },
-  "csv-redirects": {
-    task: "20 redirects from /blog/old-slug-X → /blog/new-slug-X (where X is 1-20). 301s.",
-  },
-};
-
 export default function CodeGeneratorPage() {
+  const t = useTranslations("tools.ui.code-generator");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<CodeGenState, FormData>(
     generateCode,
     null,
@@ -119,15 +65,14 @@ export default function CodeGeneratorPage() {
   }
 
   function applyPreset() {
-    const p = PRESETS[target];
-    if (p) setTask(p.task);
+    if (t.has(`presets.${target}`)) setTask(t(`presets.${target}`));
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="SEO code generator (AI-powered)"
-        description="Generate WordPress plugins, HTML snippets, Elementor blocks, .htaccess rules, schema markup, Shopify Liquid, Next.js routes — anything an SEO needs to add to a website. AI writes it, you paste it. With install instructions and a preview when possible."
+        title={t("title")}
+        description={t("description")}
         icon={Code2}
         accent="violet"
       />
@@ -135,7 +80,7 @@ export default function CodeGeneratorPage() {
       <form action={formAction} className="space-y-3">
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Output type</p>
+            <p className="text-xs text-muted-foreground">{t("outputType")}</p>
             <div className="space-y-2">
               {TARGET_GROUPS.map((g) => (
                 <div key={g.label} className="space-y-1">
@@ -143,17 +88,17 @@ export default function CodeGeneratorPage() {
                     {g.label}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
-                    {g.targets.map((t) => {
-                      const meta = TARGETS[t];
-                      const active = target === t;
+                    {g.targets.map((id) => {
+                      const meta = TARGETS[id];
+                      const active = target === id;
                       return (
-                        <label key={t}>
+                        <label key={id}>
                           <input
                             type="radio"
                             name="target"
-                            value={t}
+                            value={id}
                             checked={active}
-                            onChange={() => setTarget(t)}
+                            onChange={() => setTarget(id)}
                             className="sr-only"
                           />
                           <span
@@ -190,15 +135,15 @@ export default function CodeGeneratorPage() {
           <label className="space-y-1 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">
-                What should this code do?
+                {t("taskLabel")}
               </span>
-              {PRESETS[target] && (
+              {t.has(`presets.${target}`) && (
                 <button
                   type="button"
                   onClick={applyPreset}
                   className="text-[10px] text-violet-300 hover:underline"
                 >
-                  Use example
+                  {t("useExample")}
                 </button>
               )}
             </div>
@@ -208,18 +153,18 @@ export default function CodeGeneratorPage() {
               rows={4}
               value={task}
               onChange={(e) => setTask(e.target.value)}
-              placeholder="Describe in plain English. e.g. 'Add JSON-LD schema for a local restaurant: name, address, phone, opening hours, 4.5 stars from 200 reviews.'"
+              placeholder={t("taskPlaceholder")}
               className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
 
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Constraints (optional — versions, naming, theme, etc.)
+              {t("constraints")}
             </span>
             <input
               name="constraints"
-              placeholder="e.g. WordPress 6.5+, no jQuery, prefix all functions with mybiz_"
+              placeholder={t("constraintsPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
@@ -232,12 +177,12 @@ export default function CodeGeneratorPage() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                Writing code…
+                {t("writing")}
               </>
             ) : (
               <>
                 <Wand2 className="mr-2 size-4" />
-                Generate {spec.label.toLowerCase()}
+                {t("generate", { label: spec.label.toLowerCase() })}
               </>
             )}
           </button>
@@ -266,7 +211,10 @@ export default function CodeGeneratorPage() {
                   {TARGETS[state.target].label}
                 </h3>
                 <p className="text-[11px] text-muted-foreground">
-                  {state.code.split("\n").length} lines · {state.language}
+                  {t("linesMeta", {
+                    count: state.code.split("\n").length,
+                    language: state.language,
+                  })}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -277,7 +225,7 @@ export default function CodeGeneratorPage() {
                     className="inline-flex items-center gap-1 rounded-md bg-cyan-500/10 px-2 py-0.5 text-[11px] text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/20"
                   >
                     <Eye className="size-3" />
-                    {showPreview ? "Hide preview" : "Show preview"}
+                    {showPreview ? t("hidePreview") : t("showPreview")}
                   </button>
                 )}
                 <button
@@ -287,11 +235,11 @@ export default function CodeGeneratorPage() {
                 >
                   {copied ? (
                     <>
-                      <Check className="size-3" /> Copied
+                      <Check className="size-3" /> {tCommon("copied")}
                     </>
                   ) : (
                     <>
-                      <Copy className="size-3" /> Copy
+                      <Copy className="size-3" /> {tCommon("copy")}
                     </>
                   )}
                 </button>
@@ -309,7 +257,7 @@ export default function CodeGeneratorPage() {
               <div className="border-b border-white/[0.06] bg-white">
                 <iframe
                   ref={iframeRef}
-                  title="Live preview"
+                  title={t("livePreview")}
                   sandbox="allow-same-origin"
                   className="block h-[400px] w-full"
                 />
@@ -321,7 +269,7 @@ export default function CodeGeneratorPage() {
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="text-sm font-semibold">Install instructions</h3>
+            <h3 className="text-sm font-semibold">{t("installTitle")}</h3>
             <ol className="mt-2 space-y-1.5 text-sm">
               {state.installSteps.map((s, i) => (
                 <li key={i} className="flex items-start gap-2">

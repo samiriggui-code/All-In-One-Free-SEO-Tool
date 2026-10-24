@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -24,20 +25,21 @@ export async function runCapture(
   formData: FormData,
 ): Promise<CaptureState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.serp-features");
   const parsed = captureSchema.safeParse({
     query: formData.get("query"),
     country: formData.get("country") || "US",
     ourDomain: formData.get("ourDomain") || undefined,
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("errInvalidInput") };
   const r = await captureSerpSnapshot({
     query: parsed.data.query,
     country: parsed.data.country,
     ourDomain: parsed.data.ourDomain,
   });
   revalidatePath("/tools/serp-features");
-  if (!r.ok) return { ok: false, error: r.error ?? "Capture failed" };
+  if (!r.ok) return { ok: false, error: r.error ?? t("errCaptureFailed") };
   return { ok: true, snapshotId: r.snapshotId! };
 }
 

@@ -10,6 +10,7 @@ import {
   Save,
   User,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { RecentRuns } from "@/components/recent-runs";
 import { savePersonSchema, type SaveState } from "./actions";
@@ -22,6 +23,8 @@ function nextId(): string {
 }
 
 export default function PersonSchemaPage() {
+  const t = useTranslations("tools.ui.person-schema");
+  const tCommon = useTranslations("tools.common");
   const [name, setName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [orgName, setOrgName] = useState("");
@@ -173,12 +176,12 @@ export default function PersonSchemaPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Person schema generator"
-        description="Person JSON-LD is now the top E-E-A-T author signal in 2026 — Google's AI Mode uses it for entity verification. Fill in author/expert details and copy the snippet straight into your <head>."
+        title={t("title")}
+        description={t("description")}
         icon={User}
         accent="violet"
       />
@@ -187,97 +190,96 @@ export default function PersonSchemaPage() {
         <section className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5">
           <div className="grid gap-3 md:grid-cols-2">
             <Field
-              label="Full name *"
+              label={t("fullName")}
               value={name}
               onChange={setName}
               placeholder="Jane Doe"
             />
             <Field
-              label="Job title"
+              label={t("jobTitle")}
               value={jobTitle}
               onChange={setJobTitle}
-              placeholder="Senior SEO Strategist"
+              placeholder={t("jobTitlePlaceholder")}
             />
             <Field
-              label="Organization name"
+              label={t("orgName")}
               value={orgName}
               onChange={setOrgName}
               placeholder="Acme Inc."
             />
             <Field
-              label="Organization URL"
+              label={t("orgUrl")}
               value={orgUrl}
               onChange={setOrgUrl}
               placeholder="https://acme.com"
             />
             <Field
-              label="Author profile URL on your site"
+              label={t("profileUrl")}
               value={profileUrl}
               onChange={setProfileUrl}
               placeholder="https://acme.com/team/jane"
             />
             <Field
-              label="Headshot image URL"
+              label={t("imageUrl")}
               value={imageUrl}
               onChange={setImageUrl}
               placeholder="https://acme.com/jane.jpg"
             />
           </div>
           <div className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Bio (1-3 sentences)</span>
+            <span className="text-muted-foreground">{t("bio")}</span>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
-              placeholder="12 years building organic-search programs at series-B SaaS companies. Spoke at MozCon 2024."
+              placeholder={t("bioPlaceholder")}
               className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <Field
-              label="Public email (optional)"
+              label={t("email")}
               value={email}
               onChange={setEmail}
               placeholder="jane@acme.com"
             />
             <Field
-              label="Years of experience"
+              label={t("years")}
               value={yearsExperience}
               onChange={setYearsExperience}
               placeholder="12"
             />
             <Field
-              label="Credentials (comma-separated)"
+              label={t("credentials")}
               value={credentials}
               onChange={setCredentials}
-              placeholder="Google Analytics Certified, MS Marketing"
+              placeholder={t("credentialsPlaceholder")}
             />
             <Field
-              label="Knows about (comma-separated topics)"
+              label={t("knowsAbout")}
               value={knowsAbout}
               onChange={setKnowsAbout}
-              placeholder="technical SEO, content strategy, schema markup"
+              placeholder={t("knowsAboutPlaceholder")}
             />
             <Field
-              label="Alumni of (comma-separated)"
+              label={t("alumniOf")}
               value={alumniOf}
               onChange={setAlumniOf}
-              placeholder="Stanford University"
+              placeholder={t("alumniOfPlaceholder")}
             />
           </div>
 
           <div className="space-y-1 text-xs">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">
-                Social profile URLs (sameAs) — Twitter / LinkedIn / GitHub /
-                Wikipedia
+                {t("socials")}
               </span>
               <button
                 type="button"
                 onClick={addSocial}
                 className="text-[11px] text-violet-300 hover:underline"
               >
-                + Add another
+                {t("addAnother")}
               </button>
             </div>
             {socials.map((s) => (
@@ -294,7 +296,7 @@ export default function PersonSchemaPage() {
                     onClick={() => removeSocial(s.id)}
                     className="text-[11px] text-muted-foreground hover:text-rose-300"
                   >
-                    Remove
+                    {t("remove")}
                   </button>
                 )}
               </div>
@@ -313,7 +315,7 @@ export default function PersonSchemaPage() {
             }`}
           >
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              E-E-A-T completeness
+              {t("completeness")}
             </div>
             <div
               className={`mt-1 text-3xl font-semibold tabular-nums ${
@@ -328,20 +330,26 @@ export default function PersonSchemaPage() {
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
               {score >= 75
-                ? "Strong E-E-A-T signal. Google's AI Mode will use this to verify the author entity."
+                ? t("scoreStrong")
                 : score >= 50
-                  ? "Decent. Add more sameAs links + credentials to push past the threshold for AI citation."
-                  : "Bare minimum. Add bio, image, ≥2 sameAs links, and credentials to make this meaningful."}
+                  ? t("scoreDecent")
+                  : t("scoreWeak")}
             </p>
           </div>
 
           <div className="rounded-2xl border border-white/5 bg-card/40 p-4 text-[11px] text-muted-foreground">
-            <p className="font-medium text-foreground/90">2026 best practice</p>
+            <p className="font-medium text-foreground/90">{t("bestPractice")}</p>
             <ul className="mt-1.5 space-y-1 list-disc pl-4">
-              <li>Embed inside the article&apos;s Article schema as <code className="rounded bg-white/5 px-1">author</code>.</li>
-              <li>Use the SAME Person across all articles by the same author.</li>
-              <li>The author bio page on your site should link out to all sameAs URLs.</li>
-              <li>Wikipedia / Crunchbase / industry award URLs in sameAs strongly boost ChatGPT citation rate.</li>
+              <li>
+                {t.rich("bp1", {
+                  code: (chunks) => (
+                    <code className="rounded bg-white/5 px-1">{chunks}</code>
+                  ),
+                })}
+              </li>
+              <li>{t("bp2")}</li>
+              <li>{t("bp3")}</li>
+              <li>{t("bp4")}</li>
             </ul>
           </div>
         </aside>
@@ -350,7 +358,7 @@ export default function PersonSchemaPage() {
       {jsonld && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">JSON-LD output</h2>
+            <h2 className="text-base font-semibold">{t("output")}</h2>
             <div className="flex flex-wrap items-center gap-2">
               <SaveButton name={name} jsonld={jsonld} />
               <button
@@ -359,7 +367,7 @@ export default function PersonSchemaPage() {
                 className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-3 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
               >
                 <Copy className="size-3" />
-                {copied ? "Copied" : "Copy <script>"}
+                {copied ? tCommon("copied") : t("copyScript")}
               </button>
             </div>
           </header>
@@ -403,6 +411,7 @@ function SaveButton({ name, jsonld }: { name: string; jsonld: string }) {
     savePersonSchema,
     null,
   );
+  const tCommon = useTranslations("tools.common");
   const disabled = !name.trim() || !jsonld;
   return (
     <form action={formAction}>
@@ -420,7 +429,7 @@ function SaveButton({ name, jsonld }: { name: string; jsonld: string }) {
         ) : (
           <Save className="size-3" />
         )}
-        {state?.ok ? "Saved" : "Save"}
+        {state?.ok ? tCommon("saved") : tCommon("save")}
       </button>
     </form>
   );

@@ -1,17 +1,19 @@
 export const dynamic = "force-dynamic";
 
 import { History } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { listAllHosts } from "@/lib/robots-snapshots";
 import { RobotsTracker } from "./tracker";
 
 export default async function RobotsHistoryPage() {
   const hosts = await listAllHosts();
+  const t = await getTranslations("tools.ui.robots-history");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="robots.txt history + diff"
-        description="Snapshot any host's robots.txt. Each snapshot is hashed; we only store the body when it actually changes. Catches accidental Disallow: / disasters before they hurt indexing."
+        title={t("title")}
+        description={t("description")}
         icon={History}
         accent="amber"
       />

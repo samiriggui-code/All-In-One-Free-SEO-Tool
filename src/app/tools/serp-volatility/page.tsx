@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { Activity } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { and, desc, gte, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, keywords, keywordRankings } from "@/db/schema";
@@ -35,6 +37,7 @@ export default async function SerpVolatilityPage({
   searchParams: Promise<{ days?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("tools.ui.serp-volatility");
   const windowDays = Math.max(2, Math.min(30, Number(params?.days ?? 7)));
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - windowDays);
@@ -110,12 +113,7 @@ export default async function SerpVolatilityPage({
       : volatilityScore >= 5
         ? ("moderate" as const)
         : ("calm" as const);
-  const severityCopy =
-    severity === "stormy"
-      ? "High volatility — Google likely rolled an update. Pause big content moves."
-      : severity === "moderate"
-        ? "Some movement, normal-ish background noise."
-        : "Quiet SERP. Good window for testing changes.";
+  const severityCopy = t(severity);
 
   // Top gainers (improving = position went DOWN), top losers
   const gainers = movements
@@ -130,20 +128,19 @@ export default async function SerpVolatilityPage({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="SERP volatility"
-        description="Day-over-day position shifts across every tracked keyword. When this score spikes, Google probably rolled an algorithm update — check the algorithm-updates timeline."
+        title={t("title")}
+        description={t("description")}
         icon={Activity}
         accent="amber"
       />
 
       {trackedKw.length === 0 ? (
         <div className="glass-apple rounded-2xl p-6 text-sm text-muted-foreground">
-          No tracked keywords yet. Add some on /keywords first.
+          {t("noKeywords")}
         </div>
       ) : movements.length === 0 ? (
         <div className="glass-apple rounded-2xl p-6 text-sm text-muted-foreground">
-          No keywords have ≥2 rank checks in the last {windowDays} days. Run
-          rank checks for a few keywords and come back.
+          {t("noMovements", { days: windowDays })}
         </div>
       ) : (
         <>
@@ -159,7 +156,7 @@ export default async function SerpVolatilityPage({
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Volatility ({windowDays}d window)
+                  {t("scoreLabel", { days: windowDays })}
                 </div>
                 <div
                   className={`mt-1 text-5xl font-bold tabular-nums ${
@@ -179,18 +176,24 @@ export default async function SerpVolatilityPage({
               </div>
               <div className="text-right text-xs text-muted-foreground">
                 <div>
-                  <strong className="text-foreground">
-                    {movements.length}
-                  </strong>{" "}
-                  keywords with ≥2 checks
+                  {t.rich("withChecks", {
+                    count: movements.length,
+                    b: (chunks) => (
+                      <strong className="text-foreground">{chunks}</strong>
+                    ),
+                  })}
                 </div>
                 <div>
-                  <strong className="text-emerald-300">
-                    {gainers.length}
-                  </strong>{" "}
-                  improved ·{" "}
-                  <strong className="text-rose-300">{losers.length}</strong>{" "}
-                  dropped
+                  {t.rich("improvedDropped", {
+                    up: gainers.length,
+                    down: losers.length,
+                    g: (chunks) => (
+                      <strong className="text-emerald-300">{chunks}</strong>
+                    ),
+                    r: (chunks) => (
+                      <strong className="text-rose-300">{chunks}</strong>
+                    ),
+                  })}
                 </div>
               </div>
             </div>
@@ -205,7 +208,7 @@ export default async function SerpVolatilityPage({
                       : "bg-white/[0.02] text-muted-foreground ring-white/5 hover:bg-white/5"
                   }`}
                 >
-                  {d}d
+                  {t("daysShort", { days: d })}
                 </a>
               ))}
             </div>
@@ -213,15 +216,15 @@ export default async function SerpVolatilityPage({
 
           <div className="grid gap-4 md:grid-cols-2">
             <MoversTable
-              title="Top gainers"
+              title={t("gainers")}
               tone="emerald"
-              empty="No keywords improved in this window."
+              empty={t("gainersEmpty")}
               movements={gainers}
             />
             <MoversTable
-              title="Top droppers"
+              title={t("droppers")}
               tone="rose"
-              empty="No keywords dropped in this window."
+              empty={t("droppersEmpty")}
               movements={losers}
             />
           </div>
@@ -242,6 +245,7 @@ function MoversTable({
   empty: string;
   movements: Movement[];
 }) {
+  const t = useTranslations("tools.ui.serp-volatility");
   const toneCls = tone === "emerald" ? "text-emerald-300" : "text-rose-300";
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -256,9 +260,9 @@ function MoversTable({
         <table className="w-full text-xs">
           <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-4 py-2 text-left">Query</th>
-              <th className="px-4 py-2 text-left">Client</th>
-              <th className="px-4 py-2 text-right">From → To</th>
+              <th className="px-4 py-2 text-left">{t("colQuery")}</th>
+              <th className="px-4 py-2 text-left">{t("colClient")}</th>
+              <th className="px-4 py-2 text-right">{t("colFromTo")}</th>
               <th className="px-4 py-2 text-right">Δ</th>
             </tr>
           </thead>

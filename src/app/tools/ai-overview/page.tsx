@@ -13,12 +13,15 @@ import {
   TrendingUp,
   Wand2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { analyzeAiOverview, type AiOverviewAnalysis } from "./actions";
 
 export default function AiOverviewPage() {
+  const t = useTranslations("tools.ui.ai-overview");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<AiOverviewAnalysis | null>(null);
@@ -38,7 +41,7 @@ export default function AiOverviewPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -47,19 +50,18 @@ export default function AiOverviewPage() {
             <Sparkles className="size-5 text-fuchsia-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">AI Overview optimizer</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Paste a page URL — the AI scores how citation-worthy it is for
-          Google&apos;s AI Overviews + tells you exactly what to change.
+          {t("intro")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="aurl">Page URL</Label>
+            <Label htmlFor="aurl">{t("pageUrl")}</Label>
             <Input
               id="aurl"
               value={url}
@@ -71,12 +73,12 @@ export default function AiOverviewPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Analyzing…
+                {tCommon("analyzing")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Analyze
+                {tCommon("analyze")}
               </>
             )}
           </Button>
@@ -95,15 +97,15 @@ export default function AiOverviewPage() {
           {/* Score + verdict */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <div className="grid gap-4 p-5 md:grid-cols-[auto_1fr]">
-              <ScoreBubble score={result.citationScore} />
+              <ScoreBubble score={result.citationScore} label={t("citation")} />
               <div className="space-y-1">
                 <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Verdict
+                  {t("verdict")}
                 </div>
                 <p className="text-sm text-foreground/95">{result.verdict}</p>
                 {result.title && (
                   <div className="mt-2 text-xs text-muted-foreground">
-                    Page: <span className="font-mono">{result.title}</span>
+                    {t("page")} <span className="font-mono">{result.title}</span>
                   </div>
                 )}
               </div>
@@ -112,13 +114,13 @@ export default function AiOverviewPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Block
-              title="Strengths"
+              title={t("strengths")}
               items={result.strengths}
               icon={TrendingUp}
               tone="emerald"
             />
             <Block
-              title="Weaknesses"
+              title={t("weaknesses")}
               items={result.weaknesses}
               icon={TrendingDown}
               tone="rose"
@@ -126,7 +128,7 @@ export default function AiOverviewPage() {
           </div>
 
           <Block
-            title="Specific improvements to make"
+            title={t("improvements")}
             items={result.improvements}
             icon={Wand2}
             tone="violet"
@@ -174,7 +176,7 @@ function Block({
   );
 }
 
-function ScoreBubble({ score }: { score: number }) {
+function ScoreBubble({ score, label }: { score: number; label: string }) {
   const tone =
     score >= 75
       ? "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30"
@@ -187,7 +189,7 @@ function ScoreBubble({ score }: { score: number }) {
     >
       <div className="text-3xl font-bold tabular-nums">{score}</div>
       <div className="text-[10px] uppercase tracking-wider opacity-80">
-        Citation
+        {label}
       </div>
     </div>
   );

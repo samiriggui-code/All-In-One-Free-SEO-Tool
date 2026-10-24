@@ -2,12 +2,14 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, Layers, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runProgram, type ProgState } from "./actions";
 
 const SAMPLE_CSV =
   "city,service,minPrice\nChicago,plumbing,89\nDenver,plumbing,79\nSeattle,plumbing,99\nChicago,electrical,99\nDenver,electrical,89\nSeattle,electrical,109";
 
 export function ProgramForm() {
+  const t = useTranslations("tools.ui.programmatic-seo");
   const [state, formAction, pending] = useActionState<
     ProgState | null,
     FormData
@@ -15,8 +17,8 @@ export function ProgramForm() {
   const [tab, setTab] = useState<"preview" | "sitemap" | "manifest">("preview");
   const [copied, setCopied] = useState<string | null>(null);
 
-  function copy(label: string, t: string) {
-    navigator.clipboard.writeText(t).then(() => {
+  function copy(label: string, text: string) {
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(label);
       setTimeout(() => setCopied(null), 1500);
     });
@@ -29,7 +31,7 @@ export function ProgramForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">CSV (header row required)</span>
+          <span className="text-muted-foreground">{t("csv")}</span>
           <textarea
             name="csv"
             required
@@ -41,7 +43,7 @@ export function ProgramForm() {
         </label>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Base URL</span>
+            <span className="text-muted-foreground">{t("baseUrl")}</span>
             <input
               name="baseUrl"
               required
@@ -50,7 +52,7 @@ export function ProgramForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Slug pattern</span>
+            <span className="text-muted-foreground">{t("slugPattern")}</span>
             <input
               name="slugPattern"
               required
@@ -61,7 +63,7 @@ export function ProgramForm() {
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Title pattern (≤70 chars)</span>
+            <span className="text-muted-foreground">{t("titlePattern")}</span>
             <input
               name="titlePattern"
               required
@@ -70,7 +72,7 @@ export function ProgramForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Meta pattern (≤160 chars)</span>
+            <span className="text-muted-foreground">{t("metaPattern")}</span>
             <input
               name="metaPattern"
               required
@@ -80,7 +82,7 @@ export function ProgramForm() {
           </label>
         </div>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Body template (HTML)</span>
+          <span className="text-muted-foreground">{t("bodyTemplate")}</span>
           <textarea
             name="bodyTemplate"
             required
@@ -92,7 +94,7 @@ export function ProgramForm() {
         </label>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Primary column (for interlinking)</span>
+            <span className="text-muted-foreground">{t("primaryColumn")}</span>
             <input
               name="primaryColumn"
               defaultValue="city"
@@ -100,7 +102,7 @@ export function ProgramForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Secondary column</span>
+            <span className="text-muted-foreground">{t("secondaryColumn")}</span>
             <input
               name="secondaryColumn"
               defaultValue="service"
@@ -116,12 +118,12 @@ export function ProgramForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Generating…
+              {t("generating")}
             </>
           ) : (
             <>
               <Layers className="mr-2 size-4" />
-              Generate
+              {t("generate")}
             </>
           )}
         </button>
@@ -136,14 +138,14 @@ export function ProgramForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Rows parsed" value={state.result.rows.toString()} />
-            <Stat label="Pages generated" value={state.result.pages.length.toString()} tone="emerald" />
-            <Stat label="Duplicate slugs" value={state.result.duplicates.length.toString()} tone={state.result.duplicates.length > 0 ? "rose" : "emerald"} />
+            <Stat label={t("statRows")} value={state.result.rows.toString()} />
+            <Stat label={t("statPages")} value={state.result.pages.length.toString()} tone="emerald" />
+            <Stat label={t("statDuplicates")} value={state.result.duplicates.length.toString()} tone={state.result.duplicates.length > 0 ? "rose" : "emerald"} />
           </div>
 
           {state.result.warnings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Notes</h3>
+              <h3 className="text-sm font-semibold">{t("notes")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.result.warnings.map((w, i) => (
                   <li
@@ -158,20 +160,20 @@ export function ProgramForm() {
           )}
 
           <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
-            {(["preview", "sitemap", "manifest"] as const).map((t) => (
+            {(["preview", "sitemap", "manifest"] as const).map((k) => (
               <button
-                key={t}
+                key={k}
                 type="button"
-                onClick={() => setTab(t)}
+                onClick={() => setTab(k)}
                 className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
-                  tab === t
+                  tab === k
                     ? "border-violet-400 text-violet-300"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t === "preview"
-                  ? `Page preview (${state.result.pages.length})`
-                  : t === "sitemap"
+                {k === "preview"
+                  ? t("tabPreview", { count: state.result.pages.length })
+                  : k === "sitemap"
                     ? "sitemap.xml"
                     : "manifest.json"}
               </button>
@@ -187,8 +189,7 @@ export function ProgramForm() {
                       <code className="font-medium">{p.slug}</code>
                       {p.warnings.length > 0 && (
                         <span className="text-amber-300">
-                          {p.warnings.length} warning
-                          {p.warnings.length === 1 ? "" : "s"}
+                          {t("warnings", { count: p.warnings.length })}
                         </span>
                       )}
                     </div>
@@ -196,7 +197,7 @@ export function ProgramForm() {
                     <p className="text-muted-foreground">{p.meta}</p>
                     {p.related.length > 0 && (
                       <p className="text-[10px] text-muted-foreground">
-                        Related ({p.related.length}):{" "}
+                        {t("related", { count: p.related.length })}{" "}
                         {p.related.map((r) => r.slug).join(", ")}
                       </p>
                     )}
@@ -205,8 +206,7 @@ export function ProgramForm() {
               </ul>
               {state.result.pages.length > 30 && (
                 <p className="border-t border-white/5 px-5 py-2 text-[10px] text-muted-foreground">
-                  Showing first 30 of {state.result.pages.length} pages — full
-                  list is in the manifest.
+                  {t("showingFirst", { count: state.result.pages.length })}
                 </p>
               )}
             </section>
@@ -267,6 +267,7 @@ function CopyBlock({
   copied: boolean;
   onCopy: () => void;
 }) {
+  const tCommon = useTranslations("tools.common");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
@@ -279,12 +280,12 @@ function CopyBlock({
           {copied ? (
             <>
               <Check className="mr-1 size-3 text-emerald-300" />
-              Copied
+              {tCommon("copied")}
             </>
           ) : (
             <>
               <Copy className="mr-1 size-3" />
-              Copy
+              {tCommon("copy")}
             </>
           )}
         </button>

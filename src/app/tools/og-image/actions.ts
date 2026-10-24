@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { generateOgImage, type OgTemplate } from "@/lib/og-image";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -14,6 +15,7 @@ export async function runOgImage(
   formData: FormData,
 ): Promise<OgState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.og-image");
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();
@@ -21,7 +23,7 @@ export async function runOgImage(
   const template = String(formData.get("template") ?? "gradient") as OgTemplate;
   const imageUrl = String(formData.get("imageUrl") ?? "").trim() || undefined;
 
-  if (!title) return { ok: false, error: "Title required." };
+  if (!title) return { ok: false, error: t("errTitleRequired") };
 
   const r = await generateOgImage({
     title,
@@ -32,7 +34,7 @@ export async function runOgImage(
     imageUrl,
   });
 
-  if (!r.ok || !r.dataUrl) return { ok: false, error: r.error ?? "Generation failed" };
+  if (!r.ok || !r.dataUrl) return { ok: false, error: r.error ?? t("errGenerationFailed") };
   // Don't persist the data URL — it can be 1 MB+. Just metadata.
   await saveToolRun({
     toolId: "og-image",

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Loader2, ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { scanForRisk, type ScanState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
@@ -15,6 +16,8 @@ const RISK_TONE: Record<"low" | "medium" | "high", string> = {
 };
 
 export default function ReputationAbuseRiskPage() {
+  const t = useTranslations("tools.ui.reputation-abuse-risk");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<ScanState, FormData>(
     scanForRisk,
     null,
@@ -28,12 +31,12 @@ export default function ReputationAbuseRiskPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Site reputation abuse risk scan"
-        description="Google's site reputation abuse policy (March 2024, expanded Nov 2025) algorithmically flags sections of a site that look 'starkly different' from the main content and stops passing authority to them. We crawl your site, group by path, and flag sections at risk."
+        title={t("title")}
+        description={t("description")}
         icon={ShieldAlert}
         accent="rose"
       />
@@ -43,7 +46,7 @@ export default function ReputationAbuseRiskPage() {
         className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Site URL</span>
+          <span className="text-muted-foreground">{t("siteUrl")}</span>
           <input
             name="url"
             required
@@ -59,20 +62,17 @@ export default function ReputationAbuseRiskPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Crawling + scoring… (30-60s)
+              {t("scanning")}
             </>
           ) : (
             <>
               <ShieldAlert className="mr-2 size-4" />
-              Run risk scan
+              {t("run")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Crawls up to 30 pages from the homepage&apos;s internal links. The
-          scan groups pages by top-level path (e.g. <code>/blog/</code>,{" "}
-          <code>/coupons/</code>) and compares each section&apos;s topic
-          signature against the rest of the site.
+          {t.rich("hint", { code: (chunks) => <code>{chunks}</code> })}
         </p>
       </form>
 
@@ -95,27 +95,28 @@ export default function ReputationAbuseRiskPage() {
           >
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold">
-                Overall risk for {state.report.domain}
+                {t("overallFor", { domain: state.report.domain })}
               </h2>
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${RISK_TONE[state.report.overall]}`}
               >
-                {state.report.overall.toUpperCase()}
+                {t(`risk.${state.report.overall}`).toUpperCase()}
               </span>
             </div>
             <p className="mt-2 text-sm">{state.report.summary}</p>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Crawled {state.report.pagesScanned} pages across{" "}
-              {state.report.sections.length} sections.
+              {t("crawled", {
+                pages: state.report.pagesScanned,
+                sections: state.report.sections.length,
+              })}
             </p>
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">Section breakdown</h3>
+              <h3 className="text-sm font-semibold">{t("breakdown")}</h3>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Sorted by risk severity. Sections with low topic overlap and
-                3+ pages are flagged.
+                {t("breakdownHint")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.06]">
@@ -128,21 +129,23 @@ export default function ReputationAbuseRiskPage() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ${RISK_TONE[s.risk]}`}
                     >
-                      {s.risk}
+                      {t(`risk.${s.risk}`)}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
-                      {s.pageCount} pages · {Math.round(s.overlap * 100)}% topic
-                      overlap with rest of site
+                      {t("sectionMeta", {
+                        pages: s.pageCount,
+                        overlap: Math.round(s.overlap * 100),
+                      })}
                     </span>
                   </div>
                   {s.topicSignature.length > 0 && (
                     <div className="flex flex-wrap gap-1 text-[10px]">
-                      {s.topicSignature.map((t) => (
+                      {s.topicSignature.map((topic) => (
                         <span
-                          key={t}
+                          key={topic}
                           className="rounded-md bg-white/5 px-1.5 py-0.5 text-muted-foreground ring-1 ring-inset ring-white/10"
                         >
-                          {t}
+                          {topic}
                         </span>
                       ))}
                     </div>
@@ -155,7 +158,7 @@ export default function ReputationAbuseRiskPage() {
                   {s.samples.length > 0 && (
                     <div className="space-y-0.5 text-[11px] text-muted-foreground">
                       <p className="font-medium text-foreground/80">
-                        Sample URLs
+                        {t("samples")}
                       </p>
                       {s.samples.map((u) => (
                         <a
@@ -178,29 +181,17 @@ export default function ReputationAbuseRiskPage() {
 
           <section className="rounded-2xl border border-white/5 bg-card/40 p-5 text-xs">
             <h3 className="font-semibold text-foreground/90">
-              How to fix high-risk sections
+              {t("fixTitle")}
             </h3>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
               <li>
-                If the section is third-party (affiliate / partner / outsourced
-                content), restore <strong>first-party editorial oversight</strong>:
-                a named editor on staff who reviews + bylines every page.
+                {t.rich("fix1", { strong: (chunks) => <strong>{chunks}</strong> })}
               </li>
               <li>
-                If the section is genuinely off-topic for your brand,
-                consider moving it to a <strong>subdomain you don&apos;t want
-                to inherit authority from</strong> — Google treats subdomains
-                as separate entities anyway, so the policy hit is moot there.
+                {t.rich("fix2", { strong: (chunks) => <strong>{chunks}</strong> })}
               </li>
-              <li>
-                If the section was useful but neglected, refresh it with the
-                same brand voice as the rest of the site so the topic signature
-                aligns.
-              </li>
-              <li>
-                If the section is parasite SEO, take it down. Google&apos;s
-                manual actions team is now actively de-indexing these.
-              </li>
+              <li>{t("fix3")}</li>
+              <li>{t("fix4")}</li>
             </ul>
           </section>
         </>
