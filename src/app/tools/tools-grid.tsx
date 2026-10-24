@@ -896,26 +896,39 @@ function parsePinned(raw: string): ReadonlySet<string> {
 const serializePinned = (set: ReadonlySet<string>) =>
   JSON.stringify(Array.from(set));
 
+/** Avoid crashing the hub when a catalog string has invalid ICU/HTML (e.g. raw `<a>`). */
+function catalogOrFallback(
+  tCatalog: ReturnType<typeof useTranslations<"tools.catalog">>,
+  key: string,
+  fallback: string,
+): string {
+  if (!tCatalog.has(key)) return fallback;
+  try {
+    return tCatalog(key);
+  } catch {
+    return fallback;
+  }
+}
+
 export function ToolsGrid({ mode = "none" }: { mode?: ConnectionMode }) {
   const tHub = useTranslations("tools.hub");
   const tCat = useTranslations("tools.categories");
   const tCatalog = useTranslations("tools.catalog");
   const [query, setQuery] = useState("");
 
-  const localizedTools = useMemo(() => {
-    return tools.map((tool) => {
-      const slug = toolCatalogSlug(tool.href);
-      const titleKey = `${slug}.title`;
-      const descKey = `${slug}.description`;
-      return {
-        ...tool,
-        title: tCatalog.has(titleKey) ? tCatalog(titleKey) : tool.title,
-        description: tCatalog.has(descKey)
-          ? tCatalog(descKey)
-          : tool.description,
-      };
-    });
-  }, [tCatalog]);
+  // Call next-intl during render — not inside useMemo. t() can schedule
+  // internal cache updates; doing that in useMemo triggers "state update
+  // on a component that hasn't mounted yet" in React 19.
+  const localizedTools = tools.map((tool) => {
+    const slug = toolCatalogSlug(tool.href);
+    const titleKey = `${slug}.title`;
+    const descKey = `${slug}.description`;
+    return {
+      ...tool,
+      title: catalogOrFallback(tCatalog, titleKey, tool.title),
+      description: catalogOrFallback(tCatalog, descKey, tool.description),
+    };
+  });
   // On by default, so someone who has connected nothing sees a grid where
   // everything they click actually works. Persisted, because whichever way
   // they set it is a standing preference, not a per-visit one.
@@ -1135,7 +1148,7 @@ export function ToolsGrid({ mode = "none" }: { mode?: ConnectionMode }) {
               </span>
             </h2>
           </header>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {pinnedTools.map((t) => (
               <ToolCard
                 key={t.href}
@@ -1240,7 +1253,7 @@ export function ToolsGrid({ mode = "none" }: { mode?: ConnectionMode }) {
               </p>
             </header>
             {open && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {list.map((t) => (
                   <ToolCard
                     key={t.href}

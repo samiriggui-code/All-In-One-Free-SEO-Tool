@@ -225,7 +225,7 @@
   },
   "link-checker": {
     "title": "Link analyzer",
-    "description": "Paste any URL → every <a> link classified internal/external + dofollow/nofollow, with anchor text frequency. Critical pre-publish check."
+    "description": "Paste any URL → every '<'a'>' link classified internal/external + dofollow/nofollow, with anchor text frequency. Critical pre-publish check."
   },
   "keyword-difficulty": {
     "title": "Keyword difficulty",
@@ -293,7 +293,7 @@
   },
   "person-schema": {
     "title": "Person schema generator (E-E-A-T) ⭐",
-    "description": "Person JSON-LD is the top E-E-A-T signal in 2026 — Google's AI Mode uses it for entity verification. Fill in author details, get a copy-paste <script>."
+    "description": "Person JSON-LD is the top E-E-A-T signal in 2026 — Google's AI Mode uses it for entity verification. Fill in author details, get a copy-paste '<'script'>."
   },
   "aio-passage": {
     "title": "AI Overview passage optimizer ⭐",
@@ -305,7 +305,7 @@
   },
   "freshness": {
     "title": "Freshness audit ⭐",
-    "description": "AI-search systems skip undated or stale pages. Fetches every freshness signal (HTTP header, meta tags, JSON-LD dateModified, <time> elements, visible 'Last updated' text) and gives you a ready-to-paste patch."
+    "description": "AI-search systems skip undated or stale pages. Fetches every freshness signal (HTTP header, meta tags, JSON-LD dateModified, '<'time'>' elements, visible 'Last updated' text) and gives you a ready-to-paste patch."
   },
   "reputation-abuse-risk": {
     "title": "Site reputation abuse risk scan",

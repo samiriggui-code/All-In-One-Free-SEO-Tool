@@ -6,6 +6,37 @@
     max-width: 100%;
   }
 }
+
+/*
+ * App pages historically used mx-auto max-w-* (5xl, 6xl, …), which left
+ * large empty gutters on desktop. Page roots use .page-shell (or the
+ * legacy max-w-* + mx-auto combo below) so content fills the main column;
+ * sidebar + main padding still frame the layout on small screens.
+ */
+@layer components {
+  .page-shell {
+    margin-inline: auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  @media (width >= 768px) {
+    main
+      :is(
+        .mx-auto.max-w-2xl,
+        .mx-auto.max-w-3xl,
+        .mx-auto.max-w-4xl,
+        .mx-auto.max-w-5xl,
+        .mx-auto.max-w-6xl,
+        .mx-auto.max-w-7xl,
+        .mx-auto.w-full.max-w-7xl
+      ) {
+      max-width: none;
+      width: 100%;
+    }
+  }
+}
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
