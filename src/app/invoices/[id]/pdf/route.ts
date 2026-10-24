@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, invoices } from "@/db/schema";
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardAdminRequest, guardClientRequest } from "@/lib/admin-auth";
 import { getLocale } from "next-intl/server";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
 
@@ -34,6 +34,11 @@ export async function GET(
   if (!invoice) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  // Invoices are the agency's books, not progress a client viewer watches.
+  const forbidden = await guardClientRequest(request, invoice.clientId, {
+    edit: true,
+  });
+  if (forbidden) return forbidden;
 
   const [client] = await db
     .select()

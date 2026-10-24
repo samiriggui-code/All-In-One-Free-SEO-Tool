@@ -1,5 +1,6 @@
 "use server";
 
+import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
 
@@ -11,6 +12,7 @@ export async function saveCap(
   _prev: SaveCapState | null,
   formData: FormData,
 ): Promise<SaveCapState> {
+  await requireSettingsAdmin();
   const raw = String(formData.get("cap") ?? "").trim();
   if (raw === "") {
     await deleteSetting("ai.monthly_cap_usd");

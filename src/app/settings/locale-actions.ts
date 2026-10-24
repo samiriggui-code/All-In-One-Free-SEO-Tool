@@ -1,5 +1,6 @@
 "use server";
 
+import { mayEdit } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import {
@@ -17,6 +18,8 @@ export async function getLocalePreference(): Promise<Locale> {
 }
 
 export async function setLocalePreference(locale: Locale) {
+  // The toggle is in the shell for everyone; for a viewer it does nothing.
+  if (!(await mayEdit())) return;
   if (!isLocale(locale)) return;
   await setSetting("ui.locale", locale);
   const jar = await cookies();

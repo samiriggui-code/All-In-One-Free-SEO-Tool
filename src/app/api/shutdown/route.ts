@@ -3,13 +3,13 @@
  * relaunches via the desktop / Start Menu shortcut or by running seo.cmd.
  */
 
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardOwnerRequest } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const denied = guardAdminRequest(req);
+  const denied = await guardOwnerRequest(req);
   if (denied) return denied;
 
   if (process.env.RUNNING_IN_DOCKER === "1") {

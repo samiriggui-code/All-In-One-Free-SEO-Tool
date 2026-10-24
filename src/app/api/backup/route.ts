@@ -27,7 +27,7 @@ import {
 import { Readable } from "node:stream";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardOwnerRequest } from "@/lib/admin-auth";
 import { dataDir } from "@/lib/data-dir";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ function dbPath(): string {
 }
 
 export async function GET(req: Request) {
-  const denied = guardAdminRequest(req);
+  const denied = await guardOwnerRequest(req);
   if (denied) return denied;
 
   const src = dbPath();

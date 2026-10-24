@@ -12,6 +12,7 @@ import { listErrors } from "@/lib/error-log";
 import { resolveErrorAction, clearResolvedAction } from "./actions";
 import { ErrorRowControls } from "./row-controls";
 import { ErrorRow } from "./error-row";
+import { requireSettingsPage } from "../access";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ const SOURCE_META = {
 } as const;
 
 export default async function ErrorsPage() {
+  await requireSettingsPage("/settings/errors");
   const errors = await listErrors({ limit: 200, includeResolved: false });
 
   return (
