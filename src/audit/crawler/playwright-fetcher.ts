@@ -9,7 +9,7 @@
  * subresources, its redirects — passes the same SSRF guard as `auditFetch`.
  */
 
-import { mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync } from "fs";
 import { createRequire } from "module";
 import { dirname, join } from "path";
 import type { Page, Request, Response } from "playwright";
@@ -163,9 +163,14 @@ export const DESKTOP_VIEWPORT = { width: 1350, height: 940 };
 let webVitalsSource: string | null = null;
 export function getWebVitalsSource(): string {
   if (webVitalsSource === null) {
-    const require2 = createRequire(import.meta.url);
-    const distDir = dirname(require2.resolve("web-vitals"));
-    webVitalsSource = readFileSync(join(distDir, "web-vitals.attribution.iife.js"), "utf8");
+    // From the app root: once bundled, this module no longer sits beside
+    // node_modules, but the server always runs from the app's own folder
+    // (next.config.ts traces the file into the standalone build).
+    const file = "web-vitals.attribution.iife.js";
+    const traced = join(process.cwd(), "node_modules", "web-vitals", "dist", file);
+    webVitalsSource = existsSync(traced)
+      ? readFileSync(traced, "utf8")
+      : readFileSync(join(dirname(createRequire(import.meta.url).resolve("web-vitals")), file), "utf8");
   }
   return webVitalsSource;
 }

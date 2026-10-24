@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Sidebar } from "@/components/shell/sidebar";
 import { NeedsKeyBanner } from "@/components/shell/needs-key-banner";
 import { IntlProvider } from "@/components/shell/intl-provider";
@@ -96,6 +96,7 @@ export default async function RootLayout({
   const theme = await getThemePreference();
   const locale = await getLocale();
   const messages = await getMessages();
+  const timeZone = await getTimeZone();
 
   // Read once here rather than in each page that needs a model. Failure
   // is non-fatal: no banner is better than a broken shell.
@@ -128,7 +129,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="h-screen overflow-hidden bg-background text-foreground">
-        <IntlProvider locale={locale} messages={messages}>
+        <IntlProvider locale={locale} messages={messages} timeZone={timeZone}>
           <ConfirmDialogProvider>
             <QuickAddClientProvider>
               {isEmbed ? (

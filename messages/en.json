@@ -531,6 +531,30 @@
     }
   },
   "errors": {
+    "generic": {
+      "title": "Something went wrong",
+      "explanation": "We don't have a one-click fix for this exact error yet. The details below have been logged. Use the 'Report on GitHub' button — your error will be pre-filled so the maintainer can fix it fast.",
+      "step1": "Try the action again — many errors are transient",
+      "step2": "If it keeps happening, restart the server (power button bottom-right)",
+      "step3": "Still broken? Report on GitHub (button below) — takes 10 seconds"
+    },
+    "page": {
+      "badge": "Error",
+      "tryThis": "Try this",
+      "retryPage": "Try this page again",
+      "dashboard": "Go to dashboard",
+      "goBack": "Go back",
+      "restartServer": "Restart the server",
+      "restartConfirm": "Restart the server? The page will reload itself once it's back.",
+      "stillStuck": "Still stuck?",
+      "githubHint": "Open a pre-filled GitHub issue — everything the maintainer needs is already in the body. Takes ~10 seconds.",
+      "reportGithub": "Report on GitHub",
+      "copyDetails": "Copy details",
+      "copied": "Copied",
+      "rawError": "Raw error",
+      "loggedTo": "Already logged to",
+      "errorLogLink": "Settings → Error log"
+    },
     "notFound": {
       "badge": "404 · Page not found",
       "title": "That page doesn't exist — but here's what does.",
@@ -558,8 +582,105 @@
     "signIn": "Sign in",
     "signingIn": "Signing in…",
     "loginFailed": "Login failed",
+    "badCredentials": "Email or password is incorrect.",
     "noAccount": "No account?",
     "register": "Register"
+  },
+  "onboarding": {
+    "backToClient": "Back to client",
+    "pageTitle": "Smart onboarding · {name}",
+    "pageDescription": "Tell us about the business once, and the tool builds a 30-day SEO plan tailored to the niche, locale, and tech stack — auto-generates daily tasks so you don't have to figure out what to do each morning.",
+    "skip": "Skip onboarding",
+    "skipping": "Skipping…",
+    "saving": "Saving…",
+    "steps": {
+      "brand": "Brand",
+      "keywords": "Keywords",
+      "targeting": "Targeting",
+      "surfaces": "Scope",
+      "completed": "Plan"
+    },
+    "audit": {
+      "checking": "Checking your site…",
+      "done": "Site check done",
+      "failed": "Couldn't finish the site check",
+      "pagesSoFar": "{count, plural, one {# page so far} other {# pages so far}}",
+      "runningHint": "This runs in the background — carry on with the steps below, it'll be ready by the time you finish.",
+      "completedHint": "Found {issues, plural, one {# thing} other {# things}} to look at. It's all in the report at the end.",
+      "completedHintScore": "Found {issues, plural, one {# thing} other {# things}} to look at, health score {score}/100. It's all in the report at the end.",
+      "failedHint": "The site may have been unreachable. You can re-run it from the client page — the rest of onboarding still works."
+    },
+    "brand": {
+      "title": "Tell me about the business",
+      "intro": "One paragraph + a niche is all I need to start finding keywords. The details inform the 30-day plan that comes out the other end.",
+      "descriptionLabel": "What does {name} do? (1–3 sentences)",
+      "descriptionPlaceholder": "Private chauffeur in Paris: airport transfers, fixed prices, 24/7. WhatsApp quotes.",
+      "businessType": "Business type",
+      "businessTypePlaceholder": "VTC / bakery / dentist / SaaS / law firm…",
+      "niche": "Niche",
+      "nichePick": "— pick one —",
+      "nicheLocal": "Local business (Google Maps + GBP)",
+      "nicheLocalHelp": "Physical or area-based services that rank on Maps and need a Google Business Profile — VTC, restaurants, trades, clinics, etc.",
+      "nicheEcommerce": "E-commerce",
+      "nicheSaas": "SaaS / B2B",
+      "nicheBlog": "Blog / content",
+      "nicheServices": "Services / professional",
+      "inferredHint": "Suggested from your description and site — change anything that’s wrong.",
+      "continue": "Continue → keyword discovery"
+    },
+    "keywords": {
+      "title": "Auto keyword discovery",
+      "intro": "Pulls from {gsc, select, true {real GSC data + } other {}}AI brand analysis + Google autocomplete. Pick the ones that look right — they'll be tracked from day one.",
+      "run": "Run keyword discovery",
+      "searching": "Searching for keywords…",
+      "found": "Found {count} keywords",
+      "fromGsc": "· {count} from real GSC data",
+      "pagesRead": "· read {count} {count, plural, one {page} other {pages}} of the site",
+      "seedsUsed": "· {count} seeds used",
+      "siteReadNote": "We could not read the site's own words for what it sells: {note}. These keywords come from the description and niche instead, so check them carefully before tracking any.",
+      "selectedCount": "{count} selected to track",
+      "trackContinue": "Track {count} keywords → next step"
+    },
+    "targeting": {
+      "title": "Where should we rank?",
+      "intro": "This drives every rank check, autocomplete suggestion, and country-specific citation directory. Picking the right country alone usually moves measured rank by 10+ positions.",
+      "country": "Country",
+      "language": "Language",
+      "city": "City (only if business serves a specific area)",
+      "cityPlaceholder": "Paris",
+      "geoTarget": "Geo-target mode",
+      "geoCountry": "Country-wide",
+      "geoCity": "City / local",
+      "geoMulti": "Multi-country",
+      "radius": "Service radius (km, optional — local businesses only)",
+      "continue": "Continue → scope"
+    },
+    "surfaces": {
+      "title": "Where will you be working?",
+      "intro": "This goes straight into the document {name} approves — both what you're doing and what you're not. We've ticked the usual set for a {niche} site; change anything that doesn't fit.",
+      "notIncluded": "Not included:",
+      "notIncludedTail": "The document will say so, so nobody assumes otherwise later.",
+      "continue": "Continue → the plan"
+    },
+    "plan": {
+      "title": "Ready to generate your 30-day plan",
+      "intro": "Builds 30 daily tasks tailored to this client's niche, locale, tech stack, and (when connected) real GSC data. Tasks land directly in the Tasks board with due dates spread across the next month.",
+      "learnedTitle": "What the tool has learned about your style",
+      "learnedFooter": "These rules are auto-applied to AI output for this client. Manage them in <link>Settings → AI learning</link>.",
+      "generated": "Generated {count} tasks under plan {planRef}.",
+      "readPlan": "Read the 30-day plan →",
+      "downloadPdf": "Download PDF",
+      "csv": "CSV",
+      "tasksBoard": "Tasks board",
+      "generate": "Generate 30-day plan",
+      "generating": "Generating 30-day plan…",
+      "kickoffTitle": "Send the client something to approve",
+      "kickoffIntro": "One document: what we found on the site, where their keywords stand today, and what happens in which week. The starting numbers are frozen into it, so next month's report has something to be measured against.",
+      "openPdf": "Open the PDF",
+      "editBeforeSend": "Edit it before sending",
+      "createDoc": "Create the approval document",
+      "creatingDoc": "Putting it together…"
+    }
   },
   "clients": {
     "title": "Clients",

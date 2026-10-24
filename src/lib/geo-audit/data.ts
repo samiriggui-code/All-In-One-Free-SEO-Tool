@@ -1,20 +1,37 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import ai_crawlersJson from "./data/ai_crawlers.json";
+import bot_challengesJson from "./data/bot_challenges.json";
+import brand_platformsJson from "./data/brand_platforms.json";
+import findingsJson from "./data/findings.json";
+import metaJson from "./data/meta.json";
+import retentionJson from "./data/retention.json";
+import schema_requirementsJson from "./data/schema_requirements.json";
+import site_kindsJson from "./data/site_kinds.json";
+import thresholdsJson from "./data/thresholds.json";
+import tiersJson from "./data/tiers.json";
+import weightsJson from "./data/weights.json";
 
-const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), "data");
-
-const cache = new Map<string, unknown>();
+// Imported, not read from disk: a path built from import.meta.url points
+// wherever the bundler put this module, which is not where the JSON is
+// once the app is built (it only worked in Docker through a COPY that
+// recreated src/lib/geo-audit/data beside the bundle).
+const DATA: Record<string, unknown> = {
+  ai_crawlers: ai_crawlersJson,
+  bot_challenges: bot_challengesJson,
+  brand_platforms: brand_platformsJson,
+  findings: findingsJson,
+  meta: metaJson,
+  retention: retentionJson,
+  schema_requirements: schema_requirementsJson,
+  site_kinds: site_kindsJson,
+  thresholds: thresholdsJson,
+  tiers: tiersJson,
+  weights: weightsJson,
+};
 
 export function load(name: string): Record<string, unknown> {
-  const hit = cache.get(name);
-  if (hit !== undefined) {
-    return hit as Record<string, unknown>;
-  }
-  const raw = readFileSync(join(DATA_DIR, `${name}.json`), "utf8");
-  const parsed = JSON.parse(raw) as Record<string, unknown>;
-  cache.set(name, parsed);
-  return parsed;
+  const data = DATA[name];
+  if (data === undefined) throw new Error(`Unknown GEO data file: ${name}`);
+  return data as Record<string, unknown>;
 }
 
 export function dataVersion(): string {

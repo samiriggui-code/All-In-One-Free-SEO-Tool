@@ -41,7 +41,12 @@ function LoginInner({ mode }: { mode: "accounts" | "password" }) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data?.error ?? t("loginFailed"));
+        const msg = data?.error ?? t("loginFailed");
+        setError(
+          msg === "Email or password is incorrect."
+            ? t("badCredentials")
+            : msg,
+        );
         return;
       }
       router.push(next);

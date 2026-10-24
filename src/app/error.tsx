@@ -19,7 +19,10 @@ import {
   Home,
   RefreshCw,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { friendlyError, ghIssueLink, type ReportEnv } from "@/lib/friendly-error";
+
+const GENERIC_ERROR_TITLE = "Something went wrong";
 
 export default function PageError({
   error,
@@ -71,16 +74,24 @@ export default function PageError({
     };
   }, [error]);
 
-  const fe = useMemo(
-    () =>
-      friendlyError(
-        error.message || "Unknown error",
-        "page-error-boundary",
-        error.stack,
-        env ?? { digest: error.digest ?? null },
-      ),
-    [error, env],
-  );
+  const tPage = useTranslations("errors.page");
+  const tGeneric = useTranslations("errors.generic");
+
+  const fe = useMemo(() => {
+    const base = friendlyError(
+      error.message || "Unknown error",
+      "page-error-boundary",
+      error.stack,
+      env ?? { digest: error.digest ?? null },
+    );
+    if (base.title !== GENERIC_ERROR_TITLE) return base;
+    return {
+      ...base,
+      title: tGeneric("title"),
+      explanation: tGeneric("explanation"),
+      steps: [tGeneric("step1"), tGeneric("step2"), tGeneric("step3")],
+    };
+  }, [error, env, tGeneric]);
   const issueUrl = useMemo(() => ghIssueLink(fe), [fe]);
   const [showRaw, setShowRaw] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -125,7 +136,7 @@ export default function PageError({
   }
 
   async function restart() {
-    if (!confirm("Restart the server? The page will reload itself once it's back.")) return;
+    if (!confirm(tPage("restartConfirm"))) return;
     try {
       await fetch("/api/restart", { method: "POST" });
       setTimeout(function poll() {
@@ -141,7 +152,7 @@ export default function PageError({
       <div className="space-y-2">
         <div className="inline-flex items-center gap-2 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-300">
           <AlertTriangle className="size-3" />
-          Error
+          {tPage("badge")}
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           {fe.title}
@@ -153,7 +164,7 @@ export default function PageError({
       <section className="rounded-md border border-border bg-card p-4">
         <h2 className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
           <CheckCircle2 className="size-3 text-emerald-300" />
-          Try this
+          {tPage("tryThis")}
         </h2>
         <ol className="mt-2 space-y-1.5 text-[13px] text-foreground">
           {fe.steps.map((s, i) => (
@@ -171,19 +182,19 @@ export default function PageError({
       <div className="grid gap-2 sm:grid-cols-2">
         <ActionButton
           icon={RefreshCw}
-          title="Try this page again"
+          title={tPage("retryPage")}
           onClick={() => reset()}
           primary
         />
-        <ActionButton icon={Home} title="Go to dashboard" href="/" />
+        <ActionButton icon={Home} title={tPage("dashboard")} href="/" />
         <ActionButton
           icon={ArrowLeft}
-          title="Go back"
+          title={tPage("goBack")}
           onClick={() => history.back()}
         />
         <ActionButton
           icon={RefreshCw}
-          title="Restart the server"
+          title={tPage("restartServer")}
           onClick={restart}
         />
       </div>
@@ -203,11 +214,10 @@ export default function PageError({
         <div className="rounded-md border border-border bg-muted/20 p-4">
           <h3 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
             <Bug className="size-3.5" />
-            Still stuck?
+            {tPage("stillStuck")}
           </h3>
           <p className="mt-1 text-[12px] text-muted-foreground">
-            Open a pre-filled GitHub issue — everything the maintainer needs is
-            already in the body. Takes ~10 seconds.
+            {tPage("githubHint")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
@@ -217,7 +227,7 @@ export default function PageError({
               className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground hover:opacity-90"
             >
               <Bug className="size-3.5" />
-              Report on GitHub
+              {tPage("reportGithub")}
               <ExternalLink className="size-3 opacity-70" />
             </a>
             <button
@@ -226,7 +236,7 @@ export default function PageError({
               className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-3 py-1.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <Copy className="size-3.5" />
-              {copied ? "Copied" : "Copy details"}
+              {copied ? tPage("copied") : tPage("copyDetails")}
             </button>
           </div>
         </div>
@@ -242,7 +252,7 @@ export default function PageError({
           <ChevronRight
             className={`size-3 transition-transform ${showRaw ? "rotate-90" : ""}`}
           />
-          Raw error
+          {tPage("rawError")}
           {error.digest && (
             <code className="ml-2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
               #{error.digest}
@@ -259,9 +269,9 @@ export default function PageError({
       </details>
 
       <p className="text-[11px] text-muted-foreground">
-        Already logged to{" "}
+        {tPage("loggedTo")}{" "}
         <Link href="/settings/errors" className="text-violet-300 hover:underline">
-          Settings → Error log
+          {tPage("errorLogLink")}
         </Link>
         .
       </p>

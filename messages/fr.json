@@ -531,6 +531,30 @@
     }
   },
   "errors": {
+    "generic": {
+      "title": "Une erreur s’est produite",
+      "explanation": "Nous n’avons pas encore de correction en un clic pour cette erreur. Les détails ont été enregistrés. Utilisez « Signaler sur GitHub » — le ticket sera prérempli pour le mainteneur.",
+      "step1": "Réessayez l’action — beaucoup d’erreurs sont passagères",
+      "step2": "Si ça persiste, redémarrez le serveur (bouton power en bas à droite)",
+      "step3": "Toujours bloqué ? Signalez sur GitHub (ci-dessous) — ~10 secondes"
+    },
+    "page": {
+      "badge": "Erreur",
+      "tryThis": "Essayez ceci",
+      "retryPage": "Réessayer cette page",
+      "dashboard": "Tableau de bord",
+      "goBack": "Retour",
+      "restartServer": "Redémarrer le serveur",
+      "restartConfirm": "Redémarrer le serveur ? La page se rechargera une fois le service revenu.",
+      "stillStuck": "Toujours bloqué ?",
+      "githubHint": "Ouvrir un ticket GitHub prérempli — tout ce qu’il faut pour le mainteneur est déjà dans le corps. ~10 secondes.",
+      "reportGithub": "Signaler sur GitHub",
+      "copyDetails": "Copier les détails",
+      "copied": "Copié",
+      "rawError": "Erreur brute",
+      "loggedTo": "Déjà enregistré dans",
+      "errorLogLink": "Paramètres → Journal d’erreurs"
+    },
     "notFound": {
       "badge": "404 · Page introuvable",
       "title": "Cette page n’existe pas — voici où aller.",
@@ -558,8 +582,105 @@
     "signIn": "Connexion",
     "signingIn": "Connexion…",
     "loginFailed": "Échec de la connexion",
+    "badCredentials": "E-mail ou mot de passe incorrect.",
     "noAccount": "Pas de compte ?",
     "register": "Créer un compte"
+  },
+  "onboarding": {
+    "backToClient": "Retour au client",
+    "pageTitle": "Onboarding intelligent · {name}",
+    "pageDescription": "Décrivez l’activité une fois : l’outil construit un plan SEO sur 30 jours adapté à la niche, à la langue et à la stack — et génère les tâches quotidiennes pour ne plus se demander quoi faire chaque matin.",
+    "skip": "Passer l’onboarding",
+    "skipping": "Passage…",
+    "saving": "Enregistrement…",
+    "steps": {
+      "brand": "Marque",
+      "keywords": "Mots-clés",
+      "targeting": "Ciblage",
+      "surfaces": "Périmètre",
+      "completed": "Plan"
+    },
+    "audit": {
+      "checking": "Analyse du site en cours…",
+      "done": "Analyse du site terminée",
+      "failed": "Analyse du site incomplète",
+      "pagesSoFar": "{count, plural, one {# page pour l’instant} other {# pages pour l’instant}}",
+      "runningHint": "Cela tourne en arrière-plan — continuez les étapes ci-dessous, ce sera prêt à la fin.",
+      "completedHint": "{issues, plural, one {# point} other {# points}} à examiner. Tout est dans le rapport final.",
+      "completedHintScore": "{issues, plural, one {# point} other {# points}} à examiner · score santé {score}/100. Tout est dans le rapport final.",
+      "failedHint": "Le site était peut‑être inaccessible. Relancez depuis la fiche client — le reste de l’onboarding fonctionne quand même."
+    },
+    "brand": {
+      "title": "Parlez-moi de l’activité",
+      "intro": "Un paragraphe + une niche suffisent pour trouver des mots-clés. Ces infos alimentent le plan sur 30 jours.",
+      "descriptionLabel": "Que fait {name} ? (1 à 3 phrases)",
+      "descriptionPlaceholder": "Chauffeur privé VTC à Paris : transferts aéroports, prix fixe, 24h/24. Devis WhatsApp.",
+      "businessType": "Type d’activité",
+      "businessTypePlaceholder": "VTC / boulangerie / dentiste / SaaS / cabinet d’avocats…",
+      "niche": "Niche",
+      "nichePick": "— choisir —",
+      "nicheLocal": "Entreprise locale (Google Maps + fiche GBP)",
+      "nicheLocalHelp": "Commerce ou service de proximité visible sur Maps avec une fiche Google Business Profile : VTC, restaurant, artisan, clinique, etc.",
+      "nicheEcommerce": "E-commerce",
+      "nicheSaas": "SaaS / B2B",
+      "nicheBlog": "Blog / contenu",
+      "nicheServices": "Services / professions libérales",
+      "inferredHint": "Proposé à partir de votre texte et du site — modifiez si besoin.",
+      "continue": "Continuer → découverte de mots-clés"
+    },
+    "keywords": {
+      "title": "Découverte automatique de mots-clés",
+      "intro": "Sources : {gsc, select, true {données Search Console + } other {}}analyse de marque IA + suggestions Google. Cochez ceux à suivre dès le départ.",
+      "run": "Lancer la découverte",
+      "searching": "Recherche de mots-clés…",
+      "found": "{count} mots-clés trouvés",
+      "fromGsc": "· {count} via Search Console",
+      "pagesRead": "· {count} {count, plural, one {page lue} other {pages lues}} sur le site",
+      "seedsUsed": "· {count} amorces utilisées",
+      "siteReadNote": "Impossible de lire le site pour savoir ce qu’il vend : {note}. Les mots-clés viennent surtout de la description et de la niche — vérifiez-les avant de les suivre.",
+      "selectedCount": "{count} sélectionné(s) pour le suivi",
+      "trackContinue": "Suivre {count} mots-clés → étape suivante"
+    },
+    "targeting": {
+      "title": "Où faut-il se positionner ?",
+      "intro": "Pays, langue et ville pilotent les contrôles de position, l’autocomplétion et les annuaires locaux. Le bon pays seul peut décaler le ranking mesuré de plus de 10 places.",
+      "country": "Pays",
+      "language": "Langue",
+      "city": "Ville (si zone de chalandise précise)",
+      "cityPlaceholder": "Paris",
+      "geoTarget": "Mode géo",
+      "geoCountry": "Tout le pays",
+      "geoCity": "Ville / local",
+      "geoMulti": "Multi-pays",
+      "radius": "Rayon de service (km, optionnel — entreprises locales)",
+      "continue": "Continuer → périmètre"
+    },
+    "surfaces": {
+      "title": "Sur quoi allez-vous travailler ?",
+      "intro": "Cela alimente le document que {name} valide — ce qui est inclus et ce qui ne l’est pas. Cases cochées selon la niche « {niche} » ; ajustez si besoin.",
+      "notIncluded": "Hors périmètre :",
+      "notIncludedTail": "Ce sera écrit noir sur blanc dans le document.",
+      "continue": "Continuer → le plan"
+    },
+    "plan": {
+      "title": "Générer le plan sur 30 jours",
+      "intro": "Crée 30 tâches quotidiennes adaptées à la niche, à la locale, à la stack et (si connecté) aux données Search Console. Elles arrivent dans le board Tâches avec des échéances étalées sur le mois.",
+      "learnedTitle": "Ce que l’outil a appris de votre façon de travailler",
+      "learnedFooter": "Règles appliquées automatiquement aux sorties IA pour ce client. Gérez-les dans <link>Paramètres → Apprentissage IA</link>.",
+      "generated": "{count} tâches créées (plan {planRef}).",
+      "readPlan": "Lire le plan 30 jours →",
+      "downloadPdf": "Télécharger le PDF",
+      "csv": "CSV",
+      "tasksBoard": "Board tâches",
+      "generate": "Générer le plan 30 jours",
+      "generating": "Génération du plan…",
+      "kickoffTitle": "Envoyer un document au client pour validation",
+      "kickoffIntro": "Un seul document : état du site, positions des mots-clés, planning par semaine. Les chiffres de départ sont figés pour comparer le mois prochain.",
+      "openPdf": "Ouvrir le PDF",
+      "editBeforeSend": "Modifier avant envoi",
+      "createDoc": "Créer le document de validation",
+      "creatingDoc": "Préparation…"
+    }
   },
   "clients": {
     "title": "Clients",

@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { OnboardingWizard } from "./wizard";
 
@@ -21,18 +22,20 @@ export default async function OnboardingPage({
   const [client] = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("onboarding");
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <Link
         href={`/clients/${client.id}`}
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to client
+        <ArrowLeft className="size-3" /> {t("backToClient")}
       </Link>
 
       <PageHeader
-        title={`Smart onboarding · ${client.name}`}
-        description="Tell us about the business once, and the tool builds a 30-day SEO plan tailored to the niche, locale, and tech stack — auto-generates daily tasks so you don't have to figure out what to do each morning."
+        title={t("pageTitle", { name: client.name })}
+        description={t("pageDescription")}
         icon={Sparkles}
         accent="violet"
       />
@@ -59,8 +62,10 @@ export default async function OnboardingPage({
               | "brand"
               | "keywords"
               | "targeting"
+              | "surfaces"
               | "completed") ?? "pending",
           planGeneratedAt: client.planGeneratedAt,
+          techStack: client.techStack,
         }}
       />
     </div>
