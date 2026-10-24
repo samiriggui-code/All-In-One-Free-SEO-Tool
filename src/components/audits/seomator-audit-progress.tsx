@@ -36,6 +36,8 @@ export function SeomatorAuditProgressLive({
   const tCat = useTranslations("auditUi.categories");
   const [data, setData] = useState<ProgressPayload | null>(null);
   const [previewReady, setPreviewReady] = useState(false);
+  /** Cache-bust for preview img; set once when the server reports a screenshot path. */
+  const [previewVersion, setPreviewVersion] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +51,10 @@ export function SeomatorAuditProgressLive({
         const json = (await res.json()) as ProgressPayload;
         if (cancelled) return;
         setData(json);
-        if (json.previewScreenshotPath) setPreviewReady(true);
+        if (json.previewScreenshotPath) {
+          setPreviewReady(true);
+          setPreviewVersion((v) => v ?? json.previewScreenshotPath);
+        }
         if (json.status === "completed" || json.status === "failed") {
           window.location.reload();
         }
@@ -81,8 +86,8 @@ export function SeomatorAuditProgressLive({
             {previewReady ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/audits/${auditId}/preview?t=${encodeURIComponent(progress?.updatedAt ?? "")}`}
                 alt={t("previewAlt", { url: targetUrl })}
+                src={`/audits/${auditId}/preview?v=${encodeURIComponent(previewVersion ?? "1")}`}
                 className="aspect-[16/10] w-full object-cover object-top"
               />
             ) : (

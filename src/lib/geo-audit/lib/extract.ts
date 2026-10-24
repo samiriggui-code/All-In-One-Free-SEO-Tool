@@ -201,7 +201,7 @@ function stripChrome($: cheerio.CheerioAPI, $root: cheerio.Cheerio<Element>, chr
   });
 }
 
-function hasBlockAncestor(node: AnyNode, _$: cheerio.CheerioAPI): boolean {
+function hasBlockAncestor(node: AnyNode): boolean {
   let parent = node.parent;
   while (parent) {
     if (parent.type === "tag" && BLOCK_TAGS.has(parent.name)) return true;
@@ -329,7 +329,7 @@ export function extract(html: string, url: string): GeoDocument {
   $root.find(Array.from(BLOCK_TAGS).join(",")).each((_, node) => {
     const tag = node.tagName?.toLowerCase();
     if (!tag || !BLOCK_TAGS.has(tag)) return;
-    if (hasBlockAncestor(node, $)) return;
+    if (hasBlockAncestor(node)) return;
     const text = normalizeText($(node).text());
     if (!text) return;
     if (/^h[1-6]$/.test(tag)) {
