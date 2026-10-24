@@ -1,5 +1,13 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import type {
+  KeywordSuggestion,
+  NewsletterPack,
+  Outline,
+  SerpResult as ContentSerpResult,
+  SocialPack,
+  StyleProfile,
+} from "../lib/content-studio/types";
 
 const timestamps = {
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -95,6 +103,12 @@ export const clients = sqliteTable("clients", {
   brandingSkipped: integer("branding_skipped", { mode: "boolean" })
     .notNull()
     .default(false),
+  /**
+   * Brand voice for the content studio: tone, sentence length, heading
+   * case, CTA style. Extracted from sample posts, then fed to every
+   * outline and draft so articles sound like the client, not the model.
+   */
+  contentStyleProfile: text("content_style_profile", { mode: "json" }).$type<StyleProfile>(),
   ...timestamps,
 });
 
@@ -867,6 +881,61 @@ export const contentBriefs = sqliteTable("content_briefs", {
   /** Target publish date for the content calendar. */
   scheduledFor: integer("scheduled_for", { mode: "timestamp" }),
   ...timestamps,
+});
+
+/**
+ * An article in the content studio (ported from BlogPilot).
+ *
+ * One row follows the article from idea to published: the approved
+ * outline, the Markdown draft, its meta and schema, the social and
+ * newsletter cuts. `content_briefs` above predates this and only holds
+ * a brief; a post here carries the whole piece.
+ */
+export const contentPosts = sqliteTable("content_posts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  status: text("status", {
+    enum: ["idea", "outline_approved", "draft", "scheduled", "published"],
+  })
+    .notNull()
+    .default("idea"),
+  title: text("title"),
+  primaryKeyword: text("primary_keyword"),
+  intent: text("intent"),
+  outline: text("outline", { mode: "json" }).$type<Outline>(),
+  draftMarkdown: text("draft_markdown"),
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  schemaJsonLd: text("schema_jsonld"),
+  social: text("social", { mode: "json" }).$type<SocialPack>(),
+  newsletter: text("newsletter", { mode: "json" }).$type<NewsletterPack>(),
+  /** Last content score (0-100) against the top 10, null until scored. */
+  contentScore: integer("content_score"),
+  publishDate: integer("publish_date", { mode: "timestamp" }),
+  publishedUrl: text("published_url"),
+  ...timestamps,
+});
+
+/**
+ * A saved keyword-research run for the content studio. Research hits
+ * several rate-limited public endpoints and takes ~10s, so it is kept
+ * rather than re-run on every page load.
+ */
+export const contentKeywordResearch = sqliteTable("content_keyword_research", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  seed: text("seed").notNull(),
+  language: text("language").notNull().default("en"),
+  suggested: text("suggested", { mode: "json" }).notNull().$type<KeywordSuggestion[]>(),
+  serp: text("serp", { mode: "json" }).$type<ContentSerpResult[]>(),
+  paa: text("paa", { mode: "json" }).$type<string[]>(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
 });
 
 export const backlinks = sqliteTable("backlinks", {
