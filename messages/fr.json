@@ -161,7 +161,116 @@
       "tools": "100+ outils gratuits"
     },
     "noPaidApis": "Pas d’API payantes",
-    "noPaidApisBody": "Mode navigateur + APIs Google gratuites suffisent. Apportez une clé seulement pour des données SERP premium."
+    "noPaidApisBody": "Mode navigateur + APIs Google gratuites suffisent. Apportez une clé seulement pour des données SERP premium.",
+    "briefing": {
+      "title": "Briefing du jour",
+      "subtitle": "Ce qui a changé ces dernières 24 h sur vos clients.",
+      "signals": "{count, plural, =0 {aucun signal} one {# signal} other {# signaux}}",
+      "empty": "Tout est calme : aucun changement de page, problème d’audit ou tâche en retard. Vos matinées devraient ressembler à ça.",
+      "pageChanged": "{field} modifié sur {page}",
+      "auditFound": "{count, plural, one {L’audit a trouvé # problème} other {L’audit a trouvé # problèmes}}",
+      "auditDetail": "Score {score}/100 · {client}",
+      "unknown": "inconnu",
+      "staleDetail": "Créée il y a {days} j · priorité {priority}",
+      "priority": {
+        "high": "haute",
+        "medium": "moyenne",
+        "low": "basse"
+      },
+      "kind": {
+        "page-change": "Changement",
+        "audit-issue": "Audit",
+        "stale-task": "Tâche en retard",
+        "decay": "Déclin"
+      }
+    },
+    "agencyWeek": {
+      "title": "La semaine de l’agence",
+      "subtitle": "{count, plural, one {Activité cumulée sur # client ces 7 derniers jours.} other {Activité cumulée sur les # clients ces 7 derniers jours.}}",
+      "tasksDone": "Tâches terminées",
+      "linksBuilt": "Liens obtenus",
+      "clicks": "Clics sur liens courts",
+      "activeLinks": "{count, plural, one {# actif} other {# actifs}}",
+      "mentions": "Mentions de marque",
+      "positive": "{count, plural, one {# positive} other {# positives}}",
+      "scanToUpdate": "à scanner pour mettre à jour",
+      "pageChanges": "Changements de page",
+      "activeClients": "Clients actifs",
+      "hadCompletions": "avec des tâches terminées",
+      "mostActive": "Clients les plus actifs"
+    },
+    "autonomy": {
+      "title": "Jusqu’où l’agent peut-il agir seul ?",
+      "body": "Pour l’instant, il trouve du travail chaque nuit sans rien modifier, car personne n’a encore répondu. Chaque modification est journalisée avec la valeur précédente et peut être annulée en un clic. Vous pouvez changer ce choix à tout moment dans les réglages de l’agent.",
+      "levels": {
+        "suggest": {
+          "label": "Me prévenir seulement",
+          "hint": "Trouve tout, ne modifie rien. Vous appliquez ce que vous validez.",
+          "description": "Analyse vos sites chaque jour et propose des corrections, sans jamais rien modifier. Vous appliquez ce que vous validez."
+        },
+        "apply_safe": {
+          "label": "Corriger l’évident",
+          "hint": "Applique les corrections mesurables. Vous garde les décisions de jugement.",
+          "description": "Corrige ce qui est faux selon une règle mesurable (titres trop longs, alt manquants, meta descriptions absentes) et vous laisse les décisions de jugement. Chaque modification est journalisée et annulable en un clic."
+        },
+        "apply_all": {
+          "label": "Tout faire",
+          "hint": "Applique tout ce qu’il propose, rédaction comprise. Vous relisez après coup.",
+          "description": "Applique tout ce qu’il propose, y compris les réécritures qui relèvent du jugement. Toujours journalisé et annulable, mais vous relisez après coup plutôt qu’avant."
+        }
+      }
+    },
+    "checklist": {
+      "title": "Mise en route · {done} sur {total}",
+      "remaining": "{count, plural, one {Plus qu’une étape et tout fonctionne.} other {Encore # étapes pour débloquer tout l’outil.}}",
+      "complete": "terminé",
+      "ai": {
+        "title": "Ajouter une clé IA",
+        "description": "Collez une clé gratuite (Gemini, Groq, DeepSeek) ou lancez Ollama en local. Débloque l’assistant IA, les résumés, la rédaction et le générateur de code.",
+        "subscription": "Votre app de chat ({client}) est connectée et peut lire vos données SEO, mais cela fonctionne dans Claude, pas ici. Les pages IA de cette app (assistant, résumés, rédaction) appellent un modèle directement : il leur faut une clé ou Ollama.",
+        "manage": "Gérer l’IA",
+        "add": "Ajouter une clé"
+      },
+      "client": {
+        "title": "Ajouter votre premier client",
+        "description": "Collez un domaine : on extrait la marque, le logo, les coordonnées, les réseaux sociaux et la stack technique en quelques secondes.",
+        "view": "Voir les clients",
+        "add": "Ajouter un client"
+      },
+      "google": {
+        "title": "Connecter Google (GSC + GA4)",
+        "description": "Une connexion OAuth débloque les vraies données de positions et de trafic. Facultatif si vous ne faites que des audits techniques : la plupart des outils fonctionnent sans.",
+        "manage": "Gérer",
+        "connect": "Connecter Google"
+      },
+      "audit": {
+        "title": "Lancer votre premier audit",
+        "description": "Plus de 370 règles : indexabilité, schema, Core Web Vitals, hreflang, en-têtes de sécurité, liens cassés… Local et gratuit.",
+        "view": "Voir les audits",
+        "run": "Lancer un audit"
+      },
+      "report": {
+        "title": "Générer votre premier rapport",
+        "description": "Résumé IA, PDF en marque blanche et portail client par lien magique. De 6 heures par mois à 25 minutes.",
+        "view": "Voir les rapports",
+        "generate": "Générer un rapport"
+      }
+    },
+    "quickWins": {
+      "title": "Quick wins sur tous les clients",
+      "subtitle": "Les mots-clés aux plus fortes impressions classés entre la 4e et la 15e position. Un ajustement suffit pour la première page.",
+      "stats": "{impressions, number} impr. · {clicks, number} clics",
+      "current": "actuelle"
+    },
+    "traffic": {
+      "title": "Trafic organique du portefeuille",
+      "subtitle": "{count, plural, one {Somme sur # client avec GA4 connecté, 28 derniers jours, recherche organique uniquement.} other {Somme sur # clients avec GA4 connecté, 28 derniers jours, recherche organique uniquement.}}",
+      "sessions": "Sessions (28 j)",
+      "users": "Utilisateurs",
+      "pageviews": "Pages vues",
+      "movers": "Plus fortes variations",
+      "vsPrior": "vs période précédente"
+    }
   },
   "settings": {
     "title": "Paramètres",

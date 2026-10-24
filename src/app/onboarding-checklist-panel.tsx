@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, ArrowRight, Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getOnboardingChecklist } from "@/lib/onboarding-checklist";
 
 /**
@@ -12,6 +13,7 @@ export async function OnboardingChecklistPanel() {
   const { steps, done, total } = await getOnboardingChecklist();
   if (done === total) return null; // hide once everything is set up
 
+  const t = await getTranslations("dashboard.checklist");
   const pct = Math.round((done / total) * 100);
   const nextSteps = steps.filter((s) => !s.done).slice(0, 3);
 
@@ -25,12 +27,10 @@ export async function OnboardingChecklistPanel() {
           </div>
           <div>
             <h2 className="text-base font-semibold">
-              Get set up · {done} of {total} done
+              {t("title", { done, total })}
             </h2>
             <p className="text-[11px] text-muted-foreground">
-              {nextSteps.length === 1
-                ? "One step left and you're fully running."
-                : `Finish ${nextSteps.length} more steps to unlock the full tool.`}
+              {t("remaining", { count: nextSteps.length })}
             </p>
           </div>
         </div>
@@ -40,7 +40,7 @@ export async function OnboardingChecklistPanel() {
               {pct}%
             </p>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              complete
+              {t("complete")}
             </p>
           </div>
         </div>

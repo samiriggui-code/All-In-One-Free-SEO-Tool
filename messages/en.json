@@ -161,7 +161,116 @@
       "tools": "100+ free tools"
     },
     "noPaidApis": "No paid APIs",
-    "noPaidApisBody": "Browser mode + free Google APIs cover everything. BYO key only if you want premium SERP data."
+    "noPaidApisBody": "Browser mode + free Google APIs cover everything. BYO key only if you want premium SERP data.",
+    "briefing": {
+      "title": "Today's briefing",
+      "subtitle": "What changed in the last 24h across your portfolio.",
+      "signals": "{count, plural, =0 {no signals} one {# signal} other {# signals}}",
+      "empty": "All quiet. No new page changes, audit issues, or stale tasks. Your mornings should look like this.",
+      "pageChanged": "{field} changed on {page}",
+      "auditFound": "{count, plural, one {Audit found # issue} other {Audit found # issues}}",
+      "auditDetail": "Score {score}/100 · {client}",
+      "unknown": "unknown",
+      "staleDetail": "Created {days}d ago · {priority} priority",
+      "priority": {
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "kind": {
+        "page-change": "Page change",
+        "audit-issue": "Audit",
+        "stale-task": "Stale task",
+        "decay": "Decay"
+      }
+    },
+    "agencyWeek": {
+      "title": "Agency week in review",
+      "subtitle": "{count, plural, one {Aggregate activity across # client over the last 7 days.} other {Aggregate activity across all # clients over the last 7 days.}}",
+      "tasksDone": "Tasks completed",
+      "linksBuilt": "Links built",
+      "clicks": "Short-link clicks",
+      "activeLinks": "{count} active",
+      "mentions": "Brand mentions",
+      "positive": "{count} positive",
+      "scanToUpdate": "scan to update",
+      "pageChanges": "Page changes",
+      "activeClients": "Active clients",
+      "hadCompletions": "had completions",
+      "mostActive": "Most active clients"
+    },
+    "autonomy": {
+      "title": "How much should the agent do on its own?",
+      "body": "It currently finds work every night and changes nothing, because nobody has answered this yet. Every change it makes is logged with the previous value and can be undone in one click. You can change this any time in agent settings.",
+      "levels": {
+        "suggest": {
+          "label": "Just tell me",
+          "hint": "Finds everything, changes nothing. You apply what you agree with.",
+          "description": "Analyses your sites every day and proposes fixes, but never changes anything. You apply what you agree with."
+        },
+        "apply_safe": {
+          "label": "Fix the obvious things",
+          "hint": "Applies fixes that are wrong by a measurable rule. Queues judgement calls for you.",
+          "description": "Fixes things that are wrong by a measurable rule — titles too long to display, missing alt text, missing meta descriptions — and queues judgement calls for you. Every change is logged with its previous value and can be undone in one click."
+        },
+        "apply_all": {
+          "label": "Do it all",
+          "hint": "Applies everything it proposes, including wording. You review after the fact.",
+          "description": "Applies everything it proposes, including rewrites that are a matter of judgement. Still logged, still reversible, but you'll be reviewing after the fact rather than before."
+        }
+      }
+    },
+    "checklist": {
+      "title": "Get set up · {done} of {total} done",
+      "remaining": "{count, plural, one {One step left and you're fully running.} other {Finish # more steps to unlock the full tool.}}",
+      "complete": "complete",
+      "ai": {
+        "title": "Add an AI key",
+        "description": "Paste a free-tier key (Gemini / Groq / DeepSeek) or run Ollama locally. Unlocks the AI assistant, executive summaries, content writer and code generator.",
+        "subscription": "Your chat app ({client}) is connected and can read your SEO data — but that works inside Claude, not in here. This app's own AI pages (assistant, summaries, content writer) call a model directly, so they need a key or Ollama.",
+        "manage": "Manage AI",
+        "add": "Add a key"
+      },
+      "client": {
+        "title": "Add your first client",
+        "description": "Paste a domain — we auto-extract brand, logo, NAP, social links, and detect their tech stack in seconds.",
+        "view": "View clients",
+        "add": "Add client"
+      },
+      "google": {
+        "title": "Connect Google (GSC + GA4)",
+        "description": "One-click OAuth unlocks real ranking + traffic data. Skip if you only want technical audits — most other tools work without it.",
+        "manage": "Manage",
+        "connect": "Connect Google"
+      },
+      "audit": {
+        "title": "Run your first audit",
+        "description": "370+ rules for indexability, schema, Core Web Vitals, hreflang, security headers, broken links — local and free.",
+        "view": "View audits",
+        "run": "Run audit"
+      },
+      "report": {
+        "title": "Generate your first report",
+        "description": "AI executive summary + white-label PDF + magic-link client portal. Goes from 6 hours/month to 25 minutes/month.",
+        "view": "View reports",
+        "generate": "Generate report"
+      }
+    },
+    "quickWins": {
+      "title": "Quick wins across all clients",
+      "subtitle": "Highest-impression keywords sitting at positions 4-15. One tweak from page 1.",
+      "stats": "{impressions, number} impr · {clicks, number} clicks",
+      "current": "current"
+    },
+    "traffic": {
+      "title": "Portfolio organic traffic",
+      "subtitle": "{count, plural, one {Sum across # client with GA4 connected — last 28 days, organic search only.} other {Sum across # clients with GA4 connected — last 28 days, organic search only.}}",
+      "sessions": "Sessions (28d)",
+      "users": "Users",
+      "pageviews": "Pageviews",
+      "movers": "Biggest movers",
+      "vsPrior": "vs prior"
+    }
   },
   "settings": {
     "title": "Settings",

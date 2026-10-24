@@ -8,6 +8,7 @@
  * page) so users see ticks update as they complete each step.
  */
 
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { audits, clients, reportArchives } from "@/db/schema";
 import { count, eq, ne } from "drizzle-orm";
@@ -28,6 +29,7 @@ export async function getOnboardingChecklist(): Promise<{
   done: number;
   total: number;
 }> {
+  const t = await getTranslations("dashboard.checklist");
   // Run all detection queries in parallel
   const [
     [{ value: clientCount }],
@@ -54,7 +56,7 @@ export async function getOnboardingChecklist(): Promise<{
   const steps: ChecklistItem[] = [
     {
       id: "ai-provider",
-      title: "Add an AI key",
+      title: t("ai.title"),
       // Explains why a connected chat app does not tick this.
       //
       // It briefly counted a connected subscription and that was wrong:
@@ -64,46 +66,46 @@ export async function getOnboardingChecklist(): Promise<{
       // subscription is connected but powers a different thing is the
       // honest version, and stops the step reading as a bug.
       description: aiAvailability.hasSubscription
-        ? `Your chat app (${aiAvailability.client}) is connected and can read your SEO data — but that works inside Claude, not in here. This app's own AI pages (assistant, summaries, content writer) call a model directly, so they need a key or Ollama.`
-        : "Paste a free-tier key (Gemini / Groq / DeepSeek) or run Ollama locally. Unlocks the AI assistant, executive summaries, content writer and code generator.",
+        ? t("ai.subscription", { client: aiAvailability.client ?? "" })
+        : t("ai.description"),
       done: aiAvailability.available,
-      cta: aiAvailability.available ? "Manage AI" : "Add a key",
+      cta: aiAvailability.available ? t("ai.manage") : t("ai.add"),
       href: "/settings#ai",
     },
     {
       id: "first-client",
-      title: "Add your first client",
+      title: t("client.title"),
       description:
-        "Paste a domain — we auto-extract brand, logo, NAP, social links, and detect their tech stack in seconds.",
+        t("client.description"),
       done: clientCount > 0,
-      cta: clientCount > 0 ? "View clients" : "Add client",
+      cta: clientCount > 0 ? t("client.view") : t("client.add"),
       href: clientCount > 0 ? "/clients" : "/clients/new",
     },
     {
       id: "google-oauth",
-      title: "Connect Google (GSC + GA4)",
+      title: t("google.title"),
       description:
-        "One-click OAuth unlocks real ranking + traffic data. Skip if you only want technical audits — most other tools work without it.",
+        t("google.description"),
       done: googleStatus.connected,
-      cta: googleStatus.connected ? "Manage" : "Connect Google",
+      cta: googleStatus.connected ? t("google.manage") : t("google.connect"),
       href: "/settings#google",
     },
     {
       id: "first-audit",
-      title: "Run your first audit",
+      title: t("audit.title"),
       description:
-        "30+ checks for indexability, schema, Core Web Vitals, hreflang, security headers, broken links — local and free.",
+        t("audit.description"),
       done: completedAuditCount > 0,
-      cta: completedAuditCount > 0 ? "View audits" : "Run audit",
+      cta: completedAuditCount > 0 ? t("audit.view") : t("audit.run"),
       href: "/audits",
     },
     {
       id: "first-report",
-      title: "Generate your first report",
+      title: t("report.title"),
       description:
-        "AI executive summary + white-label PDF + magic-link client portal. Goes from 6 hours/month to 25 minutes/month.",
+        t("report.description"),
       done: reportCount > 0,
-      cta: reportCount > 0 ? "View reports" : "Generate report",
+      cta: reportCount > 0 ? t("report.view") : t("report.generate"),
       href: "/reports",
     },
   ];
