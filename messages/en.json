@@ -819,7 +819,8 @@
       "markResolved": "✓ Mark resolved",
       "ignore": "Ignore",
       "seoToolChecks": "SEO Tool checks",
-      "seoToolChecksHint": "SEO Tool's own checks (crawl, pages, links) that the engine does not already cover. They feed tasks and the agent."
+      "seoToolChecksHint": "SEO Tool's own checks (crawl, pages, links) that the engine does not already cover. They feed tasks and the agent.",
+      "filterByStatus": "Filter rules by status"
     }
   },
   "tools": {

@@ -11,9 +11,11 @@ export type ReportFilter = "all" | "fail" | "warn" | "pass" | "not-measured";
  * globals.css), so the server-rendered list is never re-rendered here.
  */
 export function ReportFilters({
+  label,
   tabs,
   children,
 }: {
+  label: string;
   tabs: { id: ReportFilter; label: string; count: number }[];
   children: ReactNode;
 }) {
@@ -31,13 +33,12 @@ export function ReportFilters({
 
   return (
     <div ref={ref} className="engine-report space-y-4" data-filter={filter}>
-      <div className="flex flex-wrap gap-2" role="tablist">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
-            role="tab"
-            aria-selected={filter === tab.id}
+            aria-pressed={filter === tab.id}
             onClick={() => setFilter(tab.id)}
             className={cn(
               "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium ring-1 ring-inset transition-colors",

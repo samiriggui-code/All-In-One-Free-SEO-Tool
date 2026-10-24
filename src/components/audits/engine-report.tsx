@@ -44,6 +44,16 @@ function hostOf(url: string) {
   }
 }
 
+/** Resolves a page-relative `og:image` against the audited page; http(s) only. */
+function absoluteUrl(src: string, base: string) {
+  try {
+    const u = new URL(src, base);
+    return u.protocol === "http:" || u.protocol === "https:" ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 function StatusIcon({ status }: { status: RuleStatus }) {
   const s = STATUS_STYLE[status];
   const Icon = status === "warn" ? null : s.icon;
@@ -74,6 +84,7 @@ export async function EngineReportView({
   afterSnapshot?: React.ReactNode;
 }) {
   const t = await getTranslations("audits.report");
+  const ogImage = report.page?.og.image ? absoluteUrl(report.page.og.image, report.pages[0]) : null;
   const verdict = verdictForScore(report.score);
   const passed = report.score >= PASS_THRESHOLD;
   const multiPage = report.pages.length > 1;
@@ -166,9 +177,9 @@ export async function EngineReportView({
                 {report.page.twitterCard ? ` (twitter:card = ${report.page.twitterCard})` : ""}
               </div>
               <div className="overflow-hidden rounded-xl border border-white/10 bg-black/20">
-                {report.page.og.image ? (
+                {ogImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={report.page.og.image} alt="" loading="lazy" className="h-32 w-full bg-black/30 object-cover" />
+                  <img src={ogImage} alt="" loading="lazy" className="h-32 w-full bg-black/30 object-cover" />
                 ) : null}
                 <div className="space-y-0.5 p-3">
                   <div className="text-[11px] text-muted-foreground">
@@ -291,6 +302,7 @@ export async function EngineReportView({
         </nav>
 
         <ReportFilters
+          label={t("filterByStatus")}
           tabs={[
             { id: "all", label: t("all"), count: report.totals.total },
             { id: "fail", label: t("failures"), count: report.totals.fail },

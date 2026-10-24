@@ -819,7 +819,8 @@
       "markResolved": "✓ Marquer résolu",
       "ignore": "Ignorer",
       "seoToolChecks": "Contrôles SEO Tool",
-      "seoToolChecksHint": "Les vérifications propres à SEO Tool (crawl, pages, liens) que le moteur ne couvre pas déjà. Elles alimentent les tâches et l’agent."
+      "seoToolChecksHint": "Les vérifications propres à SEO Tool (crawl, pages, liens) que le moteur ne couvre pas déjà. Elles alimentent les tâches et l’agent.",
+      "filterByStatus": "Filtrer les règles par statut"
     }
   },
   "tools": {
