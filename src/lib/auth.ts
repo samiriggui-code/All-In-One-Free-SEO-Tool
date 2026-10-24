@@ -100,10 +100,12 @@ export function accountsEnabled(): boolean {
     const enabled = (row?.n ?? 0) > 0;
     if (enabled) accountsEnabledCache = true;
     return enabled;
-  } catch {
+  } catch (err) {
     // Table missing — an install that hasn't run migration 0054 yet.
-    // Same answer as "no accounts": keep the old behaviour.
-    return false;
+    // Same answer as "no accounts": keep the old behaviour. Any other
+    // read error must not open the app, so it propagates.
+    if (err instanceof Error && /no such table/i.test(err.message)) return false;
+    throw err;
   }
 }
 
