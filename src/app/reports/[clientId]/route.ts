@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { currentUser, mayEdit } from "@/lib/auth";
 import { mayAccessClient } from "@/lib/client-scope";
 import {
   generateReportPdf,
@@ -82,20 +83,24 @@ export async function GET(
   const filename = `${safeFilename(client.name)}-${template}-${today}.pdf`;
 
   // Archive — fire-and-forget, never block the download on a DB error.
-  const periodEnd = new Date();
-  const periodStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  void db
-    .insert(reportArchives)
-    .values({
-      clientId: id,
-      title: `${client.name} — ${template} report — ${today}`,
-      periodStart,
-      periodEnd,
-      template,
-      pdfBase64: pdf.toString("base64"),
-      pdfBytes: pdf.length,
-    })
-    .catch(() => undefined);
+  // A read-only client viewer still gets the PDF, but a download is not
+  // a write they are allowed to make, so it leaves no archive row.
+  if (mayEdit(await currentUser())) {
+    const periodEnd = new Date();
+    const periodStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    void db
+      .insert(reportArchives)
+      .values({
+        clientId: id,
+        title: `${client.name} — ${template} report — ${today}`,
+        periodStart,
+        periodEnd,
+        template,
+        pdfBase64: pdf.toString("base64"),
+        pdfBytes: pdf.length,
+      })
+      .catch(() => undefined);
+  }
 
   // @ts-expect-error - Buffer is valid BodyInit at runtime
   return new NextResponse(pdf, {
