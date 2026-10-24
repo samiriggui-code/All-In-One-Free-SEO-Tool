@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -36,6 +38,7 @@ export async function saveSchedule(
   _prev: SaveScheduleResult | null,
   formData: FormData,
 ): Promise<SaveScheduleResult> {
+  await requireSignedIn();
   const parsed = scheduleInput.safeParse({
     clientId: formData.get("clientId"),
     template: formData.get("template"),
@@ -110,6 +113,7 @@ export async function saveSchedule(
 }
 
 export async function deleteSchedule(scheduleId: number, clientId: number) {
+  await requireSignedIn();
   await db
     .delete(reportSchedules)
     .where(eq(reportSchedules.id, scheduleId));
@@ -121,6 +125,7 @@ export async function sendReportNow(opts: {
   template: "executive" | "detailed" | "technical";
   recipients: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const smtp = await getSmtpConfig();
   if (!smtp) {
     return {

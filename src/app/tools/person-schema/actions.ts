@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 
 export type SaveState =
@@ -11,6 +13,7 @@ export async function savePersonSchema(
   _prev: SaveState,
   formData: FormData,
 ): Promise<SaveState> {
+  await requireSignedIn();
   const name = String(formData.get("name") ?? "").trim();
   const jsonld = String(formData.get("jsonld") ?? "").trim();
   if (!name) return { ok: false, error: "Person name is required." };

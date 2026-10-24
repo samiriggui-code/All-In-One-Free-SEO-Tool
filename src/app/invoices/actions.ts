@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -44,6 +46,7 @@ export async function createInvoice(
   _prev: CreateInvoiceResult | null,
   formData: FormData,
 ): Promise<CreateInvoiceResult> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     invoiceNumber: formData.get("invoiceNumber") || (await nextInvoiceNumber()),
@@ -117,6 +120,7 @@ export async function setInvoiceStatus(
   invoiceId: number,
   status: "draft" | "sent" | "paid" | "overdue" | "void",
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(invoiceId) || invoiceId <= 0) return;
   const updates: { status: typeof status; updatedAt: Date; paidAt?: Date } = {
     status,
@@ -132,6 +136,7 @@ export async function setInvoiceStatus(
 }
 
 export async function deleteInvoice(invoiceId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(invoiceId) || invoiceId <= 0) return;
   await db.delete(invoices).where(eq(invoices.id, invoiceId));
   revalidatePath("/invoices");
@@ -139,6 +144,7 @@ export async function deleteInvoice(invoiceId: number) {
 }
 
 export async function getNextInvoiceNumber(): Promise<string> {
+  await requireSignedIn();
   return nextInvoiceNumber();
 }
 

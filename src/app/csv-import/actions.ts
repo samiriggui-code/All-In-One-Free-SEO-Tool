@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -123,6 +125,7 @@ export async function previewCsv(text: string): Promise<
   | { ok: true; preview: CsvPreview }
   | { ok: false; error: string }
 > {
+  await requireSignedIn();
   const rows = parseCsv(text);
   if (rows.length === 0) {
     return { ok: false, error: "No rows detected. Is this a valid CSV?" };
@@ -155,6 +158,7 @@ export async function importCsv(input: {
   schema: SchemaKind;
   clientId?: number;
 }): Promise<ImportResult> {
+  await requireSignedIn();
   const rows = parseCsv(input.text);
   if (rows.length === 0) {
     return { ok: false, error: "No rows" };

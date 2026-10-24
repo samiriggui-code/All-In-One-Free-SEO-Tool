@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   suggestCanonicalFix,
   suggestH1Fix,
@@ -60,6 +62,7 @@ export async function getFixSuggestions(
   pageUrl: string,
   issueType: string,
 ): Promise<FixResult> {
+  await requireSignedIn();
   let context: FixContext;
   try {
     context = await fetchPageContext(pageUrl);

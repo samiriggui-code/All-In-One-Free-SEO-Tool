@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
@@ -17,6 +19,7 @@ function generateToken(): string {
 }
 
 export async function generateShareToken(clientId: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   let attempts = 0;
   while (attempts < 5) {
@@ -35,6 +38,7 @@ export async function generateShareToken(clientId: number): Promise<void> {
 }
 
 export async function revokeShareToken(clientId: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   await db
     .update(clients)
@@ -55,6 +59,7 @@ export async function emailPortalLink(input: {
   recipientEmail?: string;
   baseUrl: string;
 }): Promise<EmailPortalResult> {
+  await requireSignedIn();
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
     return { ok: false, error: "Invalid client" };
   }

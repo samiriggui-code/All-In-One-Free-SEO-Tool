@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   cwvTrend,
@@ -29,6 +31,7 @@ export async function runCrux(
   _prev: CruxState,
   formData: FormData,
 ): Promise<CruxState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     url: formData.get("url"),
     formFactor: formData.get("formFactor") || undefined,
@@ -63,6 +66,7 @@ export async function runOriginSummary(
   _prev: OriginSummaryState,
   formData: FormData,
 ): Promise<OriginSummaryState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     url: formData.get("url"),
     formFactor: formData.get("formFactor") || undefined,
@@ -100,6 +104,7 @@ export async function runCruxHistory(
   _prev: CruxHistoryState,
   formData: FormData,
 ): Promise<CruxHistoryState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     url: formData.get("url"),
     formFactor: formData.get("formFactor") || undefined,

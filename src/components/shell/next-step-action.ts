@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
@@ -10,6 +12,7 @@ import { revalidatePath } from "next/cache";
  * is migrated/restored from backup and the priorities shift.
  */
 export async function dismissNextStep(stepId: string): Promise<void> {
+  await requireSignedIn();
   const safe = stepId.replace(/[^a-z0-9-_]/gi, "").slice(0, 64);
   if (!safe) return;
   const store = await cookies();

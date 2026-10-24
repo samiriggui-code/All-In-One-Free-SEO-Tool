@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAIVision } from "@/lib/ai-vision";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -20,6 +22,7 @@ export async function parseScreenshot(input: {
   imageDataUrl: string;
   parseType: string;
 }): Promise<ParseResult> {
+  await requireSignedIn();
   const match = input.imageDataUrl.match(/^data:([^;]+);base64,(.+)$/);
   if (!match) return { ok: false, error: "Invalid image data." };
   const [, mime, base64] = match;

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { auditParity, type ParityReport } from "@/lib/migration-parity";
 import { recordToolRun } from "@/lib/tool-findings";
 import { parityFindings } from "@/lib/tool-finding-builders";
@@ -12,6 +14,7 @@ export async function runParity(
   _prev: ParityState | null,
   formData: FormData,
 ): Promise<ParityState> {
+  await requireSignedIn();
   const raw = String(formData.get("oldUrls") ?? "").trim();
   const newDomain = String(formData.get("newDomain") ?? "").trim() || undefined;
   if (!raw) return { ok: false, error: "Paste old URLs (one per line)." };

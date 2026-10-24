@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -50,6 +52,7 @@ export async function runGeoScore(
   _prev: GeoScoreState,
   formData: FormData,
 ): Promise<GeoScoreState> {
+  await requireSignedIn();
   const urlRaw = String(formData.get("url") ?? "").trim();
   const clientIdRaw = String(formData.get("clientId") ?? "").trim();
   if (!urlRaw) return { ok: false, error: "URL required." };

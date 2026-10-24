@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
@@ -111,6 +113,7 @@ export async function askTheTool(input: {
   modelChoice?: { provider?: string; model?: string };
   conversationId?: number | null;
 }): Promise<AskResult> {
+  await requireSignedIn();
   const question = input.question.trim();
   if (!question) {
     return { ok: false, error: "Type a question first." };

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import {
   createAnnotation,
@@ -18,6 +20,7 @@ export async function addAnnotation(
   _prev: CreateState,
   formData: FormData,
 ): Promise<CreateState> {
+  await requireSignedIn();
   const label = String(formData.get("label") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const eventDateRaw = String(formData.get("eventDate") ?? "").trim();
@@ -68,6 +71,7 @@ export async function addAnnotation(
 }
 
 export async function removeAnnotation(id: number) {
+  await requireSignedIn();
   await deleteAnnotation(id);
   revalidatePath("/annotations");
 }
@@ -75,5 +79,6 @@ export async function removeAnnotation(id: number) {
 export async function fetchAnnotations(
   clientId?: number | null,
 ): Promise<Annotation[]> {
+  await requireSignedIn();
   return listAllAnnotations({ clientId, limit: 300 });
 }

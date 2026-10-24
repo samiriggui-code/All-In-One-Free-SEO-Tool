@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { checkDns, type DnsCheck } from "@/lib/dns-rdap";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -11,6 +13,7 @@ export async function runDns(
   _prev: DnsState | null,
   formData: FormData,
 ): Promise<DnsState> {
+  await requireSignedIn();
   const raw = String(formData.get("host") ?? "").trim();
   if (!raw) return { ok: false, error: "Enter a domain or URL." };
   const r = await checkDns(raw);

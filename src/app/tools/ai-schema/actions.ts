@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { generateSchemaFromUrl, type SchemaGenResult } from "@/lib/ai-schema-gen";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -21,6 +23,7 @@ export async function runAiSchema(
   _prev: AiSchemaState | null,
   formData: FormData,
 ): Promise<AiSchemaState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({ url: formData.get("url") });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };

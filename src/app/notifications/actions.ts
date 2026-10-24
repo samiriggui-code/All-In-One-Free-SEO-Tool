@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
@@ -27,6 +29,7 @@ export type Notification = {
 };
 
 export async function recentNotifications(): Promise<Notification[]> {
+  await requireSignedIn();
   const out: Notification[] = [];
 
   // Audits — last 8 across clients

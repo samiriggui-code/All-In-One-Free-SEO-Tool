@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { generateOgImage, type OgTemplate } from "@/lib/og-image";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -11,6 +13,7 @@ export async function runOgImage(
   _prev: OgState | null,
   formData: FormData,
 ): Promise<OgState> {
+  await requireSignedIn();
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();

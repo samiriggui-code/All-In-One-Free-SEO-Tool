@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { buildWeeklyDigest } from "@/lib/weekly-digest";
 import { sendMail } from "@/lib/mailer";
@@ -18,6 +20,7 @@ export async function sendDigest(
   _prev: SendState | null,
   formData: FormData,
 ): Promise<SendState> {
+  await requireSignedIn();
   const parsed = sendSchema.safeParse({
     to: formData.get("to"),
     subject: formData.get("subject") || "Weekly SEO digest",
@@ -54,6 +57,7 @@ export async function setSchedule(
   _prev: ScheduleState | null,
   formData: FormData,
 ): Promise<ScheduleState> {
+  await requireSignedIn();
   const enabled = formData.get("enabled") === "on";
   const email = String(formData.get("email") ?? "").trim();
   if (enabled) {
@@ -72,6 +76,7 @@ export async function setSchedule(
 }
 
 export async function loadDigestSettings() {
+  await requireSignedIn();
   return {
     recipientEmail:
       (await getSetting<string>("digest.recipient_email")) ?? "",

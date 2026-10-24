@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   auditNewsHeadline,
   type HeadlineAudit,
@@ -14,6 +16,7 @@ export async function runHeadline(
   _prev: HeadState | null,
   formData: FormData,
 ): Promise<HeadState> {
+  await requireSignedIn();
   const headline = String(formData.get("headline") ?? "").trim();
   const topic = String(formData.get("topic") ?? "").trim() || undefined;
   if (!headline) return { ok: false, error: "Headline required." };

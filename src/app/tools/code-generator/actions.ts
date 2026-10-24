@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
 import {
@@ -36,6 +38,7 @@ export async function generateCode(
   _prev: CodeGenState,
   formData: FormData,
 ): Promise<CodeGenState> {
+  await requireSignedIn();
   const targetId = String(formData.get("target") ?? "") as GeneratorTarget;
   const task = String(formData.get("task") ?? "").trim();
   const constraints = String(formData.get("constraints") ?? "").trim();

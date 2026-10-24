@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -24,6 +26,7 @@ export async function setTaskStatus(
   taskId: number,
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(taskId) || taskId <= 0) return;
 
   const [existing] = await db
@@ -83,6 +86,7 @@ export async function setTaskStatus(
 }
 
 export async function deleteTask(taskId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(taskId) || taskId <= 0) return;
   await db.delete(tasks).where(eq(tasks.id, taskId));
   revalidatePath("/tasks");
@@ -114,6 +118,7 @@ export async function createTask(
   _prev: CreateTaskResult | null,
   formData: FormData,
 ): Promise<CreateTaskResult> {
+  await requireSignedIn();
   const raw = {
     clientId: formData.get("clientId"),
     title: formData.get("title"),
@@ -180,6 +185,7 @@ export async function setTaskRecurrence(
     | "quarterly"
     | null,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(taskId) || taskId <= 0) return;
   await db
     .update(tasks)
@@ -193,6 +199,7 @@ export async function logTaskTime(input: {
   /** Minutes to add. Negative subtracts. */
   minutes: number;
 }): Promise<{ ok: true; total: number } | { ok: false; error: string }> {
+  await requireSignedIn();
   if (!Number.isFinite(input.taskId) || input.taskId <= 0) {
     return { ok: false, error: "Invalid task" };
   }
@@ -219,6 +226,7 @@ export async function setTaskEstimate(
   taskId: number,
   estimatedMinutes: number | null,
 ): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(taskId) || taskId <= 0) return;
   const v =
     estimatedMinutes === null || !Number.isFinite(estimatedMinutes)
@@ -243,6 +251,7 @@ export async function bulkSetTaskStatus(
   ids: number[],
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
+  await requireSignedIn();
   const valid = validIds(ids);
   if (valid.length === 0) return;
   await db
@@ -261,6 +270,7 @@ export async function bulkSetTaskPriority(
   ids: number[],
   priority: "high" | "medium" | "low",
 ) {
+  await requireSignedIn();
   const valid = validIds(ids);
   if (valid.length === 0) return;
   await db
@@ -272,6 +282,7 @@ export async function bulkSetTaskPriority(
 }
 
 export async function bulkDeleteTasks(ids: number[]) {
+  await requireSignedIn();
   const valid = validIds(ids);
   if (valid.length === 0) return;
   await db.delete(tasks).where(inArray(tasks.id, valid));
@@ -285,6 +296,7 @@ export async function applyPlaybookToClient(input: {
   playbookId: string;
   clientId: number;
 }): Promise<{ ok: true; created: number } | { ok: false; error: string }> {
+  await requireSignedIn();
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
     return { ok: false, error: "Invalid client" };
   }

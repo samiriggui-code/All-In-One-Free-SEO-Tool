@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { findSoft404s, type Soft404Result } from "@/lib/soft-404-catcher";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -66,6 +68,7 @@ export async function runSoft404(
   _prev: SoftState | null,
   formData: FormData,
 ): Promise<SoftState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || 100,

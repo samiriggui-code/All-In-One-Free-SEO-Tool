@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -28,6 +30,7 @@ export async function inviteMember(input: {
   email: string;
   role: Role;
 }): Promise<ActionResult & { link?: string }> {
+  await requireSignedIn();
   const me = await requireOwner();
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -46,6 +49,7 @@ export async function inviteMember(input: {
 }
 
 export async function cancelInvite(id: number): Promise<ActionResult> {
+  await requireSignedIn();
   const me = await requireOwner();
   if ("error" in me) return { ok: false, error: me.error };
   revokeInvite(id);
@@ -57,6 +61,7 @@ export async function changeRole(
   userId: number,
   role: Role,
 ): Promise<ActionResult> {
+  await requireSignedIn();
   const me = await requireOwner();
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -86,6 +91,7 @@ export async function setActive(
   userId: number,
   active: boolean,
 ): Promise<ActionResult> {
+  await requireSignedIn();
   const me = await requireOwner();
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -117,6 +123,7 @@ export async function setClientAccess(
   userId: number,
   clientIds: number[],
 ): Promise<ActionResult> {
+  await requireSignedIn();
   const me = await requireOwner();
   if ("error" in me) return { ok: false, error: me.error };
 

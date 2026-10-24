@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { getSetting, setSetting } from "@/lib/settings-store";
@@ -14,6 +16,7 @@ export async function saveBrowserSettings(
   formData: FormData,
 ): Promise<BrowserSettingsState> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const concRaw = formData.get("maxConcurrency");
   const conc = concRaw ? Number(concRaw) : 4;
   if (!Number.isFinite(conc) || conc < 1 || conc > 16) {
@@ -104,6 +107,7 @@ export type ProxyHealthState =
 
 export async function testProxies(): Promise<ProxyHealthState> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   try {
     const results = await checkProxyHealth();
     return { ok: true, results };
@@ -114,6 +118,7 @@ export async function testProxies(): Promise<ProxyHealthState> {
 
 export async function loadBrowserSettings() {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const cookies =
     (await getSetting<StoredCookie[]>("browser.cookies")) ?? [];
   const cookiesText = cookies

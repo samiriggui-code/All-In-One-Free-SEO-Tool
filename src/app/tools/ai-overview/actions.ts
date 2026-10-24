@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchSiteMetadata } from "@/lib/site-metadata";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -82,6 +84,7 @@ async function fetchPageContent(
 export async function analyzeAiOverview(
   rawUrl: string,
 ): Promise<AiOverviewAnalysis> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 

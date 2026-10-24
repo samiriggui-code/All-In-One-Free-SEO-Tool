@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { eq, desc } from "drizzle-orm";
@@ -24,6 +26,7 @@ export async function runGrid(
   _prev: GridState | null,
   formData: FormData,
 ): Promise<GridState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     query: formData.get("query"),
@@ -76,6 +79,7 @@ export async function runGrid(
 }
 
 export async function getRecentGrids(clientId: number) {
+  await requireSignedIn();
   return db
     .select()
     .from(localGridChecks)
@@ -102,6 +106,7 @@ export async function createGridSchedule(
   _prev: CreateScheduleResult | null,
   formData: FormData,
 ): Promise<CreateScheduleResult> {
+  await requireSignedIn();
   const { localGridSchedules } = await import("@/db/schema");
   const parsed = scheduleSchema.safeParse({
     clientId: formData.get("clientId"),
@@ -133,6 +138,7 @@ export async function createGridSchedule(
 }
 
 export async function toggleGridSchedule(id: number): Promise<void> {
+  await requireSignedIn();
   const { localGridSchedules } = await import("@/db/schema");
   const [s] = await db
     .select({
@@ -151,6 +157,7 @@ export async function toggleGridSchedule(id: number): Promise<void> {
 }
 
 export async function deleteGridSchedule(id: number): Promise<void> {
+  await requireSignedIn();
   const { localGridSchedules } = await import("@/db/schema");
   const [s] = await db
     .select({ clientId: localGridSchedules.clientId })
@@ -163,6 +170,7 @@ export async function deleteGridSchedule(id: number): Promise<void> {
 }
 
 export async function listGridSchedules(clientId: number) {
+  await requireSignedIn();
   const { localGridSchedules } = await import("@/db/schema");
   return db
     .select()

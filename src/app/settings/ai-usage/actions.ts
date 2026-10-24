@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
@@ -13,6 +15,7 @@ export async function saveCap(
   formData: FormData,
 ): Promise<SaveCapState> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const raw = String(formData.get("cap") ?? "").trim();
   if (raw === "") {
     await deleteSetting("ai.monthly_cap_usd");

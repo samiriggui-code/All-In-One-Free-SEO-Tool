@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   personalizeOutreach,
@@ -28,6 +30,7 @@ export async function runPersonalize(
   _prev: OutreachState | null,
   formData: FormData,
 ): Promise<OutreachState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     prospectUrl: formData.get("prospectUrl"),
     template: formData.get("template"),

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { eq, inArray } from "drizzle-orm";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -54,6 +56,7 @@ export async function checkRankAction(
    */
   snapshot?: GscRankLookup | null,
 ): Promise<CheckRankResult> {
+  await requireSignedIn();
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
     return { ok: false, error: "Invalid keyword id" };
   }
@@ -247,6 +250,7 @@ export type BatchRankSummary = {
  * all, which is a much shorter list.
  */
 export async function checkAllRanksAction(): Promise<BatchRankSummary> {
+  await requireSignedIn();
   const all = await db
     .select({
       id: keywords.id,
@@ -302,6 +306,7 @@ export async function checkAllRanksAction(): Promise<BatchRankSummary> {
 }
 
 export async function clearRankHistoryAction(keywordIds: number[]) {
+  await requireSignedIn();
   if (keywordIds.length === 0) return;
   await db
     .delete(keywordRankings)

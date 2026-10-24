@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { desc, eq, ne, count } from "drizzle-orm";
 import { db } from "@/db/client";
 import { callGemini as sharedCallGemini } from "@/lib/providers/gemini";
@@ -284,6 +286,7 @@ async function callOllama(
 }
 
 export async function chat(history: ChatMessage[]): Promise<ChatResult> {
+  await requireSignedIn();
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return { ok: false, error: "No user message to respond to." };
   }

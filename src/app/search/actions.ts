@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { like, or, eq, desc } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
@@ -130,6 +132,7 @@ export type SearchResults = {
 };
 
 export async function search(rawQuery: string): Promise<SearchResults> {
+  await requireSignedIn();
   const q = rawQuery.trim();
   if (q.length < 1) return { query: q, hits: [] };
   const pattern = `%${q}%`;

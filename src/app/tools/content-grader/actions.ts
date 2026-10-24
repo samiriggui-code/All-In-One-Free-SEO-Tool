@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   buildCorpus,
@@ -28,6 +30,7 @@ export async function gradeContent(
   _prev: GradeContentState | null,
   formData: FormData,
 ): Promise<GradeContentState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     targetKeyword: formData.get("targetKeyword"),
     country: formData.get("country") || "US",

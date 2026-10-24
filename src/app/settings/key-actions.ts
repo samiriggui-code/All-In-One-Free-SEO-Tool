@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import {
@@ -29,6 +31,7 @@ export async function saveApiKey(
   formData: FormData,
 ): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const key = ALLOWED_KEYS[provider];
   if (!key) return;
   const raw = String(formData.get("value") ?? "").trim();
@@ -44,6 +47,7 @@ export async function saveApiKey(
 
 export async function saveOllamaUrl(formData: FormData): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const raw = String(formData.get("value") ?? "").trim();
   if (raw === "") {
     await deleteSetting("api.ollama_url");
@@ -58,6 +62,7 @@ export async function setActiveProvider(
   provider: Provider | "ollama",
 ): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const allowed: (Provider | "ollama")[] = [
     "openai",
     "anthropic",
@@ -76,6 +81,7 @@ export async function setActiveProvider(
 
 export async function setCreditSaverEnabled(enabled: boolean): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await setSetting("ai.credit_saver.enabled", enabled);
   revalidatePath("/settings");
 }

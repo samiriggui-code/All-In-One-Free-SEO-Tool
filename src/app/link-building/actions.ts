@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -11,6 +13,7 @@ export async function trackResource(
   resourceId: number,
   clientId: number,
 ): Promise<void> {
+  await requireSignedIn();
   if (
     !Number.isFinite(resourceId) ||
     !Number.isFinite(clientId) ||
@@ -48,6 +51,7 @@ export async function setSubmissionStatus(
   status: Status,
   submittedUrl?: string,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   const updates: {
     status: Status;
@@ -68,6 +72,7 @@ export async function setSubmissionStatus(
 }
 
 export async function deleteSubmission(submissionId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   await db
     .delete(resourceSubmissions)
@@ -79,6 +84,7 @@ export async function setSubmittedUrl(
   submissionId: number,
   formData: FormData,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   const url = String(formData.get("submittedUrl") ?? "").trim();
   await db

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
 import { saveToolRun } from "@/lib/tool-runs";
 import { guardedFetch, guardUrl } from "@/lib/url-guard";
@@ -53,6 +55,7 @@ const UA =
 export async function runDomainOverview(
   rawUrl: string,
 ): Promise<DomainOverviewResult> {
+  await requireSignedIn();
   const trimmed = rawUrl.trim();
   if (!trimmed) return { ok: false, error: "Paste a URL" };
   let url: string;

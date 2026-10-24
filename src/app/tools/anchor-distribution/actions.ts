@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   extractAnchorDistribution,
@@ -26,6 +28,7 @@ export async function runAnchor(
   _prev: AnchorState | null,
   formData: FormData,
 ): Promise<AnchorState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     url: formData.get("url"),
     brandTerms: formData.get("brandTerms") ?? "",

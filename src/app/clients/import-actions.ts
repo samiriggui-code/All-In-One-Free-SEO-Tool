@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db/client";
@@ -69,6 +71,7 @@ export async function importClientsCsv(
   _prev: ImportClientsResult | null,
   formData: FormData,
 ): Promise<ImportClientsResult> {
+  await requireSignedIn();
   const csv = String(formData.get("csv") ?? "").trim();
   if (!csv) return { ok: false, error: "CSV is empty." };
 

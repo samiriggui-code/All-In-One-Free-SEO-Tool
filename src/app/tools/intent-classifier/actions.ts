@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import type { AiFailure } from "@/lib/ai-error";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -68,6 +70,7 @@ export async function runClassify(
   _prev: IntentState | null,
   formData: FormData,
 ): Promise<IntentState> {
+  await requireSignedIn();
   const raw = String(formData.get("queries") ?? "").trim();
   if (!raw) return { ok: false, error: "Paste at least one query." };
   const queries = Array.from(

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, type ClientSocialLinks } from "@/db/schema";
@@ -27,6 +29,7 @@ export type BrandSerpResult = {
 export async function captureBrandSerp(
   clientId: number,
 ): Promise<BrandSerpResult> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)

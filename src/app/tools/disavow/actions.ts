@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 
 const TOXIC_TLDS = [".tk", ".ml", ".ga", ".cf", ".cn", ".ru", ".buzz", ".loan", ".xyz"];
@@ -50,6 +52,7 @@ export async function runDisavow(
   _prev: DisavowState | null,
   formData: FormData,
 ): Promise<DisavowState> {
+  await requireSignedIn();
   const raw = String(formData.get("backlinks") ?? "").trim();
   const mode = String(formData.get("mode") ?? "auto");
   if (!raw) return { ok: false, error: "Paste at least one backlink (URL or domain per line)." };

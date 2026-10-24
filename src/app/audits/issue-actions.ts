@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -25,6 +27,7 @@ export async function setIssueStatus(
   status: IssueStatus,
   auditId: number,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(issueId) || issueId <= 0) return;
   const issue = db
     .select({ auditId: auditIssues.auditId })
@@ -44,6 +47,7 @@ export async function setStatusForType(
   type: string,
   status: IssueStatus,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(auditId) || auditId <= 0) return;
   if (!(await requireAuditEdit(auditId))) return;
   const rows = await db

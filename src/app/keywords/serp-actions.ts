@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -13,6 +15,7 @@ export type RunSerpScanResult =
 export async function runSerpScan(
   keywordId: number,
 ): Promise<RunSerpScanResult> {
+  await requireSignedIn();
   const [k] = await db
     .select()
     .from(keywords)

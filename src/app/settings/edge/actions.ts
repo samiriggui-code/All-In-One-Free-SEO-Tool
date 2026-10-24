@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { rotateEdgeToken } from "@/lib/edge-token";
@@ -17,6 +19,7 @@ export async function rotateEdgeTokenAction(): Promise<
   { ok: true; token: string } | { ok: false; error: string }
 > {
   await requireSettingsAdmin();
+  await requireSignedIn();
   try {
     const token = await rotateEdgeToken();
     await logActivity({

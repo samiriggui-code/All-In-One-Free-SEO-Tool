@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { detectFacetTraps, type FacetTrapReport } from "@/lib/facet-trap";
 import { recordToolRun } from "@/lib/tool-findings";
 import { facetTrapFindings } from "@/lib/tool-finding-builders";
@@ -13,6 +15,7 @@ export async function runFacetTrap(
   _prev: FacetTrapState,
   formData: FormData,
 ): Promise<FacetTrapState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { ok: false, error: "URL required." };
   let parsed: URL;

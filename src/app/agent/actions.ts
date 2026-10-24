@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { db } from "@/db/client";
@@ -11,6 +13,7 @@ import {
 } from "@/lib/seo-agent-runner";
 
 export async function runAgent(clientId: number): Promise<AgentRunResult> {
+  await requireSignedIn();
   const result = await runSeoAgent(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   return result;
@@ -19,6 +22,7 @@ export async function runAgent(clientId: number): Promise<AgentRunResult> {
 export async function runAgentExecute(
   clientId: number,
 ): Promise<AgentRunReport> {
+  await requireSignedIn();
   const report = await runAgentActions(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   safeRevalidatePath(`/clients/${clientId}`);
@@ -27,6 +31,7 @@ export async function runAgentExecute(
 }
 
 export async function applySuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
@@ -43,6 +48,7 @@ export async function applySuggestion(suggestionId: number) {
 }
 
 export async function dismissSuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
@@ -59,6 +65,7 @@ export async function dismissSuggestion(suggestionId: number) {
 }
 
 export async function reopenSuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
@@ -79,6 +86,7 @@ export async function reopenSuggestion(suggestionId: number) {
  * when the user wants to track applying it as work-in-progress.
  */
 export async function suggestionToTask(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { runAudit } from "@/lib/audit";
 import { checkRobots } from "@/app/tools/robots/actions";
 import { checkHreflang } from "@/app/tools/hreflang/actions";
@@ -69,6 +71,7 @@ export async function runHealthCheck(
   rawUrl: string,
   clientId?: number | null,
 ): Promise<HealthResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 
@@ -337,6 +340,7 @@ export async function saveHealthSnapshot(opts: {
   result: HealthResult;
   note?: string;
 }): Promise<{ ok: true; id: number }> {
+  await requireSignedIn();
   if (!opts.result.ok) {
     return Promise.reject(new Error("Can't save a failed health check"));
   }

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireEditor, requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -21,6 +23,7 @@ export async function saveWebhookUrl(
   formData: FormData,
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const raw = String(formData.get("url") ?? "").trim();
 
   if (raw === "") {
@@ -48,6 +51,7 @@ export async function testWebhook(
   formData: FormData,
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const raw = String(formData.get("url") ?? "").trim();
 
   const parsed = webhookSchema.safeParse(raw);
@@ -82,6 +86,7 @@ export async function testWebhook(
  */
 export async function saveDefaultModel(model: string): Promise<void> {
   await requireEditor();
+  await requireSignedIn();
   const trimmed = String(model ?? "").trim().slice(0, 120);
   await setSetting("ai.default_model", trimmed);
   revalidatePath("/settings");

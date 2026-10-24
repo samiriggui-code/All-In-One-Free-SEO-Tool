@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -72,6 +74,7 @@ export type ClientMetadataResult =
 export async function fetchClientMetadata(
   rawUrl: string,
 ): Promise<ClientMetadataResult> {
+  await requireSignedIn();
   const trimmed = rawUrl?.trim();
   if (!trimmed) {
     return { ok: false, error: "Enter a URL first." };
@@ -99,6 +102,7 @@ export async function createClient(
   _prev: CreateClientResult | null,
   formData: FormData,
 ): Promise<CreateClientResult> {
+  await requireSignedIn();
   const raw = {
     name: formData.get("name"),
     url: formData.get("url"),
@@ -226,6 +230,7 @@ export async function createClient(
   redirect(`/clients/${row.id}/onboarding`);
 }
 export async function applyStackTemplates(clientId: number) {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -246,6 +251,7 @@ export async function applyStackTemplates(clientId: number) {
 
 
 export async function applyNicheTemplates(clientId: number) {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -265,6 +271,7 @@ export async function applyNicheTemplates(clientId: number) {
 }
 
 export async function redetectTechStack(clientId: number) {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -300,6 +307,7 @@ export async function updateClient(
   _prev: UpdateClientResult | null,
   formData: FormData,
 ): Promise<UpdateClientResult> {
+  await requireSignedIn();
   const raw = {
     id: formData.get("id"),
     name: formData.get("name"),
@@ -376,6 +384,7 @@ export async function updateClient(
 export async function refreshClientMetadata(
   clientId: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -435,6 +444,7 @@ export async function refreshClientMetadata(
 
 /** Form-friendly wrapper around refreshClientMetadata (returns void). */
 export async function refreshClientMetadataForm(clientId: number): Promise<void> {
+  await requireSignedIn();
   await refreshClientMetadata(clientId);
 }
 
@@ -450,6 +460,7 @@ export type QuickAddResult =
  * Used by the global "Add client" modal so onboarding is ~3 seconds.
  */
 export async function quickAddClient(rawUrl: string): Promise<QuickAddResult> {
+  await requireSignedIn();
   const url = rawUrl?.trim();
   if (!url) return { ok: false, error: "URL is required" };
   const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -560,6 +571,7 @@ export async function quickAddClient(rawUrl: string): Promise<QuickAddResult> {
 export async function deleteClient(
   id: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireSignedIn();
   const me = await currentUser();
   if (!userMayEdit(me)) {
     return { ok: false, error: "You have read-only access and cannot delete clients." };

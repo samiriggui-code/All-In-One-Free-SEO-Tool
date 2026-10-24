@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
@@ -21,6 +23,8 @@ import type { ConnectionMode } from "@/lib/tool-capabilities";
  * Derived from what is actually there, it cannot disagree with reality.
  */
 export async function getConnectionMode(): Promise<ConnectionMode> {
+  // No sign-in check: the root layout and the shell read this on
+  // every page, the login page included.
   const { getAiAvailability } = await import("@/lib/ai-availability");
   const ai = await getAiAvailability().catch(() => null);
   if (!ai) return "none";
@@ -79,6 +83,7 @@ const CONNECTED_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function getMcpStatus(): Promise<McpStatus> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   return readMcpStatus();
 }
 
@@ -115,6 +120,7 @@ async function readMcpStatus(): Promise<McpStatus> {
  */
 export async function generateMcpToken(): Promise<{ token: string }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const token = `seo_mcp_${randomBytes(32).toString("hex")}`;
   await setSetting("mcp.access_token", token);
   revalidatePath("/settings");
@@ -123,6 +129,7 @@ export async function generateMcpToken(): Promise<{ token: string }> {
 
 export async function revokeMcpToken(): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await setSetting("mcp.access_token", "");
   // Deliberately keeps last_seen_at: it is a record of what happened, and
   // clearing it would make a revoked connector look like it never existed.
@@ -138,6 +145,7 @@ export async function revokeMcpToken(): Promise<void> {
  */
 export async function generateMcpReadOnlyToken(): Promise<{ token: string }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const token = `seo_mcp_ro_${randomBytes(32).toString("hex")}`;
   await setSetting("mcp.readonly_token", token);
   revalidatePath("/settings");
@@ -146,6 +154,7 @@ export async function generateMcpReadOnlyToken(): Promise<{ token: string }> {
 
 export async function revokeMcpReadOnlyToken(): Promise<void> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await setSetting("mcp.readonly_token", "");
   revalidatePath("/settings");
 }
@@ -176,6 +185,8 @@ export async function getAiConnectionStatus(): Promise<{
   api: AiConnectionStatus;
   mcp: AiConnectionStatus;
 }> {
+  // No sign-in check: the root layout and the shell read this on
+  // every page, the login page included.
   const { ids } = await configuredProviders();
   const active = await getActiveProvider();
   const mcp = await readMcpStatus();

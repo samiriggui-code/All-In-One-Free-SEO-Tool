@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -35,6 +37,7 @@ export async function saveWpCreds(
   _prev: SaveCredsResult | null,
   formData: FormData,
 ): Promise<SaveCredsResult> {
+  await requireSignedIn();
   const parsed = credsSchema.safeParse({
     clientId: formData.get("clientId"),
     endpoint: formData.get("endpoint"),
@@ -86,6 +89,7 @@ export async function saveWpCreds(
 }
 
 export async function disconnectWpBridge(clientId: number): Promise<void> {
+  await requireSignedIn();
   await db
     .update(clients)
     .set({ wpEndpoint: null, wpKey: null, updatedAt: new Date() })
@@ -123,6 +127,7 @@ export async function pushWpFix(
   _prev: WpFixResult | null,
   formData: FormData,
 ): Promise<WpFixResult> {
+  await requireSignedIn();
   const parsed = fixSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -198,6 +203,7 @@ export async function pushImageAltFix(opts: {
   attachmentId: number;
   alt: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const creds = await getClientWpCreds(opts.clientId);
   if (!creds) return { ok: false, error: "WordPress bridge not connected." };
   const r = await setAttachmentAlt(creds, opts.attachmentId, opts.alt);

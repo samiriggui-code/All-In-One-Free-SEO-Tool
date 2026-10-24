@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -30,6 +32,7 @@ export async function saveSmtpConfig(
   formData: FormData,
 ): Promise<SaveSmtpResult> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const parsed = schema.safeParse({
     host: formData.get("host"),
     port: formData.get("port"),
@@ -73,6 +76,7 @@ export async function testSmtpConnection(): Promise<{
   error?: string;
 }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   return verifySmtp();
 }
 
@@ -80,6 +84,7 @@ export async function sendTestEmail(
   to: string,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const r = await sendMail({
     to: [to],
     subject: "SEO Tool — SMTP test",
@@ -91,6 +96,7 @@ export async function sendTestEmail(
 
 export async function clearSmtpConfig() {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await Promise.all([
     deleteSetting("smtp.host"),
     deleteSetting("smtp.port"),

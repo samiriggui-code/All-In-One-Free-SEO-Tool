@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveSnapshot } from "@/lib/snapshots";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardUrl } from "@/lib/url-guard";
@@ -21,6 +23,7 @@ const MAX_HOPS = 12;
 export async function inspectHeaders(
   rawUrl: string,
 ): Promise<HeadersResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 
@@ -120,6 +123,7 @@ export async function saveHeadersSnapshot(opts: {
   clientId?: number | null;
   note?: string;
 }): Promise<{ ok: true; id: number }> {
+  await requireSignedIn();
   const totalHops =
     opts.data.ok && opts.data.chain ? opts.data.chain.length : 0;
   return saveSnapshot({

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { runBrowserAgent, type AgentResult } from "@/lib/browser-agent";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -23,6 +25,7 @@ export async function runAgent(
   _prev: AgentState | null,
   formData: FormData,
 ): Promise<AgentState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     startUrl: formData.get("startUrl"),
     goal: formData.get("goal"),

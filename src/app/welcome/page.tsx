@@ -32,10 +32,13 @@ import { setSetting } from "@/lib/settings-store";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 export const dynamic = "force-dynamic";
 
 async function dismissAndGoHome() {
   "use server";
+  await requireSignedIn();
   await setSetting("onboarding.dismissed_at", new Date().toISOString());
   redirect("/");
 }

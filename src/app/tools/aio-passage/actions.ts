@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   scoreAllPassages,
   suggestRewriteHint,
@@ -17,6 +19,7 @@ export async function analyzePassages(
   _prev: AnalyzeState,
   formData: FormData,
 ): Promise<AnalyzeState> {
+  await requireSignedIn();
   const md = String(formData.get("markdown") ?? "").trim();
   if (!md) return { ok: false, error: "Paste a draft first." };
   const passages = scoreAllPassages(md);
@@ -43,6 +46,7 @@ export async function suggestRewrite(
   passage: string,
   score: number,
 ): Promise<{ ok: true; rewrite: string } | { ok: false; error: string }> {
+  await requireSignedIn();
   const r = await suggestRewriteHint(passage, score);
   if (!r)
     return {
@@ -62,6 +66,7 @@ export async function analyzeUrl(
   _prev: AnalyzeState,
   formData: FormData,
 ): Promise<AnalyzeState> {
+  await requireSignedIn();
   const rawUrl = String(formData.get("url") ?? "").trim();
   if (!rawUrl) return { ok: false, error: "Enter a URL first." };
   let url = rawUrl;
@@ -119,6 +124,7 @@ export async function batchRewrite(
   ok: true;
   rewrites: { index: number; before: string; after: string | null }[];
 } | { ok: false; error: string }> {
+  await requireSignedIn();
   const targets = passages.filter((p) => p.score < threshold);
   if (targets.length === 0) {
     return {

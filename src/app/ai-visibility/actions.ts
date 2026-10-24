@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -27,6 +29,7 @@ export type RunCheckResult =
   | { ok: false; error: string };
 
 export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
+  await requireSignedIn();
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
     return { ok: false, error: "Invalid keyword id" };
   }
@@ -156,6 +159,7 @@ const INTER_KEYWORD_SLEEP_MS = 250;
 export async function runAllAiChecks(opts?: {
   clientId?: number;
 }): Promise<{ ran: number; errored: number; capped: boolean }> {
+  await requireSignedIn();
   const whereClause =
     typeof opts?.clientId === "number" && Number.isFinite(opts.clientId)
       ? eq(keywords.clientId, opts.clientId)
@@ -192,6 +196,7 @@ export async function runAllAiChecks(opts?: {
 }
 
 export async function deleteVisibilityCheck(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(aiVisibilityChecks).where(eq(aiVisibilityChecks.id, id));
   revalidatePath("/ai-visibility");
@@ -206,6 +211,7 @@ export async function deleteVisibilityCheck(id: number): Promise<void> {
 export async function setBrowserScrapedAiEnabled(
   enabled: boolean,
 ): Promise<{ ok: true; enabled: boolean }> {
+  await requireSignedIn();
   const { setSetting } = await import("@/lib/settings-store");
   await setSetting("ai_visibility.browser_scraped_enabled", enabled);
   revalidatePath("/ai-visibility");

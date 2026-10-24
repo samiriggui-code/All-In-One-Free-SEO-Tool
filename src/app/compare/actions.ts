@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
 import { detectTechStack } from "@/lib/tech-detect";
 import { runAudit, type AuditFinding } from "@/lib/audit";
@@ -82,6 +84,7 @@ export async function compareDomains(
   urlA: string,
   urlB: string,
 ): Promise<CompareResult> {
+  await requireSignedIn();
   if (!urlA?.trim() || !urlB?.trim()) {
     return { ok: false, error: "Two URLs are required." };
   }

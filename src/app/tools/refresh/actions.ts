@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { detectRefresh, type RefreshPlan } from "@/lib/refresh-detector";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -23,6 +25,7 @@ export async function runRefresh(
   _prev: RefreshState | null,
   formData: FormData,
 ): Promise<RefreshState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     targetKeyword: formData.get("targetKeyword"),

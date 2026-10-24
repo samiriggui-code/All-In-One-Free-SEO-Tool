@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -14,6 +16,7 @@ export async function startAiAudit(
   _prev: StartState | null,
   formData: FormData,
 ): Promise<StartState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const url = String(formData.get("url") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)
@@ -36,6 +39,7 @@ export async function toggleResolved(
   issueId: number,
   resolved: boolean,
 ): Promise<{ ok: true }> {
+  await requireSignedIn();
   await db
     .update(auditIssues)
     .set({ status: resolved ? "resolved" : "new" })
@@ -48,6 +52,7 @@ export async function saveIssueNotes(
   issueId: number,
   notes: string,
 ): Promise<{ ok: true }> {
+  await requireSignedIn();
   await db
     .update(auditIssues)
     .set({ notes: notes.trim() || null })

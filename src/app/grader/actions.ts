@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { runAudit, type AuditFinding } from "@/lib/audit";
 
@@ -28,6 +30,7 @@ export async function gradeSite(
   _prev: GraderResult | null,
   formData: FormData,
 ): Promise<GraderResult> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({ url: formData.get("url") });
   if (!parsed.success) {
     return { ok: false, error: "Enter a valid URL." };

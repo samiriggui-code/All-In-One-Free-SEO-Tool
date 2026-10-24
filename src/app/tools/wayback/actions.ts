@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 
 export type WaybackSnap = {
@@ -17,6 +19,7 @@ export async function runWayback(
   _prev: WaybackState | null,
   formData: FormData,
 ): Promise<WaybackState> {
+  await requireSignedIn();
   const raw = String(formData.get("url") ?? "").trim();
   if (!raw) return { ok: false, error: "Enter a URL." };
   const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;

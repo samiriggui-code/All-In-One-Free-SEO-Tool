@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -23,6 +25,7 @@ export async function runKpCapture(
   _prev: CaptureState,
   formData: FormData,
 ): Promise<CaptureState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const queryRaw = String(formData.get("query") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)
@@ -47,6 +50,7 @@ export async function runKpCapture(
 }
 
 export async function listKpSnapshots(clientId: number, limit = 10) {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return [];
   return db
     .select()

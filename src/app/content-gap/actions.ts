@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -29,6 +31,7 @@ export type GapResult =
 export async function analyzeContentGap(opts: {
   clientId: number;
 }): Promise<GapResult> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)

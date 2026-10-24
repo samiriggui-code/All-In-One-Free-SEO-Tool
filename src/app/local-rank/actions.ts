@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -15,6 +17,7 @@ export async function runLocalRanks(opts: {
   cities: string[];
   country?: string;
 }): Promise<RunLocalRankResult> {
+  await requireSignedIn();
   if (!opts.query.trim()) return { ok: false, error: "Query is required" };
   if (opts.cities.length === 0)
     return { ok: false, error: "At least one city" };

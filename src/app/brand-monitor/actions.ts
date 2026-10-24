@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -11,6 +13,7 @@ export type RunResult =
   | { ok: false; error: string };
 
 export async function runBrandMonitor(clientId: number): Promise<RunResult> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: "Invalid client" };
 
@@ -44,6 +47,7 @@ export async function runBrandMonitor(clientId: number): Promise<RunResult> {
 }
 
 export async function deleteMention(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(brandMentions).where(eq(brandMentions.id, id));
   revalidatePath("/brand-monitor");
@@ -61,6 +65,7 @@ export async function mentionToOutreach(opts: {
   authorName: string | null;
   url: string;
 }): Promise<{ ok: boolean; contactId?: number; error?: string }> {
+  await requireSignedIn();
   const { outreachContacts } = await import("@/db/schema");
   const { logActivity } = await import("@/lib/activity");
 

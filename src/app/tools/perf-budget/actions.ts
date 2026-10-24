@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { scanCwv } from "@/lib/pagespeed";
 import { fetchCruxData } from "@/lib/crux";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -21,6 +23,7 @@ export async function runBudget(
   _prev: BudgetState,
   formData: FormData,
 ): Promise<BudgetState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { ok: false, error: "URL required." };
   let parsed: URL;

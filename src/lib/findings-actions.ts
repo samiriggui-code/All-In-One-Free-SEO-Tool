@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * Server actions for the AI-tools findings checklist.
  *
@@ -25,6 +27,7 @@ export async function markFindingStatus(
   status: FindingStatus,
   note?: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireSignedIn();
   if (!Number.isFinite(findingId)) {
     return { ok: false, error: "Invalid finding id" };
   }
@@ -50,6 +53,7 @@ export async function markFindingStatus(
 export async function getFindingsForRun(
   runId: number,
 ): Promise<ToolFinding[]> {
+  await requireSignedIn();
   return db
     .select()
     .from(toolFindings)

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
@@ -50,6 +52,7 @@ export async function addOutreachContact(
   _prev: AddContactResult | null,
   formData: FormData,
 ): Promise<AddContactResult> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     name: formData.get("name"),
@@ -84,6 +87,7 @@ export async function setContactStatus(
   contactId: number,
   status: "prospect" | "contacted" | "replied" | "won" | "lost",
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(contactId) || contactId <= 0) return;
   const updates: {
     status: typeof status;
@@ -128,6 +132,7 @@ export async function setContactStatus(
 }
 
 export async function deleteOutreachContact(contactId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(contactId) || contactId <= 0) return;
   const [row] = await db
     .select({ clientId: outreachContacts.clientId })
@@ -161,6 +166,7 @@ export async function saveOutreachTemplate(
   _prev: SaveTemplateResult | null,
   formData: FormData,
 ): Promise<SaveTemplateResult> {
+  await requireSignedIn();
   const idRaw = formData.get("id");
   const id = idRaw ? Number(idRaw) : null;
 
@@ -211,6 +217,7 @@ export async function saveOutreachTemplate(
 }
 
 export async function deleteOutreachTemplate(id: number) {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(outreachTemplates).where(eq(outreachTemplates.id, id));
   revalidatePath("/outreach/templates");
@@ -221,6 +228,7 @@ export async function deleteOutreachTemplate(id: number) {
  * opened. Idempotent — once the table has any row, never re-seeds.
  */
 export async function seedDefaultTemplatesIfEmpty(): Promise<void> {
+  await requireSignedIn();
   const existing = await db
     .select({ id: outreachTemplates.id })
     .from(outreachTemplates)
@@ -259,6 +267,7 @@ export async function sendOutreachAction(
   _prev: SendResultState,
   formData: FormData,
 ): Promise<SendResultState> {
+  await requireSignedIn();
   const parsed = sendSchema.safeParse({
     contactId: formData.get("contactId"),
     templateId: formData.get("templateId") || undefined,
@@ -299,6 +308,7 @@ export async function sendOutreachAction(
  * plus workspace-wide ones (clientId IS NULL).
  */
 export async function loadTemplatesForClient(clientId: number) {
+  await requireSignedIn();
   return db
     .select()
     .from(outreachTemplates)
@@ -312,6 +322,7 @@ export async function loadTemplatesForClient(clientId: number) {
 }
 
 export async function loadMessagesForContact(contactId: number) {
+  await requireSignedIn();
   return db
     .select()
     .from(outreachMessages)
@@ -320,6 +331,7 @@ export async function loadMessagesForContact(contactId: number) {
 }
 
 export async function setSenderName(formData: FormData) {
+  await requireSignedIn();
   const name = String(formData.get("senderName") ?? "").trim().slice(0, 120);
   const { setSetting } = await import("@/lib/settings-store");
   await setSetting("outreach.sender_name", name);

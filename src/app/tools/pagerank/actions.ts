@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { simulatePageRank, type PageRankResult } from "@/lib/pagerank";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -22,6 +24,7 @@ export async function runPagerank(
   _prev: PrState | null,
   formData: FormData,
 ): Promise<PrState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || 150,
