@@ -67,16 +67,16 @@ function jaccardWords(a: string, b: string): number {
   return inter / (wa.size + wb.size - inter);
 }
 
-export async function gatherCorpus(keyword: string): Promise<{
+export async function gatherCorpus(keyword: string, lang = "en"): Promise<{
   serp: SerpResult[];
   pages: SerpPageContent[];
   paaQuestions: string[];
 }> {
-  const serp = await bingSerp(keyword);
+  const serp = await bingSerp(keyword, lang);
   const top = serp.slice(0, 10);
   const [pages, paaQuestions] = await Promise.all([
     fetchSerpPages(top.map((r) => r.url)),
-    peopleAlsoAsk(keyword)
+    peopleAlsoAsk(keyword, 8, lang)
   ]);
   return { serp: top, pages, paaQuestions };
 }

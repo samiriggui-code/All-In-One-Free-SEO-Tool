@@ -40,6 +40,8 @@ export async function generateMeta(input: {
   intent: string;
   intro: string;
   brand?: string;
+  /** Language the output should be written in (ISO code, e.g. "fr"). */
+  language?: string;
 }): Promise<MetaResult> {
   const providers = await contentProviders();
   if (providers.length === 0) return fallbackMeta(input.title, input.primary_keyword, input.intent);

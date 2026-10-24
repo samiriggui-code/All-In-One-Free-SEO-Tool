@@ -17,6 +17,7 @@ import {
   Globe,
   Link as LinkIcon,
   Network,
+  PenLine,
   ScanLine,
   Search as SearchIcon,
   ShieldCheck,
@@ -223,6 +224,18 @@ function buildGroups(client: {
           icon: AlertTriangle,
           blurb: "Find queries where multiple pages compete and hurt each other.",
           needs: client.gscProperty ? null : "gsc",
+        },
+      ],
+    },
+    {
+      label: "Content + writing",
+      blurb: "Plan, write and score this client's articles.",
+      tools: [
+        {
+          href: `/content/c/${id}`,
+          title: "Writing studio",
+          icon: PenLine,
+          blurb: "Keyword → outline → AI article, scored against the top 10.",
         },
       ],
     },

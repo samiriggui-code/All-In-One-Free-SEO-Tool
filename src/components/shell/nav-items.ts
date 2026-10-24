@@ -12,7 +12,7 @@
  */
 
 import {
-  ExternalLink,
+  PenLine,
   Activity,
   Bot,
   Building,
@@ -69,10 +69,8 @@ export type NavItem = {
   /**
    * Opens in a new tab and is never treated as the current page.
    *
-   * Exists for one entry: content writing moved out of this app into
-   * BlogPilot. Silently deleting the Content section would have left
-   * people hunting for a feature that used to be there, so it points at
-   * where the feature went instead.
+   * For a link to a tool outside this app. No entry uses it today:
+   * writing, the one that did, now lives here at /content.
    */
   external?: boolean;
 };
@@ -127,17 +125,8 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "content",
     title: "Content",
     items: [
-      // Writing lives in BlogPilot now — its own tool, MIT, self-hosted.
-      // This app does technical SEO and applies fixes; drafting articles
-      // is a different job with a different shape, and doing both badly
-      // helped nobody.
-      {
-        href: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
-        label: "Writing → BlogPilot",
-        icon: ExternalLink,
-        guided: true,
-        external: true,
-      },
+      // BlogPilot's writing pipeline, ported in (src/lib/content-studio).
+      { href: "/content", label: "Writing", icon: PenLine, guided: true },
       { href: "/title-tests", label: "Title A/B tests", icon: Wand2 },
       { href: "/meta-rewrite", label: "Meta rewrite batch", icon: Wand2 },
     ],

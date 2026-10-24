@@ -78,7 +78,16 @@ export function buildPrompts(req: ExecuteRequest): { system: string; user: strin
       ? "\n\nRespond with ONLY JSON."
       : "";
 
-  const user = `Task: ${req.task}\n\nInput:\n${JSON.stringify(req.input, null, 2)}\n\nProduce the output specified by the methodologies above.${schemaNote}`;
+  // Every generator puts the client's language in its input; saying it
+  // in the instruction as well keeps a French client's article in French
+  // even when the methodologies' examples are all in English.
+  const lang = (req.input as { language?: unknown } | null)?.language;
+  const langNote =
+    typeof lang === "string" && lang && lang !== "en"
+      ? `\n\nWrite every human-readable string in the output in this language: ${lang}.`
+      : "";
+
+  const user = `Task: ${req.task}\n\nInput:\n${JSON.stringify(req.input, null, 2)}\n\nProduce the output specified by the methodologies above.${langNote}${schemaNote}`;
   return { system, user };
 }
 

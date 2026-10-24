@@ -12,13 +12,13 @@ import { TOOL_CAPABILITIES } from "./tool-capabilities.generated";
  * has a real task, which is why five of them were dead on a live board
  * before anyone noticed.
  *
- * Four broke when the content-writing routes moved out to BlogPilot: a
- * deletion that typechecked, built, and passed every test while leaving
- * a task board full of 404s. The fifth, /clients/N/plan, had never
- * existed at all.
+ * Four broke when the content-writing routes were removed for a while:
+ * a deletion that typechecked, built, and passed every test while
+ * leaving a task board full of 404s. The fifth, /clients/N/plan, had
+ * never existed at all.
  *
- * External links are allowed — writing genuinely lives in another tool
- * now — but an internal path has to resolve to a route this app serves.
+ * External links are allowed, but an internal path has to resolve to a
+ * route this app serves.
  */
 
 const TEMPLATE_FILES = readdirSync(join(process.cwd(), "src/lib"))

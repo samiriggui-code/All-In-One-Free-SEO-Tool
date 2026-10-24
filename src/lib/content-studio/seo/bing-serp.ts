@@ -4,14 +4,14 @@ export type { SerpResult } from "../types";
 import type { SerpResult } from "../types";
 
 
-export async function bingSerp(query: string): Promise<SerpResult[]> {
-  const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&count=10`;
+export async function bingSerp(query: string, lang = "en"): Promise<SerpResult[]> {
+  const url = `https://www.bing.com/search?q=${encodeURIComponent(query)}&count=10&setlang=${encodeURIComponent(lang)}`;
   try {
     const r = await fetch(url, {
       headers: {
         "user-agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-        "accept-language": "en-US,en;q=0.9"
+        "accept-language": lang === "en" ? "en-US,en;q=0.9" : `${lang},en;q=0.5`
       }
     });
     if (!r.ok) return [];

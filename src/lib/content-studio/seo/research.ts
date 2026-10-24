@@ -17,8 +17,8 @@ export interface ResearchResult {
 export async function research(seed: string, lang = "en"): Promise<ResearchResult> {
   const [ac, paa, serp] = await Promise.all([
     googleAutocomplete(seed, lang),
-    peopleAlsoAsk(seed),
-    bingSerp(seed)
+    peopleAlsoAsk(seed, 8, lang),
+    bingSerp(seed, lang)
   ]);
 
   const candidates = new Set<string>([seed]);
