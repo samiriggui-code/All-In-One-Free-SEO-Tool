@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   extractAnchorDistribution,
   type AnchorDistribution,
@@ -34,8 +35,10 @@ export async function runAnchor(
     brandTerms: formData.get("brandTerms") ?? "",
     exactMatchTerms: formData.get("exactMatchTerms") ?? "",
   });
-  if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  if (!parsed.success) {
+    const t = await getTranslations("tools.ui.anchor-distribution");
+    return { ok: false, error: t("invalidInput") };
+  }
   const brandTerms = (parsed.data.brandTerms ?? "")
     .split(",")
     .map((s) => s.trim())

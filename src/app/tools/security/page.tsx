@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   XCircle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,8 @@ import { checkSecurity, type SecurityResult } from "./actions";
 import { useClientId } from "@/components/client-id-field";
 
 export default function SecurityPage() {
+  const t = useTranslations("tools.ui.security");
+  const tCommon = useTranslations("tools.common");
   // Seeded from ?url= so opening this from a client keeps the client.
   const [url, setUrl] = useState(usePresetUrl());
   const [pending, startTransition] = useTransition();
@@ -44,7 +47,7 @@ export default function SecurityPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -53,19 +56,18 @@ export default function SecurityPage() {
             <ShieldCheck className="size-5 text-amber-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Security headers + SSL</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Mozilla Observatory + SSL Labs + critical HTTP headers in one shot.
-          All free APIs. SSL Labs may take up to 60s if uncached.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="surl">Site URL</Label>
+            <Label htmlFor="surl">{t("siteUrl")}</Label>
             <Input
               id="surl"
               value={url}
@@ -77,12 +79,12 @@ export default function SecurityPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scanning…
+                {t("scanning")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Scan
+                {t("scan")}
               </>
             )}
           </Button>
@@ -113,14 +115,16 @@ export default function SecurityPage() {
                       {result.observatory.score ?? "—"}/100
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {result.observatory.testsPassed} passed ·{" "}
-                      {result.observatory.testsFailed} failed
+                      {t("passedFailed", {
+                        passed: result.observatory.testsPassed,
+                        failed: result.observatory.testsFailed,
+                      })}
                     </div>
                   </div>
                 </div>
               ) : (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Couldn&apos;t reach Observatory. Try again in a moment.
+                  {t("observatoryUnreachable")}
                 </p>
               )}
             </section>
@@ -141,7 +145,7 @@ export default function SecurityPage() {
                   </div>
                   {result.ssl.validTo && (
                     <div className="text-xs">
-                      <div className="text-muted-foreground">Valid until</div>
+                      <div className="text-muted-foreground">{t("validUntil")}</div>
                       <div className="font-mono tabular-nums">
                         {result.ssl.validTo}
                       </div>
@@ -149,7 +153,7 @@ export default function SecurityPage() {
                   )}
                   {result.ssl.issuer && (
                     <div className="text-xs">
-                      <div className="text-muted-foreground">Issuer</div>
+                      <div className="text-muted-foreground">{t("issuer")}</div>
                       <div className="truncate font-mono text-[11px]">
                         {result.ssl.issuer}
                       </div>
@@ -158,17 +162,18 @@ export default function SecurityPage() {
                 </div>
               ) : (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  SSL Labs result not cached yet. Run again in 30-60s after
-                  starting an analysis on{" "}
-                  <a
-                    href={`https://www.ssllabs.com/ssltest/analyze.html?d=${encodeURIComponent(result.hostname)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-violet-300 underline-offset-2 hover:underline"
-                  >
-                    ssllabs.com
-                  </a>
-                  .
+                  {t.rich("sslNotCached", {
+                    link: (chunks) => (
+                      <a
+                        href={`https://www.ssllabs.com/ssltest/analyze.html?d=${encodeURIComponent(result.hostname)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-violet-300 underline-offset-2 hover:underline"
+                      >
+                        {chunks}
+                      </a>
+                    ),
+                  })}
                 </p>
               )}
             </section>
@@ -177,10 +182,9 @@ export default function SecurityPage() {
           {/* HTTP headers */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">Security HTTP headers</h2>
+              <h2 className="text-base font-semibold">{t("headersTitle")}</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Direct check of the response headers. Even when one of the
-                external APIs fails, this is reliable.
+                {t("headersHelp")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -199,11 +203,13 @@ export default function SecurityPage() {
                       {h.name}
                     </div>
                     <div className="break-all font-mono text-[11px] text-muted-foreground">
-                      {h.value || "(missing)"}
+                      {h.value || t("missing")}
                     </div>
                     {!h.good && h.hint && (
                       <div className="text-[11px] text-amber-300/80">
-                        {h.hint}
+                        {t.has(`headerHints.${h.name}`)
+                          ? t(`headerHints.${h.name}`)
+                          : h.hint}
                       </div>
                     )}
                   </div>

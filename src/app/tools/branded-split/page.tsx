@@ -2,11 +2,13 @@ export const dynamic = "force-dynamic";
 
 import { GitMerge } from "lucide-react";
 import { SetupPrompt } from "@/components/setup-prompt";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { listGscProperties } from "@/lib/google-oauth";
 import { BrandedForm } from "./branded-form";
 
 export default async function BrandedSplitPage() {
+  const t = await getTranslations("tools.ui.branded-split");
   let properties: { siteUrl: string }[] = [];
   try {
     properties = await listGscProperties();
@@ -16,17 +18,17 @@ export default async function BrandedSplitPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Branded vs non-branded GSC split"
-        description="Compare branded queries vs non-branded over 28 days, with delta vs prior 28 days. Brand drops mean a reputation problem; non-brand drops mean a content/SEO problem — different fixes."
+        title={t("title")}
+        description={t("description")}
         icon={GitMerge}
         accent="amber"
       />
       {properties.length === 0 ? (
         <SetupPrompt
-          title="Connect Google Search Console to use this"
-          detail="Splitting branded from non-branded queries needs the real query data from Search Console — a brand drop and a non-brand drop have completely different causes."
+          title={t("setupTitle")}
+          detail={t("setupDetail")}
           href="/settings/google"
-          cta="Connect Search Console"
+          cta={t("setupCta")}
         />
       ) : (
         <BrandedForm properties={properties.map((p) => p.siteUrl)} />

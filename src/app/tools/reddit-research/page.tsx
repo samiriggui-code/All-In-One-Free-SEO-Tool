@@ -12,12 +12,15 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { searchReddit, type RedditResearchResult } from "./actions";
 
 export default function RedditResearchPage() {
+  const t = useTranslations("tools.ui.reddit-research");
+  const tCommon = useTranslations("tools.common");
   const [query, setQuery] = useState("");
   const [subreddit, setSubreddit] = useState("");
   const [sort, setSort] = useState<"relevance" | "top" | "new" | "comments">(
@@ -49,7 +52,7 @@ export default function RedditResearchPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -58,38 +61,36 @@ export default function RedditResearchPage() {
             <Flame className="size-5 text-rose-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Reddit research</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Reddit is in 40% of LLM citations. Find the actual questions and pain
-          points your audience asks. No API key — uses Reddit&apos;s public
-          JSON endpoint.
+          {t("intro")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="rq">Query</Label>
+            <Label htmlFor="rq">{t("query")}</Label>
             <Input
               id="rq"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="best espresso machine"
+              placeholder={t("queryPlaceholder")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="rsub">Subreddit (optional)</Label>
+            <Label htmlFor="rsub">{t("subreddit")}</Label>
             <Input
               id="rsub"
               value={subreddit}
               onChange={(e) => setSubreddit(e.target.value)}
-              placeholder="espresso  ·  or leave blank for site-wide"
+              placeholder={t("subredditPlaceholder")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="rsort">Sort by</Label>
+            <Label htmlFor="rsort">{t("sortBy")}</Label>
             <select
               id="rsort"
               value={sort}
@@ -98,14 +99,14 @@ export default function RedditResearchPage() {
               }
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[14px]"
             >
-              <option value="relevance">Most relevant</option>
-              <option value="top">Top scoring</option>
-              <option value="comments">Most discussed</option>
-              <option value="new">Newest</option>
+              <option value="relevance">{t("sortRelevance")}</option>
+              <option value="top">{t("sortTop")}</option>
+              <option value="comments">{t("sortComments")}</option>
+              <option value="new">{t("sortNew")}</option>
             </select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="rtime">Time window</Label>
+            <Label htmlFor="rtime">{t("timeWindow")}</Label>
             <select
               id="rtime"
               value={time}
@@ -114,10 +115,10 @@ export default function RedditResearchPage() {
               }
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[14px]"
             >
-              <option value="week">Past week</option>
-              <option value="month">Past month</option>
-              <option value="year">Past year</option>
-              <option value="all">All time</option>
+              <option value="week">{t("timeWeek")}</option>
+              <option value="month">{t("timeMonth")}</option>
+              <option value="year">{t("timeYear")}</option>
+              <option value="all">{t("timeAll")}</option>
             </select>
           </div>
         </div>
@@ -126,12 +127,12 @@ export default function RedditResearchPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Searching Reddit…
+                {t("searching")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Search
+                {t("search")}
               </>
             )}
           </Button>
@@ -153,11 +154,10 @@ export default function RedditResearchPage() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <Sparkles className="size-4 text-violet-300" />
-                  Questions people are actually asking ({result.questions.length})
+                  {t("questionsTitle", { count: result.questions.length })}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  These are post titles phrased as questions — perfect FAQ
-                  section material + content brief seeds.
+                  {t("questionsHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -174,7 +174,7 @@ export default function RedditResearchPage() {
           {result.topSubreddits.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
               <h2 className="text-base font-semibold">
-                Top subreddits discussing this
+                {t("topSubreddits")}
               </h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 {result.topSubreddits.map((s) => (
@@ -199,7 +199,7 @@ export default function RedditResearchPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Posts ({result.posts.length})
+                {t("posts", { count: result.posts.length })}
               </h2>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -212,7 +212,7 @@ export default function RedditResearchPage() {
                           ? `${(p.score / 1000).toFixed(1)}k`
                           : p.score}
                       </span>
-                      <span>upvotes</span>
+                      <span>{t("upvotes")}</span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <a
@@ -244,7 +244,7 @@ export default function RedditResearchPage() {
                           rel="noreferrer"
                           className="ml-auto inline-flex items-center gap-0.5 hover:text-foreground"
                         >
-                          open
+                          {t("open")}
                           <ExternalLink className="size-3" />
                         </a>
                       </div>

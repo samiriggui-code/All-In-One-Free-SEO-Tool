@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireEditor } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -16,9 +17,10 @@ export async function addTarget(formData: FormData) {
   const label = String(formData.get("label") ?? "").trim() || null;
   const expectedStatus = Number(formData.get("expectedStatus") ?? 200);
   const expectedText = String(formData.get("expectedText") ?? "").trim() || null;
-  if (!url) return { ok: false as const, error: "URL required." };
+  const t = await getTranslations("tools.ui.uptime");
+  if (!url) return { ok: false as const, error: t("errUrlRequired") };
   if (!/^https?:\/\//i.test(url))
-    return { ok: false as const, error: "URL must start with http(s)://" };
+    return { ok: false as const, error: t("errUrlScheme") };
   await db.insert(uptimeTargets).values({
     url,
     label,

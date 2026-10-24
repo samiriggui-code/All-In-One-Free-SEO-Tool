@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import { auditEeat, type EeatResult } from "@/lib/eeat-audit";
 import { recordToolRun } from "@/lib/tool-findings";
 import { eeatFindings } from "@/lib/tool-finding-builders";
@@ -25,9 +26,10 @@ export async function runEeatAudit(
   formData: FormData,
 ): Promise<EeatState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.eeat-audit");
   const parsed = inputSchema.safeParse({ url: formData.get("url") });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };
+    return { ok: false, error: t("invalidUrl") };
   }
   try {
     const result = await auditEeat({ url: parsed.data.url });
@@ -43,7 +45,7 @@ export async function runEeatAudit(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "E-E-A-T audit failed",
+      error: (err as Error).message ?? t("failed"),
     };
   }
 }

@@ -15,6 +15,7 @@ import { requireSignedIn } from "@/lib/action-guard";
  */
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   diagnoseTrafficDrop,
   type TrafficDropResult,
@@ -39,9 +40,10 @@ export async function runDiagnostic(
     siteUrl: formData.get("siteUrl"),
   });
   if (!parsed.success) {
+    const t = await getTranslations("tools.ui.traffic-drop");
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? t("invalidInput"),
     };
   }
   const r = await diagnoseTrafficDrop({ siteUrl: parsed.data.siteUrl });

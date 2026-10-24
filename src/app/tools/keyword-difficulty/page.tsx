@@ -10,6 +10,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,23 @@ const intentTone: Record<string, string> = {
   navigational: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
 };
 
+const BAND_LABEL_KEY: Record<string, string> = {
+  easy: "bandEasy",
+  moderate: "bandModerate",
+  hard: "bandHard",
+  very_hard: "bandVeryHard",
+};
+
+const INTENT_LABEL_KEY: Record<string, string> = {
+  informational: "intentInformational",
+  commercial: "intentCommercial",
+  transactional: "intentTransactional",
+  navigational: "intentNavigational",
+};
+
 export default function KeywordDifficultyPage() {
+  const t = useTranslations("tools.ui.keyword-difficulty");
+  const tCommon = useTranslations("tools.common");
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DifficultyApiResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -53,7 +70,7 @@ export default function KeywordDifficultyPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -62,20 +79,17 @@ export default function KeywordDifficultyPage() {
             <Gauge className="size-5 text-amber-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Keyword difficulty</span>
+            <span className="text-gradient-brand">{t("pageTitle")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Heuristic difficulty score (0-100) computed from real SERP signals —
-          no Ahrefs / Semrush key needed. Combines big-brand presence in top 10,
-          SERP-feature occupation, title competitiveness, and your AI key (if
-          configured) for a plain-language take on how to compete.
+          {t("pageDescription")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <Label htmlFor="kd-query" className="text-sm">
-          Keyword
+          {t("keyword")}
         </Label>
         <div className="mt-2 flex gap-2">
           <Input
@@ -85,7 +99,7 @@ export default function KeywordDifficultyPage() {
             onKeyDown={(e) => {
               if (e.key === "Enter") run();
             }}
-            placeholder="best espresso machine for beginners"
+            placeholder={t("placeholder")}
             className="flex-1"
             disabled={pending}
           />
@@ -93,18 +107,18 @@ export default function KeywordDifficultyPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scoring…
+                {t("scoring")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Estimate
+                {t("submit")}
               </>
             )}
           </Button>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          Scrapes the live SERP via headless browser. First run can take ~10s.
+          {t("hint")}
         </p>
       </section>
 
@@ -135,12 +149,18 @@ export default function KeywordDifficultyPage() {
                   <span
                     className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${bandTone[result.difficulty_band]}`}
                   >
-                    {result.difficulty_band.replace("_", " ")}
+                    {BAND_LABEL_KEY[result.difficulty_band]
+                      ? t(BAND_LABEL_KEY[result.difficulty_band])
+                      : result.difficulty_band.replace("_", " ")}
                   </span>
                   <span
                     className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${intentTone[result.intent]}`}
                   >
-                    {result.intent} intent
+                    {t("intentLabel", {
+                      intent: INTENT_LABEL_KEY[result.intent]
+                        ? t(INTENT_LABEL_KEY[result.intent])
+                        : result.intent,
+                    })}
                   </span>
                 </div>
                 <h2 className="truncate text-xl font-semibold">
@@ -160,7 +180,7 @@ export default function KeywordDifficultyPage() {
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
               <h2 className="flex items-center gap-2 text-base font-semibold">
                 <Sparkles className="size-4 text-violet-300" />
-                How to compete
+                {t("howToCompete")}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {result.recommendation}
@@ -171,72 +191,72 @@ export default function KeywordDifficultyPage() {
           {/* Signal grid */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">Why we scored it that way</h2>
+              <h2 className="text-base font-semibold">{t("whyTitle")}</h2>
             </header>
             <dl className="grid gap-3 p-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
               <SignalItem
-                label="Big brands in top 10"
+                label={t("bigBrands")}
                 value={String(result.signals.bigBrandsInTop10)}
                 hint={
                   result.signals.bigBrandsInTop10 >= 4
-                    ? "Wikipedia / Reddit / Forbes etc — hard to outrank"
-                    : "Beatable"
+                    ? t("bigBrandsHard")
+                    : t("bigBrandsBeatable")
                 }
               />
               <SignalItem
-                label="Unique domains"
+                label={t("uniqueDomains")}
                 value={`${result.signals.uniqueDomainsInTop10}/10`}
                 hint={
                   result.signals.uniqueDomainsInTop10 >= 9
-                    ? "Highly competitive — many sites fighting"
-                    : "Some domains have multiple slots"
+                    ? t("uniqueDomainsHigh")
+                    : t("uniqueDomainsLow")
                 }
               />
               <SignalItem
                 label="AI Overview"
-                value={result.signals.aiOverviewPresent ? "Present" : "Absent"}
+                value={result.signals.aiOverviewPresent ? t("present") : t("absent")}
                 hint={
                   result.signals.aiOverviewPresent
-                    ? "Eats clicks above results"
-                    : "Free territory above the fold"
+                    ? t("aiOverviewPresent")
+                    : t("aiOverviewAbsent")
                 }
               />
               <SignalItem
-                label="Featured snippet"
+                label={t("featuredSnippet")}
                 value={
-                  result.signals.featuredSnippetPresent ? "Present" : "Absent"
+                  result.signals.featuredSnippetPresent ? t("present") : t("absent")
                 }
                 hint={
                   result.signals.featuredSnippetPresent
-                    ? "Win-win-back if you can answer better"
+                    ? t("featuredSnippetHint")
                     : null
                 }
               />
               <SignalItem
-                label="Local pack"
-                value={result.signals.localPackPresent ? "Present" : "Absent"}
+                label={t("localPack")}
+                value={result.signals.localPackPresent ? t("present") : t("absent")}
                 hint={
                   result.signals.localPackPresent
-                    ? "Likely local-intent query"
+                    ? t("localPackHint")
                     : null
                 }
               />
               <SignalItem
-                label="People also ask"
-                value={`${result.signals.paaCount} questions`}
+                label={t("paa")}
+                value={t("questions", { count: result.signals.paaCount })}
                 hint={
                   result.signals.paaCount > 0
-                    ? "Easy subtopic capture"
+                    ? t("paaHint")
                     : null
                 }
               />
               <SignalItem
-                label="Avg title length"
-                value={`${result.signals.avgWordsInTitle} words`}
+                label={t("avgTitleLength")}
+                value={t("words", { count: result.signals.avgWordsInTitle })}
                 hint={
                   result.signals.avgWordsInTitle > 9
-                    ? "Competitors invest heavily"
-                    : "Reasonable competition"
+                    ? t("titleHeavy")
+                    : t("titleReasonable")
                 }
               />
             </dl>
@@ -245,7 +265,7 @@ export default function KeywordDifficultyPage() {
           {/* Top 10 */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">Top 10 we analyzed</h2>
+              <h2 className="text-base font-semibold">{t("top10Title")}</h2>
             </header>
             <ul className="divide-y divide-white/[0.04]">
               {result.signals.topResults.map((r) => (

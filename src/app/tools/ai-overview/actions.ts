@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { fetchSiteMetadata } from "@/lib/site-metadata";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
@@ -85,7 +86,8 @@ export async function analyzeAiOverview(
   rawUrl: string,
 ): Promise<AiOverviewAnalysis> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
+  const t = await getTranslations("tools.ui.ai-overview");
+  if (!rawUrl?.trim()) return { ok: false, error: t("errUrlRequired") };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 
   const [meta, page] = await Promise.all([
@@ -94,7 +96,7 @@ export async function analyzeAiOverview(
   ]);
 
   if (!page.bodyText) {
-    return { ok: false, error: "Couldn't fetch page content." };
+    return { ok: false, error: t("errFetch") };
   }
 
   const userPrompt = [
@@ -122,7 +124,7 @@ export async function analyzeAiOverview(
   if (!raw) {
     return {
       ok: false,
-      error: lastAiFailure()?.message ?? "AI provider didn't respond. Check Settings → AI provider keys.",
+      error: lastAiFailure()?.message ?? t("errNoAi"),
     };
   }
 
@@ -142,7 +144,7 @@ export async function analyzeAiOverview(
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    return { ok: false, error: "Model output wasn't valid JSON." };
+    return { ok: false, error: t("errBadJson") };
   }
 
   const result = {
@@ -161,7 +163,7 @@ export async function analyzeAiOverview(
   };
   await recordToolRun({
     toolId: "ai-overview",
-    label: `${url} · citation ${result.citationScore}/100`,
+    label: t("runLabel", { url, score: result.citationScore }),
     input: { url },
     result,
     findings: aiOverviewFindings(result),

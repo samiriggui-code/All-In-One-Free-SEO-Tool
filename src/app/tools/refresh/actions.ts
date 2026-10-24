@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -26,13 +27,14 @@ export async function runRefresh(
   formData: FormData,
 ): Promise<RefreshState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.refresh");
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     targetKeyword: formData.get("targetKeyword"),
     country: formData.get("country") || "US",
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidInput") };
   }
   try {
     const plan = await detectRefresh({
@@ -48,6 +50,6 @@ export async function runRefresh(
     }).catch(() => undefined);
     return { ok: true, plan };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Refresh detection failed" };
+    return { ok: false, error: (err as Error).message ?? t("failed") };
   }
 }

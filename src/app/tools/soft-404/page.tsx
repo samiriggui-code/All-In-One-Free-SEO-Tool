@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Unlink } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { Soft404Form } from "./form";
 
-export default function Soft404Page() {
+export default async function Soft404Page() {
+  const t = await getTranslations("tools.ui.soft-404");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Soft 404 catcher"
-        description="Crawl a site, flag pages that return 200 but smell like 404s — thin content (<100 visible words), '404'/'page not found' text patterns, generic error titles. Google labels these soft-404 in GSC and won't index them; most teams never check."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Unlink}
         accent="rose"
       />

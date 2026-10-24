@@ -2,12 +2,14 @@
 
 import { useActionState } from "react";
 import { ExternalLink, Eye, MessageSquare, ThumbsUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   researchOnYouTube,
   type YouTubeResearchState,
 } from "./actions";
 
 export function YouTubeResearch() {
+  const t = useTranslations("tools.ui.youtube");
   const [state, formAction, pending] = useActionState<
     YouTubeResearchState | null,
     FormData
@@ -21,24 +23,24 @@ export function YouTubeResearch() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Topic</span>
+            <span className="text-muted-foreground">{t("topic")}</span>
             <input
               name="query"
               required
-              placeholder="vegan cooking"
+              placeholder={t("topicPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Sort</span>
+            <span className="text-muted-foreground">{t("sort")}</span>
             <select
               name="order"
               defaultValue="relevance"
               className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="relevance">Relevance</option>
-              <option value="viewCount">Most viewed</option>
-              <option value="date">Newest</option>
+              <option value="relevance">{t("sortRelevance")}</option>
+              <option value="viewCount">{t("sortViews")}</option>
+              <option value="date">{t("sortDate")}</option>
             </select>
           </label>
           <button
@@ -46,7 +48,7 @@ export function YouTubeResearch() {
             disabled={pending}
             className="inline-flex h-9 items-center self-end rounded-md bg-rose-500/15 px-4 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/25 disabled:opacity-50"
           >
-            {pending ? "Searching…" : "Research"}
+            {pending ? t("searching") : t("submit")}
           </button>
         </div>
       </form>
@@ -62,11 +64,10 @@ export function YouTubeResearch() {
           {state.keywords.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
               <h2 className="text-base font-semibold">
-                Phrases people use ({state.keywords.length})
+                {t("phrases", { count: state.keywords.length })}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Aggregated from video titles + tags. Heavier weight = more
-                recurring across creators.
+                {t("phrasesHint")}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {state.keywords.map((k) => (
@@ -85,7 +86,7 @@ export function YouTubeResearch() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Top videos ({state.videos.length})
+                {t("topVideos", { count: state.videos.length })}
               </h2>
             </header>
             <ul className="divide-y divide-white/[0.05]">

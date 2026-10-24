@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { callAIVision } from "@/lib/ai-vision";
@@ -23,11 +24,12 @@ export async function parseScreenshot(input: {
   parseType: string;
 }): Promise<ParseResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.screenshot-import");
   const match = input.imageDataUrl.match(/^data:([^;]+);base64,(.+)$/);
-  if (!match) return { ok: false, error: "Invalid image data." };
+  if (!match) return { ok: false, error: t("errInvalidImage") };
   const [, mime, base64] = match;
   if (!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(mime))
-    return { ok: false, error: "Image must be PNG / JPEG / GIF / WebP." };
+    return { ok: false, error: t("errImageType") };
 
   const system = PROMPTS[input.parseType] ?? PROMPTS.general;
   const r = await callAIVision({
@@ -46,14 +48,16 @@ export async function parseScreenshot(input: {
   if (!r) {
     return {
       ok: false,
-      error:
-        "No vision-capable AI provider responded. Configure OpenAI, Anthropic, Gemini, or OpenRouter in Settings.",
+      error: t("errNoVision"),
     };
   }
   const text = r.trim();
   await saveToolRun({
     toolId: "screenshot-import",
-    label: `${input.parseType} · ${text.split("\n").length} lines extracted`,
+    label: t("runLabel", {
+      type: input.parseType,
+      count: text.split("\n").length,
+    }),
     // Don't store the raw image in the DB — keep just the parse type + size
     input: {
       parseType: input.parseType,

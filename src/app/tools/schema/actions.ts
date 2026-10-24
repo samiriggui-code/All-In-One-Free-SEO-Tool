@@ -6,6 +6,7 @@ import { fetchSiteMetadata } from "@/lib/site-metadata";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import type { AiFailure } from "@/lib/ai-error";
 import { saveToolRun } from "@/lib/tool-runs";
+import { getTranslations } from "next-intl/server";
 
 export type SchemaType =
   | "Article"
@@ -75,10 +76,12 @@ export async function generateSchema(opts: {
     timeoutMs: 60_000,
   });
 
+  const t = await getTranslations("tools.ui.schema");
+
   if (!raw) {
     return {
       ok: false,
-      error: "AI provider didn't respond. Set up an API key in Settings.",
+      error: t("errorNoAi"),
     };
   }
 
@@ -100,6 +103,6 @@ export async function generateSchema(opts: {
     }).catch(() => undefined);
     return { ok: true, jsonld, aiFailure: lastAiFailure() };
   } catch {
-    return { ok: false, error: "Model output wasn't valid JSON." };
+    return { ok: false, error: t("errorInvalidJson") };
   }
 }

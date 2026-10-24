@@ -2,9 +2,12 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, Loader2, ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runDisavow, type DisavowState } from "./actions";
 
 export function DisavowForm() {
+  const t = useTranslations("tools.ui.disavow");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     DisavowState | null,
     FormData
@@ -25,9 +28,7 @@ export function DisavowForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">
-            Backlinks — URL or domain per line, optional TAB+anchor
-          </span>
+          <span className="text-muted-foreground">{t("backlinksLabel")}</span>
           <textarea
             name="backlinks"
             required
@@ -39,14 +40,14 @@ export function DisavowForm() {
         </label>
         <div className="flex items-end gap-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Mode</span>
+            <span className="text-muted-foreground">{t("modeLabel")}</span>
             <select
               name="mode"
               defaultValue="auto"
               className="h-9 w-56 rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="auto">Only auto-flagged toxic domains</option>
-              <option value="all">Disavow ALL pasted domains</option>
+              <option value="auto">{t("modeAuto")}</option>
+              <option value="all">{t("modeAll")}</option>
             </select>
           </label>
           <button
@@ -57,12 +58,12 @@ export function DisavowForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
               <>
                 <ShieldAlert className="mr-2 size-3" />
-                Generate
+                {t("submit")}
               </>
             )}
           </button>
@@ -78,9 +79,9 @@ export function DisavowForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Backlinks parsed" value={state.stats.total.toString()} />
-            <Stat label="Auto-flagged toxic" value={state.stats.toxic.toString()} tone="rose" />
-            <Stat label="Needs review" value={state.stats.reviewed.toString()} tone="amber" />
+            <Stat label={t("statParsed")} value={state.stats.total.toString()} />
+            <Stat label={t("statToxic")} value={state.stats.toxic.toString()} tone="rose" />
+            <Stat label={t("statReview")} value={state.stats.reviewed.toString()} tone="amber" />
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -94,12 +95,12 @@ export function DisavowForm() {
                 {copied ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied
+                    {tCommon("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy
+                    {tCommon("copy")}
                   </>
                 )}
               </button>
@@ -111,7 +112,7 @@ export function DisavowForm() {
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">Per-link review</h3>
+              <h3 className="text-sm font-semibold">{t("perLinkTitle")}</h3>
             </header>
             <ul className="divide-y divide-white/[0.04]">
               {state.rows.map((r, i) => (
@@ -119,7 +120,7 @@ export function DisavowForm() {
                   <code className="truncate">{r.raw}</code>
                   <span className="text-muted-foreground">{r.reason}</span>
                   <span className={r.toxic ? "text-rose-300" : "text-amber-300"}>
-                    {r.toxic ? "toxic" : "review"}
+                    {r.toxic ? t("toxic") : t("review")}
                   </span>
                 </li>
               ))}

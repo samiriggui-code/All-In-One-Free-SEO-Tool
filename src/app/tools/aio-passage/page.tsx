@@ -13,6 +13,7 @@ import {
   Sparkles,
   Wand2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import {
   analyzePassages,
@@ -36,6 +37,8 @@ To improve INP, break up long JavaScript tasks. Yield to the main thread every 5
 Real-world INP comes from CrUX. Lab tests like Lighthouse can flag slow scripts but won't reproduce the field signal. Watch the Search Console Core Web Vitals report for the 28-day origin-level numbers Google actually uses.`;
 
 export default function AioPassagePage() {
+  const t = useTranslations("tools.ui.aio-passage");
+  const tCommon = useTranslations("tools.common");
   const [mode, setMode] = useState<"paste" | "url">("paste");
   const [pasteState, pasteAction, pastePending] = useActionState<
     AnalyzeState,
@@ -58,12 +61,12 @@ export default function AioPassagePage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="AI Overview passage optimizer"
-        description="Research shows AIs preferentially cite 134-167 word self-contained passages. Paste a draft OR analyze a live URL — we split it into chunks, score each on length, self-containment, Q→A structure, factual concreteness, and source citation."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Sparkles}
         accent="violet"
       />
@@ -80,7 +83,7 @@ export default function AioPassagePage() {
             }`}
           >
             <Sparkles className="size-3" />
-            Paste draft
+            {t("modePaste")}
           </button>
           <button
             type="button"
@@ -92,7 +95,7 @@ export default function AioPassagePage() {
             }`}
           >
             <Globe className="size-3" />
-            Analyze URL
+            {t("modeUrl")}
           </button>
         </div>
 
@@ -103,7 +106,7 @@ export default function AioPassagePage() {
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
               rows={14}
-              placeholder="Paste your blog post markdown here…"
+              placeholder={t("markdownPlaceholder")}
               className="w-full rounded-md border border-white/10 bg-card/60 p-3 font-mono text-[12px] focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
             <div className="flex items-center gap-3">
@@ -115,18 +118,17 @@ export default function AioPassagePage() {
                 {pending ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Scoring…
+                    {t("scoring")}
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 size-4" />
-                    Score passages
+                    {t("scorePassages")}
                   </>
                 )}
               </button>
               <span className="text-[11px] text-muted-foreground">
-                Deterministic scoring — no AI cost. AI rewrite hints are optional
-                per passage.
+                {t("pasteHint")}
               </span>
             </div>
           </form>
@@ -149,18 +151,17 @@ export default function AioPassagePage() {
                 {pending ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Fetching + scoring…
+                    {t("fetchingScoring")}
                   </>
                 ) : (
                   <>
                     <Globe className="mr-2 size-4" />
-                    Fetch + score
+                    {t("fetchScore")}
                   </>
                 )}
               </button>
               <span className="text-[11px] text-muted-foreground">
-                Fetches the URL server-side, strips chrome, and scores each
-                paragraph. Works on any public HTML page.
+                {t("urlHint")}
               </span>
             </div>
           </form>
@@ -201,6 +202,7 @@ function Results({
   const [batchRunning, startBatch] = useTransition();
   const [batchResults, setBatchResults] = useState<Record<number, string>>({});
   const [batchError, setBatchError] = useState<string | null>(null);
+  const t = useTranslations("tools.ui.aio-passage");
 
   function runBatchRewrite() {
     setBatchError(null);
@@ -222,7 +224,7 @@ function Results({
     <div className="space-y-3">
       {sourceUrl && (
         <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-2 text-[11px] text-muted-foreground">
-          Analyzed:{" "}
+          {t("analyzed")}{" "}
           <a
             href={sourceUrl}
             target="_blank"
@@ -235,17 +237,17 @@ function Results({
       )}
       <div className="grid gap-3 sm:grid-cols-3">
         <Stat
-          label="Passages found"
+          label={t("passagesFound")}
           value={passages.length}
           tone="white"
         />
         <Stat
-          label="Cite-ready (≥70)"
+          label={t("citeReady")}
           value={`${cited}/${passages.length}`}
           tone={cited === passages.length ? "emerald" : cited > 0 ? "amber" : "rose"}
         />
         <Stat
-          label="Avg score"
+          label={t("avgScore")}
           value={Math.round(avg)}
           tone={avg >= 70 ? "emerald" : avg >= 50 ? "amber" : "rose"}
         />
@@ -253,10 +255,12 @@ function Results({
       {lowScorers > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-violet-500/20 bg-violet-500/5 px-4 py-3">
           <div className="flex-1 min-w-[220px] text-[12px] text-violet-100/90">
-            <span className="font-semibold text-violet-200">{lowScorers}</span>{" "}
-            passage{lowScorers === 1 ? "" : "s"} below the 70 threshold.
-            Batch-rewrite all of them in parallel to get a full before/after
-            report.
+            {t.rich("lowScorers", {
+              count: lowScorers,
+              strong: (chunks) => (
+                <span className="font-semibold text-violet-200">{chunks}</span>
+              ),
+            })}
           </div>
           <button
             type="button"
@@ -267,12 +271,12 @@ function Results({
             {batchRunning ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Rewriting {lowScorers} passages…
+                {t("rewritingCount", { count: lowScorers })}
               </>
             ) : (
               <>
                 <Wand2 className="size-3.5" />
-                Rewrite all low-scoring passages
+                {t("rewriteAll")}
               </>
             )}
           </button>
@@ -335,6 +339,7 @@ function PassageRow({
   );
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("tools.ui.aio-passage");
   useEffect(() => {
     if (preloadedRewrite && preloadedRewrite !== rewrite) {
       // Seeds the editable textarea from a restored run without locking the user out of editing it afterwards.
@@ -369,7 +374,7 @@ function PassageRow({
         </div>
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="text-xs text-muted-foreground">
-            Passage {passage.index + 1} · {passage.wordCount} words
+            {t("passageMeta", { n: passage.index + 1, words: passage.wordCount })}
           </p>
           <p className="line-clamp-1 text-sm">{passage.text.slice(0, 140)}</p>
         </div>
@@ -377,7 +382,7 @@ function PassageRow({
           type="button"
           onClick={() => setOpen((o) => !o)}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/10"
-          aria-label="Toggle"
+          aria-label={t("toggle")}
         >
           {open ? (
             <ChevronUp className="size-3.5" />
@@ -393,11 +398,11 @@ function PassageRow({
             {passage.text}
           </pre>
           <div className="grid gap-2 text-[11px] sm:grid-cols-2 lg:grid-cols-5">
-            <CritRow label="Length" data={passage.criteria.length} />
-            <CritRow label="Self-contained" data={passage.criteria.selfContained} />
-            <CritRow label="Q→A structure" data={passage.criteria.answersAQuestion} />
-            <CritRow label="Specifics" data={passage.criteria.factualConcreteness} />
-            <CritRow label="Citation" data={passage.criteria.citesSource} />
+            <CritRow label={t("critLength")} data={passage.criteria.length} />
+            <CritRow label={t("critSelfContained")} data={passage.criteria.selfContained} />
+            <CritRow label={t("critQa")} data={passage.criteria.answersAQuestion} />
+            <CritRow label={t("critSpecifics")} data={passage.criteria.factualConcreteness} />
+            <CritRow label={t("critCitation")} data={passage.criteria.citesSource} />
           </div>
 
           {passage.score < 70 && (
@@ -421,7 +426,7 @@ function PassageRow({
                 ) : (
                   <Wand2 className="size-3" />
                 )}
-                AI rewrite this passage
+                {t("rewriteOne")}
               </button>
               {error && (
                 <p className="mt-2 text-[11px] text-rose-300">{error}</p>
@@ -429,7 +434,7 @@ function PassageRow({
               {rewrite && (
                 <div className="mt-3 space-y-2 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3 text-[12px]">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/90">
-                    Suggested rewrite
+                    {t("suggestedRewrite")}
                   </p>
                   <pre className="whitespace-pre-wrap font-sans leading-relaxed">
                     {rewrite}
@@ -445,7 +450,7 @@ function PassageRow({
                       className="inline-flex items-center gap-1 text-[11px] text-emerald-300 hover:underline"
                     >
                       <Copy className="size-3" />
-                      {copied ? "Copied!" : "Copy rewrite"}
+                      {copied ? t("copiedBang") : t("copyRewrite")}
                     </button>
                     <AiDisclaimer variant="inline" />
                   </div>

@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import {
   generateProgramPages,
@@ -18,6 +19,7 @@ export async function runProgram(
   formData: FormData,
 ): Promise<ProgState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.programmatic-seo");
   const csv = String(formData.get("csv") ?? "").trim();
   const slugPattern = String(formData.get("slugPattern") ?? "").trim();
   const titlePattern = String(formData.get("titlePattern") ?? "").trim();
@@ -28,20 +30,20 @@ export async function runProgram(
   const secondaryColumn =
     String(formData.get("secondaryColumn") ?? "").trim() || undefined;
 
-  if (!csv) return { ok: false, error: "Paste CSV data." };
+  if (!csv) return { ok: false, error: t("errCsv") };
   if (!slugPattern || !titlePattern || !metaPattern || !bodyTemplate)
-    return { ok: false, error: "All four templates are required." };
-  if (!baseUrl) return { ok: false, error: "Base URL required." };
+    return { ok: false, error: t("errTemplates") };
+  if (!baseUrl) return { ok: false, error: t("errBaseUrl") };
 
   let rows: Record<string, string>[] = [];
   try {
     rows = parseCsv(csv);
   } catch (err) {
-    return { ok: false, error: `CSV parse failed: ${(err as Error).message}` };
+    return { ok: false, error: t("errParse", { message: (err as Error).message }) };
   }
-  if (rows.length === 0) return { ok: false, error: "No rows parsed from CSV." };
+  if (rows.length === 0) return { ok: false, error: t("errNoRows") };
   if (rows.length > 10_000)
-    return { ok: false, error: "Max 10,000 rows per run." };
+    return { ok: false, error: t("errMaxRows") };
 
   const result = generateProgramPages({
     rows,
@@ -55,7 +57,7 @@ export async function runProgram(
   });
   await saveToolRun({
     toolId: "programmatic-seo",
-    label: `${rows.length} rows · ${result.pages.length} pages`,
+    label: t("runLabel", { rows: rows.length, pages: result.pages.length }),
     input: { rowCount: rows.length, baseUrl },
     result: { ok: true, result },
   }).catch(() => undefined);

@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { detectFacetTraps, type FacetTrapReport } from "@/lib/facet-trap";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -16,13 +17,14 @@ export async function runFacetTrap(
   formData: FormData,
 ): Promise<FacetTrapState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.facet-trap");
   const url = String(formData.get("url") ?? "").trim();
-  if (!url) return { ok: false, error: "URL required." };
+  if (!url) return { ok: false, error: t("errors.urlRequired") };
   let parsed: URL;
   try {
     parsed = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`);
   } catch {
-    return { ok: false, error: "Invalid URL." };
+    return { ok: false, error: t("errors.invalidUrl") };
   }
   try {
     const report = await detectFacetTraps(parsed.toString(), 60);
@@ -37,7 +39,7 @@ export async function runFacetTrap(
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Scan failed.",
+      error: e instanceof Error ? e.message : t("errors.failed"),
     };
   }
 }

@@ -12,6 +12,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,57 +24,59 @@ import {
 const externalCheckers = [
   {
     name: "Moz Domain Authority",
-    note: "DA, linking domains, spam score",
+    note: "moz",
     href: "https://moz.com/domain-analysis",
   },
   {
     name: "Ahrefs Free Backlink Checker",
-    note: "Top backlinks, DR, anchor text",
+    note: "ahrefs",
     href: "https://ahrefs.com/backlink-checker",
   },
   {
     name: "Ubersuggest Domain Overview",
-    note: "Traffic estimate, top pages, keywords (free 3/day)",
+    note: "ubersuggest",
     href: "https://neilpatel.com/ubersuggest/",
   },
   {
     name: "Semrush Domain Overview",
-    note: "Authority score, organic traffic est. (free with signup)",
+    note: "semrush",
     href: "https://www.semrush.com/analytics/overview/",
   },
   {
     name: "Wayback Machine",
-    note: "How long the domain has been live + how it looked",
+    note: "wayback",
     href: "https://web.archive.org/",
   },
   {
     name: "Whois Lookup (ICANN)",
-    note: "Registrar, registration date, owner if not private",
+    note: "whois",
     href: "https://lookup.icann.org/",
   },
   {
     name: "SecurityHeaders.com",
-    note: "Defensive HTTP-header grade A-F",
+    note: "securityHeaders",
     href: "https://securityheaders.com/",
   },
   {
     name: "SSL Labs",
-    note: "TLS / SSL certificate grade A+ to F",
+    note: "sslLabs",
     href: "https://www.ssllabs.com/ssltest/",
   },
   {
     name: "Google PageSpeed Insights",
-    note: "Real-world Core Web Vitals + lighthouse",
+    note: "pageSpeed",
     href: "https://pagespeed.web.dev/",
   },
   {
     name: "Mobile-Friendly Test",
-    note: "Google's official mobile usability check",
+    note: "mobileFriendly",
     href: "https://search.google.com/test/mobile-friendly",
   },
 ];
 
 export default function DomainOverviewPage() {
+  const t = useTranslations("tools.ui.domain-overview");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<DomainOverviewResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -94,7 +97,7 @@ export default function DomainOverviewPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -103,20 +106,17 @@ export default function DomainOverviewPage() {
             <Globe className="size-5 text-violet-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Domain overview</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Run every signal we can check ourselves — HTTPS, security headers,
-          schema, on-page basics, indexed-pages estimate, robots/sitemap. For
-          paid metrics (DA, backlink count, organic traffic estimate), we link
-          you to the best free external checkers.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <Label htmlFor="do-url" className="text-sm">
-          Domain or page URL
+          {t("urlLabel")}
         </Label>
         <div className="mt-2 flex gap-2">
           <Input
@@ -134,12 +134,12 @@ export default function DomainOverviewPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scanning…
+                {t("scanning")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Run overview
+                {t("submit")}
               </>
             )}
           </Button>
@@ -200,80 +200,80 @@ export default function DomainOverviewPage() {
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Signal
               label="HTTPS"
-              value={result.https.enabled ? "Enabled" : "Missing"}
+              value={result.https.enabled ? t("enabled") : t("missing")}
               ok={result.https.enabled}
               detail={
                 result.https.redirectsToHttps === true
-                  ? "HTTP redirects to HTTPS"
+                  ? t("httpRedirects")
                   : result.https.redirectsToHttps === false
-                    ? "HTTP serves directly (insecure)"
+                    ? t("httpInsecure")
                     : null
               }
             />
             <Signal
               label="HSTS"
-              value={result.headers.strictTransportSecurity ? "Yes" : "No"}
+              value={result.headers.strictTransportSecurity ? t("yes") : t("no")}
               ok={result.headers.strictTransportSecurity}
             />
             <Signal
               label="CSP"
-              value={result.headers.contentSecurityPolicy ? "Yes" : "No"}
+              value={result.headers.contentSecurityPolicy ? t("yes") : t("no")}
               ok={result.headers.contentSecurityPolicy}
             />
             <Signal
-              label="Title length"
-              value={`${result.page.titleLength} chars`}
+              label={t("titleLength")}
+              value={t("chars", { count: result.page.titleLength })}
               ok={
                 result.page.titleLength >= 30 && result.page.titleLength <= 65
               }
               detail={
                 result.page.titleLength === 0
-                  ? "missing"
+                  ? t("missingLower")
                   : result.page.titleLength > 65
-                    ? "may truncate in SERP"
+                    ? t("mayTruncateSerp")
                     : null
               }
             />
             <Signal
-              label="Description length"
-              value={`${result.page.descriptionLength} chars`}
+              label={t("descriptionLength")}
+              value={t("chars", { count: result.page.descriptionLength })}
               ok={
                 result.page.descriptionLength >= 70 &&
                 result.page.descriptionLength <= 165
               }
               detail={
                 result.page.descriptionLength === 0
-                  ? "missing"
+                  ? t("missingLower")
                   : result.page.descriptionLength > 165
-                    ? "may truncate"
+                    ? t("mayTruncate")
                     : null
               }
             />
             <Signal
-              label="H1 count"
+              label={t("h1Count")}
               value={String(result.page.h1Count)}
               ok={result.page.h1Count >= 1}
             />
             <Signal
               label="Canonical"
-              value={result.page.hasCanonical ? "Set" : "Missing"}
+              value={result.page.hasCanonical ? t("set") : t("missing")}
               ok={result.page.hasCanonical}
             />
             <Signal
               label="Viewport"
-              value={result.page.hasViewport ? "Set" : "Missing"}
+              value={result.page.hasViewport ? t("set") : t("missing")}
               ok={result.page.hasViewport}
             />
             <Signal
-              label="Indexability"
-              value={result.page.isNoindex ? "noindex!" : "Indexable"}
+              label={t("indexability")}
+              value={result.page.isNoindex ? t("noindex") : t("indexable")}
               ok={!result.page.isNoindex}
             />
             <Signal
-              label="Image alt coverage"
+              label={t("altCoverage")}
               value={
                 result.page.imgCount === 0
-                  ? "0 imgs"
+                  ? t("zeroImages")
                   : `${result.page.imgWithAlt} / ${result.page.imgCount}`
               }
               ok={
@@ -282,19 +282,19 @@ export default function DomainOverviewPage() {
               }
             />
             <Signal
-              label="Word count"
+              label={t("wordCount")}
               value={String(result.page.wordCount)}
               ok={result.page.wordCount >= 300}
               detail={
-                result.page.wordCount < 300 ? "thin content" : null
+                result.page.wordCount < 300 ? t("thinContent") : null
               }
             />
             <Signal
-              label="Schema types"
+              label={t("schemaTypes")}
               value={
                 result.page.schemaTypes.length > 0
-                  ? `${result.page.schemaTypes.length} found`
-                  : "None"
+                  ? t("found", { count: result.page.schemaTypes.length })
+                  : t("none")
               }
               ok={result.page.schemaTypes.length > 0}
               detail={
@@ -304,43 +304,43 @@ export default function DomainOverviewPage() {
               }
             />
             <Signal
-              label="Internal links"
+              label={t("internalLinks")}
               value={String(result.page.internalLinks)}
               ok={result.page.internalLinks >= 5}
             />
             <Signal
-              label="External links"
+              label={t("externalLinks")}
               value={String(result.page.externalLinks)}
               ok={true}
             />
             <Signal
-              label="robots.txt + sitemaps"
+              label={t("robotsSitemaps")}
               value={
                 result.robots.found
-                  ? `${result.robots.sitemapCount} sitemap${result.robots.sitemapCount === 1 ? "" : "s"}`
-                  : "Missing"
+                  ? t("sitemaps", { count: result.robots.sitemapCount })
+                  : t("missing")
               }
               ok={result.robots.found && result.robots.sitemapCount > 0}
             />
             <Signal
-              label="Bing indexed (≈)"
+              label={t("bingIndexed")}
               value={
                 result.indexedEstimate !== null
                   ? result.indexedEstimate.toLocaleString()
                   : "?"
               }
               ok={result.indexedEstimate !== null && result.indexedEstimate > 0}
-              detail="From Bing site: search"
+              detail={t("bingIndexedDetail")}
             />
           </section>
 
           {/* Server info */}
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h2 className="text-base font-semibold">Server fingerprint</h2>
+            <h2 className="text-base font-semibold">{t("serverFingerprint")}</h2>
             <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-              <KV k="Server" v={result.headers.server} />
-              <KV k="X-Powered-By" v={result.headers.xPoweredBy} />
-              <KV k="X-Frame-Options" v={result.headers.xFrameOptions} />
+              <KV k="Server" v={result.headers.server} notSet={t("notSet")} />
+              <KV k="X-Powered-By" v={result.headers.xPoweredBy} notSet={t("notSet")} />
+              <KV k="X-Frame-Options" v={result.headers.xFrameOptions} notSet={t("notSet")} />
             </dl>
           </section>
 
@@ -348,16 +348,15 @@ export default function DomainOverviewPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Check what we can&apos;t (free external tools)
+                {t("externalTitle")}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                DA / DR, real backlink counts, organic traffic estimates, and
-                full SSL/security grades require third-party indexes. These
-                links open with{" "}
-                <code className="rounded bg-white/5 px-1">
-                  {new URL(result.finalUrl).hostname}
-                </code>{" "}
-                pre-filled where possible.
+                {t.rich("externalHint", {
+                  host: new URL(result.finalUrl).hostname,
+                  code: (chunks) => (
+                    <code className="rounded bg-white/5 px-1">{chunks}</code>
+                  ),
+                })}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -383,7 +382,7 @@ export default function DomainOverviewPage() {
                       <div>
                         <div className="font-medium">{c.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {c.note}
+                          {t(`checkers.${c.note}`)}
                         </div>
                       </div>
                       <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
@@ -430,13 +429,13 @@ function Signal({
   );
 }
 
-function KV({ k, v }: { k: string; v: string | null }) {
+function KV({ k, v, notSet }: { k: string; v: string | null; notSet: string }) {
   return (
     <div>
       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">
         {k}
       </dt>
-      <dd className="font-mono text-xs">{v ?? "(not set)"}</dd>
+      <dd className="font-mono text-xs">{v ?? notSet}</dd>
     </div>
   );
 }

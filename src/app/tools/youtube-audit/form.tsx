@@ -8,6 +8,7 @@ import {
   XCircle,
   ExternalLink,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runYtAudit, type YtAuditState } from "./actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
@@ -28,6 +29,7 @@ const CAT_TONE: Record<string, string> = {
 };
 
 export function YtAuditForm() {
+  const t = useTranslations("tools.ui.youtube-audit");
   const [state, formAction, pending] = useActionState<
     YtAuditState | null,
     FormData
@@ -48,7 +50,7 @@ export function YtAuditForm() {
           />
           <input
             name="targetKeyword"
-            placeholder="Target keyword (optional)"
+            placeholder={t("keywordPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
@@ -60,12 +62,12 @@ export function YtAuditForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Auditing video…
+              {t("auditing")}
             </>
           ) : (
             <>
               <Video className="mr-2 size-4" />
-              Audit YouTube video
+              {t("submit")}
             </>
           )}
         </button>
@@ -99,38 +101,41 @@ export function YtAuditForm() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-base font-semibold hover:underline"
                 >
-                  {state.result.meta.title ?? "(no title)"}
+                  {state.result.meta.title ?? t("noTitle")}
                   <ExternalLink className="size-3 opacity-60" />
                 </a>
                 <p className="text-xs text-muted-foreground">
-                  {state.result.meta.channel ?? "unknown channel"}
+                  {state.result.meta.channel ?? t("unknownChannel")}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-2 text-[10px] text-muted-foreground">
                   {state.result.meta.viewCount !== null && (
                     <span className="rounded bg-white/5 px-1.5 py-0.5">
-                      {state.result.meta.viewCount.toLocaleString()} views
+                      {t("views", { count: state.result.meta.viewCount })}
                     </span>
                   )}
                   {state.result.meta.likeCount !== null && (
                     <span className="rounded bg-white/5 px-1.5 py-0.5">
-                      {state.result.meta.likeCount.toLocaleString()} likes
+                      {t("likes", { count: state.result.meta.likeCount })}
                     </span>
                   )}
                   {state.result.meta.publishedAt && (
                     <span className="rounded bg-white/5 px-1.5 py-0.5">
-                      published{" "}
-                      {state.result.meta.publishedAt.slice(0, 10)}
+                      {t("published", {
+                        date: state.result.meta.publishedAt.slice(0, 10),
+                      })}
                     </span>
                   )}
                   {state.result.meta.durationSeconds && (
                     <span className="rounded bg-white/5 px-1.5 py-0.5">
-                      {Math.floor(state.result.meta.durationSeconds / 60)}m{" "}
-                      {state.result.meta.durationSeconds % 60}s
+                      {t("duration", {
+                        min: Math.floor(state.result.meta.durationSeconds / 60),
+                        sec: state.result.meta.durationSeconds % 60,
+                      })}
                     </span>
                   )}
                   {state.result.meta.tags.length > 0 && (
                     <span className="rounded bg-white/5 px-1.5 py-0.5">
-                      {state.result.meta.tags.length} tags
+                      {t("tags", { count: state.result.meta.tags.length })}
                     </span>
                   )}
                 </div>
@@ -141,17 +146,17 @@ export function YtAuditForm() {
           {/* Score */}
           <div className="grid gap-3 sm:grid-cols-3">
             <Stat
-              label="Passing"
+              label={t("passing")}
               value={`${state.result.passing}/${state.result.passing + state.result.failing}`}
               tone="emerald"
             />
             <Stat
-              label="Failing"
+              label={t("failing")}
               value={state.result.failing.toString()}
               tone={state.result.failing > 0 ? "rose" : "emerald"}
             />
             <Stat
-              label="Score"
+              label={t("score")}
               value={`${Math.round((state.result.passing / Math.max(1, state.result.passing + state.result.failing)) * 100)}%`}
               tone={
                 state.result.failing === 0
@@ -166,7 +171,7 @@ export function YtAuditForm() {
           {/* Checklist */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">Checklist</h3>
+              <h3 className="text-sm font-semibold">{t("checklist")}</h3>
             </header>
             <ul className="divide-y divide-white/[0.05]">
               {state.result.checks.map((c) => (
@@ -184,13 +189,17 @@ export function YtAuditForm() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[9px] uppercase tracking-wider ${CAT_TONE[c.category] ?? "bg-white/5"}`}
                       >
-                        {c.category}
+                        {t.has(`categories.${c.category}`)
+                          ? t(`categories.${c.category}`)
+                          : c.category}
                       </span>
                       {!c.pass && (
                         <span
                           className={`rounded-full px-2 py-0.5 text-[9px] uppercase tracking-wider ring-1 ring-inset ${SEV_TONE[c.severity]}`}
                         >
-                          {c.severity}
+                          {t.has(`severity.${c.severity}`)
+                            ? t(`severity.${c.severity}`)
+                            : c.severity}
                         </span>
                       )}
                     </div>
@@ -204,7 +213,7 @@ export function YtAuditForm() {
           {/* AI fix steps */}
           {state.result.fixSteps && (
             <section className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5">
-              <h3 className="text-sm font-semibold">Fix steps</h3>
+              <h3 className="text-sm font-semibold">{t("fixSteps")}</h3>
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                 {state.result.fixSteps}
               </pre>

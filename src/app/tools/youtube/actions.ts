@@ -5,6 +5,7 @@ import { requireSettingsAdmin } from "@/lib/auth";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   aggregateKeywords,
   clearYouTubeApiKey,
@@ -54,9 +55,10 @@ export async function researchOnYouTube(
     order: formData.get("order") || undefined,
   });
   if (!parsed.success) {
+    const t = await getTranslations("tools.ui.youtube");
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: t("invalidInput"),
     };
   }
 

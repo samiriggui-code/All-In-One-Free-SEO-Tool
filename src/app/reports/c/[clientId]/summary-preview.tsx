@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Sparkles } from "lucide-react";
 import { previewExecSummary } from "./preview-actions";
 import { AiFeedback } from "@/components/ai-feedback";
@@ -9,6 +10,7 @@ import { AiDisclaimer } from "@/components/ai-disclaimer";
 type DataPoint = { label: string; value: string };
 
 export function SummaryPreview({ clientId }: { clientId: number }) {
+  const t = useTranslations("auditUi.reports.preview");
   const [, startTransition] = useTransition();
   const [generating, setGenerating] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
@@ -21,11 +23,10 @@ export function SummaryPreview({ clientId }: { clientId: number }) {
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Sparkles className="size-4 text-violet-300" />
-          Executive summary preview
+          {t("title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Generate the AI exec summary and read it before sending the
-          report. Thumbs-up / thumbs-down feeds the learning loop.
+          {t("hint")}
         </p>
       </header>
       <div className="p-5">
@@ -37,10 +38,10 @@ export function SummaryPreview({ clientId }: { clientId: number }) {
             {dataPoints.length > 0 && (
               <details className="rounded-md border border-white/[0.06] bg-white/[0.02] open:bg-white/[0.04]">
                 <summary className="cursor-pointer select-none px-3 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground">
-                  Data behind this summary ({dataPoints.length})
+                  {t("dataBehind", { count: dataPoints.length })}
                   {source === "template" && (
                     <span className="ml-2 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-normal text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                      template fallback — no AI key configured
+                      {t("templateFallback")}
                     </span>
                   )}
                 </summary>
@@ -88,10 +89,10 @@ export function SummaryPreview({ clientId }: { clientId: number }) {
                 {generating ? (
                   <>
                     <Loader2 className="size-3 animate-spin" />
-                    Regenerating…
+                    {t("regenerating")}
                   </>
                 ) : (
-                  "Regenerate"
+                  t("regenerate")
                 )}
               </button>
             </div>
@@ -115,10 +116,10 @@ export function SummaryPreview({ clientId }: { clientId: number }) {
             {generating ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
-              "Generate exec summary"
+              t("generate")
             )}
           </button>
         )}

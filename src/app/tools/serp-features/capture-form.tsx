@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCapture, type CaptureState } from "./actions";
 
 export function CaptureForm() {
+  const t = useTranslations("tools.ui.serp-features");
   const [state, formAction, pending] = useActionState<
     CaptureState | null,
     FormData
@@ -19,12 +21,12 @@ export function CaptureForm() {
         <input
           name="query"
           required
-          placeholder="vegan meal prep services"
+          placeholder={t("queryPlaceholder")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <input
           name="ourDomain"
-          placeholder="yoursite.com"
+          placeholder={t("domainPlaceholder")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <input
@@ -42,12 +44,12 @@ export function CaptureForm() {
         {pending ? (
           <>
             <Loader2 className="mr-2 size-4 animate-spin" />
-            Scanning SERP…
+            {t("scanning")}
           </>
         ) : (
           <>
             <Sparkles className="mr-2 size-4" />
-            Capture snapshot
+            {t("capture")}
           </>
         )}
       </button>

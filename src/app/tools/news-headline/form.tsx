@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Loader2, Newspaper } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runHeadline, type HeadState } from "./actions";
 
 export function HeadlineForm() {
+  const t = useTranslations("tools.ui.news-headline");
   const [state, formAction, pending] = useActionState<
     HeadState | null,
     FormData
@@ -19,12 +21,12 @@ export function HeadlineForm() {
         <input
           name="headline"
           required
-          placeholder="Senate passes infrastructure bill in 67-32 vote"
+          placeholder={t("headlinePlaceholder")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <input
           name="topic"
-          placeholder="Topic / context (optional)"
+          placeholder={t("topicPlaceholder")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <button
@@ -35,12 +37,12 @@ export function HeadlineForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Auditing…
+              {t("running")}
             </>
           ) : (
             <>
               <Newspaper className="mr-2 size-4" />
-              Audit
+              {t("submit")}
             </>
           )}
         </button>
@@ -56,22 +58,22 @@ export function HeadlineForm() {
         <>
           <div className="grid gap-3 sm:grid-cols-4">
             <Stat
-              label="Score"
+              label={t("score")}
               value={`${state.audit.score}/100`}
               tone={state.audit.score >= 75 ? "emerald" : state.audit.score >= 50 ? "amber" : "rose"}
             />
-            <Stat label="Chars" value={state.audit.charCount.toString()} hint="ideal 30-110" />
-            <Stat label="Words" value={state.audit.wordCount.toString()} />
+            <Stat label={t("chars")} value={state.audit.charCount.toString()} hint={t("charsHint")} />
+            <Stat label={t("words")} value={state.audit.wordCount.toString()} />
             <Stat
-              label="Top Stories fit"
-              value={state.audit.topStoriesFit ? "yes" : "no"}
+              label={t("topStoriesFit")}
+              value={state.audit.topStoriesFit ? t("yes") : t("no")}
               tone={state.audit.topStoriesFit ? "emerald" : "rose"}
             />
           </div>
 
           {state.audit.issues.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Issues</h3>
+              <h3 className="text-sm font-semibold">{t("issues")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.audit.issues.map((s, i) => (
                   <li
@@ -87,7 +89,7 @@ export function HeadlineForm() {
 
           {state.audit.suggestions.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">AI alternates</h3>
+              <h3 className="text-sm font-semibold">{t("alternates")}</h3>
               <ul className="space-y-1.5 text-sm">
                 {state.audit.suggestions.map((s, i) => (
                   <li
@@ -96,7 +98,7 @@ export function HeadlineForm() {
                   >
                     {s}{" "}
                     <span className="text-[10px] text-muted-foreground">
-                      ({s.length} chars)
+                      {t("charCount", { count: s.length })}
                     </span>
                   </li>
                 ))}

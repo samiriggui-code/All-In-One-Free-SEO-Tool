@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 import { guardedFetch } from "@/lib/url-guard";
+import { getTranslations } from "next-intl/server";
 
 import {
   suggestCanonicalFix,
@@ -106,9 +107,10 @@ export async function getFixSuggestions(
   } else if (issueType === "missing_viewport") {
     suggestions = suggestViewportFix();
   } else {
+    const t = await getTranslations("auditUi.fix");
     return {
       ok: false,
-      error: `No fix wizard for issue type: ${issueType}`,
+      error: t("noWizard", { type: issueType }),
     };
   }
 

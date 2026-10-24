@@ -2,12 +2,15 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { scanCwv } from "@/lib/pagespeed";
 import { fetchCruxData } from "@/lib/crux";
 import { recordToolRun } from "@/lib/tool-findings";
 import { perfBudgetFindings } from "@/lib/tool-finding-builders";
 
 export type BudgetLine = {
+  /** Message key under tools.ui.perf-budget.lines; label stays English for finding signatures. */
+  key: string;
   label: string;
   budget: string;
   actual: string;
@@ -24,13 +27,14 @@ export async function runBudget(
   formData: FormData,
 ): Promise<BudgetState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.perf-budget");
   const url = String(formData.get("url") ?? "").trim();
-  if (!url) return { ok: false, error: "URL required." };
+  if (!url) return { ok: false, error: t("errorRequired") };
   let parsed: URL;
   try {
     parsed = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`);
   } catch {
-    return { ok: false, error: "Invalid URL." };
+    return { ok: false, error: t("errorInvalid") };
   }
 
   const num = (k: string) => Number(formData.get(k) ?? 0);
@@ -54,13 +58,14 @@ export async function runBudget(
       ok: false,
       error:
         psi.error ??
-        "PageSpeed Insights didn't return data. Check the URL or configure your Google API key in Settings.",
+        t("errorNoPsi"),
     };
   }
 
   const lines: BudgetLine[] = [];
 
   function add(
+    key: string,
     label: string,
     actualNum: number,
     budgetNum: number,
@@ -71,6 +76,7 @@ export async function runBudget(
       ? actualNum <= budgetNum
       : actualNum >= budgetNum;
     lines.push({
+      key,
       label,
       budget: fmt(budgetNum),
       actual: fmt(actualNum),
@@ -83,34 +89,34 @@ export async function runBudget(
 
   if (psi.bytesByType) {
     if (budgets.htmlKb)
-      add("HTML bytes", (psi.bytesByType.document ?? 0) / 1024, budgets.htmlKb, kb);
+      add("html", "HTML bytes", (psi.bytesByType.document ?? 0) / 1024, budgets.htmlKb, kb);
     if (budgets.cssKb)
-      add("CSS bytes", (psi.bytesByType.stylesheet ?? 0) / 1024, budgets.cssKb, kb);
+      add("css", "CSS bytes", (psi.bytesByType.stylesheet ?? 0) / 1024, budgets.cssKb, kb);
     if (budgets.jsKb)
-      add("JavaScript bytes", (psi.bytesByType.script ?? 0) / 1024, budgets.jsKb, kb);
+      add("js", "JavaScript bytes", (psi.bytesByType.script ?? 0) / 1024, budgets.jsKb, kb);
     if (budgets.imageKb)
-      add("Image bytes", (psi.bytesByType.image ?? 0) / 1024, budgets.imageKb, kb);
+      add("image", "Image bytes", (psi.bytesByType.image ?? 0) / 1024, budgets.imageKb, kb);
     if (budgets.fontKb)
-      add("Font bytes", (psi.bytesByType.font ?? 0) / 1024, budgets.fontKb, kb);
+      add("font", "Font bytes", (psi.bytesByType.font ?? 0) / 1024, budgets.fontKb, kb);
   }
 
   if (budgets.totalKb && typeof psi.totalBytes === "number") {
-    add("Total bytes", psi.totalBytes / 1024, budgets.totalKb, kb);
+    add("total", "Total bytes", psi.totalBytes / 1024, budgets.totalKb, kb);
   }
   if (budgets.requests && typeof psi.requestCount === "number") {
-    add("Total requests", psi.requestCount, budgets.requests, (n) =>
+    add("requests", "Total requests", psi.requestCount, budgets.requests, (n) =>
       String(Math.round(n)),
     );
   }
 
   // Lab metrics from PSI
   if (budgets.lcpMs && typeof psi.lcpMs === "number") {
-    add("LCP (lab)", psi.lcpMs, budgets.lcpMs, ms);
+    add("lcp", "LCP (lab)", psi.lcpMs, budgets.lcpMs, ms);
   }
   if (budgets.cls && typeof psi.cls === "number") {
     // CLS in scanCwv is stored × 100 (percent-style). Normalize back to
     // the standard 0..1 scale for budget comparison.
-    add("CLS (lab)", psi.cls / 100, budgets.cls, (n) => n.toFixed(3));
+    add("cls", "CLS (lab)", psi.cls / 100, budgets.cls, (n) => n.toFixed(3));
   }
 
   // INP isn't a lab metric — use CrUX field data
@@ -119,7 +125,7 @@ export async function runBudget(
       const crux = await fetchCruxData({ url: parsed.toString() });
       const inp = crux.metrics?.inp?.p75;
       if (typeof inp === "number") {
-        add("INP (CrUX field, p75)", inp, budgets.inpMs, ms);
+        add("inp", "INP (CrUX field, p75)", inp, budgets.inpMs, ms);
       }
     } catch {
       // skip if CrUX unavailable
@@ -129,8 +135,7 @@ export async function runBudget(
   if (lines.length === 0) {
     return {
       ok: false,
-      error:
-        "No measurable signals returned from PageSpeed. Check that the URL is publicly reachable.",
+      error: t("errorNoSignals"),
     };
   }
   const fails = lines.filter((l) => !l.passed).length;

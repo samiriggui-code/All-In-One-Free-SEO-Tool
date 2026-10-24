@@ -4,6 +4,7 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
 import {
   getBingTopPages,
@@ -67,7 +68,8 @@ export async function fetchBingInsights(
     siteUrl: formData.get("siteUrl"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    const t = await getTranslations("tools.ui.bing");
+    return { ok: false, error: t("invalidInput") };
   }
 
   try {
@@ -133,20 +135,22 @@ export async function submitBingUrls(
     urls: formData.get("urls"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    const t = await getTranslations("tools.ui.bing");
+    return { ok: false, error: t("invalidInput") };
   }
 
   const urls = parsed.data.urls
     .split(/\r?\n/)
     .map((u) => u.trim())
     .filter((u) => /^https?:\/\//i.test(u));
-  if (urls.length === 0) return { ok: false, error: "No URLs to submit" };
+  const t = await getTranslations("tools.ui.bing");
+  if (urls.length === 0) return { ok: false, error: t("noUrls") };
 
   const result = await bingSubmitUrlBatch({
     siteUrl: parsed.data.siteUrl,
     urlList: urls,
   });
-  if (!result.ok) return { ok: false, error: result.error ?? "Failed" };
+  if (!result.ok) return { ok: false, error: result.error ?? t("failed") };
   return { ok: true, submitted: urls.length };
 }
 

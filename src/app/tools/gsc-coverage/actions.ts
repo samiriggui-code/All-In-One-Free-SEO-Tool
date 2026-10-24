@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 /**
@@ -28,10 +29,11 @@ export async function runCoverage(
   formData: FormData,
 ): Promise<CoverageState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.gsc-coverage");
   const site = String(formData.get("site") ?? "").trim();
   const urlsRaw = String(formData.get("urls") ?? "").trim();
-  if (!site) return { ok: false, error: "Pick a GSC property." };
-  if (!urlsRaw) return { ok: false, error: "Paste at least one URL." };
+  if (!site) return { ok: false, error: t("errPickProperty") };
+  if (!urlsRaw) return { ok: false, error: t("errNoUrls") };
 
   const urls = Array.from(
     new Set(
@@ -119,12 +121,13 @@ export async function analyzeFixesForCoverage(
   formData: FormData,
 ): Promise<FixPlanState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.gsc-coverage");
   const rowsRaw = String(formData.get("rows") ?? "");
   let rows: UrlInspection[] = [];
   try {
     rows = JSON.parse(rowsRaw);
   } catch {
-    return { ok: false, error: "Couldn't parse the inspection rows." };
+    return { ok: false, error: t("errParseRows") };
   }
   // Only ask the AI about URLs that actually have a problem
   const needsFix = rows.filter((r) => {
@@ -204,8 +207,7 @@ analysis, internal-link to /pillar-page, target a long-tail keyword".`;
   if (!raw) {
     return {
       ok: false,
-      error:
-        "AI didn't respond. Check Settings → AI provider, or retry — the global semaphore may have queued behind a daily-agent task.",
+      error: t("errAiNoResponse"),
     };
   }
 
@@ -230,7 +232,7 @@ analysis, internal-link to /pillar-page, target a long-tail keyword".`;
   if (!parsed?.items) {
     return {
       ok: false,
-      error: "AI response wasn't valid JSON. Try again.",
+      error: t("errAiInvalidJson"),
     };
   }
   return { ok: true, items: parsed.items.slice(0, 30), aiFailure: lastAiFailure() };

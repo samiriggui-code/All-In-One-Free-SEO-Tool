@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import {
   openSeoFixesPr,
@@ -18,6 +19,7 @@ export async function runOpenPr(
   formData: FormData,
 ): Promise<PrState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.github-pr");
   const owner = String(formData.get("owner") ?? "").trim();
   const repo = String(formData.get("repo") ?? "").trim();
   const token = String(formData.get("token") ?? "").trim();
@@ -25,17 +27,17 @@ export async function runOpenPr(
   const baseBranch = String(formData.get("baseBranch") ?? "").trim();
   const fixesJson = String(formData.get("fixesJson") ?? "").trim();
   if (!owner || !repo || !token || !domain || !fixesJson) {
-    return { ok: false, error: "All fields except base branch are required." };
+    return { ok: false, error: t("errorFieldsRequired") };
   }
   let fixes: SeoFixSuggestion[];
   try {
     const parsed = JSON.parse(fixesJson);
     if (!Array.isArray(parsed)) {
-      return { ok: false, error: "Fixes JSON must be an array." };
+      return { ok: false, error: t("errorFixesNotArray") };
     }
     fixes = parsed as SeoFixSuggestion[];
   } catch {
-    return { ok: false, error: "Fixes JSON is not valid JSON." };
+    return { ok: false, error: t("errorFixesInvalidJson") };
   }
   const r = await openSeoFixesPr({
     target: { owner, repo, token },

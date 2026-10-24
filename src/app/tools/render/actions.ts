@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -31,6 +32,7 @@ export async function runRender(
   formData: FormData,
 ): Promise<RenderState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.render");
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     device: formData.get("device") || "desktop",
@@ -41,7 +43,7 @@ export async function runRender(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? t("invalidInput"),
     };
   }
   try {
@@ -73,7 +75,7 @@ export async function runRender(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "Render failed",
+      error: (err as Error).message ?? t("failed"),
     };
   }
 }

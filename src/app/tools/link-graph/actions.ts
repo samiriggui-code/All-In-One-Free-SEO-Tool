@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -28,12 +29,13 @@ export async function runLinkGraph(
   formData: FormData,
 ): Promise<LinkGraphState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.link-graph");
   const parsed = inputSchema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidInput") };
   }
 
   try {
@@ -51,7 +53,7 @@ export async function runLinkGraph(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "Analysis failed",
+      error: (err as Error).message ?? t("analysisFailed"),
     };
   }
 }

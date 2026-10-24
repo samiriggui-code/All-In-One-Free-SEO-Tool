@@ -2,8 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { Check, Copy, Globe } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function HreflangForm() {
+  const t = useTranslations("tools.ui.hreflang-gen");
+  const tCommon = useTranslations("tools.common");
   const [pairs, setPairs] = useState(
     "en-US\thttps://example.com/page\nen-GB\thttps://example.com/uk/page\nde-DE\thttps://example.com/de/page\nx-default\thttps://example.com/page",
   );
@@ -13,9 +16,9 @@ export function HreflangForm() {
   const parsed = useMemo(() => {
     const out: { lang: string; url: string }[] = [];
     for (const line of pairs.split(/\r?\n/)) {
-      const t = line.trim();
-      if (!t) continue;
-      const [lang, url] = t.split(/\t+/);
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      const [lang, url] = trimmed.split(/\t+/);
       if (!lang || !url) continue;
       out.push({ lang: lang.trim(), url: url.trim() });
     }
@@ -26,17 +29,17 @@ export function HreflangForm() {
   const langs = parsed.map((p) => p.lang);
   if (parsed.length > 0) {
     if (!langs.includes("x-default"))
-      warnings.push("Missing x-default. Strongly recommended for any multi-language setup.");
+      warnings.push(t("warnNoXDefault"));
     if (parsed.length !== new Set(langs).size)
-      warnings.push("Duplicate hreflang values detected.");
+      warnings.push(t("warnDuplicate"));
     for (const p of parsed) {
       if (!/^([a-z]{2,3}(-[A-Z]{2})?|x-default)$/.test(p.lang)) {
-        warnings.push(`Invalid hreflang code: ${p.lang}`);
+        warnings.push(t("warnInvalidCode", { lang: p.lang }));
       }
       try {
         new URL(p.url);
       } catch {
-        warnings.push(`Invalid URL for ${p.lang}: ${p.url}`);
+        warnings.push(t("warnInvalidUrl", { lang: p.lang, url: p.url }));
       }
     }
   }
@@ -62,8 +65,8 @@ export function HreflangForm() {
       .join("\n") +
     "\n</url>";
 
-  function copy(t: string) {
-    navigator.clipboard.writeText(t).then(() => {
+  function copy(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });
@@ -76,7 +79,7 @@ export function HreflangForm() {
       <div className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Language / region tab URL — one TAB-separated pair per line. Include x-default.
+            {t("pairsLabel")}
           </span>
           <textarea
             value={pairs}
@@ -88,13 +91,13 @@ export function HreflangForm() {
         </label>
         <div className="text-[10px] text-muted-foreground">
           <Globe className="mr-1 inline size-3" />
-          {parsed.length} pair{parsed.length === 1 ? "" : "s"}
+          {t("pairs", { count: parsed.length })}
         </div>
       </div>
 
       {warnings.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-          <h3 className="text-sm font-semibold">Warnings</h3>
+          <h3 className="text-sm font-semibold">{t("warnings")}</h3>
           <ul className="space-y-1 text-xs">
             {warnings.map((w, i) => (
               <li
@@ -109,18 +112,22 @@ export function HreflangForm() {
       )}
 
       <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
-        {(["html", "header", "sitemap"] as const).map((t) => (
+        {(["html", "header", "sitemap"] as const).map((key) => (
           <button
-            key={t}
+            key={key}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(key)}
             className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
-              tab === t
+              tab === key
                 ? "border-cyan-400 text-cyan-300"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t === "html" ? "<head> tags" : t === "header" ? "Link header" : "XML sitemap"}
+            {key === "html"
+              ? t("tabHead")
+              : key === "header"
+                ? t("tabHeader")
+                : t("tabSitemap")}
           </button>
         ))}
       </div>
@@ -136,12 +143,12 @@ export function HreflangForm() {
             {copied ? (
               <>
                 <Check className="mr-1 size-3 text-emerald-300" />
-                Copied
+                {tCommon("copied")}
               </>
             ) : (
               <>
                 <Copy className="mr-1 size-3" />
-                Copy
+                {tCommon("copy")}
               </>
             )}
           </button>

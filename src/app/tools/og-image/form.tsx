@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Download, Image as ImageIcon, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runOgImage, type OgState } from "./actions";
 
 export function OgForm() {
+  const t = useTranslations("tools.ui.og-image");
   const [state, formAction, pending] = useActionState<OgState | null, FormData>(
     runOgImage,
     null,
@@ -18,28 +20,28 @@ export function OgForm() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Title (required)</span>
+            <span className="text-muted-foreground">{t("titleLabel")}</span>
             <input
               name="title"
               required
               maxLength={100}
-              placeholder="The 9 best vegan meal-prep services in 2026"
+              placeholder={t("titlePlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Subtitle</span>
+            <span className="text-muted-foreground">{t("subtitle")}</span>
             <input
               name="subtitle"
               maxLength={140}
-              placeholder="Tested over 30 days · cost per meal · taste · variety"
+              placeholder={t("subtitlePlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Brand / site name</span>
+            <span className="text-muted-foreground">{t("brand")}</span>
             <input
               name="brand"
               maxLength={40}
@@ -48,7 +50,7 @@ export function OgForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Brand color (hex)</span>
+            <span className="text-muted-foreground">{t("brandColor")}</span>
             <input
               name="brandColor"
               defaultValue="#0b7fae"
@@ -56,21 +58,21 @@ export function OgForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Template</span>
+            <span className="text-muted-foreground">{t("template")}</span>
             <select
               name="template"
               defaultValue="gradient"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="gradient">Gradient</option>
-              <option value="minimal">Minimal</option>
-              <option value="card">Card</option>
-              <option value="magazine">Magazine (with image)</option>
+              <option value="gradient">{t("tplGradient")}</option>
+              <option value="minimal">{t("tplMinimal")}</option>
+              <option value="card">{t("tplCard")}</option>
+              <option value="magazine">{t("tplMagazine")}</option>
             </select>
           </label>
         </div>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Image URL (only used by magazine template)</span>
+          <span className="text-muted-foreground">{t("imageUrl")}</span>
           <input
             name="imageUrl"
             placeholder="https://example.com/photo.jpg"
@@ -85,12 +87,12 @@ export function OgForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Rendering…
+              {t("rendering")}
             </>
           ) : (
             <>
               <ImageIcon className="mr-2 size-4" />
-              Generate
+              {t("generate")}
             </>
           )}
         </button>
@@ -107,7 +109,7 @@ export function OgForm() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={state.dataUrl}
-            alt="og preview"
+            alt={t("previewAlt")}
             className="w-full rounded-lg ring-1 ring-inset ring-white/5"
           />
           <div className="flex items-center justify-between text-xs">
@@ -118,7 +120,7 @@ export function OgForm() {
               className="inline-flex h-8 items-center rounded-md bg-rose-500/15 px-3 text-xs font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/25"
             >
               <Download className="mr-1.5 size-3" />
-              Download PNG
+              {t("downloadPng")}
             </a>
           </div>
         </section>

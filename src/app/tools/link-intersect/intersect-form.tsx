@@ -2,10 +2,12 @@
 
 import { useActionState } from "react";
 import { ExternalLink, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runLinkIntersect, type IntersectState } from "./actions";
 import type { IntersectRow } from "@/lib/link-intersect";
 
 export function IntersectForm() {
+  const t = useTranslations("tools.ui.link-intersect");
   const [state, formAction, pending] = useActionState<IntersectState | null, FormData>(
     runLinkIntersect,
     null,
@@ -19,15 +21,15 @@ export function IntersectForm() {
       >
         <Field
           name="yourDomain"
-          label="Your domain"
+          label={t("yourDomain")}
           placeholder="mysite.com"
           required
-          hint="Checked on every page we read, so a link you already have is never pitched back to you."
+          hint={t("yourDomainHint")}
         />
 
         <fieldset className="space-y-2">
           <legend className="text-xs text-muted-foreground">
-            Competitor domains — two or three beats one
+            {t("competitorsLegend")}
           </legend>
           <div className="grid gap-2 sm:grid-cols-3">
             <input
@@ -40,9 +42,7 @@ export function IntersectForm() {
             <input name="competitor3" placeholder="rival-three.com" className={inputClass} />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            A site that has linked to two of your competitors has shown the
-            pattern rather than made a one-off decision, so those rank
-            first. With a single competitor there is no pattern to find.
+            {t("competitorsHelp")}
           </p>
         </fieldset>
 
@@ -54,10 +54,10 @@ export function IntersectForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Reading pages… (1–4 min)
+              {t("running")}
             </>
           ) : (
-            "Find the gap"
+            t("submit")
           )}
         </button>
       </form>
@@ -101,46 +101,53 @@ function Field({
 function Results({ result }: { result: NonNullable<IntersectState & { ok: true }>["result"] }) {
   const { gaps, alreadyLinkingToYou, stats, errors, competitors } = result;
   const strong = gaps.filter((g) => g.competitors.length > 1).length;
+  const t = useTranslations("tools.ui.link-intersect");
 
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-4">
-        <Tile label="Sites to contact" value={gaps.length} tone="emerald" />
-        <Tile label="Link to 2+ rivals" value={strong} tone="violet" />
-        <Tile label="Already link to you" value={alreadyLinkingToYou.length} tone="neutral" />
-        <Tile label="Pages read" value={stats.pagesRead} tone="neutral" />
+        <Tile label={t("tileToContact")} value={gaps.length} tone="emerald" />
+        <Tile label={t("tileStrong")} value={strong} tone="violet" />
+        <Tile label={t("tileAlready")} value={alreadyLinkingToYou.length} tone="neutral" />
+        <Tile label={t("tilePagesRead")} value={stats.pagesRead} tone="neutral" />
       </section>
 
       <p className="text-[11px] text-muted-foreground">
-        Read {stats.pagesRead} of {stats.candidatePages} candidate pages
+        {t("statsRead", {
+          read: stats.pagesRead,
+          candidates: stats.candidatePages,
+        })}
         {stats.pagesUnreachable > 0 && (
-          <> · {stats.pagesUnreachable} could not be fetched</>
+          <> · {t("statsUnreachable", { count: stats.pagesUnreachable })}</>
         )}{" "}
-        · checked against {result.yourDomain} and {competitors.length}{" "}
-        competitor{competitors.length === 1 ? "" : "s"}.{" "}
-        <strong className="text-foreground">Page-level evidence.</strong> A
-        site can link to you from a page these searches never surfaced, so
-        &ldquo;already links to you&rdquo; means on a page we actually read.
+        ·{" "}
+        {t.rich("statsChecked", {
+          domain: result.yourDomain,
+          count: competitors.length,
+          strong: (chunks) => (
+            <strong className="text-foreground">{chunks}</strong>
+          ),
+        })}
       </p>
 
       {errors.length > 0 && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          Notes: {errors.join(" · ")}
+          {t("notes", { notes: errors.join(" · ") })}
         </p>
       )}
 
       <RowList
-        title="Link to a competitor, not to you"
-        subtitle="Sorted by how many of your competitors each one links to. Start at the top."
+        title={t("gapsTitle")}
+        subtitle={t("gapsSubtitle")}
         rows={gaps}
-        empty="Nothing came back as a gap. Either the searches found no pages linking to these competitors, or every page that did also links to you."
+        empty={t("gapsEmpty")}
         tone="emerald"
       />
 
       {alreadyLinkingToYou.length > 0 && (
         <RowList
-          title="Already linking to you"
-          subtitle="Here so you don't pitch them again. Worth checking the anchor text and whether the link is still dofollow."
+          title={t("alreadyTitle")}
+          subtitle={t("alreadySubtitle")}
           rows={alreadyLinkingToYou}
           empty=""
           tone="neutral"
@@ -163,6 +170,7 @@ function RowList({
   empty: string;
   tone: "emerald" | "neutral";
 }) {
+  const t = useTranslations("tools.ui.link-intersect");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-4">
@@ -191,12 +199,11 @@ function RowList({
                           : "bg-white/5 text-muted-foreground ring-white/10"
                     }`}
                   >
-                    {row.competitors.length} competitor
-                    {row.competitors.length === 1 ? "" : "s"}
+                    {t("competitorCount", { count: row.competitors.length })}
                   </span>
                   {row.dofollow > 0 && (
                     <span className="rounded-full bg-sky-500/15 px-2 py-0.5 font-medium text-sky-300 ring-1 ring-inset ring-sky-500/30">
-                      {row.dofollow} dofollow
+                      {t("dofollowCount", { count: row.dofollow })}
                     </span>
                   )}
                 </span>
@@ -216,7 +223,11 @@ function RowList({
                     </a>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground">
                       <span>
-                        links to <span className="text-foreground">{p.competitor}</span>
+                        {t.rich("linksTo", {
+                          target: () => (
+                            <span className="text-foreground">{p.competitor}</span>
+                          ),
+                        })}
                       </span>
                       {p.anchorText && (
                         <span className="rounded bg-white/5 px-1.5 py-0.5 font-mono">
@@ -225,7 +236,7 @@ function RowList({
                       )}
                       <span
                         className={p.follow === "dofollow" ? "text-sky-300" : undefined}
-                        title={p.rel ? `rel="${p.rel}"` : "No rel attribute"}
+                        title={p.rel ? `rel="${p.rel}"` : t("noRel")}
                       >
                         {p.follow}
                       </span>
@@ -250,7 +261,7 @@ function Tile({
   value: number;
   tone: "neutral" | "emerald" | "violet";
 }) {
-  const t = {
+  const toneClass = {
     neutral: "text-foreground",
     emerald: "text-emerald-300",
     violet: "text-violet-300",
@@ -258,7 +269,7 @@ function Tile({
   return (
     <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
+      <div className={`mt-1 text-2xl font-semibold tabular-nums ${toneClass}`}>{value}</div>
     </div>
   );
 }

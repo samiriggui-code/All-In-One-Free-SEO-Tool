@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardedFetch } from "@/lib/url-guard";
@@ -130,6 +131,7 @@ function pageLinksTo(html: string, target: string, base: string): boolean {
  * link somewhere in this paragraph" is not a mechanical edit.
  */
 function linkFindings(
+  t: (key: string, values?: Record<string, string | number>) => string,
   targetUrl: string,
   keyword: string,
   available: number,
@@ -138,13 +140,10 @@ function linkFindings(
   return [
     {
       signature: `internal-linking.unlinked.${targetUrl}`,
-      title: `${available} page${available === 1 ? "" : "s"} could link to this one and do not`,
+      title: t("findingTitle", { count: available }),
       severity: available >= 5 ? "medium" : "low",
       category: "internal-linking",
-      details:
-        `Pages on this site already mention "${keyword}" without linking to ${targetUrl}. ` +
-        "Internal links are the cheapest ranking signal there is — they need no outreach and " +
-        "no permission, and they tell Google which page is the one about this topic.",
+      details: t("findingDetails", { keyword, targetUrl }),
     },
   ];
 }
@@ -157,10 +156,11 @@ export async function suggestInternalLinks(input: {
   clientId?: number | null;
 }): Promise<InternalLinkResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.internal-linking");
   const target = input.targetUrl.trim();
   const keyword = input.targetKeyword.trim();
   if (!target || !keyword) {
-    return { ok: false, error: "Both target URL and keyword required" };
+    return { ok: false, error: t("errorRequired") };
   }
   let parsedTarget: URL;
   try {
@@ -168,13 +168,13 @@ export async function suggestInternalLinks(input: {
       /^https?:\/\//i.test(target) ? target : `https://${target}`,
     );
   } catch {
-    return { ok: false, error: "Invalid target URL" };
+    return { ok: false, error: t("errorInvalidUrl") };
   }
 
   // Fetch target page → extract internal links → BFS-shallow (depth 1)
   const targetHtml = await fetchText(parsedTarget.toString());
   if (!targetHtml) {
-    return { ok: false, error: "Couldn't fetch target URL" };
+    return { ok: false, error: t("errorFetch") };
   }
 
   const baseOrigin = parsedTarget.origin;
@@ -254,6 +254,7 @@ export async function suggestInternalLinks(input: {
     },
     result: out,
     findings: linkFindings(
+      t,
       parsedTarget.toString(),
       keyword,
       suggestions.filter((s) => !s.alreadyLinks).length,

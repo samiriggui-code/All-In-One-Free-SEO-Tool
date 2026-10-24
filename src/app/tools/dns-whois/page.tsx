@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Globe } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { DnsForm } from "./dns-form";
 
-export default function DnsPage() {
+export default async function DnsPage() {
+  const t = await getTranslations("tools.ui.dns-whois");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="DNS + WHOIS / RDAP"
-        description="Resolve A / AAAA / MX / NS / TXT / CAA, plus registrar + expiry via RDAP. Catches missing SPF / DMARC / CAA, near-expiry domains, broken nameserver setups. No API key — uses public RDAP gateway."
+        title={t("title")}
+        description={t("description")}
         icon={Globe}
         accent="cyan"
       />

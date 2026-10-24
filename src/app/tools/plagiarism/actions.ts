@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { callAI } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -25,19 +26,19 @@ export async function checkPlagiarism(input: {
   content: string;
 }): Promise<PlagiarismResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.plagiarism");
   const text = input.content.trim();
-  if (!text) return { ok: false, error: "Paste content to analyze" };
+  if (!text) return { ok: false, error: t("errPaste") };
   if (text.length < 100) {
     return {
       ok: false,
-      error: "Need at least 100 characters for a meaningful read.",
+      error: t("errTooShort"),
     };
   }
   if (text.length > 20_000) {
     return {
       ok: false,
-      error:
-        "Content too long (max 20k chars). Split into sections and check each.",
+      error: t("errTooLong"),
     };
   }
 
@@ -70,8 +71,7 @@ Return up to 5 flags. If the content is high-originality, flags can be empty.`;
   if (!ai) {
     return {
       ok: false,
-      error:
-        "No AI provider responded. Configure an API key in Settings → AI.",
+      error: t("errNoAi"),
     };
   }
 
@@ -98,35 +98,38 @@ Return up to 5 flags. If the content is high-originality, flags can be empty.`;
       flags: Array.isArray(parsed.flags) ? parsed.flags.slice(0, 5) : [],
       externalChecks: [
         {
-          name: "Copyleaks AI detector",
+          name: t("ext.copyleaksName"),
           url: "https://copyleaks.com/ai-content-detector",
-          note: "Free 10 scans/day. Strong AI-detection model.",
+          note: t("ext.copyleaksNote"),
         },
         {
           name: "GPTZero",
           url: "https://gptzero.me/",
-          note: "Free tier with paragraph-level breakdown.",
+          note: t("ext.gptzeroNote"),
         },
         {
           name: "Originality.ai",
           url: "https://originality.ai/",
-          note: "Paid, but the most accurate AI + plagiarism combo.",
+          note: t("ext.originalityNote"),
         },
         {
-          name: "Quetext (plagiarism)",
+          name: t("ext.quetextName"),
           url: "https://www.quetext.com/",
-          note: "Free up to 500 words for verbatim plagiarism check.",
+          note: t("ext.quetextNote"),
         },
         {
-          name: "Google site: search",
+          name: t("ext.googleName"),
           url: `https://www.google.com/search?q=${encodeURIComponent(`"${text.slice(0, 80)}"`)}`,
-          note: "Quoted-phrase Google search — instant plagiarism eyeball.",
+          note: t("ext.googleNote"),
         },
       ],
     };
     await saveToolRun({
       toolId: "plagiarism",
-      label: `AI ${result.aiLikelihood}/100 · originality ${result.originalityScore}/100`,
+      label: t("runLabel", {
+        ai: result.aiLikelihood,
+        originality: result.originalityScore,
+      }),
       input: { length: text.length },
       result,
     }).catch(() => undefined);
@@ -134,7 +137,7 @@ Return up to 5 flags. If the content is high-originality, flags can be empty.`;
   } catch {
     return {
       ok: false,
-      error: "AI returned an unexpected format. Try again.",
+      error: t("errFormat"),
     };
   }
 }

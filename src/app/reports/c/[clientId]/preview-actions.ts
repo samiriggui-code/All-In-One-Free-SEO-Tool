@@ -14,6 +14,7 @@ import {
   type GscKeyword,
 } from "@/lib/google-data";
 import { isOpenTask } from "@/lib/task-status";
+import { getTranslations } from "next-intl/server";
 
 const severityRank = (s: string) =>
   ({ critical: 4, high: 3, medium: 2, low: 1 })[s] ?? 0;
@@ -42,15 +43,16 @@ export async function previewExecSummary(
   clientId: number,
 ): Promise<ExecPreviewResult> {
   await requireSignedIn();
+  const t = await getTranslations("auditUi.reports.preview");
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: t("invalidClient") };
 
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: t("clientNotFound") };
 
   const completedAudits = await db
     .select()

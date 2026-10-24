@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -42,12 +43,13 @@ export async function importToRedirectRules(
   formData: FormData,
 ): Promise<ImportState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.migration-map");
   const oldRaw = String(formData.get("oldUrls") ?? "");
   const newRaw = String(formData.get("newUrls") ?? "");
   const olds = splitList(oldRaw);
   const news = splitList(newRaw);
   if (olds.length === 0 || news.length === 0)
-    return { ok: false, error: "Both URL lists are required." };
+    return { ok: false, error: t("errBothLists") };
 
   try {
     const map = buildMigrationMap({ oldUrls: olds, newUrls: news });
@@ -55,7 +57,7 @@ export async function importToRedirectRules(
     if (usable.length === 0)
       return {
         ok: false,
-        error: "No high-confidence matches to import. Review the table first.",
+        error: t("errNoHighConfidence"),
       };
 
     let inserted = 0;
@@ -69,7 +71,7 @@ export async function importToRedirectRules(
           sourcePath,
           targetUrl: r.newUrl ?? "",
           statusCode: 301,
-          note: `Auto-imported from migration map (${(r.confidence * 100).toFixed(0)}% confidence)`,
+          note: t("ruleNote", { pct: (r.confidence * 100).toFixed(0) }),
         });
         inserted += 1;
       } catch {
@@ -79,7 +81,7 @@ export async function importToRedirectRules(
     revalidatePath("/tools/redirects-manager");
     return { ok: true, inserted };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Import failed" };
+    return { ok: false, error: (err as Error).message || t("errImportFailed") };
   }
 }
 
@@ -88,25 +90,30 @@ export async function runMapping(
   formData: FormData,
 ): Promise<MigrationState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.migration-map");
   const oldRaw = String(formData.get("oldUrls") ?? "");
   const newRaw = String(formData.get("newUrls") ?? "");
   const olds = splitList(oldRaw);
   const news = splitList(newRaw);
   if (olds.length === 0)
-    return { ok: false, error: "Paste old URLs (one per line)." };
+    return { ok: false, error: t("errNoOld") };
   if (news.length === 0)
-    return { ok: false, error: "Paste new URLs (one per line)." };
+    return { ok: false, error: t("errNoNew") };
   try {
     const map = buildMigrationMap({ oldUrls: olds, newUrls: news });
     const output = renderRedirectMap(map);
     await saveToolRun({
       toolId: "migration-map",
-      label: `${olds.length} → ${news.length} URLs · ${map.rows.length} matched`,
+      label: t("runLabel", {
+        old: olds.length,
+        new: news.length,
+        matched: map.rows.length,
+      }),
       input: { oldCount: olds.length, newCount: news.length },
       result: { ok: true, map, output },
     }).catch(() => undefined);
     return { ok: true, map, output };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Mapping failed" };
+    return { ok: false, error: (err as Error).message || t("errMappingFailed") };
   }
 }

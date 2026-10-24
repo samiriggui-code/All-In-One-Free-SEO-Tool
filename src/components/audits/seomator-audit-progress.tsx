@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CheckCircle2, Loader2, Circle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { SeomatorAuditProgress } from "@/lib/seomator-audit-progress";
 
 type ProgressPayload = {
@@ -31,6 +32,8 @@ export function SeomatorAuditProgressLive({
   /** False for a quick audit, which renders nothing to capture. */
   showPreview?: boolean;
 }) {
+  const t = useTranslations("auditUi.progress");
+  const tCat = useTranslations("auditUi.categories");
   const [data, setData] = useState<ProgressPayload | null>(null);
   const [previewReady, setPreviewReady] = useState(false);
   /** Cache-bust for preview img; set once when the server reports a screenshot path. */
@@ -83,15 +86,15 @@ export function SeomatorAuditProgressLive({
             {previewReady ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
+                alt={t("previewAlt", { url: targetUrl })}
                 src={`/audits/${auditId}/preview?v=${encodeURIComponent(previewVersion ?? "1")}`}
-                alt={`Rendered preview of ${targetUrl}`}
                 className="aspect-[16/10] w-full object-cover object-top"
               />
             ) : (
               <div className="flex aspect-[16/10] flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-900 to-slate-950 px-6 text-center">
                 <Loader2 className="size-8 animate-spin text-sky-300" />
                 <p className="text-sm text-muted-foreground">
-                  Capturing landing page render…
+                  {t("capturing")}
                 </p>
                 <p className="text-xs text-muted-foreground">{targetUrl}</p>
               </div>
@@ -101,24 +104,26 @@ export function SeomatorAuditProgressLive({
 
         <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Crawl
+            {t("crawl")}
           </div>
           <div className="mt-2 text-2xl font-semibold tabular-nums">
             {pages}
             <span className="ml-1 text-sm font-normal text-muted-foreground">
-              page{pages === 1 ? "" : "s"}
+              {t("pagesUnit", { count: pages })}
             </span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {progress?.phase === "categories"
-              ? "Running the 373 technical rules, category by category."
-              : "Crawling the site and running SEO Tool's checks."}
+              ? t("phaseCategories")
+              : t("phaseCrawl")}
           </p>
           {currentCat || currentRule ? (
             <p className="mt-3 rounded-lg border border-sky-500/20 bg-sky-500/5 px-3 py-2 text-xs text-sky-100">
               {currentCat ? (
                 <>
-                  <span className="font-medium">{currentCat.name}</span>
+                  <span className="font-medium">
+                    {tCat.has(currentCat.id) ? tCat(currentCat.id) : currentCat.name}
+                  </span>
                   {currentRule ? (
                     <>
                       {" "}
@@ -137,10 +142,10 @@ export function SeomatorAuditProgressLive({
       {progress?.categories?.length ? (
         <div className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h3 className="text-sm font-semibold tracking-tight">
-            Category progress
+            {t("categoryProgress")}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Categories complete one by one with live scores.
+            {t("categoryProgressHint")}
           </p>
           <ul className="mt-4 space-y-2">
             {progress.categories.map((cat) => {
@@ -166,7 +171,7 @@ export function SeomatorAuditProgressLive({
                           : "text-muted-foreground"
                       }
                     >
-                      {cat.name}
+                      {tCat.has(cat.id) ? tCat(cat.id) : cat.name}
                     </span>
                   </div>
                   <div className="shrink-0 text-right text-xs tabular-nums">
@@ -176,19 +181,17 @@ export function SeomatorAuditProgressLive({
                           {cat.score}
                         </span>
                         <span className="ml-2 text-muted-foreground">
-                          {cat.passCount ?? 0} pass
-                          {(cat.warnCount ?? 0) > 0
-                            ? ` · ${cat.warnCount} warn`
-                            : ""}
-                          {(cat.failCount ?? 0) > 0
-                            ? ` · ${cat.failCount} fail`
-                            : ""}
+                          {t("catCounts", {
+                            pass: cat.passCount ?? 0,
+                            warn: cat.warnCount ?? 0,
+                            fail: cat.failCount ?? 0,
+                          })}
                         </span>
                       </>
                     ) : cat.status === "running" ? (
-                      <span className="text-sky-300">Running…</span>
+                      <span className="text-sky-300">{t("running")}</span>
                     ) : (
-                      <span className="text-muted-foreground">Pending</span>
+                      <span className="text-muted-foreground">{t("pending")}</span>
                     )}
                   </div>
                 </li>

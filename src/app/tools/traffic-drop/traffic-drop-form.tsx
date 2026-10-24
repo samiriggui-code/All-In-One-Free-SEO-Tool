@@ -2,10 +2,12 @@
 
 import { useActionState } from "react";
 import { Loader2, TrendingDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runDiagnostic, type TrafficDropState } from "./actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function TrafficDropForm({ properties }: { properties: string[] }) {
+  const t = useTranslations("tools.ui.traffic-drop");
   const [state, formAction, pending] = useActionState<
     TrafficDropState | null,
     FormData
@@ -18,7 +20,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">GSC property</span>
+          <span className="text-muted-foreground">{t("gscProperty")}</span>
           <select
             name="siteUrl"
             required
@@ -39,12 +41,12 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Pulling 56 days of GSC data…
+              {t("pulling")}
             </>
           ) : (
             <>
               <TrendingDown className="mr-2 size-4" />
-              Diagnose drop
+              {t("diagnose")}
             </>
           )}
         </button>
@@ -60,23 +62,23 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
         <>
           <div className="grid gap-3 sm:grid-cols-3">
             <Stat
-              label="Clicks (28d)"
+              label={t("clicks28d")}
               value={state.result.recentClicks.toLocaleString()}
-              hint={`prev ${state.result.prevClicks.toLocaleString()}`}
+              hint={t("prev", { value: state.result.prevClicks.toLocaleString() })}
               tone={state.result.clicksDeltaPct < -5 ? "rose" : state.result.clicksDeltaPct < 0 ? "amber" : "emerald"}
             />
             <Stat
               label="Δ %"
               value={`${state.result.clicksDeltaPct >= 0 ? "+" : ""}${state.result.clicksDeltaPct.toFixed(1)}%`}
-              hint={`${state.result.clicksDelta >= 0 ? "+" : ""}${state.result.clicksDelta.toLocaleString()} clicks`}
+              hint={t("clicksDelta", { value: `${state.result.clicksDelta >= 0 ? "+" : ""}${state.result.clicksDelta.toLocaleString()}` })}
               tone={state.result.clicksDeltaPct < -5 ? "rose" : state.result.clicksDeltaPct < 0 ? "amber" : "emerald"}
             />
             <Stat
-              label="Algorithm overlap"
+              label={t("algorithmOverlap")}
               value={state.result.algorithmOverlaps.length.toString()}
               hint={
                 state.result.algorithmOverlaps.length === 0
-                  ? "no updates in window"
+                  ? t("noUpdates")
                   : state.result.algorithmOverlaps[0].name
               }
               tone={state.result.algorithmOverlaps.length > 0 ? "rose" : "emerald"}
@@ -85,7 +87,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
 
           {state.result.diagnosis && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-              <h2 className="text-base font-semibold">AI diagnosis</h2>
+              <h2 className="text-base font-semibold">{t("aiDiagnosis")}</h2>
               <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
                 {state.result.diagnosis}
               </pre>
@@ -95,7 +97,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
 
           {state.result.topQueryDrops.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Top query drops</h3>
+              <h3 className="text-sm font-semibold">{t("topQueryDrops")}</h3>
               <ul className="divide-y divide-white/[0.05]">
                 {state.result.topQueryDrops.map((d) => (
                   <li
@@ -114,7 +116,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
 
           {state.result.topPageDrops.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Top page drops</h3>
+              <h3 className="text-sm font-semibold">{t("topPageDrops")}</h3>
               <ul className="divide-y divide-white/[0.05]">
                 {state.result.topPageDrops.map((d) => (
                   <li
@@ -141,7 +143,7 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
           {state.result.algorithmOverlaps.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
               <h3 className="text-sm font-semibold">
-                Algorithm updates overlapping the window
+                {t("updatesInWindow")}
               </h3>
               <ul className="space-y-2 text-xs">
                 {state.result.algorithmOverlaps.map((u) => (

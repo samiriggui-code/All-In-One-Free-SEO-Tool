@@ -9,6 +9,7 @@ import {
   setPostSeo,
 } from "@/lib/wp-bridge";
 import { logActivity } from "@/lib/activity";
+import { getTranslations } from "next-intl/server";
 
 export type WpApplyResult =
   | { ok: true; postId: number; field: string; oldValue: string | null }
@@ -35,19 +36,19 @@ export async function applyFixViaWp(opts: {
 }): Promise<WpApplyResult> {
   await requireSignedIn();
   const { clientId, pageUrl, issueType, newValue } = opts;
+  const t = await getTranslations("auditUi.fix");
 
   if (!Number.isFinite(clientId) || clientId <= 0) {
-    return { ok: false, error: "Invalid client id" };
+    return { ok: false, error: t("invalidClient") };
   }
-  if (!pageUrl) return { ok: false, error: "Missing page URL" };
-  if (!newValue?.trim()) return { ok: false, error: "Missing value to apply" };
+  if (!pageUrl) return { ok: false, error: t("missingUrl") };
+  if (!newValue?.trim()) return { ok: false, error: t("missingValue") };
 
   const creds = await getClientWpCreds(clientId);
   if (!creds) {
     return {
       ok: false,
-      error:
-        "This client doesn't have the WordPress Bridge plugin connected. Set it up on the client page first.",
+      error: t("notConnected"),
     };
   }
 
@@ -55,7 +56,7 @@ export async function applyFixViaWp(opts: {
   if (!ping.ok) {
     return {
       ok: false,
-      error: `Bridge unreachable: ${ping.error}. Verify the plugin is active + the endpoint is correct.`,
+      error: t("unreachable", { error: String(ping.error) }),
     };
   }
 
@@ -63,8 +64,7 @@ export async function applyFixViaWp(opts: {
   if (postId === null) {
     return {
       ok: false,
-      error:
-        "Couldn't find that URL on the WP site. The page may not be a published post/page, or the bridge plugin doesn't have permission to read it.",
+      error: t("postNotFound"),
     };
   }
 
@@ -95,14 +95,14 @@ export async function applyFixViaWp(opts: {
   } else {
     return {
       ok: false,
-      error: `Auto-apply isn't supported for issue type '${issueType}' yet. Copy the suggestion and paste it manually.`,
+      error: t("unsupported", { type: issueType }),
     };
   }
 
   if (!result.ok) {
     return {
       ok: false,
-      error: `WP bridge rejected the patch: ${result.error ?? "unknown error"}`,
+      error: t("rejected", { error: result.error ?? t("unknownError") }),
     };
   }
 

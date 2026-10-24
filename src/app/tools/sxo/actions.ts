@@ -8,6 +8,7 @@ import { recordToolRun } from "@/lib/tool-findings";
 import { clientIdFrom } from "@/lib/client-id-field";
 import { type ToolFinding } from "@/db/schema";
 import { guardedFetch } from "@/lib/url-guard";
+import { getTranslations } from "next-intl/server";
 
 export type SxoAudit = {
   url: string;
@@ -67,34 +68,58 @@ async function fetchHtml(url: string): Promise<string | null> {
   }
 }
 
-function detectFriction(html: string): string[] {
-  const items: string[] = [];
+/**
+ * A friction item. `text` stays in English: it feeds the AI prompt and the
+ * finding signature, which must not change with the UI language. `key` and
+ * `values` give the translated label shown to the user.
+ */
+type FrictionItem = {
+  text: string;
+  key: string;
+  values?: Record<string, number>;
+};
+
+function detectFriction(html: string): FrictionItem[] {
+  const items: FrictionItem[] = [];
   // Cookie banner
   if (
     /cookie/i.test(html) &&
     /(consent|banner|gdpr|accept[^<]{0,30}(all|cookies))/i.test(html)
   ) {
-    items.push("Cookie banner likely covers initial viewport");
+    items.push({
+      text: "Cookie banner likely covers initial viewport",
+      key: "cookieBanner",
+    });
   }
   // Pop-up / modal
   if (/<div[^>]*class=["'][^"']*(popup|modal|overlay|lightbox)/i.test(html)) {
-    items.push("Pop-up / modal markup present — verify it isn't on initial load");
+    items.push({
+      text: "Pop-up / modal markup present — verify it isn't on initial load",
+      key: "popup",
+    });
   }
   // Newsletter signup interstitial
   if (
     /subscribe[^<]{0,30}newsletter|sign up[^<]{0,30}email/i.test(html) &&
     /<form[^>]*>/i.test(html)
   ) {
-    items.push("Newsletter signup detected — common dwell-time killer when interstitial");
+    items.push({
+      text: "Newsletter signup detected — common dwell-time killer when interstitial",
+      key: "newsletter",
+    });
   }
   // Excessive ad slots
   const adSlots = (html.match(/adsbygoogle|google_ad_|data-ad-slot/g) ?? []).length;
   if (adSlots >= 4) {
-    items.push(`${adSlots} ad slots detected — heavy ads correlate with pogo-sticking`);
+    items.push({
+      text: `${adSlots} ad slots detected — heavy ads correlate with pogo-sticking`,
+      key: "adSlots",
+      values: { count: adSlots },
+    });
   }
   // Auto-playing video
   if (/<video[^>]+autoplay/i.test(html)) {
-    items.push("Auto-playing video on the page");
+    items.push({ text: "Auto-playing video on the page", key: "autoplay" });
   }
   // No clear CTA on the page (no buttons with action-y text)
   const ctas = (
@@ -103,7 +128,10 @@ function detectFriction(html: string): string[] {
     ) ?? []
   ).length;
   if (ctas === 0) {
-    items.push("No clear action button detected — users have no obvious next step");
+    items.push({
+      text: "No clear action button detected — users have no obvious next step",
+      key: "noCta",
+    });
   }
   return items;
 }
@@ -166,21 +194,22 @@ export async function runSxoAudit(
   formData: FormData,
 ): Promise<SxoState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.sxo");
   const urlRaw = String(formData.get("url") ?? "").trim();
-  if (!urlRaw) return { ok: false, error: "URL required." };
+  if (!urlRaw) return { ok: false, error: t("errors.urlRequired") };
   let url: string;
   try {
     url = new URL(/^https?:\/\//i.test(urlRaw) ? urlRaw : `https://${urlRaw}`)
       .toString();
   } catch {
-    return { ok: false, error: "Invalid URL." };
+    return { ok: false, error: t("errors.invalidUrl") };
   }
   // Which client this is about, if the tool was opened from a client's
   // rail. Without it the findings below save and are then invisible to
   // the agent and the ranked list — see tool-findings.ts.
   const clientId = clientIdFrom(formData);
   const html = await fetchHtml(url);
-  if (!html) return { ok: false, error: `Couldn't fetch ${url}` };
+  if (!html) return { ok: false, error: t("errors.fetchFailed", { url }) };
 
   const intent = detectIntent(url, html);
 
@@ -191,8 +220,8 @@ export async function runSxoAudit(
   const pagePromise = {
     ok: !!h1Text && firstParaLen >= 60,
     note: h1Text
-      ? `H1: "${h1Text.slice(0, 80)}". First content block: ${firstParaLen} chars.`
-      : "No H1 — page promise unclear.",
+      ? t("notes.h1", { h1: h1Text.slice(0, 80), chars: firstParaLen })
+      : t("notes.noH1"),
   };
 
   // Time-to-answer — look for TL;DR / summary / definition opener
@@ -213,7 +242,7 @@ export async function runSxoAudit(
   if (hasTldr) ttaScore += 30;
   const timeToAnswer = {
     score: Math.min(100, ttaScore),
-    note: `${opensWithDef ? "Opens with a direct definition. " : "Doesn't open with a direct answer. "}${hasTldr ? "Has TL;DR / summary." : "No TL;DR found."}`,
+    note: `${opensWithDef ? t("notes.opensWithDef") : t("notes.noDirectAnswer")} ${hasTldr ? t("notes.hasTldr") : t("notes.noTldr")}`,
   };
 
   // Next step
@@ -225,12 +254,16 @@ export async function runSxoAudit(
   const nextStep = {
     ok: ctaCount >= 1,
     note: ctaCount > 0
-      ? `${ctaCount} action-oriented CTAs detected.`
-      : "No clear CTA — dead-end page risk.",
+      ? t("notes.ctaCount", { count: ctaCount })
+      : t("notes.noCta"),
   };
 
   // Friction
-  const frictionItems = detectFriction(html);
+  const frictionFound = detectFriction(html);
+  const frictionItems = frictionFound.map((f) => f.text);
+  const frictionLabels = frictionFound.map((f) =>
+    t(`friction.${f.key}`, f.values),
+  );
   const frictionScore = Math.max(0, 100 - frictionItems.length * 15);
 
   // CWV (PSI lab score)
@@ -259,11 +292,11 @@ PSI performance: ${cwvScore}/100
 
 Output a JSON object with: { "primaryPersona": "<one phrase>", "recommendations": ["<specific fix>", ...] }. 3-5 recommendations, each <120 chars. Prioritize SXO (search experience optimization) actions: opening clarity, removing friction, sharpening next step, satisfying intent.`;
 
-  let primaryPersona = "Default persona — couldn't infer.";
+  let primaryPersona = t("defaultPersona");
   let recommendations: string[] = [
-    "Open the page with a direct definition or value statement.",
-    "Ensure at least one prominent CTA is visible in the first viewport.",
-    "Remove or delay non-essential interstitials (cookies, popups).",
+    t("defaultRecommendations.directOpening"),
+    t("defaultRecommendations.visibleCta"),
+    t("defaultRecommendations.interstitials"),
   ];
   const aiText = await callAI({
     system:
@@ -309,7 +342,7 @@ Output a JSON object with: { "primaryPersona": "<one phrase>", "recommendations"
     pagePromise,
     timeToAnswer,
     nextStep,
-    friction: { score: frictionScore, items: frictionItems },
+    friction: { score: frictionScore, items: frictionLabels },
     cwv: { score: cwvScore, lcpMs, cls },
     sxoScore,
     recommendations,
@@ -321,9 +354,9 @@ Output a JSON object with: { "primaryPersona": "<one phrase>", "recommendations"
     {
       signature: "sxo.page_promise",
       title: pagePromise.ok
-        ? "Page promise is clear"
-        : "Page promise is unclear — missing or weak H1",
-      category: "Page promise",
+        ? t("findings.promiseClear")
+        : t("findings.promiseUnclear"),
+      category: t("cards.pagePromise"),
       severity: pagePromise.ok ? "pass" : "critical",
       details: pagePromise.note,
     },
@@ -331,9 +364,9 @@ Output a JSON object with: { "primaryPersona": "<one phrase>", "recommendations"
       signature: "sxo.time_to_answer",
       title:
         timeToAnswer.score >= 70
-          ? "Time-to-answer is solid"
-          : "Slow time-to-answer — readers wait for the point",
-      category: "Time-to-answer",
+          ? t("findings.ttaSolid")
+          : t("findings.ttaSlow"),
+      category: t("cards.timeToAnswer"),
       severity:
         timeToAnswer.score >= 70
           ? "pass"
@@ -345,31 +378,31 @@ Output a JSON object with: { "primaryPersona": "<one phrase>", "recommendations"
     {
       signature: "sxo.next_step",
       title: nextStep.ok
-        ? "Clear next step on the page"
-        : "No clear next step — dead-end risk",
-      category: "Next step",
+        ? t("findings.nextStepClear")
+        : t("findings.nextStepMissing"),
+      category: t("cards.nextStep"),
       severity: nextStep.ok ? "pass" : "high",
       details: nextStep.note,
     },
     ...frictionItems.map((item, i): RawFinding => ({
       signature: `sxo.friction.${i}.${item.slice(0, 32).replace(/\W+/g, "_").toLowerCase()}`,
-      title: item,
-      category: "Friction",
+      title: frictionLabels[i],
+      category: t("cards.friction"),
       severity: "medium",
-      details: "Detected on initial page render — verify it isn't blocking the above-the-fold experience.",
+      details: t("findings.frictionDetails"),
     })),
     {
       signature: "sxo.cwv",
       title:
         cwvScore >= 80
-          ? "Core Web Vitals look healthy"
+          ? t("findings.cwvHealthy")
           : cwvScore >= 50
-            ? "Core Web Vitals need attention"
-            : "Poor Core Web Vitals — speed is hurting rankings",
+            ? t("findings.cwvAttention")
+            : t("findings.cwvPoor"),
       category: "Core Web Vitals",
       severity: cwvScore >= 80 ? "pass" : cwvScore >= 50 ? "medium" : "high",
       details:
-        `PSI performance ${cwvScore}/100` +
+        t("findings.psiPerformance", { score: cwvScore }) +
         (lcpMs !== null ? ` · LCP ${(lcpMs / 1000).toFixed(1)}s` : "") +
         (cls !== null ? ` · CLS ${cls.toFixed(2)}` : ""),
     },

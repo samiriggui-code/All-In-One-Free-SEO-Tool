@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import {
   findFeaturedSnippetOpportunities,
@@ -20,12 +21,13 @@ export default async function SerpFeaturesPage() {
     ? await findFeaturedSnippetOpportunities({ ourDomain })
     : [];
   const paaQuestions = await listAllPaaQuestions();
+  const t = await getTranslations("tools.ui.serp-features");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="SERP feature tracker"
-        description="One tool, three jobs: AI Overview presence + citation tracking, featured snippet hunter, People-Also-Ask question miner. Type a query → we scrape live, store the snapshot, surface opportunities. Free, browser-mode."
+        title={t("title")}
+        description={t("description")}
         icon={Sparkles}
         accent="rose"
       />
@@ -33,12 +35,12 @@ export default async function SerpFeaturesPage() {
       <CaptureForm />
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-        <Stat label="Tracked queries" value={summary.total.toString()} />
-        <Stat label="With AIO" value={summary.withAio.toString()} hint={summary.total > 0 ? `${Math.round((summary.withAio / summary.total) * 100)}%` : "—"} tone="rose" />
-        <Stat label="Cited in AIO" value={summary.citedInAio.toString()} tone="emerald" />
-        <Stat label="With FS" value={summary.withFeatured.toString()} />
-        <Stat label="We own FS" value={summary.ownFeatured.toString()} tone="emerald" />
-        <Stat label="PAA collected" value={summary.paaTotal.toString()} />
+        <Stat label={t("statTracked")} value={summary.total.toString()} />
+        <Stat label={t("statWithAio")} value={summary.withAio.toString()} hint={summary.total > 0 ? `${Math.round((summary.withAio / summary.total) * 100)}%` : "—"} tone="rose" />
+        <Stat label={t("statCitedInAio")} value={summary.citedInAio.toString()} tone="emerald" />
+        <Stat label={t("statWithFs")} value={summary.withFeatured.toString()} />
+        <Stat label={t("statOwnFs")} value={summary.ownFeatured.toString()} tone="emerald" />
+        <Stat label={t("statPaa")} value={summary.paaTotal.toString()} />
       </div>
 
       <OpportunitiesPanel opportunities={opportunities} />

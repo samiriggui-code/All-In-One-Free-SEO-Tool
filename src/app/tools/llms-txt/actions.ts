@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 /**
  * @ai-partial
@@ -62,11 +63,12 @@ export async function generateLlmsTxt(opts: {
   hint?: string;
 }): Promise<GenerateLlmsResult> {
   await requireSignedIn();
-  if (!opts.url?.trim()) return { ok: false, error: "URL is required" };
+  const t = await getTranslations("tools.ui.llms-txt");
+  if (!opts.url?.trim()) return { ok: false, error: t("errorUrlRequired") };
 
   const meta = await fetchSiteMetadata(opts.url).catch(() => null);
   if (!meta || !meta.reachable) {
-    return { ok: false, error: "Couldn't reach the site to extract metadata." };
+    return { ok: false, error: t("errorUnreachable") };
   }
 
   const lines: string[] = [];
@@ -97,7 +99,7 @@ export async function generateLlmsTxt(opts: {
   if (!raw) {
     return {
       ok: false,
-      error: "AI provider didn't respond. Set up an API key in Settings.",
+      error: t("errorAiNoResponse"),
     };
   }
 
@@ -120,13 +122,14 @@ export async function validateLlmsTxt(
   rawUrl: string,
 ): Promise<ValidateLlmsResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
+  const tr = await getTranslations("tools.ui.llms-txt");
+  if (!rawUrl?.trim()) return { ok: false, error: tr("errorUrlRequired") };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
   let origin: string;
   try {
     origin = new URL(url).origin;
   } catch {
-    return { ok: false, error: "Invalid URL" };
+    return { ok: false, error: tr("errorInvalidUrl") };
   }
   const llmsUrl = `${origin}/llms.txt`;
 
@@ -142,13 +145,13 @@ export async function validateLlmsTxt(
     else if (!res.ok) {
       return {
         ok: false,
-        error: `Couldn't read ${llmsUrl} (${res.status}).`,
+        error: tr("errorRead", { url: llmsUrl, status: res.status }),
       };
     } else body = await res.text();
   } catch (err) {
     return {
       ok: false,
-      error: `Couldn't fetch llms.txt: ${(err as Error).message}`,
+      error: tr("errorFetch", { message: (err as Error).message }),
     };
   } finally {
     clearTimeout(t);
@@ -188,53 +191,43 @@ export async function validateLlmsTxt(
   const findings: FindingDraft[] = [];
 
   if (!/^#\s+\S/m.test(body)) {
-    issues.push("Missing top-level H1 (single # line at the start).");
+    issues.push(tr("issueNoH1"));
     findings.push({
       signature: "llms-txt.no_h1",
-      title: "llms.txt has no top-level heading",
+      title: tr("findingNoH1Title"),
       severity: "medium",
       category: "ai-visibility",
-      details:
-        "The single # line is how a parser learns whose site this is. Without it the file " +
-        "reads as a fragment rather than a directory.",
+      details: tr("findingNoH1Details"),
     });
   }
   if (!/^>\s+\S/m.test(body)) {
-    issues.push("Missing blockquote with the one-sentence value prop.");
+    issues.push(tr("issueNoSummary"));
     findings.push({
       signature: "llms-txt.no_summary",
-      title: "llms.txt has no one-line summary",
+      title: tr("findingNoSummaryTitle"),
       severity: "low",
       category: "ai-visibility",
-      details:
-        "The blockquote is the sentence an assistant is most likely to repeat when asked " +
-        "what this site is. Leaving it out means the model writes its own.",
+      details: tr("findingNoSummaryDetails"),
     });
   }
   if (body.length > 2000) {
-    issues.push(
-      `File is ${body.length} chars — most parsers expect ≤ 2000.`,
-    );
+    issues.push(tr("issueTooLong", { length: body.length }));
     findings.push({
       signature: "llms-txt.too_long",
-      title: "llms.txt is longer than parsers expect",
+      title: tr("findingTooLongTitle"),
       severity: "low",
       category: "ai-visibility",
-      details:
-        `The file is ${body.length} characters and most parsers expect 2000 or fewer. ` +
-        "Anything past the limit may simply not be read.",
+      details: tr("findingTooLongDetails", { length: body.length }),
     });
   }
   if (body.length < 50) {
-    issues.push("File looks too short — add a description and key links.");
+    issues.push(tr("issueTooShort"));
     findings.push({
       signature: "llms-txt.too_short",
-      title: "llms.txt is effectively empty",
+      title: tr("findingTooShortTitle"),
       severity: "medium",
       category: "ai-visibility",
-      details:
-        "The file exists, which tells an assistant to read it, and then says nothing — " +
-        "which is worse than not having one, because it looks deliberate.",
+      details: tr("findingTooShortDetails"),
     });
   }
 

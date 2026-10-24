@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -37,7 +38,11 @@ export async function runCrux(
     formFactor: formData.get("formFactor") || undefined,
   });
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      error:
+        parsed.error.issues[0]?.message ??
+        (await getTranslations("tools.ui.crux"))("invalidInput"),
+    };
   }
   const result = await fetchCruxData({
     url: parsed.data.url,
@@ -74,7 +79,9 @@ export async function runOriginSummary(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error:
+        parsed.error.issues[0]?.message ??
+        (await getTranslations("tools.ui.crux"))("invalidInput"),
     };
   }
   const r = await fetchCruxBothScopes({
@@ -110,7 +117,12 @@ export async function runCruxHistory(
     formFactor: formData.get("formFactor") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      ok: false,
+      error:
+        parsed.error.issues[0]?.message ??
+        (await getTranslations("tools.ui.crux"))("invalidInput"),
+    };
   }
   const history = await fetchCruxHistory({
     url: parsed.data.url,

@@ -2,10 +2,12 @@
 
 import { useActionState } from "react";
 import { CornerDownRight, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runBulk, type BulkState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
 
 export function BulkRedirectForm() {
+  const t = useTranslations("tools.ui.redirects-bulk");
   const [state, formAction, pending] = useActionState<
     BulkState | null,
     FormData
@@ -26,7 +28,7 @@ export function BulkRedirectForm() {
       >
         <ClientIdField />
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">URLs (one per line, max 100)</span>
+          <span className="text-muted-foreground">{t("urlsLabel")}</span>
           <textarea
             name="urls"
             required
@@ -44,12 +46,12 @@ export function BulkRedirectForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Tracing chains…
+              {t("tracing")}
             </>
           ) : (
             <>
               <CornerDownRight className="mr-2 size-4" />
-              Trace
+              {t("trace")}
             </>
           )}
         </button>
@@ -79,14 +81,14 @@ export function BulkRedirectForm() {
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-1.5 text-[10px]">
                   <span className={`rounded-md bg-white/5 px-1.5 py-0.5 ring-1 ring-inset ring-white/10 ${statusTone(c.finalStatus)}`}>
-                    final {c.finalStatus || "ERR"}
+                    {t("final", { status: c.finalStatus || "ERR" })}
                   </span>
                   <span className={`rounded-md bg-white/5 px-1.5 py-0.5 ring-1 ring-inset ring-white/10 ${c.hopCount >= 4 ? "text-rose-300" : c.hopCount >= 2 ? "text-amber-300" : "text-muted-foreground"}`}>
-                    {c.hopCount} hops
+                    {t("hops", { count: c.hopCount })}
                   </span>
                   {c.hadLoop && (
                     <span className="rounded-md bg-rose-500/10 px-1.5 py-0.5 text-rose-300 ring-1 ring-inset ring-rose-500/30">
-                      loop
+                      {t("loop")}
                     </span>
                   )}
                   {c.hadMixedScheme && (
@@ -113,7 +115,7 @@ export function BulkRedirectForm() {
                 ))}
                 {c.error && (
                   <li className="px-5 py-2 text-xs text-rose-300">
-                    Error: {c.error}
+                    {t("error", { error: c.error })}
                   </li>
                 )}
               </ul>

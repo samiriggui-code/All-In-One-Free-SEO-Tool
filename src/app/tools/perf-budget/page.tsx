@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import Link from "next/link";
 import { ArrowLeft, Gauge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runBudget, type BudgetState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
@@ -22,6 +23,8 @@ const DEFAULTS = {
 };
 
 export default function PerfBudgetPage() {
+  const t = useTranslations("tools.ui.perf-budget");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<BudgetState, FormData>(
     runBudget,
     null,
@@ -36,12 +39,12 @@ export default function PerfBudgetPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Performance budget enforcement"
-        description="Define byte / request / Core Web Vitals budgets. We crawl the URL, measure actuals, and surface every line item that's over budget. Use to catch regressions before they hit prod."
+        title={t("title")}
+        description={t("description")}
         icon={Gauge}
         accent="amber"
       />
@@ -51,7 +54,7 @@ export default function PerfBudgetPage() {
         className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">URL</span>
+          <span className="text-muted-foreground">{tCommon("urlLabel")}</span>
           <input
             name="url"
             required
@@ -62,24 +65,24 @@ export default function PerfBudgetPage() {
 
         <fieldset className="space-y-3 rounded-xl border border-white/5 bg-black/20 p-4">
           <legend className="px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Byte budgets (transferred KB)
+            {t("byteBudgets")}
           </legend>
           <div className="grid gap-3 sm:grid-cols-3">
             <BudgetInput name="htmlKb" label="HTML" value={budget.htmlKb} onChange={(v) => setBudget({ ...budget, htmlKb: v })} suffix="KB" />
             <BudgetInput name="cssKb" label="CSS" value={budget.cssKb} onChange={(v) => setBudget({ ...budget, cssKb: v })} suffix="KB" />
             <BudgetInput name="jsKb" label="JavaScript" value={budget.jsKb} onChange={(v) => setBudget({ ...budget, jsKb: v })} suffix="KB" />
-            <BudgetInput name="imageKb" label="Images" value={budget.imageKb} onChange={(v) => setBudget({ ...budget, imageKb: v })} suffix="KB" />
-            <BudgetInput name="fontKb" label="Fonts" value={budget.fontKb} onChange={(v) => setBudget({ ...budget, fontKb: v })} suffix="KB" />
-            <BudgetInput name="totalKb" label="Total" value={budget.totalKb} onChange={(v) => setBudget({ ...budget, totalKb: v })} suffix="KB" />
+            <BudgetInput name="imageKb" label={t("inputImages")} value={budget.imageKb} onChange={(v) => setBudget({ ...budget, imageKb: v })} suffix="KB" />
+            <BudgetInput name="fontKb" label={t("inputFonts")} value={budget.fontKb} onChange={(v) => setBudget({ ...budget, fontKb: v })} suffix="KB" />
+            <BudgetInput name="totalKb" label={t("inputTotal")} value={budget.totalKb} onChange={(v) => setBudget({ ...budget, totalKb: v })} suffix="KB" />
           </div>
         </fieldset>
 
         <fieldset className="space-y-3 rounded-xl border border-white/5 bg-black/20 p-4">
           <legend className="px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Request + Core Web Vitals budgets
+            {t("requestBudgets")}
           </legend>
           <div className="grid gap-3 sm:grid-cols-4">
-            <BudgetInput name="requests" label="Requests" value={budget.requests} onChange={(v) => setBudget({ ...budget, requests: v })} />
+            <BudgetInput name="requests" label={t("inputRequests")} value={budget.requests} onChange={(v) => setBudget({ ...budget, requests: v })} />
             <BudgetInput name="lcpMs" label="LCP" value={budget.lcpMs} onChange={(v) => setBudget({ ...budget, lcpMs: v })} suffix="ms" />
             <BudgetInput name="inpMs" label="INP" value={budget.inpMs} onChange={(v) => setBudget({ ...budget, inpMs: v })} suffix="ms" />
             <BudgetInput name="cls" label="CLS" value={budget.cls} onChange={(v) => setBudget({ ...budget, cls: v })} step="0.01" />
@@ -94,10 +97,10 @@ export default function PerfBudgetPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Measuring…
+              {t("measuring")}
             </>
           ) : (
-            "Run audit"
+            t("submit")
           )}
         </button>
       </form>
@@ -119,11 +122,11 @@ export default function PerfBudgetPage() {
           >
             <h2 className="text-base font-semibold">
               {state.fails === 0
-                ? "All budgets passing ✓"
-                : `${state.fails} budget${state.fails === 1 ? "" : "s"} over limit`}
+                ? t("allPassing")
+                : t("overLimit", { count: state.fails })}
             </h2>
             <span className="text-[11px] text-muted-foreground">
-              Measured at {new Date().toLocaleTimeString()}
+              {t("measuredAt", { time: new Date().toLocaleTimeString() })}
             </span>
           </header>
           <ul className="divide-y divide-white/[0.06]">
@@ -139,20 +142,20 @@ export default function PerfBudgetPage() {
                       : "bg-rose-500/15 text-rose-300 ring-rose-500/30"
                   }`}
                 >
-                  {l.passed ? "PASS" : "FAIL"}
+                  {l.passed ? t("pass") : t("fail")}
                 </span>
                 <span className="min-w-0 flex-1 truncate font-medium">
-                  {l.label}
+                  {l.key ? t(`lines.${l.key}`) : l.label}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  budget {l.budget}
+                  {t("budget", { value: l.budget })}
                 </span>
                 <span
                   className={`text-sm font-medium tabular-nums ${
                     l.passed ? "text-emerald-300" : "text-rose-300"
                   }`}
                 >
-                  actual {l.actual}
+                  {t("actual", { value: l.actual })}
                 </span>
               </li>
             ))}

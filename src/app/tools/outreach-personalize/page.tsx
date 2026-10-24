@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { OutreachForm } from "./outreach-form";
 
 export default function OutreachPersonalizePage() {
+  const t = useTranslations("tools.ui.outreach-personalize");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Outreach personalizer"
-        description="Paste a prospect URL + your generic template. AI fetches their site, finds their recent posts and topical signals, and rewrites your opener with one specific reference. Turns a 2% reply rate into 15%."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Send}
         accent="rose"
       />

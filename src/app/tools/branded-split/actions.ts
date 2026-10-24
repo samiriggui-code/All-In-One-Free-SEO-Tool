@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { fetchGscPerformance } from "@/lib/google-oauth";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -53,9 +54,10 @@ export async function runSplit(
   await requireSignedIn();
   const site = String(formData.get("site") ?? "").trim();
   const brandRaw = String(formData.get("brandTerms") ?? "").trim();
-  if (!site) return { ok: false, error: "Pick a GSC property." };
+  const t = await getTranslations("tools.ui.branded-split");
+  if (!site) return { ok: false, error: t("errorNoSite") };
   if (!brandRaw)
-    return { ok: false, error: "Add at least one brand term (comma-separated)." };
+    return { ok: false, error: t("errorNoBrand") };
 
   const brandTerms = brandRaw
     .split(",")
@@ -145,6 +147,6 @@ export async function runSplit(
     }).catch(() => undefined);
     return result;
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "GSC fetch failed" };
+    return { ok: false, error: (err as Error).message ?? t("errorFetch") };
   }
 }

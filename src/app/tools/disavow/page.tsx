@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { ShieldAlert } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { DisavowForm } from "./disavow-form";
 
-export default function DisavowPage() {
+export default async function DisavowPage() {
+  const t = await getTranslations("tools.ui.disavow");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Disavow file generator"
-        description="Paste your backlink list (URLs or domains, optionally TAB-anchor). We auto-flag toxic ones (spam TLDs, casino / payday / random-string domains, suspicious anchors) and emit a Google-spec disavow file."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={ShieldAlert}
         accent="rose"
       />

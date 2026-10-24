@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -92,14 +93,15 @@ export async function checkRobots(
   allowPrivate = false,
 ): Promise<RobotsResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
+  const t = await getTranslations("tools.ui.robots");
+  if (!rawUrl?.trim()) return { ok: false, error: t("errUrlRequired") };
   const url = normalize(rawUrl.trim());
 
   let origin: string;
   try {
     origin = new URL(url).origin;
   } catch {
-    return { ok: false, error: "Invalid URL" };
+    return { ok: false, error: t("errInvalidUrl") };
   }
   const robotsUrl = `${origin}/robots.txt`;
   const robotsRes = await fetchText(robotsUrl, allowPrivate);
@@ -122,38 +124,33 @@ export async function checkRobots(
     }
     // Check for common foot-guns
     if (/^\s*disallow:\s*\/\s*$/im.test(robotsContent) && !/^\s*allow:/im.test(robotsContent)) {
-      issues.push(
-        "robots.txt blocks the entire site (Disallow: /). Search engines can't crawl anything.",
-      );
+      issues.push(t("issueBlocksAll"));
       findings.push({
         signature: "robots.blocks_everything",
-        title: "robots.txt blocks the whole site",
+        title: t("findBlocksAllTitle"),
         severity: "critical",
         category: "crawling",
-        details:
-          "A bare 'Disallow: /' with no Allow rule tells every crawler to read nothing. " +
-          "Pages already indexed drop out over the following weeks, and new ones are never seen.",
+        details: t("findBlocksAllDetails"),
       });
     }
     if (!sitemapUrls.length) {
-      issues.push(
-        "No Sitemap directive declared in robots.txt. Add one to help discovery.",
-      );
+      issues.push(t("issueNoSitemapDirective"));
       findings.push({
         signature: "robots.no_sitemap_directive",
-        title: "robots.txt does not point at a sitemap",
+        title: t("findNoSitemapDirectiveTitle"),
         severity: "low",
         category: "crawling",
-        details:
-          "robots.txt is the one place every crawler looks for a sitemap. Without the line, " +
-          "discovery falls back to following links, which is slower and misses orphan pages.",
+        details: t("findNoSitemapDirectiveDetails"),
       });
     }
   } else {
     issues.push(
       robotsRes.status === 404
-        ? "No robots.txt found. Create one — even an empty allow-all is better than nothing."
-        : `Could not fetch robots.txt (${robotsRes.status} ${robotsRes.error ?? ""}).`,
+        ? t("issueMissing")
+        : t("issueUnreachable", {
+            status: robotsRes.status,
+            error: robotsRes.error ?? "",
+          }),
     );
     // A 404 is a site with no robots.txt. Any other failure is a site we
     // could not reach, which is a different problem with a different fix,
@@ -164,23 +161,19 @@ export async function checkRobots(
       robotsRes.status === 404
         ? {
             signature: "robots.missing",
-            title: "No robots.txt",
+            title: t("findMissingTitle"),
             severity: "medium",
             category: "crawling",
-            details:
-              "Not fatal — crawlers assume they may read everything — but it is the only place " +
-              "to name a sitemap or set a policy for AI crawlers, and its absence usually means " +
-              "nobody has decided either.",
+            details: t("findMissingDetails"),
           }
         : {
             signature: "robots.unreachable",
-            title: "robots.txt could not be fetched",
+            title: t("findUnreachableTitle"),
             severity: "high",
             category: "crawling",
-            details:
-              `The request returned ${robotsRes.status || "no response"}. A crawler that cannot ` +
-              "read robots.txt may treat the whole site as disallowed, so this is worse than " +
-              "having no robots.txt at all.",
+            details: t("findUnreachableDetails", {
+              status: robotsRes.status || t("noResponse"),
+            }),
           },
     );
     sitemapUrls.push(`${origin}/sitemap.xml`);
@@ -228,21 +221,19 @@ export async function checkRobots(
         ok: false,
         type: "unknown",
         count: 0,
-        fetchError: "Response wasn't valid sitemap XML",
+        fetchError: t("invalidSitemapXml"),
       });
     }
   }
 
   if (sitemaps.length === 0 && !robotsRes.blocked) {
-    issues.push("No sitemap files found at any declared or default location.");
+    issues.push(t("issueNoSitemapFound"));
     findings.push({
       signature: "robots.no_sitemap_found",
-      title: "No sitemap at any declared or default location",
+      title: t("findNoSitemapFoundTitle"),
       severity: "medium",
       category: "crawling",
-      details:
-        "Neither robots.txt nor /sitemap.xml produced a readable sitemap. Google will still " +
-        "crawl what it can reach by following links, but nothing tells it what exists.",
+      details: t("findNoSitemapFoundDetails"),
     });
   }
   // A sitemap that is declared and broken is worse than one that is
@@ -251,19 +242,23 @@ export async function checkRobots(
   for (const sm of sitemaps.filter((x) => !x.ok && !x.blocked)) {
     findings.push({
       signature: `robots.sitemap_broken.${sm.url}`,
-      title: `Declared sitemap does not load: ${sm.url}`,
+      title: t("findSitemapBrokenTitle", { url: sm.url }),
       severity: "high",
       category: "crawling",
       details: sm.fetchError
-        ? `Fetching it gave: ${sm.fetchError}`
-        : "The URL is declared but did not return valid sitemap XML.",
+        ? t("findSitemapBrokenDetailsError", { error: sm.fetchError })
+        : t("findSitemapBrokenDetails"),
     });
   }
 
   const out: RobotsResult = { ok: true, robotsUrl, robotsContent, sitemaps, issues };
   await recordToolRun({
     toolId: "robots",
-    label: `${origin} · ${sitemaps.length} sitemaps · ${issues.length} issues`,
+    label: t("runLabel", {
+      origin,
+      sitemaps: sitemaps.length,
+      issues: issues.length,
+    }),
     clientId: clientId ?? null,
     input: { url: rawUrl, clientId },
     result: out,

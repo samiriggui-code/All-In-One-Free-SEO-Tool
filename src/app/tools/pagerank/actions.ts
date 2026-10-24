@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -30,7 +31,12 @@ export async function runPagerank(
     maxPages: formData.get("maxPages") || 150,
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return {
+      ok: false,
+      error:
+        parsed.error.issues[0]?.message ??
+        (await getTranslations("tools.ui.pagerank"))("invalidInput"),
+    };
   const r = await simulatePageRank(parsed.data);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   await saveToolRun({

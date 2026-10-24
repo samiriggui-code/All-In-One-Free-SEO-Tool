@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
 import { saveToolRun } from "@/lib/tool-runs";
 import { guardedFetch, guardUrl } from "@/lib/url-guard";
@@ -56,20 +57,21 @@ export async function runDomainOverview(
   rawUrl: string,
 ): Promise<DomainOverviewResult> {
   await requireSignedIn();
+  const tr = await getTranslations("tools.ui.domain-overview");
   const trimmed = rawUrl.trim();
-  if (!trimmed) return { ok: false, error: "Paste a URL" };
+  if (!trimmed) return { ok: false, error: tr("errorEmpty") };
   let url: string;
   try {
     url = new URL(
       /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
     ).toString();
   } catch {
-    return { ok: false, error: "Not a valid URL" };
+    return { ok: false, error: tr("errorInvalid") };
   }
 
   const metadata = await fetchSiteMetadata(url);
   if (!metadata.reachable) {
-    return { ok: false, error: "Couldn't reach the URL." };
+    return { ok: false, error: tr("errorUnreachable") };
   }
 
   const finalUrl = metadata.url;
@@ -86,12 +88,12 @@ export async function runDomainOverview(
       headers: { "user-agent": UA, accept: "text/html" },
     });
   } catch {
-    return { ok: false, error: "Timeout fetching homepage." };
+    return { ok: false, error: tr("errorTimeout") };
   } finally {
     clearTimeout(t);
   }
   if (!res.ok) {
-    return { ok: false, error: `Server returned ${res.status}` };
+    return { ok: false, error: tr("errorStatus", { status: res.status }) };
   }
   const html = (await res.text()).slice(0, 1_500_000);
 
@@ -155,7 +157,14 @@ export async function runDomainOverview(
   const indexedEstimate = await estimateIndexedFromBing(
     new URL(finalUrl).hostname,
   );
-  const ageHint = guessAgeHint(html);
+  const ageYear = guessAgeYear(html);
+  const ageHint =
+    ageYear !== null
+      ? tr("ageHint", {
+          year: ageYear,
+          years: new Date().getFullYear() - ageYear,
+        })
+      : null;
 
   const result: DomainOverview = {
     ok: true,
@@ -309,14 +318,13 @@ async function estimateIndexedFromBing(host: string): Promise<number | null> {
   }
 }
 
-function guessAgeHint(html: string): string | null {
+function guessAgeYear(html: string): number | null {
   // Look for ©YYYY or Copyright YYYY in the HTML
   const copy = html.match(/(?:©|copyright)[\s\S]{0,30}?(\d{4})/i);
   if (copy) {
     const y = Number(copy[1]);
     const now = new Date().getFullYear();
-    if (y >= 1995 && y <= now)
-      return `Copyright says since ${y} (~${now - y} years)`;
+    if (y >= 1995 && y <= now) return y;
   }
   return null;
 }

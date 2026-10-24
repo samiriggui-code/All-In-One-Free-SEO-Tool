@@ -16,6 +16,8 @@ import { ScoreGauge } from "@/components/ui/score-gauge";
 import { assertClientAccess } from "@/lib/client-scope";
 import { diffRuleStatuses } from "@/lib/cabinet/diff";
 import { categoryLabel } from "@/lib/seomator-meta";
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 type IssueRow = typeof auditIssues.$inferSelect;
 
@@ -120,6 +122,10 @@ export default async function AuditDiffPage({
   const fixedIssues = olderIssues.filter((i) => !newerKeys.has(keyOf(i)));
   const persistedIssues = newerIssues.filter((i) => olderKeys.has(keyOf(i)));
 
+  const t = await getTranslations("auditUi.diff");
+  const tDetail = await getTranslations("audits.detail");
+  const tCat = await getTranslations("auditUi.categories");
+
   const scoreDelta =
     newerAudit.score !== null && olderAudit.score !== null
       ? newerAudit.score - olderAudit.score
@@ -137,7 +143,7 @@ export default async function AuditDiffPage({
             href="/clients"
             className="rounded px-1 py-0.5 hover:bg-white/5 hover:text-foreground"
           >
-            Clients
+            {tDetail("breadcrumbClients")}
           </Link>
           <span>/</span>
           <Link
@@ -148,7 +154,7 @@ export default async function AuditDiffPage({
           </Link>
           <span>/</span>
           <span className="text-foreground">
-            Compare audit #{olderAudit.id} → #{newerAudit.id}
+            {t("crumb", { older: olderAudit.id, newer: newerAudit.id })}
           </span>
         </nav>
 
@@ -158,7 +164,7 @@ export default async function AuditDiffPage({
           </div>
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">
-              <span className="text-gradient-brand">Audit comparison</span>
+              <span className="text-gradient-brand">{t("title")}</span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{client.name}</p>
           </div>
@@ -166,7 +172,7 @@ export default async function AuditDiffPage({
 
         <div className="relative z-10 mt-6 grid gap-4 lg:grid-cols-3">
           <DiffCard
-            label="Older"
+            label={t("older")}
             audit={olderAudit}
             count={olderIssues.length}
             tone="muted"
@@ -175,7 +181,7 @@ export default async function AuditDiffPage({
             {scoreDelta !== null ? (
               <>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Score change
+                  {t("scoreChange")}
                 </div>
                 <div
                   className={`mt-2 text-4xl font-bold tracking-tight ${
@@ -191,19 +197,19 @@ export default async function AuditDiffPage({
                 </div>
                 <div className="mt-2 grid grid-cols-3 gap-3 text-center text-xs">
                   <div>
-                    <div className="text-muted-foreground">Fixed</div>
+                    <div className="text-muted-foreground">{t("fixed")}</div>
                     <div className="mt-0.5 font-bold text-emerald-300">
                       {fixedIssues.length}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">New</div>
+                    <div className="text-muted-foreground">{t("new")}</div>
                     <div className="mt-0.5 font-bold text-rose-300">
                       {newIssues.length}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Same</div>
+                    <div className="text-muted-foreground">{t("same")}</div>
                     <div className="mt-0.5 font-bold text-amber-300">
                       {persistedIssues.length}
                     </div>
@@ -212,12 +218,12 @@ export default async function AuditDiffPage({
               </>
             ) : (
               <div className="text-sm text-muted-foreground">
-                Score not available
+                {t("scoreUnavailable")}
               </div>
             )}
           </div>
           <DiffCard
-            label="Newer"
+            label={t("newer")}
             audit={newerAudit}
             count={newerIssues.length}
             tone="bright"
@@ -228,7 +234,7 @@ export default async function AuditDiffPage({
       {categoryDeltas.length > 0 && (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
-            Category score deltas
+            {t("categoryDeltas")}
           </h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {categoryDeltas.map(({ cat, before, after, delta }) => (
@@ -237,7 +243,7 @@ export default async function AuditDiffPage({
                 className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"
               >
                 <div className="text-[11px] font-medium tracking-wide text-muted-foreground">
-                  {categoryLabel(cat)}
+                  {tCat.has(cat) ? tCat(cat) : categoryLabel(cat)}
                 </div>
                 <div className="mt-1 flex items-baseline gap-2">
                   <span className="text-sm tabular-nums text-muted-foreground">
@@ -269,26 +275,26 @@ export default async function AuditDiffPage({
           ruleDiff.worsenedRules.length > 0) && (
           <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
             <h2 className="text-sm font-semibold tracking-tight">
-              Rule changes
+              {t("ruleChanges")}
             </h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
               <RuleChipList
-                label="Fixed"
+                label={t("rules.fixed")}
                 tone="emerald"
                 rules={ruleDiff.fixedRules}
               />
               <RuleChipList
-                label="Regressed"
+                label={t("rules.regressed")}
                 tone="rose"
                 rules={ruleDiff.regressedRules}
               />
               <RuleChipList
-                label="New fails"
+                label={t("rules.newFails")}
                 tone="rose"
                 rules={ruleDiff.newIssues}
               />
               <RuleChipList
-                label="Worsened"
+                label={t("rules.worsened")}
                 tone="amber"
                 rules={ruleDiff.worsenedRules}
               />
@@ -299,8 +305,8 @@ export default async function AuditDiffPage({
       {/* Fixed (positives) */}
       {fixedIssues.length > 0 && (
         <DiffSection
-          title={`Fixed (${fixedIssues.length})`}
-          subtitle="These were in the older audit but didn't appear in the newer one."
+          title={t("fixedTitle", { count: fixedIssues.length })}
+          subtitle={t("fixedSubtitle")}
           tone="emerald"
           icon={CheckCircle2}
           items={fixedIssues.map((i) => ({
@@ -315,8 +321,8 @@ export default async function AuditDiffPage({
       {/* New (negatives) */}
       {newIssues.length > 0 && (
         <DiffSection
-          title={`New issues (${newIssues.length})`}
-          subtitle="These appeared in the newer audit but weren't there before."
+          title={t("newTitle", { count: newIssues.length })}
+          subtitle={t("newSubtitle")}
           tone="rose"
           icon={Plus}
           items={newIssues.map((i) => ({
@@ -331,8 +337,8 @@ export default async function AuditDiffPage({
       {/* Persisted (still open) */}
       {persistedIssues.length > 0 && (
         <DiffSection
-          title={`Still present (${persistedIssues.length})`}
-          subtitle="In both audits — open work."
+          title={t("stillTitle", { count: persistedIssues.length })}
+          subtitle={t("stillSubtitle")}
           tone="amber"
           icon={Minus}
           items={persistedIssues.map((i) => ({
@@ -349,7 +355,7 @@ export default async function AuditDiffPage({
         newIssues.length === 0 &&
         persistedIssues.length === 0 && (
           <div className="rounded-2xl border border-white/5 bg-card/40 px-6 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-            Both audits are clean — no issues to compare.
+            {t("bothClean")}
           </div>
         )}
     </div>
@@ -367,6 +373,7 @@ function DiffCard({
   count: number;
   tone: "muted" | "bright";
 }) {
+  const t = useTranslations("auditUi");
   return (
     <div
       className={
@@ -384,10 +391,11 @@ function DiffCard({
           href={`/audits/${audit.id}`}
           className="text-sm font-medium hover:underline"
         >
-          Audit #{audit.id}
+          {t("list.auditNumber", { id: audit.id })}
         </Link>
         <div className="text-xs text-muted-foreground">
-          {audit.completedAt?.toLocaleString() ?? "—"} · {count} issues
+          {audit.completedAt?.toLocaleString() ?? "—"} ·{" "}
+          {t("diff.issuesCount", { count })}
         </div>
       </div>
     </div>
@@ -403,13 +411,14 @@ function RuleChipList({
   tone: "emerald" | "rose" | "amber";
   rules: string[];
 }) {
+  const t = useTranslations("auditUi");
   if (rules.length === 0) {
     return (
       <div className="rounded-xl border border-white/5 bg-black/10 px-3 py-2.5 text-muted-foreground">
         <div className="text-[11px] font-medium uppercase tracking-wider">
           {label}
         </div>
-        <div className="mt-1">None</div>
+        <div className="mt-1">{t("diff.none")}</div>
       </div>
     );
   }
@@ -433,7 +442,7 @@ function RuleChipList({
         ))}
         {rules.length > 20 && (
           <li className="text-[10px] text-muted-foreground">
-            +{rules.length - 20} more
+            {t("detail.more", { count: rules.length - 20 })}
           </li>
         )}
       </ul>
@@ -456,6 +465,7 @@ function DiffSection({
   items: { type: string; severity: string; message: string; url: string }[];
   collapsedByDefault?: boolean;
 }) {
+  const t = useTranslations("auditUi");
   const toneMap = {
     emerald: {
       bg: "bg-emerald-500/15 ring-emerald-400/30",
@@ -503,7 +513,9 @@ function DiffSection({
                     {it.type.replace(/_/g, " ")}
                   </span>
                   <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase text-muted-foreground ring-1 ring-inset ring-white/10">
-                    {it.severity}
+                    {t.has(`severity.${it.severity}`)
+                      ? t(`severity.${it.severity}`)
+                      : it.severity}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{it.message}</p>
@@ -516,7 +528,7 @@ function DiffSection({
         ))}
         {items.length > 50 && (
           <li className="px-5 py-3 text-center text-xs text-muted-foreground">
-            +{items.length - 50} more
+            {t("detail.more", { count: items.length - 50 })}
           </li>
         )}
       </ul>

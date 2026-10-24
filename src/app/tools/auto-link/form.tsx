@@ -2,9 +2,12 @@
 
 import { useActionState, useRef, useState } from "react";
 import { Check, Copy, Link2, Loader2, Wand2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runAutoLink, type AutoLinkState } from "./actions";
 
 export function AutoLinkForm() {
+  const t = useTranslations("tools.ui.auto-link");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     AutoLinkState | null,
     FormData
@@ -60,21 +63,19 @@ export function AutoLinkForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Content</span>
+          <span className="text-muted-foreground">{t("contentLabel")}</span>
           <textarea
             ref={contentRef}
             name="content"
             required
             rows={8}
             spellCheck={false}
-            placeholder="Paste your draft content here…"
+            placeholder={t("contentPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">
-            Your internal pages — URL TAB title (one per line)
-          </span>
+          <span className="text-muted-foreground">{t("pagesLabel")}</span>
           <textarea
             name="pages"
             required
@@ -92,12 +93,12 @@ export function AutoLinkForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Proposing links…
+              {t("proposing")}
             </>
           ) : (
             <>
               <Link2 className="mr-2 size-4" />
-              Suggest links
+              {t("submit")}
             </>
           )}
         </button>
@@ -111,8 +112,7 @@ export function AutoLinkForm() {
 
       {state?.ok && state.suggestions.length === 0 && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          AI didn&apos;t find any link opportunities. Try expanding the page
-          list or relaxing the content.
+          {t("noSuggestions")}
         </p>
       )}
 
@@ -120,8 +120,7 @@ export function AutoLinkForm() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3">
             <h3 className="text-sm font-semibold">
-              {state.suggestions.length} link suggestion
-              {state.suggestions.length === 1 ? "" : "s"}
+              {t("suggestionsTitle", { count: state.suggestions.length })}
             </h3>
             <button
               type="button"
@@ -131,12 +130,12 @@ export function AutoLinkForm() {
               {allCopied ? (
                 <>
                   <Check className="mr-1 size-3 text-emerald-300" />
-                  Copied content
+                  {t("copiedContent")}
                 </>
               ) : (
                 <>
                   <Wand2 className="mr-1 size-3" />
-                  Apply all + copy content
+                  {t("applyAll")}
                 </>
               )}
             </button>
@@ -162,12 +161,12 @@ export function AutoLinkForm() {
                     {copiedIdx === i ? (
                       <>
                         <Check className="mr-1 size-3 text-emerald-300" />
-                        Copied
+                        {tCommon("copied")}
                       </>
                     ) : (
                       <>
                         <Copy className="mr-1 size-3" />
-                        Copy &lt;a&gt;
+                        {t("copyTag")}
                       </>
                     )}
                   </button>

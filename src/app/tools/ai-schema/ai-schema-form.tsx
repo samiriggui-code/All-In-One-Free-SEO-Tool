@@ -2,9 +2,12 @@
 
 import { useActionState, useState } from "react";
 import { Check, Code2, Copy, Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runAiSchema, type AiSchemaState } from "./actions";
 
 export function AiSchemaForm() {
+  const t = useTranslations("tools.ui.ai-schema");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     AiSchemaState | null,
     FormData
@@ -39,12 +42,12 @@ export function AiSchemaForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
               <>
                 <Sparkles className="mr-2 size-3" />
-                Generate
+                {t("submit")}
               </>
             )}
           </button>
@@ -59,8 +62,7 @@ export function AiSchemaForm() {
 
       {state?.ok && state.result.ok && state.result.suggestions.length === 0 && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          The page doesn&apos;t fit any rich-result schema type. AI returned no
-          suggestions.
+          {t("noSuggestions")}
         </p>
       )}
 
@@ -84,12 +86,12 @@ export function AiSchemaForm() {
                 {copiedIdx === i ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied
+                    {tCommon("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy JSON-LD
+                    {t("copyJsonLd")}
                   </>
                 )}
               </button>
@@ -100,12 +102,13 @@ export function AiSchemaForm() {
                 {s.jsonLd}
               </pre>
               <p className="text-[10px] text-muted-foreground">
-                Paste this inside a{" "}
-                <code className="rounded bg-white/5 px-1 py-0.5">
-                  &lt;script type=&quot;application/ld+json&quot;&gt;
-                </code>{" "}
-                tag in your &lt;head&gt;. Always validate in Google&apos;s Rich
-                Results Test before shipping.
+                {t.rich("pasteHelp", {
+                  code: () => (
+                    <code className="rounded bg-white/5 px-1 py-0.5">
+                      &lt;script type=&quot;application/ld+json&quot;&gt;
+                    </code>
+                  ),
+                })}
               </p>
             </div>
           </section>

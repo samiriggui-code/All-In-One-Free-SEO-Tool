@@ -11,12 +11,15 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { checkHreflang, type HreflangResult } from "./actions";
 
 export default function HreflangPage() {
+  const t = useTranslations("tools.ui.hreflang");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<HreflangResult | null>(null);
@@ -36,7 +39,7 @@ export default function HreflangPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -45,20 +48,18 @@ export default function HreflangPage() {
             <Globe className="size-5 text-cyan-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Hreflang validator</span>
+            <span className="text-gradient-brand">{t("pageTitle")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Checks every hreflang tag (in HTML + HTTP Link header), validates
-          format + self-reference + x-default, then verifies reciprocal links
-          on each variant.
+          {t("pageDescription")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="hurl">Page URL</Label>
+            <Label htmlFor="hurl">{t("pageUrl")}</Label>
             <Input
               id="hurl"
               value={url}
@@ -70,12 +71,12 @@ export default function HreflangPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Checking…
+                {t("checking")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Validate
+                {t("submit")}
               </>
             )}
           </Button>
@@ -96,7 +97,7 @@ export default function HreflangPage() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <AlertCircle className="size-4 text-amber-300" />
-                  Issues ({result.issues.length})
+                  {t("issuesTitle", { count: result.issues.length })}
                 </h2>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -115,7 +116,7 @@ export default function HreflangPage() {
             result.entries.length > 0 && (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
                 <CheckCircle2 className="mr-2 inline size-4" />
-                Hreflang setup looks valid.
+                {t("allValid")}
               </div>
             )
           )}
@@ -125,16 +126,16 @@ export default function HreflangPage() {
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold">
-                  Detected entries ({result.entries.length})
+                  {t("entriesTitle", { count: result.entries.length })}
                 </h2>
               </header>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-5 py-3 text-left font-medium">Lang</th>
+                    <th className="px-5 py-3 text-left font-medium">{t("colLang")}</th>
                     <th className="px-5 py-3 text-left font-medium">Href</th>
-                    <th className="px-3 py-3 text-left font-medium">Source</th>
-                    <th className="px-3 py-3 text-left font-medium">Status</th>
+                    <th className="px-3 py-3 text-left font-medium">{t("colSource")}</th>
+                    <th className="px-3 py-3 text-left font-medium">{t("colStatus")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -153,14 +154,14 @@ export default function HreflangPage() {
                         </a>
                       </td>
                       <td className="px-3 py-2 text-[11px] text-muted-foreground">
-                        {e.source === "html_link" ? "HTML <link>" : "HTTP header"}
+                        {e.source === "html_link" ? "HTML <link>" : t("httpHeader")}
                       </td>
                       <td className="px-3 py-2">
                         {e.status === "ok" ? (
                           <CheckCircle2 className="size-3.5 text-emerald-300" />
                         ) : (
                           <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[10px] text-rose-300 ring-1 ring-inset ring-rose-500/30">
-                            {e.hint ?? "error"}
+                            {e.hint ?? t("error")}
                           </span>
                         )}
                       </td>
@@ -175,10 +176,9 @@ export default function HreflangPage() {
           {result.reciprocal.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
-                <h2 className="text-base font-semibold">Reciprocal check</h2>
+                <h2 className="text-base font-semibold">{t("reciprocalTitle")}</h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Each variant should reference back to this URL. Up to 6 of
-                  the most common variants checked.
+                  {t("reciprocalHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -198,17 +198,17 @@ export default function HreflangPage() {
                     </a>
                     {!r.reachable ? (
                       <span className="text-xs text-muted-foreground">
-                        Unreachable
+                        {t("unreachable")}
                       </span>
                     ) : r.pointsBack ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                         <CheckCircle2 className="size-3" />
-                        Points back ({r.langDeclared})
+                        {t("pointsBack", { lang: r.langDeclared ?? "" })}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-300 ring-1 ring-inset ring-rose-500/30">
                         <AlertCircle className="size-3" />
-                        Doesn&apos;t point back
+                        {t("doesntPointBack")}
                       </span>
                     )}
                   </li>

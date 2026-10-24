@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { usePresetUrl } from "@/components/use-preset-url";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import { Loader2, ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runWpHackScan, type WpHackState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
@@ -30,6 +31,7 @@ const RISK_LEVEL_TEXT = {
 };
 
 export default function WpHackScanPage() {
+  const t = useTranslations("tools.ui.wp-hack-scan");
   // Prefilled when opened from a client, so the domain is not retyped.
   const presetUrl = usePresetUrl();
   const [state, formAction, pending] = useActionState<WpHackState, FormData>(
@@ -41,8 +43,8 @@ export default function WpHackScanPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="WordPress hack / malware scan"
-        description="Probes a live WordPress site from the outside for active compromise indicators: backdoor files, exposed configs, JS injection, hidden iframes, spam injection, cloaking, version disclosure. Returns a containment + cleanup + prevention playbook."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={ShieldAlert}
         accent="rose"
       />
@@ -52,7 +54,7 @@ export default function WpHackScanPage() {
         className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">WordPress site URL</span>
+          <span className="text-muted-foreground">{t("urlLabel")}</span>
           <input
             name="url"
             defaultValue={presetUrl}
@@ -69,20 +71,17 @@ export default function WpHackScanPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Probing… (30-60s — runs 50+ HTTP checks)
+              {t("running")}
             </>
           ) : (
             <>
               <ShieldAlert className="mr-2 size-4" />
-              Scan for hack indicators
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Remote-only scan via HTTP probes — we can&apos;t read PHP files
-          on your server. For deep file inspection install Wordfence or
-          Sucuri on the WordPress side. This catches what&apos;s visible
-          externally (which is usually how Google notices first).
+          {t("help")}
         </p>
       </form>
 
@@ -105,7 +104,9 @@ export default function WpHackScanPage() {
                 <p
                   className={`text-xs font-medium uppercase tracking-wider ${RISK_LEVEL_TEXT[state.report.riskLevel]}`}
                 >
-                  Risk level: {state.report.riskLevel}
+                  {t("riskLevel", {
+                    level: t(`risk.${state.report.riskLevel}`),
+                  })}
                 </p>
               </div>
               <div className="text-right">
@@ -115,27 +116,24 @@ export default function WpHackScanPage() {
                   {state.report.iocs.length}
                 </div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Indicators of compromise
+                  {t("iocLabel")}
                 </p>
               </div>
             </div>
             {state.report.cloudflareQuickFix && (
               <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
                 <p className="font-semibold text-amber-200">
-                  ⚡ Quick fix: enable Cloudflare &quot;Under Attack Mode&quot;
+                  {t("quickFixTitle")}
                 </p>
                 <p className="mt-1">
-                  If you have Cloudflare on this domain, turn on Under Attack
-                  Mode (Security → Settings) right now — it interposes a JS
-                  challenge that blocks most automated exploit traffic while
-                  you clean up.{" "}
+                  {t("quickFixBody")}{" "}
                   <a
                     href="https://developers.cloudflare.com/waf/tools/under-attack-mode/"
                     target="_blank"
                     rel="noreferrer"
                     className="text-amber-300 underline"
                   >
-                    Cloudflare docs
+                    {t("cloudflareDocs")}
                   </a>
                 </p>
               </div>
@@ -146,7 +144,7 @@ export default function WpHackScanPage() {
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="text-sm font-semibold">
-                  Indicators of compromise ({state.report.iocs.length})
+                  {t("iocTitle", { count: state.report.iocs.length })}
                 </h3>
               </header>
               <ul className="divide-y divide-white/[0.06]">
@@ -159,7 +157,7 @@ export default function WpHackScanPage() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${SEVERITY_TONE[ioc.severity]}`}
                       >
-                        {ioc.severity}
+                        {t(`severity.${ioc.severity}`)}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
                         {ioc.category}
@@ -179,16 +177,16 @@ export default function WpHackScanPage() {
           )}
 
           {state.report.containmentSteps.length > 0 && (
-            <Section title="🚨 Containment (do these NOW)" tone="rose">
+            <Section title={t("containment")} tone="rose">
               {state.report.containmentSteps}
             </Section>
           )}
           {state.report.cleanupSteps.length > 0 && (
-            <Section title="🧹 Cleanup (after containment)" tone="amber">
+            <Section title={t("cleanup")} tone="amber">
               {state.report.cleanupSteps}
             </Section>
           )}
-          <Section title="🛡 Prevention (build the wall back up)" tone="emerald">
+          <Section title={t("prevention")} tone="emerald">
             {state.report.preventionSteps}
           </Section>
         </>

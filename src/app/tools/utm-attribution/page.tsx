@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import { Loader2, Network } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
+import { useTranslations } from "next-intl";
 import { runAttribution, type AttrState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
 
@@ -17,6 +18,7 @@ user-3,2026-04-04T12:00:00Z,reddit,social,community,0
 user-3,2026-04-06T09:00:00Z,google,organic,,1`;
 
 export default function UtmAttributionPage() {
+  const t = useTranslations("tools.ui.utm-attribution");
   const [state, formAction, pending] = useActionState<AttrState, FormData>(
     runAttribution,
     null,
@@ -27,8 +29,8 @@ export default function UtmAttributionPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Multi-touch attribution (UTM-based)"
-        description="Compute first-touch, last-touch, assisted, linear, and position-based attribution from UTM-tagged touch data. No CRM needed — works with GA4 export, Mixpanel, or any CSV with userId / source / medium / campaign columns."
+        title={t("title")}
+        description={t("description")}
         icon={Network}
         accent="violet"
       />
@@ -39,7 +41,7 @@ export default function UtmAttributionPage() {
       >
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Paste touch data (CSV with header row recommended)
+            {t("pasteLabel")}
           </span>
           <textarea
             name="touches"
@@ -49,10 +51,9 @@ export default function UtmAttributionPage() {
             className="w-full rounded-md border border-white/10 bg-card/60 p-3 font-mono text-[12px]"
           />
           <span className="block text-[10px] text-muted-foreground">
-            Columns: <code>userId</code>, <code>timestamp</code>,{" "}
-            <code>source</code>, <code>medium</code>, <code>campaign</code>,
-            optional <code>content</code>, <code>term</code>,{" "}
-            <code>landingPath</code>, <code>isConversion</code> (0 or 1).
+            {t.rich("columnsHelp", {
+              code: (chunks) => <code>{chunks}</code>,
+            })}
           </span>
         </label>
         <button
@@ -63,12 +64,12 @@ export default function UtmAttributionPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Computing…
+              {t("computing")}
             </>
           ) : (
             <>
               <Network className="mr-2 size-4" />
-              Run attribution
+              {t("run")}
             </>
           )}
         </button>
@@ -83,38 +84,37 @@ export default function UtmAttributionPage() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label="Total touches" value={state.result.totalTouches} />
-            <Stat label="Unique users" value={state.result.uniqueUsers} />
+            <Stat label={t("totalTouches")} value={state.result.totalTouches} />
+            <Stat label={t("uniqueUsers")} value={state.result.uniqueUsers} />
             <Stat
-              label="Conversions"
+              label={t("conversions")}
               value={state.result.totalConversions}
               tone="emerald"
             />
             <Stat
-              label="Avg path length"
+              label={t("avgPathLength")}
               value={state.result.averagePathLength.toFixed(1)}
             />
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h2 className="text-sm font-semibold">Channel attribution</h2>
+              <h2 className="text-sm font-semibold">{t("channelAttribution")}</h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Compare models — first-touch and last-touch tell different
-                stories. Linear and position-based are the most balanced.
+                {t("compareModels")}
               </p>
             </header>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="bg-white/[0.04] text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2 text-left">Channel</th>
-                    <th className="px-4 py-2 text-right">First-touch</th>
-                    <th className="px-4 py-2 text-right">Last-touch</th>
-                    <th className="px-4 py-2 text-right">Assisted</th>
-                    <th className="px-4 py-2 text-right">Linear</th>
-                    <th className="px-4 py-2 text-right">Position-based</th>
-                    <th className="px-4 py-2 text-right">Path inclusion</th>
+                    <th className="px-4 py-2 text-left">{t("colChannel")}</th>
+                    <th className="px-4 py-2 text-right">{t("colFirstTouch")}</th>
+                    <th className="px-4 py-2 text-right">{t("colLastTouch")}</th>
+                    <th className="px-4 py-2 text-right">{t("colAssisted")}</th>
+                    <th className="px-4 py-2 text-right">{t("colLinear")}</th>
+                    <th className="px-4 py-2 text-right">{t("colPosition")}</th>
+                    <th className="px-4 py-2 text-right">{t("colPathInclusion")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -149,7 +149,7 @@ export default function UtmAttributionPage() {
           {state.result.topPaths.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
-                <h2 className="text-sm font-semibold">Top conversion paths</h2>
+                <h2 className="text-sm font-semibold">{t("topPaths")}</h2>
               </header>
               <ul className="divide-y divide-white/[0.04]">
                 {state.result.topPaths.map((p, i) => (
@@ -161,7 +161,7 @@ export default function UtmAttributionPage() {
                       {p.path.join(" → ")}
                     </code>
                     <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                      {p.count} conv
+                      {t("convCount", { count: p.count })}
                     </span>
                   </li>
                 ))}

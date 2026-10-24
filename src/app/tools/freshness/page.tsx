@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { ArrowLeft, CalendarClock } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { FreshnessForm } from "./form";
 
-export default function FreshnessPage() {
+export default async function FreshnessPage() {
+  const t = await getTranslations("tools.ui.freshness");
+  const tCommon = await getTranslations("tools.common");
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <Link
@@ -11,12 +14,12 @@ export default function FreshnessPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Freshness audit"
-        description="AI-search systems (AI Overviews, Perplexity, ChatGPT) skip pages that look undated or stale. This audit fetches every freshness signal on your page — HTTP header, meta tags, JSON-LD dateModified, <time> elements, and visible 'Last updated' text — flags gaps and disagreements, and gives you a ready-to-paste JSON-LD + meta patch."
+        title={t("title")}
+        description={t("description")}
         icon={CalendarClock}
         accent="emerald"
       />

@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Map } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { SitemapForm } from "./sitemap-form";
 
-export default function SitemapPage() {
+export default async function SitemapPage() {
+  const t = await getTranslations("tools.ui.sitemap");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Sitemap generator"
-        description="Crawl a site and produce sitemap.xml, a plain-text URL list, and a human-readable HTML index. Same crawler the auditor uses — respects robots.txt by default."
+        title={t("title")}
+        description={t("description")}
         icon={Map}
         accent="cyan"
       />

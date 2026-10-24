@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { SummarizerForm } from "./form";
 
 export default function SummarizerPage() {
+  const t = useTranslations("tools.ui.summarizer");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="AI content summarizer"
-        description="Paste content (or pull from URL). AI returns a TL;DR, 5-7 key takeaways, a 150-160 char meta description, and a tweetable quote. Same as Yoast Premium AI Summarize, free in our tool."
+        title={t("title")}
+        description={t("description")}
         icon={FileText}
         accent="cyan"
       />

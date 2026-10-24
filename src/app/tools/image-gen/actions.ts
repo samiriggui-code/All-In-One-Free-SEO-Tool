@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { generateImage, type ImageGenInput } from "@/lib/image-gen";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -32,7 +33,10 @@ export async function runImageGen(
   const style = (String(formData.get("style") ?? "vivid") as
     | "natural"
     | "vivid");
-  if (!prompt) return { ok: false, error: "Prompt is required." };
+  if (!prompt) {
+    const t = await getTranslations("tools.ui.image-gen");
+    return { ok: false, error: t("errPromptRequired") };
+  }
 
   const input: ImageGenInput = { prompt, aspect, quality, style };
   const r = await generateImage(input);

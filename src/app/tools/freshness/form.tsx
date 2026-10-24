@@ -2,19 +2,21 @@
 
 import { useState, useTransition } from "react";
 import { Copy, Loader2, AlertTriangle, CircleCheck, Info } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runFreshnessAudit } from "./actions";
 import type { FreshnessAudit, FreshnessSignal } from "@/lib/freshness-check";
 
-const SOURCE_LABEL: Record<FreshnessSignal["source"], string> = {
-  "http-header": "HTTP header",
-  "meta-tag": "Meta tag",
-  "json-ld": "JSON-LD",
-  "time-element": "<time> element",
-  "visible-text": "Visible text",
-  sitemap: "Sitemap",
+const SOURCE_KEY: Record<FreshnessSignal["source"], string> = {
+  "http-header": "httpHeader",
+  "meta-tag": "metaTag",
+  "json-ld": "jsonLd",
+  "time-element": "timeElement",
+  "visible-text": "visibleText",
+  sitemap: "sitemap",
 };
 
 export function FreshnessForm() {
+  const t = useTranslations("tools.ui.freshness");
   const [url, setUrl] = useState("");
   const [sitemap, setSitemap] = useState("");
   const [result, setResult] = useState<FreshnessAudit | null>(null);
@@ -56,7 +58,7 @@ export function FreshnessForm() {
         />
         <details className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
           <summary className="cursor-pointer text-[11px] text-muted-foreground">
-            Optional: sitemap URL (to cross-check sitemap lastmod)
+            {t("sitemapOptional")}
           </summary>
           <input
             type="url"
@@ -74,17 +76,17 @@ export function FreshnessForm() {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Fetching freshness signals…
+              {t("running")}
             </>
           ) : (
-            "Audit freshness"
+            t("submit")
           )}
         </button>
       </form>
 
       {result && !result.ok && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 px-4 py-3 text-sm text-rose-200">
-          <div className="font-semibold">Couldn&apos;t audit that URL</div>
+          <div className="font-semibold">{t("errorTitle")}</div>
           <p className="mt-1 text-rose-200/80">{result.error}</p>
         </div>
       )}
@@ -101,29 +103,30 @@ export function FreshnessForm() {
           {/* Signals table */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h2 className="text-base font-semibold">Freshness signals found</h2>
+              <h2 className="text-base font-semibold">{t("signalsTitle")}</h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                {result.signals.length} signal
-                {result.signals.length === 1 ? "" : "s"} · newest is{" "}
                 {result.newestAgeDays == null
-                  ? "undated"
-                  : `${result.newestAgeDays} day${result.newestAgeDays === 1 ? "" : "s"} old`}
+                  ? t("signalsSummaryUndated", { count: result.signals.length })
+                  : t("signalsSummary", {
+                      count: result.signals.length,
+                      days: result.newestAgeDays,
+                    })}
               </p>
             </header>
             {result.signals.length === 0 ? (
               <p className="p-5 text-sm text-muted-foreground">
-                No freshness signals detected at all. That&apos;s the worst
-                case — AI search systems will treat this page as undated.
-                Paste the patch below into <code>&lt;head&gt;</code>.
+                {t.rich("noSignals", {
+                  code: (chunks) => <code>{chunks}</code>,
+                })}
               </p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-5 py-3 text-left font-medium">Source</th>
-                    <th className="px-3 py-3 text-left font-medium">Field</th>
-                    <th className="px-3 py-3 text-left font-medium">Value</th>
-                    <th className="px-3 py-3 text-right font-medium">Age</th>
+                    <th className="px-5 py-3 text-left font-medium">{t("cols.source")}</th>
+                    <th className="px-3 py-3 text-left font-medium">{t("cols.field")}</th>
+                    <th className="px-3 py-3 text-left font-medium">{t("cols.value")}</th>
+                    <th className="px-3 py-3 text-right font-medium">{t("cols.age")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -131,7 +134,7 @@ export function FreshnessForm() {
                     <tr key={i} className="hover:bg-white/[0.02]">
                       <td className="px-5 py-3 text-xs">
                         <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {SOURCE_LABEL[s.source]}
+                          {t(`sources.${SOURCE_KEY[s.source]}`)}
                         </span>
                       </td>
                       <td className="px-3 py-3 font-mono text-[11px]">
@@ -144,13 +147,13 @@ export function FreshnessForm() {
                       </td>
                       <td className="px-3 py-3 text-right text-[11px] tabular-nums">
                         {s.ageDays == null ? (
-                          <span className="text-rose-300">unparseable</span>
+                          <span className="text-rose-300">{t("unparseable")}</span>
                         ) : s.ageDays <= 30 ? (
-                          <span className="text-emerald-300">{s.ageDays}d</span>
+                          <span className="text-emerald-300">{t("days", { days: s.ageDays })}</span>
                         ) : s.ageDays <= 365 ? (
-                          <span className="text-amber-300">{s.ageDays}d</span>
+                          <span className="text-amber-300">{t("days", { days: s.ageDays })}</span>
                         ) : (
-                          <span className="text-rose-300">{s.ageDays}d</span>
+                          <span className="text-rose-300">{t("days", { days: s.ageDays })}</span>
                         )}
                       </td>
                     </tr>
@@ -166,8 +169,7 @@ export function FreshnessForm() {
               <header className="mb-3 flex items-center gap-2 text-amber-200">
                 <AlertTriangle className="size-4" />
                 <h3 className="text-sm font-semibold">
-                  {result.warnings.length} thing
-                  {result.warnings.length === 1 ? "" : "s"} to fix
+                  {t("toFix", { count: result.warnings.length })}
                 </h3>
               </header>
               <ul className="space-y-2 text-[12px] text-amber-100/90">
@@ -185,11 +187,11 @@ export function FreshnessForm() {
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <header className="mb-3 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold">Suggested patch</h2>
+                <h2 className="text-base font-semibold">{t("patchTitle")}</h2>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Drops into <code>&lt;head&gt;</code>. Includes JSON-LD +
-                  visible text + article:modified_time meta. Update the
-                  headline and author placeholders before pasting.
+                  {t.rich("patchHelp", {
+                    code: (chunks) => <code>{chunks}</code>,
+                  })}
                 </p>
               </div>
               <button
@@ -198,7 +200,7 @@ export function FreshnessForm() {
                 className="inline-flex h-9 items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-medium hover:bg-white/[0.08]"
               >
                 <Copy className="size-3.5" />
-                {copied ? "Copied!" : "Copy patch"}
+                {copied ? t("copied") : t("copyPatch")}
               </button>
             </header>
             <pre className="overflow-x-auto rounded-lg border border-white/[0.06] bg-black/40 p-4 text-[11px] leading-relaxed">
@@ -220,34 +222,35 @@ function VerdictBanner({
   score: number;
   ageDays: number | null;
 }) {
+  const t = useTranslations("tools.ui.freshness.verdict");
   const meta = {
     fresh: {
       icon: <CircleCheck className="size-5" />,
       tone: "border-emerald-500/30 bg-emerald-500/5 text-emerald-200",
       dot: "bg-emerald-400",
-      headline: "Fresh",
-      body: "Signals look recent. AI systems will treat this page as up-to-date.",
+      headline: t("fresh.headline"),
+      body: t("fresh.body"),
     },
     aging: {
       icon: <Info className="size-5" />,
       tone: "border-amber-500/30 bg-amber-500/5 text-amber-200",
       dot: "bg-amber-400",
-      headline: "Aging",
-      body: "Signals are 3-12 months old. Consider a refresh — even a small update with a bumped dateModified helps.",
+      headline: t("aging.headline"),
+      body: t("aging.body"),
     },
     stale: {
       icon: <AlertTriangle className="size-5" />,
       tone: "border-rose-500/30 bg-rose-500/5 text-rose-200",
       dot: "bg-rose-400",
-      headline: "Stale",
-      body: "The newest signal is over a year old. AI-search systems will heavily downweight this page.",
+      headline: t("stale.headline"),
+      body: t("stale.body"),
     },
     unknown: {
       icon: <AlertTriangle className="size-5" />,
       tone: "border-rose-500/30 bg-rose-500/5 text-rose-200",
       dot: "bg-rose-400",
-      headline: "Undated",
-      body: "No parseable freshness signal at all. AI-search systems can't tell how recent this content is.",
+      headline: t("unknown.headline"),
+      body: t("unknown.body"),
     },
   }[verdict];
 
@@ -262,7 +265,7 @@ function VerdictBanner({
             <span>{meta.headline}</span>
             <span className={`inline-block size-2 rounded-full ${meta.dot}`} />
             <span className="text-sm font-normal opacity-80">
-              score {score}/100
+              {t("score", { score })}
             </span>
           </div>
           <p className="text-[12px] opacity-80">{meta.body}</p>
@@ -271,10 +274,10 @@ function VerdictBanner({
       {ageDays != null && (
         <div className="ml-auto text-right">
           <div className="text-[10px] uppercase tracking-wider opacity-70">
-            Newest signal
+            {t("newest")}
           </div>
           <div className="text-2xl font-bold tabular-nums">
-            {ageDays === 0 ? "today" : `${ageDays}d ago`}
+            {ageDays === 0 ? t("today") : t("daysAgo", { days: ageDays })}
           </div>
         </div>
       )}

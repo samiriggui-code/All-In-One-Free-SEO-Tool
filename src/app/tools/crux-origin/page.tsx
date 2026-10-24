@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import Link from "next/link";
 import { ArrowLeft, Gauge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import {
   runOriginSummary,
@@ -29,6 +30,8 @@ const METRIC_LABEL: Record<string, string> = {
 };
 
 export default function CruxOriginSummaryPage() {
+  const t = useTranslations("tools.ui.crux-origin");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     OriginSummaryState,
     FormData
@@ -42,12 +45,12 @@ export default function CruxOriginSummaryPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="CrUX Origin Summary"
-        description="Google's Core Web Vitals ranking signal uses 28-day origin-level field data — not the URL you tested. A page can pass URL-level CWV and still fail the ranking signal because the origin as a whole is slow. This tool fetches both scopes side-by-side."
+        title={t("title")}
+        description={t("description")}
         icon={Gauge}
         accent="cyan"
       />
@@ -58,7 +61,7 @@ export default function CruxOriginSummaryPage() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_140px_120px]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">URL to inspect</span>
+            <span className="text-muted-foreground">{t("urlLabel")}</span>
             <input
               name="url"
               required
@@ -67,15 +70,15 @@ export default function CruxOriginSummaryPage() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Form factor</span>
+            <span className="text-muted-foreground">{t("formFactor")}</span>
             <select
               name="formFactor"
               defaultValue="PHONE"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="PHONE">Phone</option>
-              <option value="DESKTOP">Desktop</option>
-              <option value="ALL_FORM_FACTORS">All form factors</option>
+              <option value="PHONE">{t("phone")}</option>
+              <option value="DESKTOP">{t("desktop")}</option>
+              <option value="ALL_FORM_FACTORS">{t("allFormFactors")}</option>
             </select>
           </label>
           <button
@@ -83,7 +86,7 @@ export default function CruxOriginSummaryPage() {
             disabled={pending}
             className="mt-5 inline-flex h-9 items-center justify-center rounded-md bg-cyan-500/15 px-4 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25 disabled:opacity-50"
           >
-            {pending ? <Loader2 className="size-3 animate-spin" /> : "Compare"}
+            {pending ? <Loader2 className="size-3 animate-spin" /> : t("compare")}
           </button>
         </div>
       </form>
@@ -97,9 +100,9 @@ export default function CruxOriginSummaryPage() {
       {state?.ok && (
         <>
           <div className="grid gap-3 md:grid-cols-2">
-            <ScopeCard label="URL-level (this page only)" data={state.urlScope} />
+            <ScopeCard label={t("urlScope")} data={state.urlScope} />
             <ScopeCard
-              label="Origin-level (entire site, 28d) — RANKING SIGNAL"
+              label={t("originScope")}
               data={state.originScope}
               highlight
             />
@@ -108,21 +111,18 @@ export default function CruxOriginSummaryPage() {
           {state.gap.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
-                <h2 className="text-sm font-semibold">URL vs Origin gap</h2>
+                <h2 className="text-sm font-semibold">{t("gapTitle")}</h2>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Positive delta = origin is slower than this URL. If origin
-                  is failing while URL passes, fixing this single page won&apos;t
-                  improve the ranking signal — you need to lift performance
-                  across the whole site.
+                  {t("gapHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.06]">
                 {state.gap.map((g) => {
-                  const t = THRESH[g.metric];
-                  if (!t) return null;
+                  const th = THRESH[g.metric];
+                  if (!th) return null;
                   const fmt = (n: number) =>
-                    g.metric === "cls" ? n.toFixed(3) : `${Math.round(n)}${t.unit}`;
-                  const concerning = g.delta > 0 && g.originP75 > t.good;
+                    g.metric === "cls" ? n.toFixed(3) : `${Math.round(n)}${th.unit}`;
+                  const concerning = g.delta > 0 && g.originP75 > th.good;
                   return (
                     <li
                       key={g.metric}
@@ -132,7 +132,7 @@ export default function CruxOriginSummaryPage() {
                         {METRIC_LABEL[g.metric]}
                       </span>
                       <span className="text-foreground/90">
-                        URL {fmt(g.urlP75)}
+                        {t("gapUrl", { value: fmt(g.urlP75) })}
                       </span>
                       <span className="text-muted-foreground">→</span>
                       <span
@@ -140,7 +140,7 @@ export default function CruxOriginSummaryPage() {
                           concerning ? "text-rose-300" : "text-foreground/90"
                         }
                       >
-                        Origin {fmt(g.originP75)}
+                        {t("gapOrigin", { value: fmt(g.originP75) })}
                       </span>
                       <span
                         className={`ml-auto text-[11px] ${
@@ -174,6 +174,7 @@ function ScopeCard({
   data: OkOriginState["urlScope"];
   highlight?: boolean;
 }) {
+  const tr = useTranslations("tools.ui.crux-origin");
   return (
     <div
       className={`rounded-2xl border p-4 ${
@@ -187,8 +188,7 @@ function ScopeCard({
       </p>
       {!data.hasData ? (
         <p className="mt-2 text-sm text-muted-foreground">
-          {data.error ??
-            "Not enough traffic for this scope. Try a higher-traffic URL or origin-level."}
+          {data.error ?? tr("noData")}
         </p>
       ) : (
         <ul className="mt-2 space-y-1.5 text-xs">

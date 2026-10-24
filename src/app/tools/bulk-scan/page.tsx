@@ -14,6 +14,7 @@ import {
   ListChecks,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { runBulkScan, type BulkRow, type BulkScanResult } from "./actions";
@@ -21,6 +22,8 @@ import { runBulkScan, type BulkRow, type BulkScanResult } from "./actions";
 type SortKey = "url" | "score" | "performance" | "totalFindings";
 
 export default function BulkScanPage() {
+  const t = useTranslations("tools.ui.bulk-scan");
+  const tCommon = useTranslations("tools.common");
   const [urls, setUrls] = useState("");
   const [save, setSave] = useState(true);
   const [pending, startTransition] = useTransition();
@@ -71,7 +74,7 @@ export default function BulkScanPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -80,21 +83,18 @@ export default function BulkScanPage() {
             <ListChecks className="size-5 text-violet-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Bulk URL scanner</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Paste up to 25 URLs. We run the full health check on each in parallel
-          (audit + Core Web Vitals + security + redirects + images), then
-          surface a sortable table. Optionally save every result as a snapshot
-          so you can compare later.
+          {t("intro")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="bulk-urls">URLs (one per line, comma-separated, max 25)</Label>
+            <Label htmlFor="bulk-urls">{t("urlsLabel")}</Label>
             <span className="text-[11px] tabular-nums text-muted-foreground">
               {urlCount}/25
             </span>
@@ -119,7 +119,7 @@ export default function BulkScanPage() {
             className="size-4 cursor-pointer accent-violet-500"
           />
           <span>
-            Save every result as a snapshot (compare before / after later)
+            {t("saveSnapshots")}
           </span>
         </label>
 
@@ -128,18 +128,18 @@ export default function BulkScanPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scanning {urlCount} URL{urlCount === 1 ? "" : "s"}…
+                {t("scanning", { count: urlCount })}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Run bulk scan
+                {t("run")}
               </>
             )}
           </Button>
           {pending && (
             <span className="text-xs text-muted-foreground">
-              ~30-60s per URL · 4 in parallel · this can take a few minutes
+              {t("pendingHint")}
             </span>
           )}
         </div>
@@ -150,22 +150,22 @@ export default function BulkScanPage() {
           <div className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <div className="grid gap-4 sm:grid-cols-4">
               <Stat
-                label="URLs scanned"
+                label={t("statScanned")}
                 value={result.rows.length}
                 tone="violet"
               />
               <Stat
-                label="Successful"
+                label={t("statOk")}
                 value={result.rows.filter((r) => r.ok).length}
                 tone="emerald"
               />
               <Stat
-                label="Failed"
+                label={t("statFailed")}
                 value={result.rows.filter((r) => !r.ok).length}
                 tone="rose"
               />
               <Stat
-                label="Total time"
+                label={t("statTime")}
                 value={`${(result.durationMs / 1000).toFixed(0)}s`}
                 tone="cyan"
                 icon={Clock}
@@ -176,16 +176,20 @@ export default function BulkScanPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Results — sorted by{" "}
-                <span className="text-violet-300">{sort.key}</span>{" "}
-                {sort.dir === "asc" ? "↑" : "↓"}
+                {t.rich("resultsSortedBy", {
+                  column: t(`col.${sort.key}`),
+                  arrow: sort.dir === "asc" ? "↑" : "↓",
+                  hl: (chunks) => (
+                    <span className="text-violet-300">{chunks}</span>
+                  ),
+                })}
               </h2>
               {save && (
                 <Link
                   href="/snapshots"
                   className="inline-flex items-center gap-1 text-xs text-violet-300 hover:underline"
                 >
-                  Saved snapshots
+                  {t("savedSnapshots")}
                   <ExternalLink className="size-3" />
                 </Link>
               )}
@@ -195,35 +199,35 @@ export default function BulkScanPage() {
                 <thead>
                   <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
                     <SortableTh
-                      label="URL"
+                      label={t("col.url")}
                       sort={sort}
                       kind="url"
                       onClick={() => toggleSort("url")}
                       className="px-5 py-3 text-left"
                     />
                     <SortableTh
-                      label="Health"
+                      label={t("col.score")}
                       sort={sort}
                       kind="score"
                       onClick={() => toggleSort("score")}
                       className="px-3 py-3 text-right"
                     />
                     <SortableTh
-                      label="Perf"
+                      label={t("col.performance")}
                       sort={sort}
                       kind="performance"
                       onClick={() => toggleSort("performance")}
                       className="px-3 py-3 text-right"
                     />
                     <SortableTh
-                      label="Issues"
+                      label={t("col.totalFindings")}
                       sort={sort}
                       kind="totalFindings"
                       onClick={() => toggleSort("totalFindings")}
                       className="px-3 py-3 text-right"
                     />
                     <th className="px-3 py-3 text-left font-medium">
-                      Severity
+                      {t("colSeverity")}
                     </th>
                   </tr>
                 </thead>
@@ -277,6 +281,7 @@ function SortableTh({
 }
 
 function Row({ row }: { row: BulkRow }) {
+  const t = useTranslations("tools.ui.bulk-scan");
   if (!row.ok) {
     return (
       <tr className="bg-rose-500/[0.02]">
@@ -295,7 +300,7 @@ function Row({ row }: { row: BulkRow }) {
           )}
         </td>
         <td colSpan={4} className="px-3 py-3 text-xs text-muted-foreground">
-          Failed
+          {t("failed")}
         </td>
       </tr>
     );
@@ -326,28 +331,28 @@ function Row({ row }: { row: BulkRow }) {
         <div className="flex flex-wrap gap-1 text-[10px]">
           {row.critical > 0 && (
             <span className="rounded-full bg-rose-500/15 px-1.5 py-0.5 font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30">
-              {row.critical} crit
+              {t("sevCrit", { count: row.critical })}
             </span>
           )}
           {row.high > 0 && (
             <span className="rounded-full bg-rose-500/10 px-1.5 py-0.5 font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30">
-              {row.high} high
+              {t("sevHigh", { count: row.high })}
             </span>
           )}
           {row.medium > 0 && (
             <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30">
-              {row.medium} med
+              {t("sevMed", { count: row.medium })}
             </span>
           )}
           {row.low > 0 && (
             <span className="rounded-full bg-cyan-500/15 px-1.5 py-0.5 font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
-              {row.low} low
+              {t("sevLow", { count: row.low })}
             </span>
           )}
           {row.totalFindings === 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <CheckCircle2 className="size-2.5" />
-              clean
+              {t("clean")}
             </span>
           )}
         </div>

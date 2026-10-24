@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -206,6 +207,7 @@ async function checkHeaders(rawUrl: string): Promise<HttpHeader[]> {
  * is the point of the map being small.
  */
 function securityFindings(
+  t: Awaited<ReturnType<typeof getTranslations>>,
   headers: HttpHeader[],
   ssl: SslResult | null,
   observatory: ObservatoryResult | null,
@@ -216,12 +218,12 @@ function securityFindings(
   if (missing.length > 0) {
     out.push({
       signature: "security.missing_headers",
-      title: `${missing.length} security header${missing.length === 1 ? "" : "s"} missing`,
+      title: t("findMissingTitle", { count: missing.length }),
       severity: missing.length >= 4 ? "medium" : "low",
       category: "security",
-      details:
-        `Missing: ${missing.map((h) => h.name).join(", ")}. ` +
-        "These are set once on the server or CDN and cost nothing to serve.",
+      details: t("findMissingDetails", {
+        headers: missing.map((h) => h.name).join(", "),
+      }),
     });
   }
 
@@ -230,12 +232,13 @@ function securityFindings(
   if (ssl?.grade && /^[CDEFT]/i.test(ssl.grade)) {
     out.push({
       signature: "security.weak_tls",
-      title: `SSL Labs grades this site ${ssl.grade}`,
+      title: t("findWeakTlsTitle", { grade: ssl.grade }),
       severity: /^[EFT]/i.test(ssl.grade) ? "high" : "medium",
       category: "security",
-      details:
-        `Protocol ${ssl.protocol ?? "unknown"}, issued by ${ssl.issuer ?? "unknown"}. ` +
-        "A weak grade usually means an outdated protocol or cipher suite still enabled.",
+      details: t("findWeakTlsDetails", {
+        protocol: ssl.protocol ?? t("unknown"),
+        issuer: ssl.issuer ?? t("unknown"),
+      }),
     });
   }
 
@@ -250,13 +253,11 @@ function securityFindings(
         signature: "security.cert_expiring",
         title:
           days < 0
-            ? "The SSL certificate has expired"
-            : `SSL certificate expires in ${days} day${days === 1 ? "" : "s"}`,
+            ? t("findCertExpiredTitle")
+            : t("findCertExpiringTitle", { days }),
         severity: days < 7 ? "critical" : "high",
         category: "security",
-        details:
-          "An expired certificate makes every browser refuse the site outright. " +
-          `Valid to ${ssl.validTo}.`,
+        details: t("findCertDetails", { validTo: ssl.validTo }),
       });
     }
   }
@@ -264,10 +265,13 @@ function securityFindings(
   if (observatory?.grade && /^[DEF]/i.test(observatory.grade)) {
     out.push({
       signature: "security.observatory_low",
-      title: `Mozilla Observatory grades this site ${observatory.grade}`,
+      title: t("findObservatoryTitle", { grade: observatory.grade }),
       severity: "low",
       category: "security",
-      details: `${observatory.testsFailed} of ${observatory.testsPassed + observatory.testsFailed} checks failed.`,
+      details: t("findObservatoryDetails", {
+        failed: observatory.testsFailed,
+        total: observatory.testsPassed + observatory.testsFailed,
+      }),
     });
   }
 
@@ -279,9 +283,10 @@ export async function checkSecurity(
   clientId?: number | null,
 ): Promise<SecurityResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
+  const t = await getTranslations("tools.ui.security");
+  if (!rawUrl?.trim()) return { ok: false, error: t("errUrlRequired") };
   const host = hostnameOf(rawUrl);
-  if (!host) return { ok: false, error: "Invalid URL" };
+  if (!host) return { ok: false, error: t("errInvalidUrl") };
 
   const [observatory, ssl, headers] = await Promise.all([
     checkObservatory(host).catch(() => null),
@@ -296,7 +301,7 @@ export async function checkSecurity(
     clientId: clientId ?? null,
     input: { url: rawUrl, clientId },
     result: out,
-    findings: securityFindings(headers, ssl, observatory),
+    findings: securityFindings(t, headers, ssl, observatory),
   });
   return out;
 }

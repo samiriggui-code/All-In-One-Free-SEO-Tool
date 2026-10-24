@@ -2,10 +2,13 @@
 
 import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCrux, type CruxState } from "./actions";
 import { ratingForMetric } from "@/lib/crux-thresholds";
 
 export function CruxForm() {
+  const t = useTranslations("tools.ui.crux");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<CruxState, FormData>(
     runCrux,
     null,
@@ -16,7 +19,7 @@ export function CruxForm() {
       <form action={formAction} className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">URL</span>
+            <span className="text-muted-foreground">{tCommon("urlLabel")}</span>
             <input
               name="url"
               required
@@ -25,15 +28,15 @@ export function CruxForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Form factor</span>
+            <span className="text-muted-foreground">{t("formFactor")}</span>
             <select
               name="formFactor"
               defaultValue="PHONE"
               className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="PHONE">Phone</option>
-              <option value="DESKTOP">Desktop</option>
-              <option value="ALL_FORM_FACTORS">All</option>
+              <option value="PHONE">{t("phone")}</option>
+              <option value="DESKTOP">{t("desktop")}</option>
+              <option value="ALL_FORM_FACTORS">{t("allFormFactors")}</option>
             </select>
           </label>
           <button
@@ -41,12 +44,11 @@ export function CruxForm() {
             disabled={pending}
             className="inline-flex h-9 items-center self-end rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
           >
-            {pending ? <Loader2 className="size-3 animate-spin" /> : "Run"}
+            {pending ? <Loader2 className="size-3 animate-spin" /> : tCommon("run")}
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Falls back to origin-level data when the URL itself doesn&apos;t
-          have enough traffic.
+          {t("originFallbackHint")}
         </p>
       </form>
 
@@ -58,21 +60,25 @@ export function CruxForm() {
 
       {state && "hasData" in state && !state.hasData && !state.error && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          No CrUX data available — this URL/origin has too little Chrome
-          traffic over the last 28 days. Try a more popular page or use the{" "}
-          <a href="/cwv" className="underline">
-            synthetic PageSpeed scan
-          </a>{" "}
-          instead.
+          {t.rich("noData", {
+            link: (chunks) => (
+              <a href="/cwv" className="underline">
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       )}
 
       {state && "hasData" in state && state.hasData && (
         <>
           <p className="text-xs text-muted-foreground">
-            {state.scope === "url" ? "URL-level" : "Origin-level"} ·{" "}
-            {state.formFactor} · period {state.collectionPeriod?.start} →{" "}
-            {state.collectionPeriod?.end}
+            {state.scope === "url" ? t("urlLevel") : t("originLevel")} ·{" "}
+            {state.formFactor} ·{" "}
+            {t("period", {
+              start: state.collectionPeriod?.start ?? "",
+              end: state.collectionPeriod?.end ?? "",
+            })}
           </p>
           <div className="grid gap-3 md:grid-cols-3">
             {state.metrics.lcp && (
@@ -138,11 +144,11 @@ const RATING_TONE: Record<string, string> = {
   poor: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
 };
 
-const RATING_LABEL: Record<string, string> = {
-  good: "Good",
-  needs_improvement: "Needs work",
-  poor: "Poor",
-};
+const RATING_LABEL_KEY = {
+  good: "ratingGood",
+  needs_improvement: "ratingNeedsWork",
+  poor: "ratingPoor",
+} as const;
 
 function MetricCard({
   label,
@@ -159,6 +165,7 @@ function MetricCard({
   histogram: { density: number }[];
   buckets: string[];
 }) {
+  const t = useTranslations("tools.ui.crux");
   const total = histogram.reduce((s, h) => s + h.density, 0) || 1;
   return (
     <div className="glass-apple relative overflow-hidden rounded-2xl p-4">
@@ -172,11 +179,11 @@ function MetricCard({
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${RATING_TONE[rating]}`}
         >
-          {RATING_LABEL[rating]}
+          {t(RATING_LABEL_KEY[rating])}
         </span>
       </div>
       <div className="mt-3 text-2xl font-semibold tabular-nums">{value}</div>
-      <p className="text-[10px] text-muted-foreground">75th percentile</p>
+      <p className="text-[10px] text-muted-foreground">{t("p75")}</p>
       <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-white/5">
         {histogram.map((h, i) => (
           <div

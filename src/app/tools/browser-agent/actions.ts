@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -26,13 +27,23 @@ export async function runAgent(
   formData: FormData,
 ): Promise<AgentState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.browser-agent");
   const parsed = inputSchema.safeParse({
     startUrl: formData.get("startUrl"),
     goal: formData.get("goal"),
     maxSteps: formData.get("maxSteps") || 12,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    const field = parsed.error.issues[0]?.path[0];
+    const error =
+      field === "startUrl"
+        ? t("errInvalidUrl")
+        : field === "goal"
+          ? t("errGoal")
+          : field === "maxSteps"
+            ? t("errMaxSteps")
+            : t("errInvalidInput");
+    return { ok: false, error };
   }
   try {
     const r = await runBrowserAgent({
@@ -52,6 +63,6 @@ export async function runAgent(
     }).catch(() => undefined);
     return { ok: true, result: r };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Agent run failed" };
+    return { ok: false, error: (err as Error).message || t("errRunFailed") };
   }
 }

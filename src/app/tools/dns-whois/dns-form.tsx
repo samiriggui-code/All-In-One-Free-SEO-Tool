@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Globe, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runDns, type DnsState } from "./actions";
 
 export function DnsForm() {
+  const t = useTranslations("tools.ui.dns-whois");
   const [state, formAction, pending] = useActionState<DnsState | null, FormData>(
     runDns,
     null,
@@ -20,7 +22,7 @@ export function DnsForm() {
           <input
             name="host"
             required
-            placeholder="example.com or https://example.com"
+            placeholder={t("hostPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
@@ -31,12 +33,12 @@ export function DnsForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Resolving…
+                {t("resolving")}
               </>
             ) : (
               <>
                 <Globe className="mr-2 size-3" />
-                Lookup
+                {t("lookup")}
               </>
             )}
           </button>
@@ -52,11 +54,11 @@ export function DnsForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-            <Stat label="A records" value={state.result.a.length.toString()} />
+            <Stat label={t("aRecords")} value={state.result.a.length.toString()} />
             <Stat label="AAAA" value={state.result.aaaa.length.toString()} />
             <Stat label="MX" value={state.result.mx.length.toString()} />
             <Stat
-              label="Days to expiry"
+              label={t("daysToExpiry")}
               value={state.result.daysUntilExpiry !== null ? `${state.result.daysUntilExpiry}` : "—"}
               tone={
                 state.result.daysUntilExpiry === null
@@ -72,7 +74,7 @@ export function DnsForm() {
 
           {state.result.warnings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Warnings</h3>
+              <h3 className="text-sm font-semibold">{t("warnings")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.result.warnings.map((w, i) => (
                   <li
@@ -87,7 +89,7 @@ export function DnsForm() {
           )}
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="mb-3 text-sm font-semibold">Records</h3>
+            <h3 className="mb-3 text-sm font-semibold">{t("records")}</h3>
             <div className="grid gap-3 md:grid-cols-2 text-xs">
               <Group label="A" items={state.result.a} />
               <Group label="AAAA" items={state.result.aaaa} />
@@ -99,13 +101,13 @@ export function DnsForm() {
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-semibold">Registration (RDAP)</h3>
+            <h3 className="text-sm font-semibold">{t("registration")}</h3>
             <div className="grid gap-2 text-xs sm:grid-cols-2">
-              <Field label="Registrar" value={state.result.registrar ?? "—"} />
-              <Field label="Created" value={state.result.created ?? "—"} />
-              <Field label="Expires" value={state.result.expires ?? "—"} />
-              <Field label="Updated" value={state.result.updated ?? "—"} />
-              <Field label="Status" value={state.result.status.join(", ") || "—"} />
+              <Field label={t("registrar")} value={state.result.registrar ?? "—"} />
+              <Field label={t("created")} value={state.result.created ?? "—"} />
+              <Field label={t("expires")} value={state.result.expires ?? "—"} />
+              <Field label={t("updated")} value={state.result.updated ?? "—"} />
+              <Field label={t("status")} value={state.result.status.join(", ") || "—"} />
             </div>
           </section>
         </>
