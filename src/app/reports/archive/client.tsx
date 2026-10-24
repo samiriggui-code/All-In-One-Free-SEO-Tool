@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Download,
@@ -37,6 +38,7 @@ export function ArchiveClient({
   clients: { id: number; name: string }[];
   currentClient: number | null;
 }) {
+  const t = useTranslations("auditUi.reports.archive");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -48,7 +50,7 @@ export function ArchiveClient({
             href="/reports/archive"
             className={pillClass(currentClient === null)}
           >
-            All clients
+            {t("allClients")}
           </Link>
           {clients.map((c) => (
             <Link
@@ -64,8 +66,7 @@ export function ArchiveClient({
 
       {archives.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-          No reports archived yet. Generate one from a client&apos;s page —
-          it will land here automatically.
+          {t("empty")}
         </p>
       ) : (
         <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -78,10 +79,10 @@ export function ArchiveClient({
               <div className="min-w-0 flex-1 space-y-0.5">
                 <p className="truncate font-medium">{a.title}</p>
                 <p className="text-[11px] text-muted-foreground">
-                  {a.clientName ?? "(deleted client)"}
+                  {a.clientName ?? t("deletedClient")}
                   {a.template ? ` · ${a.template}` : ""}
                   {" · "}
-                  {a.pdfBytes ? `${Math.round(a.pdfBytes / 1024)} KB` : "no PDF"}
+                  {a.pdfBytes ? `${Math.round(a.pdfBytes / 1024)} KB` : t("noPdf")}
                   {" · "}
                   {new Date(a.createdAt).toLocaleDateString()}
                 </p>
@@ -90,10 +91,10 @@ export function ArchiveClient({
                 <a
                   href={`/api/report-archives/${a.id}/pdf`}
                   className="inline-flex h-7 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
-                  title="Download PDF"
+                  title={t("downloadTitle")}
                 >
                   <Download className="size-3" />
-                  Download
+                  {t("download")}
                 </a>
               )}
               <button
@@ -105,7 +106,7 @@ export function ArchiveClient({
                   });
                 }}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-amber-500/15 hover:text-amber-300 disabled:opacity-50"
-                title={a.pinned ? "Unpin" : "Pin"}
+                title={a.pinned ? t("unpin") : t("pin")}
               >
                 {a.pinned ? (
                   <PinOff className="size-3.5" />
@@ -118,9 +119,9 @@ export function ArchiveClient({
                 disabled={pending}
                 onClick={async () => {
                   const ok = await confirmDialog({
-                    title: "Delete this archived report?",
-                    description: "The PDF and its associated record will be removed. Can't be undone.",
-                    confirmLabel: "Delete report",
+                    title: t("deleteTitle"),
+                    description: t("deleteDescription"),
+                    confirmLabel: t("deleteConfirm"),
                     destructive: true,
                   });
                   if (!ok) return;
@@ -129,7 +130,7 @@ export function ArchiveClient({
                   });
                 }}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-                title="Delete"
+                title={t("delete")}
               >
                 <Trash2 className="size-3.5" />
               </button>

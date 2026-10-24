@@ -1,1 +1,213 @@
-{}
+{
+  "categories": {
+    "core": "Essentiels SEO",
+    "technical": "SEO technique",
+    "perf": "Performance",
+    "links": "Liens",
+    "images": "Images",
+    "security": "Sécurité",
+    "crawl": "Exploration",
+    "schema": "Données structurées",
+    "a11y": "Accessibilité",
+    "content": "Contenu",
+    "social": "Réseaux sociaux",
+    "eeat": "E-E-A-T",
+    "url": "Structure des URL",
+    "mobile": "Mobile",
+    "i18n": "International",
+    "legal": "Conformité légale",
+    "js": "Rendu JavaScript",
+    "redirect": "Redirections",
+    "htmlval": "Validation HTML",
+    "geo": "Préparation IA (GEO)"
+  },
+  "verdict": {
+    "A": "Excellent",
+    "B": "Bon",
+    "C": "Correct",
+    "D": "À améliorer",
+    "F": "Faible"
+  },
+  "severity": {
+    "critical": "Critique",
+    "high": "Élevée",
+    "medium": "Moyenne",
+    "low": "Faible"
+  },
+  "list": {
+    "auditNumber": "Audit n°{id}",
+    "diffVs": "comparer au n°{id}",
+    "engine": {
+      "ai": "IA",
+      "full": "Complet",
+      "quick": "Rapide",
+      "technical": "Technique",
+      "crawl": "Crawl"
+    }
+  },
+  "detail": {
+    "closedNotice": "{count, plural, one {# problème marqué comme résolu, ignoré ou faux positif : il est masqué} other {# problèmes marqués comme résolus, ignorés ou faux positifs : ils sont masqués}} de la liste active ci-dessous.",
+    "typesCount": "{count, plural, one {# type} other {# types}}",
+    "autoTasks": "<b>{count}</b> {count, plural, one {type de tâche généré} other {types de tâches générés}} automatiquement à partir des problèmes de sévérité moyenne ou plus.",
+    "openTasks": "Ouvrir les tâches",
+    "groupMeta": "{types, plural, one {# type de problème} other {# types de problèmes}} · {occurrences, plural, one {# occurrence} other {# occurrences}}",
+    "pagesCount": "{count} pages",
+    "fixLabel": "Correctif :",
+    "showUrls": "{count, plural, one {Afficher l’URL} other {Afficher les # URL}}",
+    "more": "+{count} de plus",
+    "falsePositive": "Faux positif",
+    "categoryBreakdown": "Répartition par catégorie",
+    "passCount": "{count, plural, one {# réussi} other {# réussis}}",
+    "warnCount": "{count, plural, one {# avert.} other {# avert.}}",
+    "failCount": "{count, plural, one {# échec} other {# échecs}}",
+    "cwvStatus": {
+      "pass": "bon",
+      "warn": "à surveiller",
+      "fail": "mauvais",
+      "notMeasured": "non mesuré"
+    },
+    "allClear": "Tout est en ordre",
+    "stalledTitle": "Cet audit tourne depuis longtemps",
+    "stalledHint": "Un audit qui dure plus de dix minutes a généralement été interrompu. Lancez un nouvel audit depuis la fiche client pour prendre le relais.",
+    "goToClient": "Aller à la fiche client",
+    "failedHint": "Le site était peut-être injoignable. Relancez l’audit depuis la fiche client : l’erreur vient généralement d’un échec DNS, d’un pare-feu ou d’un site indisponible à ce moment-là."
+  },
+  "geo": {
+    "title": "Préparation IA / GEO",
+    "description": "{category} : llms.txt, structure sémantique et accès des robots IA.",
+    "score": "Score",
+    "counts": "{pass, plural, one {# réussi} other {# réussis}} · {warn, plural, one {# avertissement} other {# avertissements}} · {fail, plural, one {# échec} other {# échecs}}",
+    "more": "+ {count, plural, one {# autre constat GEO} other {# autres constats GEO}} dans la liste des problèmes ci-dessous.",
+    "noIssues": "Aucun problème GEO ouvert : les vérifications de la catégorie sont réussies sur les pages crawlées."
+  },
+  "progress": {
+    "previewAlt": "Aperçu rendu de {url}",
+    "capturing": "Capture du rendu de la page d’accueil…",
+    "crawl": "Crawl",
+    "pagesUnit": "{count, plural, one {page} other {pages}}",
+    "phaseCategories": "Exécution des 373 règles techniques, catégorie par catégorie.",
+    "phaseCrawl": "Crawl du site et vérifications rank_forge en cours.",
+    "categoryProgress": "Avancement par catégorie",
+    "categoryProgressHint": "Les catégories se terminent une à une, avec leur score en direct.",
+    "catCounts": "{pass, plural, one {# réussi} other {# réussis}}{warn, plural, =0 {} other { · # avert.}}{fail, plural, =0 {} one { · # échec} other { · # échecs}}",
+    "running": "En cours…",
+    "pending": "En attente"
+  },
+  "diff": {
+    "crumb": "Comparer l’audit n°{older} → n°{newer}",
+    "title": "Comparaison d’audits",
+    "older": "Précédent",
+    "newer": "Récent",
+    "scoreChange": "Évolution du score",
+    "fixed": "Corrigés",
+    "new": "Nouveaux",
+    "same": "Inchangés",
+    "scoreUnavailable": "Score indisponible",
+    "categoryDeltas": "Évolution des scores par catégorie",
+    "ruleChanges": "Changements de règles",
+    "rules": {
+      "fixed": "Corrigées",
+      "regressed": "En régression",
+      "newFails": "Nouveaux échecs",
+      "worsened": "Dégradées"
+    },
+    "none": "Aucune",
+    "fixedTitle": "Corrigés ({count})",
+    "fixedSubtitle": "Présents dans l’audit précédent, absents du plus récent.",
+    "newTitle": "Nouveaux problèmes ({count})",
+    "newSubtitle": "Apparus dans l’audit le plus récent, absents auparavant.",
+    "stillTitle": "Toujours présents ({count})",
+    "stillSubtitle": "Dans les deux audits : travail encore à faire.",
+    "bothClean": "Les deux audits sont propres : aucun problème à comparer.",
+    "issuesCount": "{count, plural, one {# problème} other {# problèmes}}"
+  },
+  "fix": {
+    "noWizard": "Pas d’assistant de correction pour ce type de problème : {type}",
+    "invalidClient": "Identifiant client invalide",
+    "missingUrl": "URL de la page manquante",
+    "missingValue": "Valeur à appliquer manquante",
+    "notConnected": "Le plugin WordPress Bridge n’est pas connecté pour ce client. Configurez-le d’abord sur la fiche client.",
+    "unreachable": "Bridge injoignable : {error}. Vérifiez que le plugin est actif et que l’endpoint est correct.",
+    "postNotFound": "Cette URL est introuvable sur le site WordPress. La page n’est peut-être pas un article ou une page publiée, ou le plugin Bridge n’a pas le droit de la lire.",
+    "unsupported": "L’application automatique n’est pas encore prise en charge pour le type de problème « {type} ». Copiez la suggestion et collez-la manuellement.",
+    "rejected": "Le Bridge WordPress a refusé la modification : {error}",
+    "unknownError": "erreur inconnue"
+  },
+  "reports": {
+    "archive": {
+      "allClients": "Tous les clients",
+      "empty": "Aucun rapport archivé pour l’instant. Générez-en un depuis la page d’un client : il apparaîtra ici automatiquement.",
+      "deletedClient": "(client supprimé)",
+      "noPdf": "pas de PDF",
+      "downloadTitle": "Télécharger le PDF",
+      "download": "Télécharger",
+      "pin": "Épingler",
+      "unpin": "Désépingler",
+      "delete": "Supprimer",
+      "deleteTitle": "Supprimer ce rapport archivé ?",
+      "deleteDescription": "Le PDF et l’enregistrement associé seront supprimés. Action irréversible.",
+      "deleteConfirm": "Supprimer le rapport",
+      "entryTitle": "{client} — rapport {template} — {date}"
+    },
+    "batch": {
+      "clientsHeading": "Clients ({selected} sur {total})",
+      "selectAll": "Tout sélectionner",
+      "clear": "Effacer",
+      "noClients": "Aucun client pour l’instant : ajoutez-en un d’abord.",
+      "template": "Modèle",
+      "templates": {
+        "executive": {
+          "label": "Exécutif",
+          "blurb": "Une page. Cap, victoire, priorité."
+        },
+        "detailed": {
+          "label": "Détaillé",
+          "blurb": "Le rapport mensuel complet. Celui que la plupart des agences envoient."
+        },
+        "technical": {
+          "label": "Technique",
+          "blurb": "Crawl, vitesse, schema. Pour une équipe de développement."
+        }
+      },
+      "generate": "Générer {count, plural, one {# rapport} other {# rapports}}",
+      "timing": "Environ 10 à 20 secondes chacun, rendus un par un. Vous pouvez fermer cette page : la génération continue.",
+      "generating": "Génération de {name}…",
+      "starting": "Démarrage…",
+      "progress": "{done} sur {total}",
+      "failedHeading": "Non générés ({count})",
+      "reviewHeading": "À relire ({count})",
+      "reviewEmpty": "Rien en attente. Les rapports générés arrivent ici en brouillon : lisez-les, approuvez-les, puis envoyez-les.",
+      "reviewHint": "Ouvrez chaque rapport avant de l’approuver. L’envoi transmet exactement le PDF approuvé, pas un nouveau rendu.",
+      "open": "Ouvrir",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "openFirst": "Mieux vaut l’ouvrir d’abord : il part chez un client.",
+      "send": "Envoyer",
+      "sent": "Envoyé",
+      "approveError": "Impossible d’approuver ce rapport.",
+      "sendError": "Impossible d’envoyer ce rapport.",
+      "errors": {
+        "noneYours": "Aucun de ces clients ne vous est attribué : vous ne pouvez pas générer leurs rapports.",
+        "noSuchReport": "Rapport introuvable.",
+        "nothingToApprove": "Ce rapport n’a pas été généré : il n’y a rien à approuver. Relancez la génération pour ce client.",
+        "alreadySent": "Ce rapport a déjà été envoyé.",
+        "approveFirst": "Approuvez-le d’abord : la relecture garantit qu’aucun rapport ne part chez un client sans avoir été lu.",
+        "noPdf": "Ce rapport n’a pas de PDF joint.",
+        "noRecipients": "Aucun destinataire. Ajoutez des destinataires dans la planification des rapports de ce client, puis réessayez. Vous pouvez aussi télécharger le PDF et l’envoyer vous-même.",
+        "sendFailed": "L’envoi a échoué. Vérifiez Paramètres → E-mail."
+      }
+    },
+    "preview": {
+      "title": "Aperçu du résumé exécutif",
+      "hint": "Générez le résumé exécutif par IA et relisez-le avant d’envoyer le rapport. Vos pouces levés ou baissés alimentent la boucle d’apprentissage.",
+      "dataBehind": "Données à l’origine de ce résumé ({count})",
+      "templateFallback": "modèle de secours : aucune clé IA configurée",
+      "regenerating": "Régénération…",
+      "regenerate": "Régénérer",
+      "generating": "Génération…",
+      "generate": "Générer le résumé exécutif",
+      "invalidClient": "Client invalide",
+      "clientNotFound": "Client introuvable"
+    }
+  }
+}

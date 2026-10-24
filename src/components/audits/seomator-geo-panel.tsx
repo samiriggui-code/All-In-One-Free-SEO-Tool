@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { categoryLabel } from "@/lib/seomator-meta";
 
 type CategoryScores = Record<
@@ -20,6 +21,7 @@ export function SeomatorGeoPanel({
   categoryScores: CategoryScores | null | undefined;
   geoIssues: GeoIssue[];
 }) {
+  const t = useTranslations("auditUi");
   const geo = categoryScores?.geo;
   if (!geo && geoIssues.length === 0) return null;
 
@@ -38,22 +40,23 @@ export function SeomatorGeoPanel({
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-semibold tracking-tight">
-            AI / GEO readiness
+            {t("geo.title")}
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            {categoryLabel("geo")} — llms.txt, semantic structure, and AI bot
-            access.
+            {t("geo.description", {
+              category: t.has("categories.geo") ? t("categories.geo") : categoryLabel("geo"),
+            })}
           </p>
           {geo ? (
             <div className="mt-3 flex flex-wrap gap-3 text-sm">
               <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-1.5">
-                Score{" "}
+                {t("geo.score")}{" "}
                 <span className="font-semibold tabular-nums text-violet-200">
                   {geo.score}/100
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
-                {geo.pass} passed · {geo.warn} warnings · {geo.fail} failed
+                {t("geo.counts", { pass: geo.pass, warn: geo.warn, fail: geo.fail })}
               </div>
             </div>
           ) : null}
@@ -75,13 +78,13 @@ export function SeomatorGeoPanel({
           ))}
           {geoIssues.length > 8 ? (
             <li className="text-xs text-muted-foreground">
-              + {geoIssues.length - 8} more GEO findings in the issue list below.
+              {t("geo.more", { count: geoIssues.length - 8 })}
             </li>
           ) : null}
         </ul>
       ) : geo ? (
         <p className="mt-4 text-xs text-emerald-200/90">
-          No open GEO issues — category checks passed on crawled pages.
+          {t("geo.noIssues")}
         </p>
       ) : null}
     </section>

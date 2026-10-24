@@ -14,6 +14,9 @@ import {
 } from "@/lib/report-batch";
 import { sendReportEmail } from "@/lib/report-mailer";
 import type { ReportTemplate } from "@/lib/report-generator";
+import { getTranslations } from "next-intl/server";
+
+const errorsT = () => getTranslations("auditUi.reports.batch.errors");
 
 export async function startBatch(input: {
   clientIds: number[];
@@ -31,7 +34,7 @@ export async function startBatch(input: {
     scope === null ? input.clientIds : input.clientIds.filter((id) => scope.includes(id));
 
   if (ids.length === 0) {
-    return { ok: false, error: "None of those clients are yours to report on." };
+    return { ok: false, error: (await errorsT())("noneYours") };
   }
 
   return startReportBatch({
@@ -60,9 +63,9 @@ async function guard(
     .limit(1);
   // Same answer for missing and forbidden — "that report belongs to
   // another client" confirms the client exists.
-  if (!report) return { ok: false, error: "No such report." };
+  if (!report) return { ok: false, error: (await errorsT())("noSuchReport") };
   if (!(await canSeeClient(await currentUser(), report.clientId))) {
-    return { ok: false, error: "No such report." };
+    return { ok: false, error: (await errorsT())("noSuchReport") };
   }
   return { ok: true, report };
 }
@@ -76,7 +79,7 @@ export async function approveReport(
   if (g.report.status === "failed") {
     return {
       ok: false,
-      error: "That report didn't generate, so there's nothing to approve. Re-run the batch for this client.",
+      error: (await errorsT())("nothingToApprove"),
     };
   }
 
@@ -117,17 +120,15 @@ export async function sendReport(
   const g = await guard(reportId);
   if (!g.ok) return g;
 
+  const t = await errorsT();
   if (g.report.status !== "approved") {
     return {
       ok: false,
-      error:
-        g.report.status === "sent"
-          ? "That one has already gone out."
-          : "Approve it first — the review step is there so nothing goes to a client unread.",
+      error: g.report.status === "sent" ? t("alreadySent") : t("approveFirst"),
     };
   }
   if (!g.report.pdfBase64) {
-    return { ok: false, error: "That report has no PDF attached." };
+    return { ok: false, error: t("noPdf") };
   }
 
   // Recipients come from the client's existing report schedule. There is
@@ -143,8 +144,7 @@ export async function sendReport(
   if (recipients.length === 0) {
     return {
       ok: false,
-      error:
-        "No one to send it to. Add recipients on this client's report schedule, then try again. You can also download the PDF and send it yourself.",
+      error: t("noRecipients"),
     };
   }
 
@@ -159,7 +159,7 @@ export async function sendReport(
   if (!result.ok) {
     return {
       ok: false,
-      error: result.error ?? "Sending failed. Check Settings → Email delivery.",
+      error: result.error ?? t("sendFailed"),
     };
   }
 

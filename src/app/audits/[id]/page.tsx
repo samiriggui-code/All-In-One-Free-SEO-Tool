@@ -69,7 +69,6 @@ const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 } as const;
 const sevConfig: Record<
   "critical" | "high" | "medium" | "low",
   {
-    label: string;
     iconBg: string;
     iconText: string;
     icon: typeof AlertCircle;
@@ -78,7 +77,6 @@ const sevConfig: Record<
   }
 > = {
   critical: {
-    label: "Critical",
     iconBg: "bg-rose-500/15 ring-rose-400/30",
     iconText: "text-rose-300",
     icon: AlertCircle,
@@ -86,7 +84,6 @@ const sevConfig: Record<
     accent: "from-rose-500/25",
   },
   high: {
-    label: "High",
     iconBg: "bg-rose-500/10 ring-rose-400/20",
     iconText: "text-rose-300",
     icon: AlertTriangle,
@@ -94,7 +91,6 @@ const sevConfig: Record<
     accent: "from-rose-500/15",
   },
   medium: {
-    label: "Medium",
     iconBg: "bg-amber-500/15 ring-amber-400/30",
     iconText: "text-amber-300",
     icon: AlertTriangle,
@@ -102,7 +98,6 @@ const sevConfig: Record<
     accent: "from-amber-500/15",
   },
   low: {
-    label: "Low",
     iconBg: "bg-cyan-500/15 ring-cyan-400/30",
     iconText: "text-cyan-300",
     icon: Info,
@@ -122,6 +117,12 @@ export default async function AuditDetailPage({
 
   const t = await getTranslations("audits.detail");
   const tr = await getTranslations("audits.report");
+  const tu = await getTranslations("auditUi.detail");
+  const tSev = await getTranslations("auditUi.severity");
+  const tCat = await getTranslations("auditUi.categories");
+  const tVerdict = await getTranslations("auditUi.verdict");
+  const tStatus = await getTranslations("audits.status");
+  const catName = (id: string) => (tCat.has(id) ? tCat(id) : categoryLabel(id));
 
   // `stalledSeconds` is computed by SQLite rather than with Date.now()
   // in the component. Two reasons: React 19's purity rule correctly
@@ -371,7 +372,11 @@ export default async function AuditDetailPage({
                     {value == null ? "—" : fmt(value)}
                   </div>
                   <div className="mt-0.5 text-[10px] text-muted-foreground">
-                    {status}
+                    {status === "pass" || status === "warn" || status === "fail"
+                      ? tu(`cwvStatus.${status}`)
+                      : status === "not-measured"
+                        ? tu("cwvStatus.notMeasured")
+                        : status}
                   </div>
                 </div>
               );
@@ -409,9 +414,7 @@ export default async function AuditDetailPage({
     <>
       {closedCount > 0 && (
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-xs text-emerald-200">
-          {closedCount} issue{closedCount === 1 ? "" : "s"} marked resolved /
-          ignored / false positive — they&apos;re hidden from the active list
-          below.
+          {tu("closedNotice", { count: closedCount })}
         </div>
       )}
 
@@ -440,7 +443,7 @@ export default async function AuditDetailPage({
                   <Icon className={`size-4 ${cfg.iconText}`} />
                 </div>
                 <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {cfg.label}
+                  {tSev(sev)}
                 </div>
               </div>
               <div className="relative mt-3 text-3xl font-semibold tracking-tight">
@@ -448,7 +451,7 @@ export default async function AuditDetailPage({
               </div>
               {list.length > 0 && (
                 <div className="relative mt-1 text-[10px] text-muted-foreground">
-                  {list.length} type{list.length === 1 ? "" : "s"}
+                  {tu("typesCount", { count: list.length })}
                 </div>
               )}
             </div>
@@ -464,20 +467,18 @@ export default async function AuditDetailPage({
             <div className="flex items-center gap-2 text-sm">
               <CheckCircle2 className="size-4 text-emerald-400" />
               <span>
-                Auto-generated{" "}
-                <span className="font-semibold">
-                  {[...grouped.critical, ...grouped.high, ...grouped.medium]
-                    .length}
-                </span>{" "}
-                task type{[...grouped.critical, ...grouped.high, ...grouped.medium]
-                    .length === 1 ? "" : "s"} from non-low-severity issues.
+                {tu.rich("autoTasks", {
+                  count: [...grouped.critical, ...grouped.high, ...grouped.medium]
+                    .length,
+                  b: (chunks) => <span className="font-semibold">{chunks}</span>,
+                })}
               </span>
             </div>
             <Link
               href="/tasks"
               className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
             >
-              Open tasks
+              {tu("openTasks")}
               <ArrowUpRight className="size-3" />
             </Link>
           </div>
@@ -509,10 +510,9 @@ export default async function AuditDetailPage({
                 <Icon className={`size-4 ${cfg.iconText}`} />
               </div>
               <div>
-                <h2 className="text-base font-semibold">{cfg.label}</h2>
+                <h2 className="text-base font-semibold">{tSev(sev)}</h2>
                 <p className="text-xs text-muted-foreground">
-                  {list.length} issue type{list.length === 1 ? "" : "s"} ·{" "}
-                  {totalAffected} occurrence{totalAffected === 1 ? "" : "s"}
+                  {tu("groupMeta", { types: list.length, occurrences: totalAffected })}
                 </p>
               </div>
             </header>
@@ -539,12 +539,12 @@ export default async function AuditDetailPage({
                         )}
                         {g.category && (
                           <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                            {categoryLabel(g.category)}
+                            {catName(g.category)}
                           </span>
                         )}
                         {g.affectedUrls.length > 1 && (
                           <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                            {g.affectedUrls.length} pages
+                            {tu("pagesCount", { count: g.affectedUrls.length })}
                           </span>
                         )}
                         {g.confidence && (
@@ -564,16 +564,14 @@ export default async function AuditDetailPage({
                       {g.fixSteps ? (
                         <p className="mt-1.5 rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-3 py-2 text-xs leading-relaxed text-cyan-100/90">
                           <span className="font-semibold text-cyan-200">
-                            Fix:{" "}
+                            {tu("fixLabel")}{" "}
                           </span>
                           {g.fixSteps}
                         </p>
                       ) : null}
                       <details className="mt-1.5">
                         <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-                          {g.affectedUrls.length === 1
-                            ? "Show URL"
-                            : `Show ${g.affectedUrls.length} URLs`}
+                          {tu("showUrls", { count: g.affectedUrls.length })}
                         </summary>
                         <ul className="mt-2 space-y-0.5 border-l border-white/10 pl-3 text-xs text-muted-foreground">
                           {g.affectedUrls.slice(0, 25).map((u, i) => (
@@ -583,7 +581,7 @@ export default async function AuditDetailPage({
                           ))}
                           {g.affectedUrls.length > 25 && (
                             <li className="text-[11px] italic">
-                              +{g.affectedUrls.length - 25} more
+                              {tu("more", { count: g.affectedUrls.length - 25 })}
                             </li>
                           )}
                         </ul>
@@ -628,7 +626,7 @@ export default async function AuditDetailPage({
                             type="submit"
                             className="rounded-md bg-emerald-500/10 px-2 py-1 font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/20"
                           >
-                            ✓ Mark resolved
+                            {tr("markResolved")}
                           </button>
                         </form>
                         <form
@@ -643,7 +641,7 @@ export default async function AuditDetailPage({
                             type="submit"
                             className="rounded-md bg-white/5 px-2 py-1 font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
                           >
-                            Ignore
+                            {tr("ignore")}
                           </button>
                         </form>
                         <form
@@ -658,7 +656,7 @@ export default async function AuditDetailPage({
                             type="submit"
                             className="rounded-md bg-white/5 px-2 py-1 font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
                           >
-                            False positive
+                            {tu("falsePositive")}
                           </button>
                         </form>
                       </div>
@@ -666,7 +664,7 @@ export default async function AuditDetailPage({
                     <span
                       className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${cfg.pill}`}
                     >
-                      {cfg.label}
+                      {tSev(sev)}
                     </span>
                   </div>
                 </li>
@@ -783,7 +781,7 @@ export default async function AuditDetailPage({
                     className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                   >
                     <ExternalLink className="size-3" />
-                    View client
+                    {t("viewClient")}
                   </Link>
                   {hasEngine && audit.status === "completed" ? (
                     <>
@@ -791,19 +789,19 @@ export default async function AuditDetailPage({
                         href={`/audits/${auditId}/export?format=markdown`}
                         className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                       >
-                        Export Markdown
+                        {t("exportMarkdown")}
                       </Link>
                       <Link
                         href={`/audits/${auditId}/export?format=llm`}
                         className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                       >
-                        Export LLM
+                        {t("exportLlm")}
                       </Link>
                       <Link
                         href={`/audits/c/${client.id}`}
                         className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                       >
-                        All audits
+                        {t("allAudits")}
                       </Link>
                     </>
                   ) : null}
@@ -826,9 +824,11 @@ export default async function AuditDetailPage({
                   <div className="text-xs text-muted-foreground">
                     {audit.status === "completed"
                       ? verdict
-                        ? `${verdict.grade} · ${verdict.label}`
+                        ? `${verdict.grade} · ${tVerdict.has(verdict.grade) ? tVerdict(verdict.grade) : verdict.label}`
                         : t("outOf100")
-                      : audit.status}
+                      : tStatus.has(audit.status)
+                        ? tStatus(audit.status)
+                        : audit.status}
                   </div>
                   {/* The number most likely to end up in front of a client,
                       and the one whose basis is least obvious. It describes
@@ -897,10 +897,10 @@ export default async function AuditDetailPage({
       {report ? null : hasEngine && audit.categoryScores ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
-            Category scores
+            {t("categoryScores")}
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            20 weighted categories, 373 rules. Lowest scores first.
+            {t("categoryScoresHint")}
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {Object.entries(audit.categoryScores)
@@ -919,16 +919,16 @@ export default async function AuditDetailPage({
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="truncate text-[11px] font-medium tracking-wide text-muted-foreground">
-                        {categoryLabel(cat)}
+                        {catName(cat)}
                       </span>
                       <span className={`text-lg font-semibold tabular-nums ${tone}`}>
                         {vals.score}
                       </span>
                     </div>
                     <div className="mt-1 flex gap-2 text-[10px] text-muted-foreground">
-                      <span>{vals.pass} pass</span>
-                      <span>{vals.warn} warn</span>
-                      <span>{vals.fail} fail</span>
+                      <span>{tu("passCount", { count: vals.pass })}</span>
+                      <span>{tu("warnCount", { count: vals.warn })}</span>
+                      <span>{tu("failCount", { count: vals.fail })}</span>
                     </div>
                   </div>
                 );
@@ -938,7 +938,7 @@ export default async function AuditDetailPage({
       ) : hasEngine && audit.summary ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
-            Category breakdown
+            {tu("categoryBreakdown")}
           </h2>
           <pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-muted-foreground">
             {audit.summary}
@@ -955,9 +955,9 @@ export default async function AuditDetailPage({
             <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-400/30">
               <CheckCircle2 className="size-6 text-emerald-300" />
             </div>
-            <h2 className="text-lg font-semibold">All clear</h2>
+            <h2 className="text-lg font-semibold">{tu("allClear")}</h2>
             <p className="text-sm text-muted-foreground">
-              No issues found. Score: {audit.score}/100.
+              {t("noIssues", { score: audit.score ?? 0 })}
             </p>
           </div>
         </div>
@@ -984,18 +984,16 @@ export default async function AuditDetailPage({
           {isStalled ? (
             <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
               <p className="text-sm font-medium text-amber-200">
-                This one has been running for a while
+                {tu("stalledTitle")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Audits that take more than ten minutes have usually been
-                interrupted. Start a new audit from the client page to take
-                over.
+                {tu("stalledHint")}
               </p>
               <Link
                 href={`/clients/${audit.clientId}`}
                 className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-200 hover:underline"
               >
-                Go to the client page
+                {tu("goToClient")}
                 <ArrowUpRight className="size-3" />
               </Link>
             </div>
@@ -1011,10 +1009,9 @@ export default async function AuditDetailPage({
             <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-500/15 ring-1 ring-sky-400/30">
               <Loader2 className="size-6 animate-spin text-sky-300" />
             </div>
-            <h2 className="text-lg font-semibold">Audit in progress</h2>
+            <h2 className="text-lg font-semibold">{t("inProgress")}</h2>
             <p className="text-sm text-muted-foreground">
-              Crawling {client?.url ?? "the site"}. This page refreshes every
-              10 seconds.
+              {t("inProgressHint", { url: client.url })}
             </p>
           </div>
         </div>
@@ -1027,17 +1024,15 @@ export default async function AuditDetailPage({
             <div className="flex size-14 items-center justify-center rounded-2xl bg-rose-500/15 ring-1 ring-rose-400/30">
               <AlertCircle className="size-6 text-rose-300" />
             </div>
-            <h2 className="text-lg font-semibold">Audit failed</h2>
+            <h2 className="text-lg font-semibold">{t("failedTitle")}</h2>
             <p className="text-sm text-muted-foreground">
-              The site may have been unreachable. Try running it again from the
-              client page — the error is usually a DNS failure, a firewall, or
-              the site being down at the time.
+              {tu("failedHint")}
             </p>
             <Link
               href={`/clients/${audit.clientId}`}
               className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-rose-200 hover:underline"
             >
-              Back to the client
+              {t("backToClient")}
               <ArrowUpRight className="size-3" />
             </Link>
           </div>

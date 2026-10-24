@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, reportArchives } from "@/db/schema";
 import { getSetting } from "@/lib/settings-store";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -86,13 +87,14 @@ export async function GET(
   // A read-only client viewer still gets the PDF, but a download is not
   // a write they are allowed to make, so it leaves no archive row.
   if (userMayEdit(await currentUser())) {
+    const t = await getTranslations("auditUi.reports.archive");
     const periodEnd = new Date();
     const periodStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     void db
       .insert(reportArchives)
       .values({
         clientId: id,
-        title: `${client.name} — ${template} report — ${today}`,
+        title: t("entryTitle", { client: client.name, template, date: today }),
         periodStart,
         periodEnd,
         template,
