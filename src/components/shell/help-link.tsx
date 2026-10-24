@@ -13,6 +13,8 @@ import { docsUrlFor } from "@/lib/docs-links";
  * front page — landing on a table of contents when you are stuck is
  * barely better than no link at all.
  *
+ * The page is one of the in-app guides (/docs), not an external site.
+ *
  * Opens in a new tab on purpose: the usual reason for pressing it is
  * being mid-task, and losing the screen you were on would make it worse.
  */
@@ -35,7 +37,7 @@ export function HelpLink({ className = "" }: { className?: string }) {
       }
     >
       <CircleHelp className="size-3.5" aria-hidden="true" />
-      <span className="hidden sm:inline">Help</span>
+      <span className="hidden sm:inline">{t("help")}</span>
     </a>
   );
 }

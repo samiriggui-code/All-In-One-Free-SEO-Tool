@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { DOC_GUIDES, GUIDE_GROUPS, guideBySlug } from "./docs-guides";
+import { DOC_GUIDES, GUIDE_GROUPS, guideBySlug, guidesFor } from "./docs-guides";
+import { DOC_GUIDES_FR } from "./docs-guides.fr";
 import {
   TOOL_CAPABILITIES,
   capabilityOf,
@@ -8,10 +9,30 @@ import {
 import { isRetired } from "./tool-categories";
 
 describe("docs guides", () => {
+  it("French and English carry the same guides", () => {
+    // A guide written in one language only would vanish for half the
+    // readers, and a related link fixed in one copy would stay dead in
+    // the other.
+    expect(DOC_GUIDES_FR.map((g) => g.slug)).toEqual(DOC_GUIDES.map((g) => g.slug));
+    for (const [i, en] of DOC_GUIDES.entries()) {
+      const fr = DOC_GUIDES_FR[i];
+      expect(fr.group, en.slug).toBe(en.group);
+      expect(fr.related, en.slug).toEqual(en.related);
+      expect(fr.steps.length, en.slug).toBe(en.steps.length);
+      expect((fr.links ?? []).map((l) => l.href), en.slug).toEqual((en.links ?? []).map((l) => l.href));
+    }
+  });
+
+  it("serves French by default and English on request", () => {
+    expect(guidesFor("fr")).toBe(DOC_GUIDES_FR);
+    expect(guidesFor("en")).toBe(DOC_GUIDES);
+    expect(guideBySlug("audit", "fr")?.title).toBe(DOC_GUIDES_FR.find((g) => g.slug === "audit")?.title);
+  });
+
   it("every related link points at a route that exists", () => {
     // A dead link in the docs is worse than a missing one: it looks like
     // the feature exists and the user goes looking for it.
-    const dead = DOC_GUIDES.flatMap((g) =>
+    const dead = [...DOC_GUIDES, ...DOC_GUIDES_FR].flatMap((g) =>
       (g.related ?? []).map((href) => ({ guide: g.slug, href })),
     ).filter(({ href }) => capabilityOf(href) === null);
     expect(dead).toEqual([]);
@@ -26,13 +47,13 @@ describe("docs guides", () => {
 
   it("every guide sits in a group the index renders", () => {
     // A guide in an unlisted group is written, shipped, and invisible.
-    for (const g of DOC_GUIDES) {
+    for (const g of [...DOC_GUIDES, ...DOC_GUIDES_FR]) {
       expect(GUIDE_GROUPS).toContain(g.group);
     }
   });
 
   it("no guide is empty or unbounded", () => {
-    for (const g of DOC_GUIDES) {
+    for (const g of [...DOC_GUIDES, ...DOC_GUIDES_FR]) {
       expect(g.steps.length, `${g.slug} has no steps`).toBeGreaterThan(0);
       expect(g.steps.length, `${g.slug} is too long to follow`).toBeLessThan(12);
       expect(g.minutes).toBeGreaterThan(0);
@@ -62,14 +83,14 @@ describe("docs guides", () => {
   it("external links are absolute https URLs", () => {
     // A relative or http link in a docs page is either broken or a
     // downgrade; both are worse than no link.
-    const bad = DOC_GUIDES.flatMap((g) =>
+    const bad = [...DOC_GUIDES, ...DOC_GUIDES_FR].flatMap((g) =>
       (g.links ?? []).map((l) => ({ guide: g.slug, href: l.href })),
     ).filter(({ href }) => !href.startsWith("https://"));
     expect(bad).toEqual([]);
   });
 
   it("link labels are unique within a guide", () => {
-    for (const g of DOC_GUIDES) {
+    for (const g of [...DOC_GUIDES, ...DOC_GUIDES_FR]) {
       const labels = (g.links ?? []).map((l) => l.label);
       expect(new Set(labels).size, g.slug).toBe(labels.length);
     }

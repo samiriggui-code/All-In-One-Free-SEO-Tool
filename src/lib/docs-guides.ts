@@ -7,7 +7,13 @@
  *
  * Tool descriptions are NOT duplicated here; the docs read those from
  * tool-capabilities.generated.ts, which is derived from the tools grid.
+ *
+ * Every guide exists in English (here) and French (docs-guides.fr.ts),
+ * with the same slugs and the same related routes. A test keeps the two
+ * in step, so a guide cannot ship in one language only.
  */
+
+import { DOC_GUIDES_FR } from "./docs-guides.fr";
 
 export type DocStep = {
   /** The action. Imperative, one line. */
@@ -22,7 +28,8 @@ export type DocGuide = {
   /** One line. Shown on the card and under the heading. */
   summary: string;
   minutes: number;
-  group: "Start here" | "Daily work" | "Clients" | "Running it";
+  /** Section on the docs page. The heading comes from messages (docs.groups). */
+  group: GuideGroup;
   steps: DocStep[];
   /** Tool routes this guide links to. Checked by a test — no dead links. */
   related?: string[];
@@ -38,7 +45,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Install and start it",
     summary: "Download, double-click one file, and you are running.",
     minutes: 5,
-    group: "Start here",
+    group: "start",
     steps: [
       {
         do: "Download the ZIP from the releases page and unzip it anywhere.",
@@ -64,7 +71,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Add your first website",
     summary: "What happens when you click Add client, and what to do while it works.",
     minutes: 8,
-    group: "Start here",
+    group: "start",
     steps: [
       { do: "Go to Clients and click Add client." },
       {
@@ -96,7 +103,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Connect AI, or don't",
     summary: "Most of the tool needs no AI at all. Here is what the rest needs.",
     minutes: 4,
-    group: "Start here",
+    group: "start",
     steps: [
       {
         do: "Open Settings and find AI connection.",
@@ -124,7 +131,7 @@ export const DOC_GUIDES: DocGuide[] = [
     summary:
       "Three of the four take no setup. Only the browser one needs a tunnel.",
     minutes: 6,
-    group: "Start here",
+    group: "start",
     steps: [
       {
         do: "Decide which app you are connecting.",
@@ -181,14 +188,14 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Audit a site and fix what it finds",
     summary: "Crawl, read the findings by severity, then fix them.",
     minutes: 10,
-    group: "Daily work",
+    group: "daily",
     steps: [
       {
         do: "Open Audits and pick a client, or run a one-off from the health check tool.",
       },
       {
-        do: "Click Run audit.",
-        then: "Up to 25 pages by default, respecting robots.txt.",
+        do: "Click Quick audit or Full audit.",
+        then: "Quick reads a handful of pages; full crawls the site. Both respect robots.txt.",
       },
       {
         do: "Read the findings top-down — critical first.",
@@ -219,7 +226,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Find and track keywords",
     summary: "Discover, track, and spot the ones close to page one.",
     minutes: 8,
-    group: "Daily work",
+    group: "daily",
     steps: [
       { do: "Open Keywords for a client." },
       {
@@ -244,11 +251,56 @@ export const DOC_GUIDES: DocGuide[] = [
     ],
   },
   {
+    slug: "write-article",
+    title: "Write and publish an article",
+    summary: "From a keyword to a live post on WordPress, with its schema and social posts.",
+    minutes: 15,
+    group: "daily",
+    steps: [
+      {
+        do: "Open Writing studio and pick the client.",
+        then: "Not sure what to write? Content tools has a question tree and a topic coverage check; any line there becomes an article in one click.",
+      },
+      {
+        do: "Type the main keyword and click Create article.",
+        then: "Find ideas suggests related searches with their intent if you want a better keyword first.",
+      },
+      {
+        do: "Click Generate outline, fix it, then Approve outline.",
+        then: "One ## line per section, ### for a sub-part, ? lines under ## FAQ for questions.",
+      },
+      {
+        do: "Click Write article.",
+        then: "Up to two minutes. You get the text in Markdown with its meta title and meta description, all editable.",
+      },
+      {
+        do: "Click Analyse top 10 and work through the SEO score.",
+        then: "Missing key terms, length and questions are compared with the pages ranking today. The score updates as you type.",
+      },
+      {
+        do: "Save, then open Distribution.",
+        then: "Send it to WordPress as a draft or publish it directly. The Article and FAQ schema go with it.",
+      },
+      {
+        do: "No WordPress? Export it for Ghost, Webflow or Hugo, or paste it yourself and mark it published with its URL.",
+      },
+      {
+        do: "Generate the social posts and the newsletter excerpt, and copy them.",
+      },
+      {
+        do: "Once a few articles are live, download llms.txt from Content tools and put it at the root of the site.",
+        then: "It tells ChatGPT, Claude and Perplexity what the site covers.",
+      },
+    ],
+    note: "Without an AI key the outline and the article are skeletons to fill in yourself. The score against the top 10, the exports and the schema still work.",
+    related: ["/content", "/keywords", "/clients"],
+  },
+  {
     slug: "client-report",
     title: "Send a client something to approve",
     summary: "One document: findings, starting position, and the plan by week.",
     minutes: 6,
-    group: "Clients",
+    group: "clients",
     steps: [
       {
         do: "Finish onboarding for the client, or run an audit and generate a 30-day plan.",
@@ -275,7 +327,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Produce the monthly report",
     summary: "Every number is already collected. You are only choosing a shape.",
     minutes: 5,
-    group: "Clients",
+    group: "clients",
     steps: [
       { do: "Open Reports and choose the client and the period." },
       {
@@ -297,7 +349,7 @@ export const DOC_GUIDES: DocGuide[] = [
     title: "Update, back up, move machines",
     summary: "All three from the control panel. No terminal.",
     minutes: 4,
-    group: "Running it",
+    group: "running",
     steps: [
       {
         do: "Double-click SEO Tool.cmd (or .command) to open the control panel.",
@@ -314,18 +366,24 @@ export const DOC_GUIDES: DocGuide[] = [
         do: "To move machines: back up, copy the whole folder across, double-click the same file there.",
         then: "Everything lives in that folder. Nothing is installed anywhere else.",
       },
+      {
+        do: "On a server running Docker, update from the app folder with git pull, then docker compose up -d --build.",
+        then: "The database sits in a Docker volume, so the rebuild keeps it.",
+      },
     ],
     note: "Your data never leaves the machine. There is no account, and no server to sync with.",
   },
 ];
 
-export const GUIDE_GROUPS = [
-  "Start here",
-  "Daily work",
-  "Clients",
-  "Running it",
-] as const;
+export const GUIDE_GROUPS = ["start", "daily", "clients", "running"] as const;
 
-export function guideBySlug(slug: string): DocGuide | null {
-  return DOC_GUIDES.find((g) => g.slug === slug) ?? null;
+export type GuideGroup = (typeof GUIDE_GROUPS)[number];
+
+/** The guides in the reader's language. French is the app's default. */
+export function guidesFor(locale: string): DocGuide[] {
+  return locale === "en" ? DOC_GUIDES : DOC_GUIDES_FR;
+}
+
+export function guideBySlug(slug: string, locale = "en"): DocGuide | null {
+  return guidesFor(locale).find((g) => g.slug === slug) ?? null;
 }

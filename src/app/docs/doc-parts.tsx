@@ -116,7 +116,7 @@ export function Note({ children }: { children: React.ReactNode }) {
  * The id makes every tool addressable — /docs#health-check — which is
  * what makes this linkable from an issue, a task, or a client email.
  */
-export function ToolRow({ route }: { route: string }) {
+export function ToolRow({ route, linkLabel }: { route: string; linkLabel: string }) {
   const cap = capabilityOf(route);
   const copy = copyOf(cap);
   const slug = route.replace("/tools/", "");
@@ -137,7 +137,7 @@ export function ToolRow({ route }: { route: string }) {
         <CostBadge href={route} />
         <a
           href={`#${slug}`}
-          aria-label={`Link to ${copy.title}`}
+          aria-label={linkLabel}
           className="ml-auto text-xs text-muted-foreground/50 hover:text-foreground"
         >
           #

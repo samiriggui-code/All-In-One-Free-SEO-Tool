@@ -528,7 +528,8 @@
       "saas": "SaaS",
       "blog": "Blog",
       "services": "Services"
-    }
+    },
+    "help": "Aide"
   },
   "errors": {
     "generic": {
@@ -1063,5 +1064,30 @@
         "where": "À déposer à la racine du site, par ex. https://exemple.fr/llms.txt."
       }
     }
+  },
+  "docs": {
+    "metaTitle": "Docs : comment utiliser chaque partie de l’outil",
+    "metaDescription": "Des guides pas à pas et une fiche pour chaque outil, avec ce qu’il coûte à utiliser.",
+    "title": "Docs",
+    "description": "Des guides courts qui mènent à un résultat, puis chaque outil avec ce qu’il coûte à utiliser.",
+    "freeBanner": "<strong>{free} outils sur {total} n’ont besoin ni d’IA ni de clé API.</strong> Ils fonctionnent dès le démarrage de l’app. Tout ce qui porte l’étiquette <tag>Gratuit</tag> ci-dessous n’appelle jamais de modèle : cela ne peut rien vous coûter.",
+    "groups": {
+      "start": "Pour commencer",
+      "daily": "Au quotidien",
+      "clients": "Clients",
+      "running": "Faire tourner l’outil"
+    },
+    "minutes": "{count} min",
+    "steps": "{count, plural, one {# étape} other {# étapes}}",
+    "everyTool": "Tous les outils ({count})",
+    "everyToolHint": "Regroupés comme sur la page des outils. Chaque fiche a son propre lien : copiez le # à côté d’un nom pour y envoyer quelqu’un directement.",
+    "linkTo": "Lien vers {title}",
+    "allDocs": "Toutes les docs",
+    "duration": "Environ {minutes} minutes · {steps, plural, one {# étape} other {# étapes}}",
+    "officialDocs": "Documentation officielle",
+    "whatThisUses": "Ce que ce guide utilise",
+    "next": "Suivant",
+    "notFound": "Introuvable",
+    "guideMetaTitle": "{title} · docs"
   }
 }
