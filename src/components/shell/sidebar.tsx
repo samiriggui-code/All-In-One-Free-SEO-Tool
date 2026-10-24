@@ -50,7 +50,7 @@ const GROUP_ACCENTS: Record<string, GroupAccent> = {
     borderLeft: "border-l-2 border-l-violet-500/40",
     openBg: "bg-violet-500/[0.08]",
   },
-  everyday: {
+  agency: {
     icon: "text-cyan-300/70",
     iconActive: "text-cyan-200",
     dot: "bg-cyan-400",
@@ -64,7 +64,7 @@ const GROUP_ACCENTS: Record<string, GroupAccent> = {
     borderLeft: "border-l-2 border-l-violet-500/40",
     openBg: "bg-violet-500/[0.06]",
   },
-  keywords: {
+  strategy: {
     icon: "text-cyan-300/70",
     iconActive: "text-cyan-200",
     dot: "bg-cyan-400",
@@ -92,14 +92,14 @@ const GROUP_ACCENTS: Record<string, GroupAccent> = {
     borderLeft: "border-l-2 border-l-amber-500/40",
     openBg: "bg-amber-500/[0.06]",
   },
-  competitors: {
+  prospecting: {
     icon: "text-cyan-300/70",
     iconActive: "text-cyan-200",
     dot: "bg-cyan-400",
     borderLeft: "border-l-2 border-l-cyan-500/40",
     openBg: "bg-cyan-500/[0.06]",
   },
-  "ai-visibility": {
+  audit: {
     icon: "text-fuchsia-300/70",
     iconActive: "text-fuchsia-200",
     dot: "bg-fuchsia-400",
@@ -113,14 +113,14 @@ const GROUP_ACCENTS: Record<string, GroupAccent> = {
     borderLeft: "border-l-2 border-l-amber-500/40",
     openBg: "bg-amber-500/[0.06]",
   },
-  imports: {
+  onboarding: {
     icon: "text-emerald-300/70",
     iconActive: "text-emerald-200",
     dot: "bg-emerald-400",
     borderLeft: "border-l-2 border-l-emerald-500/40",
     openBg: "bg-emerald-500/[0.06]",
   },
-  deliverables: {
+  delivery: {
     icon: "text-cyan-300/70",
     iconActive: "text-cyan-200",
     dot: "bg-cyan-400",
