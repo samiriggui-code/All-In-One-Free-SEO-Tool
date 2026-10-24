@@ -69,6 +69,8 @@ describe("CMS exporters", () => {
 
   it("never emits a script URL or an attribute break-out", () => {
     expect(markdownToHtml("[run](javascript:alert`1`)")).not.toContain("href");
+    expect(markdownToHtml("[run](java\tscript:alert)")).not.toContain("href");
+    expect(markdownToHtml("[ok](https://example.com)")).toContain('href="https://example.com"');
     expect(markdownToHtml('![The "best" bread](a.png)')).toContain('alt="The &quot;best&quot; bread"');
   });
 });

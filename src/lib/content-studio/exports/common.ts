@@ -17,8 +17,10 @@ export interface ExportPost {
 
 // Drafts come from a model and get pasted into a CMS, so a link or image
 // may not carry a script URL or break out of its quoted attribute.
-const UNSAFE_SCHEME = /^\s*(javascript|vbscript|data):/i;
-const safeUrl = (u: string) => !UNSAFE_SCHEME.test(u);
+// Browsers drop tabs, newlines and other control characters while parsing
+// a URL, so "java\tscript:" still runs: strip them before checking.
+const UNSAFE_SCHEME = /^(javascript|vbscript|data):/i;
+const safeUrl = (u: string) => !UNSAFE_SCHEME.test(u.replace(/[\u0000-\u0020\u007f]/g, ""));
 const attr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
 export function markdownToHtml(md: string): string {
