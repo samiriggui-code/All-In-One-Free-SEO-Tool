@@ -248,3 +248,28 @@ const EN: OfferDraft[] = [
 export function defaultOffers(locale: string): OfferDraft[] {
   return locale === "en" ? EN : FR;
 }
+
+/** The frozen copy of a catalogue row that a proposal keeps. */
+export function offerSnapshot(row: {
+  id: number;
+  name: string;
+  kind: OfferKind;
+  billing: OfferBilling;
+  summary: string | null;
+  deliverables: string[];
+  estimatedHours: number;
+  duration: number;
+  price: number;
+}): OfferSnapshot {
+  return {
+    offerId: row.id,
+    name: row.name,
+    kind: row.kind,
+    billing: row.billing,
+    summary: row.summary ?? "",
+    deliverables: row.deliverables,
+    estimatedHours: row.estimatedHours,
+    duration: row.duration,
+    price: row.price,
+  };
+}

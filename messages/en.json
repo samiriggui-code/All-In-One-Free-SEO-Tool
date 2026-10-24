@@ -1232,7 +1232,7 @@
     "listTitle": "{count, plural, =0 {Proposals} one {# proposal} other {# proposals}}",
     "listEmpty": "None yet. Pick a client or a lead above — you’ll get a draft with the work already counted in hours.",
     "scopeCount": "{count, plural, one {# scope line} other {# scope lines}}",
-    "statusHint": "Where this document stands with the client",
+    "statusHint": "Where this document stands with the client. \"Sent\" publishes it in their portal, where they can accept it online.",
     "status": {
       "draft": "Draft",
       "sent": "Sent",
@@ -1365,6 +1365,206 @@
       "active": "Offered in quotes",
       "delete": "Delete",
       "cancel": "Cancel"
+    }
+  },
+  "portal": {
+    "metaTitle": "{name} — SEO progress",
+    "metaDescription": "SEO progress and current priorities, from {agency}.",
+    "eyebrow": "Client portal",
+    "live": "Live",
+    "heroTitle": "SEO progress for",
+    "heroBody": "Live overview of your SEO health, work in progress, and recently completed items. Updated whenever your team runs a new audit.",
+    "latestScore": "Latest score",
+    "awaitingAudit": "Awaiting audit",
+    "issuesFound": "{count, plural, =0 {no issues found} one {# issue found} other {# issues found}}",
+    "counters": {
+      "audits": "Audits run",
+      "open": "Tasks open",
+      "done": "Tasks completed"
+    },
+    "recent": {
+      "title": "Recently completed",
+      "hint": "Last 5 SEO tasks closed"
+    },
+    "upcoming": {
+      "title": "In progress",
+      "hint": "Top open tasks your team is working on"
+    },
+    "priority": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    },
+    "history": {
+      "title": "Audit history",
+      "audit": "Audit #{id}",
+      "issues": "{count, plural, =0 {no issues} one {# issue} other {# issues}}"
+    },
+    "footer": "Read-only client portal · Powered by {brand}",
+    "quote": {
+      "eyebrow": "Your quote",
+      "sentOn": "Sent on {date}",
+      "explainQuote": "Explain this quote",
+      "pdf": "Download the PDF",
+      "askQuote": "Can you explain this quote simply: what will be done, why, and what it will change for my site?",
+      "askOffer": "What will the \"{name}\" service actually bring me, and what will I receive?",
+      "findingsTitle": "What the audit found",
+      "findingsHint": "The most serious errors are included. You can add fixing the others: the price updates.",
+      "findingsHintNoFixes": "The number of errors found on your site, by severity.",
+      "included": "included",
+      "added": "added",
+      "addFor": "add (+{price})",
+      "notIncluded": "not included",
+      "formulas": "The services",
+      "formulasPick": "Pick your formula",
+      "chooseFormula": "Choose this formula",
+      "inQuote": "Included",
+      "addons": "Optional extras",
+      "addonsHint": "Add what interests you: the quote recalculates straight away.",
+      "addToQuote": "Add to the quote",
+      "summary": "Summary",
+      "perMonthShort": "/ month",
+      "once": "{amount} on order",
+      "monthly": "then {amount} per month",
+      "accept": "Accept the quote",
+      "confirmAccept": "Accept this quote ({amount} on order, excluding tax)? Your account manager will be told and will start the work.",
+      "acceptedTitle": "Thank you, your quote is accepted",
+      "acceptedBody": "We have been notified and are starting the work. Your deliverables will appear here as they come.",
+      "onTime": "time spent",
+      "flat": "flat fee",
+      "minMonths": "{months}-month minimum",
+      "deliveredIn": "Delivered in {days} days",
+      "whatForMe": "What it brings me",
+      "notifyTitle": "{client} accepted their quote",
+      "notifyOnce": "On order",
+      "notifyMonthly": "Per month",
+      "errors": {
+        "notFound": "This quote is no longer available.",
+        "answered": "This quote has already been answered. Reload the page.",
+        "offers": "Choose at least one service.",
+        "choice": "Choose one formula.",
+        "severities": "The fixes your account manager included cannot be removed.",
+        "invalid": "Invalid selection. Reload the page."
+      },
+      "seeDeliverables": "See my services and deliverables"
+    },
+    "chat": {
+      "open": "Ask a question",
+      "title": "SEO assistant",
+      "subtitle": "Read-only · your site only",
+      "close": "Close",
+      "welcome": "Hi! I can summarize what we've been doing on your site and explain your quote. Try one:",
+      "thinking": "Thinking…",
+      "placeholder": "Ask your question…",
+      "send": "Send",
+      "aiNote": "AI-generated · accuracy not guaranteed",
+      "suggestions": {
+        "quote": "Which formula do you recommend for me?",
+        "month": "How are we doing this month?",
+        "done": "What's been completed lately?",
+        "keywords": "Which keywords are improving?",
+        "progress": "What's still in progress?"
+      },
+      "errors": {
+        "session": "Invalid portal link.",
+        "noQuestion": "No question to answer.",
+        "tooLong": "Please ask a shorter question.",
+        "unavailable": "The AI assistant isn't available right now. Your account manager can answer any time."
+      }
+    },
+    "deliverables": {
+      "title": "Your services and deliverables",
+      "hint": "Everything we deliver to you, in one place",
+      "services": "Services ordered",
+      "signedQuote": "Accepted quote (PDF)",
+      "reports": "Reports",
+      "articles": "Published articles",
+      "invoices": "Invoices",
+      "invoiceStatus": {
+        "sent": "to pay",
+        "paid": "paid",
+        "overdue": "overdue"
+      }
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "description": "Create simple client invoices, track status, export PDF. Built for freelancers who don't want a separate billing tool.",
+    "new": "New invoice",
+    "totals": {
+      "paid": "Paid: {amount}",
+      "outstanding": "Outstanding: {amount}",
+      "draft": "Draft: {amount}"
+    },
+    "empty": {
+      "title": "No invoices yet",
+      "body": "Draft and send invoices to clients without leaving the tool. Branded PDF, payment terms, multiple line items.",
+      "cta": "Create your first invoice"
+    },
+    "columns": {
+      "number": "Number",
+      "client": "Client",
+      "issued": "Issued",
+      "due": "Due",
+      "status": "Status",
+      "total": "Total"
+    },
+    "status": {
+      "draft": "draft",
+      "sent": "sent",
+      "paid": "paid",
+      "overdue": "overdue",
+      "void": "void"
+    },
+    "detail": {
+      "title": "Invoice {number}",
+      "description": "For {client}. Total {total}.",
+      "pdf": "Download PDF",
+      "markSent": "Mark sent",
+      "markPaid": "Mark paid",
+      "subtotal": "Subtotal",
+      "tax": "Tax",
+      "total": "Total",
+      "lines": "Line items",
+      "description_col": "Description",
+      "qty": "Qty",
+      "rate": "Rate",
+      "amount": "Amount",
+      "notes": "Notes",
+      "manage": "Manage",
+      "revert": "Revert to draft",
+      "void": "Void",
+      "delete": "Delete",
+      "viewClient": "View client → {name}"
+    },
+    "form": {
+      "title": "New invoice",
+      "description": "Build a quick invoice for any client. Add line items, tax, and notes — then download as PDF.",
+      "crumb": "New",
+      "defaultLine": "Monthly SEO retainer",
+      "noClients": "Add a client first, then create an invoice.",
+      "client": "Client",
+      "number": "Invoice number",
+      "currency": "Currency",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "taxPercent": "Tax %",
+      "lines": "Line items",
+      "descriptionPlaceholder": "Description",
+      "ratePlaceholder": "Rate",
+      "removeLine": "Remove line",
+      "addLine": "Add line",
+      "notes": "Notes",
+      "notesPlaceholder": "Payment instructions, thank-you message, etc.",
+      "subtotal": "Subtotal",
+      "tax": "Tax ({percent}%)",
+      "total": "Total",
+      "creating": "Creating…",
+      "create": "Create invoice"
+    },
+    "errors": {
+      "invalid": "Check the invoice fields.",
+      "noLines": "Add at least one line item."
     }
   }
 }

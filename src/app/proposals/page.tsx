@@ -5,6 +5,7 @@ import { FileSignature } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients, graderLeads, invoices, proposals, serviceOffers } from "@/db/schema";
+import { offerSnapshot } from "@/lib/service-offers";
 import { PageHeader } from "@/components/shell/page-header";
 import { clientScope } from "@/lib/client-scope";
 import { currentUser, visibleClientIds } from "@/lib/auth";
@@ -68,17 +69,7 @@ export default async function ProposalsPage() {
         accent="violet"
       />
       <ProposalsManager
-        catalogue={catalogue.map((o) => ({
-          offerId: o.id,
-          name: o.name,
-          kind: o.kind,
-          billing: o.billing,
-          summary: o.summary ?? "",
-          deliverables: o.deliverables,
-          estimatedHours: o.estimatedHours,
-          duration: o.duration,
-          price: o.price,
-        }))}
+        catalogue={catalogue.map(offerSnapshot)}
         clients={visible}
         leads={leads.filter((l) => l.email)}
         proposals={mine.map((p) => ({

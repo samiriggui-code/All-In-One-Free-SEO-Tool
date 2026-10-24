@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db/client";
 import { invoices } from "@/db/schema";
 import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 
 const lineSchema = z.object({
   description: z.string().trim().min(1).max(200),
@@ -35,7 +36,8 @@ export type CreateInvoiceResult =
 async function nextInvoiceNumber(): Promise<string> {
   const [{ value }] = await db.select({ value: count() }).from(invoices);
   const year = new Date().getFullYear();
-  return `INV-${year}-${String(value + 1).padStart(4, "0")}`;
+  const prefix = (await getLocale()) === "fr" ? "FAC" : "INV";
+  return `${prefix}-${year}-${String(value + 1).padStart(4, "0")}`;
 }
 
 export async function createInvoice(
@@ -52,11 +54,9 @@ export async function createInvoice(
     notes: formData.get("notes") ?? undefined,
   });
 
+  const t = await getTranslations("invoices.errors");
   if (!parsed.success) {
-    return {
-      ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
-    };
+    return { ok: false, error: t("invalid") };
   }
 
   // Pull repeating fields from formData
@@ -84,7 +84,7 @@ export async function createInvoice(
   }
 
   if (items.length === 0) {
-    return { ok: false, error: "Add at least one line item." };
+    return { ok: false, error: t("noLines") };
   }
 
   const issueDate = parsed.data.issueDate
