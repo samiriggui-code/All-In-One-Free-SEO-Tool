@@ -192,7 +192,7 @@ export default async function RootLayout({
                         theme={theme}
                         userRole={userRole}
                       />
-                      <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 pb-24 sm:p-4 sm:pb-20 md:p-6 md:pb-6">
+                      <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 pb-24 sm:p-4 sm:pb-20 md:p-5 md:pb-6 lg:p-6 xl:px-8">
                         {/* One place, so all 38 AI pages say the same thing
                             — and /agent, /blog and the assistant too, not
                             only /tools/*. */}
