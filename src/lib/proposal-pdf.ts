@@ -15,14 +15,32 @@
 import PDFDocument from "pdfkit";
 import { registerInterFonts, pickFont } from "./report-fonts";
 import { accentColor, isWhiteLabelled, loadBrand, type Brand } from "./brand";
+import { SEVERITIES, type ScopeLine, type Severity } from "./proposal-scope";
+import {
+  billableHours,
+  bySeverity,
+  formatDuration,
+  lineMinutes,
+  totals,
+  workload,
+  type PriceLine,
+  type QuoteSettings,
+} from "./quote";
+import type { OfferSnapshot } from "./service-offers";
 
 export type ProposalDoc = {
   prospectName: string;
   prospectUrl: string | null;
   title: string;
   intro: string | null;
-  scope: { label: string; detail: string; findings: number }[];
-  pricing: { label: string; detail: string; amount: number }[];
+  scope: ScopeLine[];
+  pricing: PriceLine[];
+  /** Catalogue services the quote sells, as frozen on the proposal. */
+  offers?: OfferSnapshot[] | null;
+  /** Hourly rate and covered severities. Absent on older documents. */
+  quote?: QuoteSettings | null;
+  /** "fr" or "en". Everything the document says itself follows it. */
+  locale?: string;
   currency: string;
   terms: string | null;
   basedOnScore: number | null;
@@ -75,6 +93,122 @@ export type ProposalDoc = {
   } | null;
 };
 
+/**
+ * Every sentence the document writes itself, in both languages.
+ *
+ * The user's own words (title, intro, terms, service names) are printed
+ * as typed; only the frame around them is translated.
+ */
+function labelsFor(locale: string) {
+  const fr = locale === "fr";
+  const date = (d: Date) =>
+    d.toLocaleDateString(fr ? "fr-FR" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+  return {
+    locale: fr ? "fr-FR" : "en-GB",
+    date,
+    subject: (name: string) => (fr ? `Proposition SEO pour ${name}` : `SEO proposal for ${name}`),
+    preparedFor: (name: string) => (fr ? `Préparé pour ${name}` : `Prepared for ${name}`),
+    found: fr ? "Ce que nous avons trouvé" : "What we found",
+    foundScore: (n: number) => (fr ? `un score de santé global de ${n} sur 100` : `an overall health score of ${n} out of 100`),
+    foundIssues: (n: number) =>
+      fr ? `${plural(n, "point", "points")} à corriger` : `${plural(n, "issue", "issues")} worth addressing`,
+    foundSentence: (site: string, on: string | null, parts: string[]) =>
+      fr
+        ? `Nous avons réalisé un audit technique de ${site}${on ? ` le ${on}` : ""}. Il montre ${parts.join(" et ")}. Le travail ci-dessous répond à ce qu’il a trouvé : rien n’y figure que l’audit n’ait pas relevé.`
+        : `We ran a technical audit of ${site}${on ? ` on ${on}` : ""}. It showed ${parts.join(" and ")}. The work below addresses what it found — nothing is included that the audit didn't surface.`,
+    whereWork: fr ? "Notre périmètre" : "Where we'll work",
+    notIncluded: (list: string) => (fr ? `Non inclus dans cette mission : ${list}.` : `Not included in this engagement: ${list}.`),
+    scope: fr ? "Ce que nous ferons" : "What we'd do",
+    findings: (n: number) => (fr ? plural(n, "erreur", "erreurs") : plural(n, "finding", "findings")),
+    severityTitle: fr ? "Volume de travail par gravité" : "Workload by severity",
+    severityHead: fr ? ["GRAVITÉ", "ERREURS", "TEMPS", ""] : ["SEVERITY", "ERRORS", "TIME", ""],
+    severity: (s: Severity) =>
+      ({
+        critical: fr ? "Critique" : "Critical",
+        high: fr ? "Haute" : "High",
+        medium: fr ? "Moyenne" : "Medium",
+        low: fr ? "Basse" : "Low",
+      })[s],
+    inQuote: fr ? "inclus" : "included",
+    asOption: fr ? "en option" : "optional",
+    workloadIncluded: (t: string) => (fr ? `Corrections incluses : ${t} de travail.` : `Fixes included: ${t} of work.`),
+    workloadOption: (t: string, price: string) =>
+      fr
+        ? `Les autres corrections représentent ${t} de plus, soit ${price} au taux horaire, si vous souhaitez les ajouter.`
+        : `The remaining fixes would add ${t}, or ${price} at the hourly rate, if you want them too.`,
+    offersTitle: (alt: boolean) =>
+      alt ? (fr ? "Les formules au choix" : "Options to choose from") : fr ? "Les prestations" : "The services",
+    offersIntro: (alt: boolean) =>
+      alt
+        ? fr
+          ? "Choisissez la formule qui vous convient. Chacune est décrite avec ce qu’elle contient, sa durée et son prix."
+          : "Pick the option that suits you. Each one lists what it contains, how long it takes and what it costs."
+        : null,
+    offerMeta: (o: OfferSnapshot, hourlyTime: string) => {
+      const when =
+        o.kind === "monthly"
+          ? fr
+            ? `Mensuel, engagement ${o.duration} mois minimum`
+            : `Monthly, ${o.duration}-month minimum`
+          : fr
+            ? `Livré en ${o.duration} jours`
+            : `Delivered in ${o.duration} days`;
+      const work =
+        o.billing === "hourly"
+          ? fr
+            ? `${hourlyTime} de travail estimé`
+            : `${hourlyTime} of estimated work`
+          : o.kind === "monthly"
+            ? fr
+              ? `environ ${o.estimatedHours} h de travail par mois`
+              : `about ${o.estimatedHours} h of work a month`
+            : fr
+              ? `environ ${o.estimatedHours} h de travail`
+              : `about ${o.estimatedHours} h of work`;
+      return `${when} · ${work}`;
+    },
+    perMonth: fr ? " / mois" : " / month",
+    investment: fr ? "Investissement" : "Investment",
+    total: fr ? "Total" : "Total",
+    totalOnce: fr ? "Total à la commande" : "Due upfront",
+    totalMonthly: fr ? "Puis chaque mois" : "Then every month",
+    alternativesNote: fr
+      ? "Les formules ne s’additionnent pas : le prix dépend de celle que vous choisissez."
+      : "The options do not add up: the price depends on the one you choose.",
+    exclTax: fr ? "Montants hors taxes." : "Amounts exclude tax.",
+    standToday: fr ? "Votre point de départ" : "Where you stand today",
+    stats: fr
+      ? ["Mots-clés suivis", "Déjà positionnés", "En première page", "Proches de la première page (11–20)"]
+      : ["Keywords tracked", "Already ranking", "On page one", "Close to page one (11–20)"],
+    keywords: fr ? "Les mots-clés" : "The keywords",
+    kwHead: fr ? ["MOT-CLÉ", "INTENTION", "ACTUEL", "PAGE"] : ["KEYWORD", "INTENT", "NOW", "PAGE"],
+    needsPage: fr ? "page à créer" : "needs a page",
+    nowNote: fr
+      ? "« Actuel » est la position Google aujourd’hui, vide quand le site n’est pas encore positionné."
+      : "“Now” is the current Google position, blank where the site does not rank for it yet.",
+    forExample: (list: string) => (fr ? `Par exemple : ${list}.` : `For example: ${list}.`),
+    notRanking: fr ? "pas encore positionné" : "not ranking yet",
+    at: (n: number) => (fr ? `en position ${n}` : `at #${n}`),
+    when: fr ? "Ce qui se passe, et quand" : "What happens, and when",
+    timingNote: fr
+      ? "Un mot sur les délais. L’essentiel de ce qui suit est construit le premier mois et se voit au troisième : les moteurs doivent revisiter les pages, les réévaluer, puis les déplacer. Comptez les premiers mouvements de positions vers le 60e à 90e jour, et jugez les deux premiers mois sur le travail réalisé plutôt que sur la courbe de trafic."
+      : "A note on timing. Most of what follows is built in the first month and " +
+        "shows up in the third: search engines have to re-crawl the pages, " +
+        "re-evaluate them, and then move them. Expect the first ranking " +
+        "movement around day 60 to 90, and read months one and two by whether " +
+        "the work below actually happened rather than by the traffic line.",
+    intent: (intent: string) =>
+      ({
+        transactional: fr ? "prêt à acheter" : "ready to buy",
+        commercial: fr ? "compare" : "comparing",
+        navigational: fr ? "vous cherche" : "looking for you",
+        informational: fr ? "se renseigne" : "researching",
+      })[intent] ?? intent,
+    terms: fr ? "Conditions" : "Terms",
+  };
+}
+
 const INK = "#111827";
 const MUTE = "#6b7280";
 const RULE = "#e5e7eb";
@@ -84,6 +218,9 @@ export async function generateProposalPdf(
 ): Promise<Buffer> {
   const brand = await loadBrand();
   const accent = accentColor(brand);
+  const L = labelsFor(proposal.locale ?? "en");
+  const cash = (n: number) => money(n, proposal.currency, L.locale);
+  const quote = proposal.quote ?? null;
   const agency = isWhiteLabelled(brand) ? brand.name!.trim() : null;
 
   const buffers: Buffer[] = [];
@@ -95,7 +232,7 @@ export async function generateProposalPdf(
       // The PDF metadata is a white-label surface too. A prospect opening
       // Document Properties should see the agency, not our product.
       Author: agency ?? "SEO Tool",
-      Subject: `SEO proposal for ${proposal.prospectName}`,
+      Subject: L.subject(proposal.prospectName),
     },
   });
 
@@ -128,7 +265,7 @@ export async function generateProposalPdf(
     .fontSize(12)
     .fillColor(MUTE)
     .text(
-      `Prepared for ${proposal.prospectName}${proposal.prospectUrl ? ` · ${stripScheme(proposal.prospectUrl)}` : ""}`,
+      `${L.preparedFor(proposal.prospectName)}${proposal.prospectUrl ? ` · ${stripScheme(proposal.prospectUrl)}` : ""}`,
       { width },
     );
 
@@ -136,7 +273,7 @@ export async function generateProposalPdf(
   doc
     .fontSize(10)
     .text(
-      `${agency ? `${agency} · ` : ""}${new Date().toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}`,
+      `${agency ? `${agency} · ` : ""}${L.date(new Date())}`,
       { width },
     );
 
@@ -160,17 +297,15 @@ export async function generateProposalPdf(
   if (proposal.basedOnScore !== null || proposal.scope.length > 0) {
     doc.moveDown(1.5);
     ensure(90);
-    heading(doc, F, "What we found", accent);
+    heading(doc, F, L.found, accent);
 
     const totalFindings = proposal.scope.reduce((n, s) => n + s.findings, 0);
     const parts: string[] = [];
     if (proposal.basedOnScore !== null) {
-      parts.push(`an overall health score of ${proposal.basedOnScore} out of 100`);
+      parts.push(L.foundScore(proposal.basedOnScore));
     }
     if (totalFindings > 0) {
-      parts.push(
-        `${totalFindings} issue${totalFindings === 1 ? "" : "s"} worth addressing`,
-      );
+      parts.push(L.foundIssues(totalFindings));
     }
 
     doc
@@ -178,11 +313,11 @@ export async function generateProposalPdf(
       .fontSize(11)
       .fillColor(INK)
       .text(
-        `We ran a technical audit of ${stripScheme(proposal.prospectUrl ?? proposal.prospectName)}${
-          proposal.basedOnAt
-            ? ` on ${proposal.basedOnAt.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}`
-            : ""
-        }. It showed ${parts.join(" and ")}. The work below addresses what it found — nothing is included that the audit didn't surface.`,
+        L.foundSentence(
+          stripScheme(proposal.prospectUrl ?? proposal.prospectName),
+          proposal.basedOnAt ? L.date(proposal.basedOnAt) : null,
+          parts,
+        ),
         { width, lineGap: 3 },
       );
   }
@@ -197,7 +332,7 @@ export async function generateProposalPdf(
   if (sf && (sf.inScope.length > 0 || sf.outOfScope.length > 0)) {
     doc.moveDown(1.4);
     ensure(90);
-    heading(doc, F, "Where we'll work", accent);
+    heading(doc, F, L.whereWork, accent);
 
     for (const line of sf.inScope) {
       ensure(52);
@@ -225,9 +360,7 @@ export async function generateProposalPdf(
         .fontSize(9.5)
         .fillColor(MUTE)
         .text(
-          `Not included in this engagement: ${sf.outOfScope
-            .map((o) => o.label.toLowerCase())
-            .join(", ")}.`,
+          L.notIncluded(sf.outOfScope.map((o) => o.label.toLowerCase()).join(", ")),
           doc.page.margins.left,
           doc.y,
           { width, lineGap: 2 },
@@ -239,7 +372,7 @@ export async function generateProposalPdf(
   if (proposal.scope.length > 0) {
     doc.moveDown(1.4);
     ensure(80);
-    heading(doc, F, "What we'd do", accent);
+    heading(doc, F, L.scope, accent);
 
     for (const line of proposal.scope) {
       ensure(64);
@@ -247,7 +380,7 @@ export async function generateProposalPdf(
 
       const y = doc.y;
       doc.font(F("bold")).fontSize(11.5).fillColor(INK).text(line.label, {
-        width: width - 90,
+        width: width - 130,
         continued: false,
       });
 
@@ -257,10 +390,12 @@ export async function generateProposalPdf(
         .fontSize(9.5)
         .fillColor(MUTE)
         .text(
-          `${line.findings} finding${line.findings === 1 ? "" : "s"}`,
-          doc.page.margins.left + width - 90,
+          line.minutesEach !== undefined && quote
+            ? `${L.findings(line.findings)} · ${formatDuration(lineMinutes(line, SEVERITIES))}`
+            : L.findings(line.findings),
+          doc.page.margins.left + width - 130,
           y + 1,
-          { width: 90, align: "right" },
+          { width: 130, align: "right" },
         );
 
       doc.x = doc.page.margins.left;
@@ -275,6 +410,130 @@ export async function generateProposalPdf(
     }
   }
 
+  // ---- Workload by severity -----------------------------------------
+  // The same findings, counted by how serious they are, with the time
+  // each level takes. The quote covers the ticked levels; the rest is
+  // priced as an option so the client can see what it would add.
+  const graded = proposal.scope.some((l) => l.bySeverity && l.minutesEach !== undefined);
+  if (quote && graded) {
+    doc.moveDown(1.4);
+    ensure(120);
+    heading(doc, F, L.severityTitle, accent);
+    doc.moveDown(0.3);
+
+    const Lx = doc.page.margins.left;
+    const cSev = Math.round(width * 0.4);
+    const cErr = Math.round(width * 0.18);
+    const cTime = Math.round(width * 0.2);
+    const head = doc.y;
+    doc.font(F("bold")).fontSize(8.5).fillColor(MUTE);
+    doc.text(L.severityHead[0], Lx, head, { width: cSev });
+    doc.text(L.severityHead[1], Lx + cSev, head, { width: cErr, align: "right" });
+    doc.text(L.severityHead[2], Lx + cSev + cErr, head, { width: cTime, align: "right" });
+    doc.x = Lx;
+    doc.y = head + 12;
+    rule(doc, RULE, width);
+    doc.moveDown(0.35);
+
+    for (const r of bySeverity(proposal.scope, quote.severities)) {
+      if (r.findings === 0) continue;
+      ensure(18);
+      const y = doc.y;
+      doc.font(F(r.included ? "bold" : "regular")).fontSize(10).fillColor(INK);
+      doc.text(L.severity(r.severity), Lx, y, { width: cSev, lineBreak: false });
+      doc.font(F("regular"));
+      doc.text(String(r.findings), Lx + cSev, y, { width: cErr, align: "right", lineBreak: false });
+      doc.text(formatDuration(r.minutes), Lx + cSev + cErr, y, { width: cTime, align: "right", lineBreak: false });
+      doc.fillColor(r.included ? accent : MUTE);
+      doc.text(r.included ? L.inQuote : L.asOption, Lx + cSev + cErr + cTime + 12, y, {
+        width: width - cSev - cErr - cTime - 12,
+        lineBreak: false,
+      });
+      doc.x = Lx;
+      doc.y = y + 15;
+    }
+
+    const work = workload(proposal.scope, quote);
+    doc.moveDown(0.4);
+    doc
+      .font(F("regular"))
+      .fontSize(10)
+      .fillColor(INK)
+      .text(L.workloadIncluded(formatDuration(work.includedMinutes)), Lx, doc.y, { width, lineGap: 2 });
+    if (work.optionMinutes > 0) {
+      doc
+        .fillColor(MUTE)
+        .text(
+          L.workloadOption(
+            formatDuration(work.optionMinutes),
+            cash(Math.round(billableHours(work.optionMinutes) * quote.hourlyRate)),
+          ),
+          Lx,
+          doc.y + 2,
+          { width, lineGap: 2 },
+        );
+    }
+  }
+
+  // ---- The services --------------------------------------------------
+  // What the client is buying, in the words of the catalogue: what it
+  // brings, what is delivered, how long it takes and how much work it is.
+  const offers = proposal.offers ?? [];
+  const alternatives = Boolean(quote?.alternatives) && offers.length > 1;
+  if (offers.length > 0) {
+    doc.moveDown(1.4);
+    ensure(120);
+    heading(doc, F, L.offersTitle(alternatives), accent);
+    const intro = L.offersIntro(alternatives);
+    if (intro) {
+      doc.font(F("regular")).fontSize(9.5).fillColor(MUTE).text(intro, { width, lineGap: 2 });
+    }
+    const hourlyTime = quote ? formatDuration(workload(proposal.scope, quote).includedMinutes) : "";
+
+    for (const o of offers) {
+      ensure(90);
+      doc.moveDown(0.7);
+      const priceLine = proposal.pricing.find((p) => p.offerId === o.offerId);
+      const y = doc.y;
+      doc.font(F("bold")).fontSize(12).fillColor(INK).text(o.name, doc.page.margins.left, y, {
+        width: width - 140,
+      });
+      if (priceLine) {
+        doc
+          .font(F("bold"))
+          .fontSize(11.5)
+          .fillColor(accent)
+          .text(
+            `${cash(priceLine.amount)}${priceLine.recurring ? L.perMonth : ""}`,
+            doc.page.margins.left + width - 140,
+            y,
+            { width: 140, align: "right" },
+          );
+      }
+      doc.x = doc.page.margins.left;
+      doc
+        .font(F("regular"))
+        .fontSize(9.5)
+        .fillColor(MUTE)
+        .text(L.offerMeta(o, hourlyTime), doc.page.margins.left, doc.y + 2, { width });
+      if (o.summary.trim()) {
+        doc.fontSize(10).fillColor(INK).text(o.summary.trim(), doc.page.margins.left, doc.y + 3, {
+          width,
+          lineGap: 2,
+        });
+      }
+      for (const d of o.deliverables) {
+        ensure(18);
+        doc
+          .font(F("regular"))
+          .fontSize(10)
+          .fillColor(MUTE)
+          .text(`·  ${d}`, doc.page.margins.left + 10, doc.y + 2, { width: width - 10, lineGap: 2 });
+      }
+      doc.x = doc.page.margins.left;
+    }
+  }
+
   // ---- Where you stand today ---------------------------------------
   // The starting line, in writing. Without it the first monthly report
   // has nothing to compare against and "we improved things" is unprovable.
@@ -282,14 +541,14 @@ export async function generateProposalPdf(
   if (kb && kb.tracked > 0) {
     doc.moveDown(1.6);
     ensure(120);
-    heading(doc, F, "Where you stand today", accent);
+    heading(doc, F, L.standToday, accent);
     doc.moveDown(0.4);
 
     const stats: [string, string][] = [
-      ["Keywords tracked", String(kb.tracked)],
-      ["Already ranking", String(kb.ranking)],
-      ["On page one", String(kb.inTopTen)],
-      ["Close to page one (11–20)", String(kb.strikingDistance)],
+      [L.stats[0], String(kb.tracked)],
+      [L.stats[1], String(kb.ranking)],
+      [L.stats[2], String(kb.inTopTen)],
+      [L.stats[3], String(kb.strikingDistance)],
     ];
     for (const [label, value] of stats) {
       ensure(20);
@@ -325,7 +584,7 @@ export async function generateProposalPdf(
         .font(F("bold"))
         .fontSize(10.5)
         .fillColor(INK)
-        .text("The keywords", doc.page.margins.left, doc.y, { width });
+        .text(L.keywords, doc.page.margins.left, doc.y, { width });
       doc.moveDown(0.3);
 
       // Column geometry, once. Position is right-aligned because a
@@ -335,20 +594,20 @@ export async function generateProposalPdf(
       const cIntent = Math.round(width * 0.2);
       const cPos = Math.round(width * 0.1);
       const cPage = width - cKw - cIntent - cPos;
-      const L = doc.page.margins.left;
+      const X = doc.page.margins.left;
 
       const headRow = doc.y;
       doc.font(F("bold")).fontSize(8.5).fillColor(MUTE);
-      doc.text("KEYWORD", L, headRow, { width: cKw });
-      doc.text("INTENT", L + cKw, headRow, { width: cIntent });
-      doc.text("NOW", L + cKw + cIntent, headRow, {
+      doc.text(L.kwHead[0], X, headRow, { width: cKw });
+      doc.text(L.kwHead[1], X + cKw, headRow, { width: cIntent });
+      doc.text(L.kwHead[2], X + cKw + cIntent, headRow, {
         width: cPos,
         align: "right",
       });
-      doc.text("PAGE", L + cKw + cIntent + cPos + 8, headRow, {
+      doc.text(L.kwHead[3], X + cKw + cIntent + cPos + 8, headRow, {
         width: cPage - 8,
       });
-      doc.x = L;
+      doc.x = X;
       doc.y = headRow + 12;
       rule(doc, RULE, width);
       doc.moveDown(0.35);
@@ -357,26 +616,26 @@ export async function generateProposalPdf(
         ensure(18);
         const y = doc.y;
         doc.font(F("regular")).fontSize(9.5).fillColor(INK);
-        doc.text(k.keyword, L, y, { width: cKw - 6, ellipsis: true, lineBreak: false });
+        doc.text(k.keyword, X, y, { width: cKw - 6, ellipsis: true, lineBreak: false });
         doc.fillColor(MUTE);
-        doc.text(shortIntent(k.intent), L + cKw, y, {
+        doc.text(L.intent(k.intent), X + cKw, y, {
           width: cIntent,
           lineBreak: false,
         });
         doc.fillColor(k.position === null ? MUTE : INK);
         doc.text(
           k.position === null ? "—" : String(k.position),
-          L + cKw + cIntent,
+          X + cKw + cIntent,
           y,
           { width: cPos, align: "right", lineBreak: false },
         );
         doc.fillColor(MUTE);
-        doc.text(k.targetPage ?? "needs a page", L + cKw + cIntent + cPos + 8, y, {
+        doc.text(k.targetPage ?? L.needsPage, X + cKw + cIntent + cPos + 8, y, {
           width: cPage - 8,
           ellipsis: true,
           lineBreak: false,
         });
-        doc.x = L;
+        doc.x = X;
         doc.y = y + 13;
       }
 
@@ -386,8 +645,8 @@ export async function generateProposalPdf(
         .fontSize(8.5)
         .fillColor(MUTE)
         .text(
-          "“Now” is the current Google position, blank where the site does not rank for it yet.",
-          L,
+          L.nowNote,
+          X,
           doc.y,
           { width, lineGap: 2 },
         );
@@ -399,14 +658,11 @@ export async function generateProposalPdf(
         .fontSize(9.5)
         .fillColor(MUTE)
         .text(
-          `For example: ${kb.examples
-            .map(
-              (e) =>
-                `“${e.keyword}” ${
-                  e.position === null ? "not ranking yet" : `at #${e.position}`
-                }`,
-            )
-            .join(", ")}.`,
+          L.forExample(
+            kb.examples
+              .map((e) => `“${e.keyword}” ${e.position === null ? L.notRanking : L.at(e.position)}`)
+              .join(", "),
+          ),
           doc.page.margins.left,
           doc.y,
           { width, lineGap: 2 },
@@ -419,7 +675,7 @@ export async function generateProposalPdf(
   if (timeline && timeline.length > 0) {
     doc.moveDown(1.6);
     ensure(120);
-    heading(doc, F, "What happens, and when", accent);
+    heading(doc, F, L.when, accent);
 
     // When to expect results, said before the plan rather than after it.
     //
@@ -434,11 +690,7 @@ export async function generateProposalPdf(
       .fontSize(9)
       .fillColor(MUTE)
       .text(
-        "A note on timing. Most of what follows is built in the first month and " +
-          "shows up in the third: search engines have to re-crawl the pages, " +
-          "re-evaluate them, and then move them. Expect the first ranking " +
-          "movement around day 60 to 90, and read months one and two by whether " +
-          "the work below actually happened rather than by the traffic line.",
+        L.timingNote,
         { lineGap: 2 },
       );
     doc.moveDown(0.9);
@@ -498,24 +750,24 @@ export async function generateProposalPdf(
   if (proposal.pricing.length > 0) {
     doc.moveDown(1.6);
     ensure(120);
-    heading(doc, F, "Investment", accent);
+    heading(doc, F, L.investment, accent);
     doc.moveDown(0.4);
 
-    let total = 0;
     for (const item of proposal.pricing) {
       ensure(40);
-      total += item.amount;
 
       const y = doc.y;
-      doc.font(F("bold")).fontSize(11).fillColor(INK).text(item.label, {
-        width: width - 120,
+      // Positioned explicitly: the previous line's amount leaves the
+      // cursor in the right-hand column.
+      doc.font(F("bold")).fontSize(11).fillColor(INK).text(item.label, doc.page.margins.left, y, {
+        width: width - 130,
       });
       doc
         .font(F("bold"))
         .fontSize(11)
         .fillColor(INK)
         .text(
-          money(item.amount, proposal.currency),
+          `${cash(item.amount)}${item.recurring ? L.perMonth : ""}`,
           doc.page.margins.left + width - 120,
           y,
           { width: 120, align: "right" },
@@ -527,7 +779,7 @@ export async function generateProposalPdf(
           .font(F("regular"))
           .fontSize(9.5)
           .fillColor(MUTE)
-          .text(item.detail, doc.page.margins.left, doc.y + 1, {
+          .text(item.detail.replace(/[\u202f\u00a0]/g, " "), doc.page.margins.left, doc.y + 1, {
             width: width - 120,
             lineGap: 2,
           });
@@ -540,16 +792,31 @@ export async function generateProposalPdf(
     rule(doc, RULE, width);
     doc.moveDown(0.5);
 
-    const y = doc.y;
-    doc.font(F("bold")).fontSize(12).fillColor(INK).text("Total", { width: width - 120 });
-    doc
-      .font(F("bold"))
-      .fontSize(12)
-      .fillColor(accent)
-      .text(money(total, proposal.currency), doc.page.margins.left + width - 120, y, {
-        width: 120,
-        align: "right",
-      });
+    // Options to choose from are not a bundle: adding them up would
+    // quote a price nobody will pay.
+    if (alternatives) {
+      doc.font(F("regular")).fontSize(10).fillColor(MUTE).text(L.alternativesNote, { width, lineGap: 2 });
+    } else {
+      const sum = totals(proposal.pricing);
+      const rows: [string, string][] = [];
+      if (sum.monthly === 0) rows.push([L.total, cash(sum.once)]);
+      else {
+        if (sum.once > 0) rows.push([L.totalOnce, cash(sum.once)]);
+        rows.push([L.totalMonthly, `${cash(sum.monthly)}${L.perMonth}`]);
+      }
+      for (const [label, value] of rows) {
+        const y = doc.y;
+        doc.font(F("bold")).fontSize(12).fillColor(INK).text(label, doc.page.margins.left, y, { width: width - 160 });
+        doc
+          .font(F("bold"))
+          .fontSize(12)
+          .fillColor(accent)
+          .text(value, doc.page.margins.left + width - 160, y, { width: 160, align: "right" });
+        doc.x = doc.page.margins.left;
+        doc.moveDown(0.3);
+      }
+    }
+    doc.font(F("regular")).fontSize(8.5).fillColor(MUTE).text(L.exclTax, doc.page.margins.left, doc.y + 2, { width });
     doc.x = doc.page.margins.left;
   }
 
@@ -557,7 +824,7 @@ export async function generateProposalPdf(
   if (proposal.terms?.trim()) {
     doc.moveDown(1.6);
     ensure(80);
-    heading(doc, F, "Terms", accent);
+    heading(doc, F, L.terms, accent);
     doc.moveDown(0.3);
     doc
       .font(F("regular"))
@@ -623,28 +890,6 @@ function rule(doc: PDFKit.PDFDocument, color: string, width: number) {
   doc.y += 2;
 }
 
-/**
- * Intent, in words a client understands.
- *
- * "transactional" and "commercial" are our vocabulary, not theirs, and
- * this document is the one place in the app written for somebody who
- * does not do SEO for a living.
- */
-function shortIntent(intent: string): string {
-  switch (intent) {
-    case "transactional":
-      return "ready to buy";
-    case "commercial":
-      return "comparing";
-    case "navigational":
-      return "looking for you";
-    case "informational":
-      return "researching";
-    default:
-      return intent;
-  }
-}
-
 function stripScheme(url: string): string {
   return url.replace(/^https?:\/\//i, "").replace(/\/$/, "");
 }
@@ -656,13 +901,17 @@ function stripScheme(url: string): string {
  * than throwing — a typo in a currency field should not take down the
  * document someone is about to send a client.
  */
-function money(amount: number, currency: string): string {
+function money(amount: number, currency: string, locale?: string): string {
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
-    }).format(amount);
+    })
+      .format(amount)
+      // French groups thousands with a narrow no-break space, which the
+      // PDF fonts lack: it printed "1 /110 €".
+      .replace(/[\u202f\u00a0]/g, " ");
   } catch {
     return `${currency} ${amount.toLocaleString()}`;
   }
