@@ -1,7 +1,7 @@
 {
   "nav": {
     "appName": "SEO Tool",
-    "appTagline": "v0.2 · local",
+    "appTagline": "Bureau SEO",
     "collapse": "Réduire le menu",
     "expand": "Agrandir le menu",
     "search": "Rechercher",
@@ -1627,6 +1627,190 @@
     "errors": {
       "invalid": "Vérifiez les champs de la facture.",
       "noLines": "Ajoutez au moins une ligne."
+    }
+  },
+  "shell": {
+    "sidebar": {
+      "accountSettings": "Compte · Paramètres",
+      "newCount": "{count} nouveau(x)",
+      "revealAllTitle": "Afficher tous les outils dans la barre latérale",
+      "guidedTitle": "Masquer les outils avancés et garder l’essentiel",
+      "pro": "Pro",
+      "easy": "Simple",
+      "selfHosted": "Auto-hébergé · vos données restent sur votre serveur"
+    },
+    "toolDot": {
+      "ready": "Prêt",
+      "needsSetup": "À configurer"
+    },
+    "theme": {
+      "toDark": "Passer au thème sombre",
+      "toSystem": "Suivre le thème du système",
+      "toLight": "Passer au thème clair"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Activité récente de vos données",
+      "loading": "Chargement…",
+      "emptyTitle": "Rien de nouveau",
+      "emptyBody": "Les alertes apparaissent ici quand un audit trouve un problème critique, qu’une page change, qu’une position chute ou que l’agent quotidien termine un passage.",
+      "addClient": "Ajoutez un client pour commencer le suivi →",
+      "count": "{count, plural, one {# élément} other {# éléments}}",
+      "markAllRead": "Tout marquer comme lu"
+    },
+    "needsKey": {
+      "title": "Cet outil a besoin d’une clé IA",
+      "body": "Il rédige du texte, donc il appelle un modèle directement. Gemini et Groq ont une offre gratuite : environ deux minutes à configurer.",
+      "subscription": "{client} est connecté, mais dans l’autre sens : c’est lui qui appelle cette app. Vous pouvez lui demander de faire ceci, ou ajouter une clé pour le faire ici.",
+      "yourChatApp": "Votre app de chat",
+      "connect": "Connecter une clé"
+    },
+    "profile": {
+      "menu": "Menu du profil",
+      "appName": "SEO Tool",
+      "signInBelow": "Connectez-vous ci-dessous",
+      "notSignedIn": "Non connecté",
+      "sharedPassword": "Mot de passe partagé",
+      "localSingleUser": "Local · un seul utilisateur",
+      "team": "Équipe",
+      "setUpTeam": "Créer des comptes d’équipe",
+      "settings": "Paramètres",
+      "aiKeys": "Clés des fournisseurs IA",
+      "updates": "Rechercher des mises à jour",
+      "health": "État du système",
+      "errors": "Journal des erreurs",
+      "backup": "Sauvegarde et restauration",
+      "adminAfterSignIn": "Les liens d’administration apparaissent après la connexion.",
+      "signIn": "Se connecter",
+      "chatCapabilities": "Ce que le chat IA sait faire",
+      "automated": "Ce qui est automatisé",
+      "about": "À propos et soutenir le développeur",
+      "repo": "Dépôt GitHub",
+      "signOut": "Se déconnecter",
+      "signOutPassword": "Se déconnecter (efface le cookie du mot de passe)"
+    },
+    "nextStep": {
+      "ai": {
+        "label": "Connecter un fournisseur IA",
+        "detail": "Gemini ou Groq gratuit, 2 minutes"
+      },
+      "client": {
+        "label": "Ajouter votre premier client",
+        "detail": "L’URL de son site suffit pour commencer"
+      },
+      "google": {
+        "label": "Connecter Google (GSC + GA4)",
+        "detail": "Vraies données de mots-clés et de trafic, à configurer une fois"
+      },
+      "audit": {
+        "label": "Lancer votre premier audit",
+        "detail": "Analyse du site complet, environ 2 minutes"
+      },
+      "keywords": {
+        "label": "Suivre votre premier mot-clé",
+        "detail": "Positions vérifiées chaque jour, gratuit en mode navigateur"
+      },
+      "report": {
+        "label": "Générer votre premier rapport",
+        "detail": "PDF en marque blanche, avec résumé IA"
+      },
+      "tasks": {
+        "label": "{count, plural, one {# tâche ouverte} other {# tâches ouvertes}}",
+        "detail": "Choisissez-en une à traiter"
+      },
+      "morning": {
+        "label": "Briefing du jour",
+        "detail": "Les priorités du jour pour tous vos clients"
+      },
+      "hide": "Masquer cette suggestion"
+    },
+    "firstRun": {
+      "title": "Faites de SEO Tool une vraie application",
+      "intro": "Un clic pour chaque option. Vous pouvez changer cela à tout moment dans",
+      "settingsInstall": "Paramètres → Installation",
+      "close": "Fermer",
+      "pwaTitle": "Installer comme application (PWA)",
+      "pwaDesc": "Sa propre fenêtre, sans barre de navigateur. Ajoutée au menu Démarrer / Applications. Clic droit → Épingler à la barre des tâches.",
+      "install": "Installer",
+      "notAvailable": "Indisponible",
+      "shortcutTitle": "Raccourci Bureau et menu Démarrer",
+      "shortcutDesc": "Démarre le serveur ET ouvre le navigateur, même quand le serveur est arrêté.",
+      "createShortcuts": "Créer les raccourcis",
+      "skip": "Passer, je le ferai plus tard",
+      "done": "Terminé",
+      "pwaUnavailable": "Installation PWA indisponible",
+      "pwaUnavailableHint": "Utilisez Chrome, Edge ou Brave pour installer. Sur Safari : Partager → Ajouter au Dock.",
+      "installed": "Installée comme application",
+      "installedHint": "Retrouvez SEO Tool dans le menu Démarrer / Applications.",
+      "shortcutFailed": "Impossible de créer le raccourci",
+      "shortcutCreated": "Raccourci créé",
+      "shortcutCreatedHint": "Icônes ajoutées sur le Bureau et dans le menu Démarrer. Clic droit sur l’entrée du menu → Épingler à la barre des tâches."
+    },
+    "power": {
+      "title": "Contrôle du serveur",
+      "close": "Fermer",
+      "restart": "Redémarrer le serveur",
+      "stop": "Arrêter le serveur",
+      "install": "Installer comme app / raccourcis",
+      "restartConfirm": "Redémarrer le serveur ?",
+      "restartConfirmBody": "La page se rechargera d’elle-même quand il sera revenu (8 à 15 secondes).",
+      "restartCta": "Redémarrer",
+      "restarting": "Redémarrage…",
+      "restartFailed": "Échec du redémarrage",
+      "restartingServer": "Redémarrage du serveur",
+      "reloadWhenBack": "La page se rechargera quand le serveur sera revenu",
+      "waiting": "En attente du retour du serveur…",
+      "notBack": "Le serveur n’est pas revenu en 60 s. Relancez-le (seo.cmd, raccourci, ou docker compose up -d sur un VPS).",
+      "stopConfirm": "Arrêter le serveur ?",
+      "stopConfirmBody": "L’app sera hors ligne. Relancez-la depuis votre raccourci, seo.cmd, ou docker compose up -d sur un VPS.",
+      "stopping": "Arrêt…",
+      "stopFailed": "Échec de l’arrêt",
+      "stopped": "Serveur arrêté",
+      "launchAgain": "Relancez-le depuis votre raccourci.",
+      "stoppedMsg": "Serveur arrêté. Relancez-le depuis votre raccourci."
+    },
+    "assistant": {
+      "open": "Assistant IA",
+      "openTitle": "Assistant IA (Échap pour fermer)",
+      "title": "Assistant SEO",
+      "poweredBy": "Propulsé par {provider}",
+      "askAnything": "Posez n’importe quelle question sur vos données",
+      "emptyTitle": "Posez n’importe quelle question sur vos données SEO",
+      "emptyBody": "Je vois vos clients, audits, mots-clés, tâches et les changements récents de pages. Les chiffres viennent de votre base de données, pas de mon imagination.",
+      "stuck": "Je suis bloqué sur cette page, explique-la-moi",
+      "stuckPrompt": "Je suis bloqué sur {page} (chemin : {path}). En bref : à quoi sert cette page, que devrais-je y faire, et quelles sont les 2 ou 3 actions les plus utiles maintenant ? Réponds en français.",
+      "placeholder": "Posez une question sur vos données SEO…",
+      "send": "Envoyer",
+      "close": "Fermer",
+      "suggestions": {
+        "worstScore": "Quel client a le pire score en ce moment ?",
+        "commonIssue": "Quel est le problème le plus fréquent dans mes audits ?",
+        "strikingDistance": "Quels mots-clés sont à portée du top 10 ?",
+        "focusFirst": "Sur quoi me concentrer en priorité cette semaine ?"
+      },
+      "pages": {
+        "dashboard": "le tableau de bord",
+        "client": "une page client",
+        "tool": "l’outil {name}",
+        "audit": "une page d’audit",
+        "keywords": "la page des mots-clés",
+        "backlinks": "la page des backlinks",
+        "competitors": "la page des concurrents",
+        "content": "la page contenu",
+        "reports": "la page des rapports",
+        "other": "la page {name}"
+      }
+    },
+    "quickAdd": {
+      "title": "Ajouter un client",
+      "description": "Collez simplement l’URL du site : on récupère le logo, le nom, l’adresse, les réseaux sociaux, la stack technique et la niche, puis on crée une première liste de tâches.",
+      "url": "URL du site",
+      "httpsHint": "On ajoute https:// pour vous.",
+      "openExisting": "Ouvrir le client existant →",
+      "autoExtracted": "Extrait automatiquement : logo, nom, description, adresse, téléphone, réseaux sociaux, stack technique, niche et une première liste de tâches adaptée. Modifiable ensuite.",
+      "cancel": "Annuler",
+      "settingUp": "Configuration… (environ 10 s)",
+      "create": "Créer le client"
     }
   }
 }

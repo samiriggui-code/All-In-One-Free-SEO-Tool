@@ -1,7 +1,7 @@
 {
   "nav": {
     "appName": "SEO Tool",
-    "appTagline": "v0.2 · local",
+    "appTagline": "SEO office",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "search": "Search",
@@ -1627,6 +1627,190 @@
     "errors": {
       "invalid": "Check the invoice fields.",
       "noLines": "Add at least one line item."
+    }
+  },
+  "shell": {
+    "sidebar": {
+      "accountSettings": "Account · Settings",
+      "newCount": "{count} new",
+      "revealAllTitle": "Reveal every tool in the sidebar",
+      "guidedTitle": "Hide advanced tools — keep the essentials only",
+      "pro": "Pro",
+      "easy": "Easy",
+      "selfHosted": "Self-hosted · your data stays on your server"
+    },
+    "toolDot": {
+      "ready": "Ready",
+      "needsSetup": "Needs setup"
+    },
+    "theme": {
+      "toDark": "Switch to dark theme",
+      "toSystem": "Match system theme",
+      "toLight": "Switch to light theme"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Recent activity from your data",
+      "loading": "Loading…",
+      "emptyTitle": "All caught up",
+      "emptyBody": "Alerts appear here when audits surface critical issues, pages change, ranks drop, or the daily agent finishes a run.",
+      "addClient": "Add a client to start tracking →",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "markAllRead": "Mark all read"
+    },
+    "needsKey": {
+      "title": "This one needs an AI key",
+      "body": "It writes text, so it calls a model directly. Gemini and Groq have free tiers — about two minutes to set up.",
+      "subscription": "{client} is connected, but it works the other way round — it calls into this app. You can ask it to do this instead, or add a key to do it here.",
+      "yourChatApp": "Your chat app",
+      "connect": "Connect a key"
+    },
+    "profile": {
+      "menu": "Profile menu",
+      "appName": "SEO Tool",
+      "signInBelow": "Sign in below",
+      "notSignedIn": "Not signed in",
+      "sharedPassword": "Shared password",
+      "localSingleUser": "Local · single-user",
+      "team": "Team",
+      "setUpTeam": "Set up team accounts",
+      "settings": "Settings",
+      "aiKeys": "AI provider keys",
+      "updates": "Check for updates",
+      "health": "System health",
+      "errors": "Error log",
+      "backup": "Backup & restore",
+      "adminAfterSignIn": "Admin links appear after you sign in.",
+      "signIn": "Sign in",
+      "chatCapabilities": "What the AI chat can do",
+      "automated": "What's automated",
+      "about": "About & support the developer",
+      "repo": "GitHub repo",
+      "signOut": "Sign out",
+      "signOutPassword": "Sign out (clears password cookie)"
+    },
+    "nextStep": {
+      "ai": {
+        "label": "Connect an AI provider",
+        "detail": "Free Gemini or Groq — takes 2 min"
+      },
+      "client": {
+        "label": "Add your first client",
+        "detail": "Their site URL is all you need to start"
+      },
+      "google": {
+        "label": "Connect Google (GSC + GA4)",
+        "detail": "Real keyword + traffic data, one-time setup"
+      },
+      "audit": {
+        "label": "Run your first audit",
+        "detail": "Site-wide scan, ~2 minutes"
+      },
+      "keywords": {
+        "label": "Track your first keyword",
+        "detail": "Daily rank checks, free via browser mode"
+      },
+      "report": {
+        "label": "Generate your first report",
+        "detail": "PDF, white-labeled, AI summary"
+      },
+      "tasks": {
+        "label": "{count, plural, one {# open task} other {# open tasks}}",
+        "detail": "Pick one to work on"
+      },
+      "morning": {
+        "label": "Daily briefing",
+        "detail": "Today's priorities across all clients"
+      },
+      "hide": "Hide this suggestion"
+    },
+    "firstRun": {
+      "title": "Make SEO Tool feel like a real app",
+      "intro": "One click each. You can change this any time in",
+      "settingsInstall": "Settings → Install",
+      "close": "Close",
+      "pwaTitle": "Install as app (PWA)",
+      "pwaDesc": "Own window, no browser chrome. Adds to Start Menu / Applications. Right-click → Pin to taskbar.",
+      "install": "Install",
+      "notAvailable": "Not available",
+      "shortcutTitle": "Desktop & Start Menu shortcut",
+      "shortcutDesc": "Launches the server AND opens the browser — works even when the server is currently off.",
+      "createShortcuts": "Create shortcuts",
+      "skip": "Skip — I'll do this later",
+      "done": "Done",
+      "pwaUnavailable": "PWA install not available",
+      "pwaUnavailableHint": "Use Chrome / Edge / Brave to install. On Safari use Share → Add to Dock.",
+      "installed": "Installed as app",
+      "installedHint": "Find SEO Tool in your Start Menu / Applications.",
+      "shortcutFailed": "Couldn't create shortcut",
+      "shortcutCreated": "Shortcut created",
+      "shortcutCreatedHint": "Desktop + Start Menu icons added. Right-click the Start Menu entry → Pin to taskbar."
+    },
+    "power": {
+      "title": "Server controls",
+      "close": "Close",
+      "restart": "Restart server",
+      "stop": "Stop server",
+      "install": "Install as app / shortcuts",
+      "restartConfirm": "Restart the server?",
+      "restartConfirmBody": "The page will reload itself once it's back (8–15 seconds).",
+      "restartCta": "Restart",
+      "restarting": "Restarting…",
+      "restartFailed": "Restart failed",
+      "restartingServer": "Restarting server",
+      "reloadWhenBack": "Page will reload itself once the server is back",
+      "waiting": "Waiting for server to come back…",
+      "notBack": "Server didn't come back in 60s. Start it again (seo.cmd, desktop shortcut, or docker compose up -d on a VPS).",
+      "stopConfirm": "Stop the server?",
+      "stopConfirmBody": "The app will go offline. Launch it again from your desktop shortcut, seo.cmd, or docker compose up -d on a VPS.",
+      "stopping": "Stopping…",
+      "stopFailed": "Stop failed",
+      "stopped": "Server stopped",
+      "launchAgain": "Launch it again from your desktop shortcut.",
+      "stoppedMsg": "Server stopped. Launch it again from your desktop shortcut."
+    },
+    "assistant": {
+      "open": "AI assistant",
+      "openTitle": "AI assistant — Esc to close",
+      "title": "SEO assistant",
+      "poweredBy": "Powered by {provider}",
+      "askAnything": "Ask anything about your data",
+      "emptyTitle": "Ask anything about your SEO data",
+      "emptyBody": "I can see your clients, audits, keywords, tasks, and recent page changes. Numbers come from your database, not made up.",
+      "stuck": "I'm stuck on this page — explain it",
+      "stuckPrompt": "I'm stuck on {page} (path: {path}). Briefly: what is this for, what should I be doing here, and what are the 2-3 most useful actions I can take right now?",
+      "placeholder": "Ask about your SEO data…",
+      "send": "Send",
+      "close": "Close",
+      "suggestions": {
+        "worstScore": "Which client has the worst score right now?",
+        "commonIssue": "What's the most common issue across my audits?",
+        "strikingDistance": "Which keywords are in striking distance?",
+        "focusFirst": "What should I focus on first this week?"
+      },
+      "pages": {
+        "dashboard": "the dashboard",
+        "client": "a client page",
+        "tool": "the {name} tool",
+        "audit": "an audit page",
+        "keywords": "the keywords page",
+        "backlinks": "the backlinks page",
+        "competitors": "the competitors page",
+        "content": "the content page",
+        "reports": "the reports page",
+        "other": "the {name} page"
+      }
+    },
+    "quickAdd": {
+      "title": "Add a new client",
+      "description": "Just paste the website URL — we'll auto-fetch the logo, name, address, social links, tech stack, and niche, then seed an initial task list.",
+      "url": "Website URL",
+      "httpsHint": "We'll add https:// for you.",
+      "openExisting": "Open existing client →",
+      "autoExtracted": "Auto-extracted: logo, name, description, address, phone, social links, tech stack, niche, initial niche-aware + stack-aware task list. Editable later.",
+      "cancel": "Cancel",
+      "settingUp": "Setting up… (~10s)",
+      "create": "Create client"
     }
   }
 }
