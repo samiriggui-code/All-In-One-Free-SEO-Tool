@@ -1462,7 +1462,8 @@
       "audit": "Audit n° {id}",
       "issues": "{count, plural, =0 {aucun problème} one {# problème} other {# problèmes}}"
     },
-    "footer": "Espace client en lecture seule · Propulsé par {brand}",
+    "footer": "Espace client en lecture seule · Propulsé par {brand} via SEO tool",
+    "footerDefault": "Espace client en lecture seule · Propulsé par SEO tool",
     "quote": {
       "eyebrow": "Votre devis",
       "sentOn": "Envoyé le {date}",
