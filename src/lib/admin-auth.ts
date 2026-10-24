@@ -29,6 +29,12 @@
  *       header tells us the real remote address.
  */
 
+import {
+  AccessDeniedError,
+  requireClientAccess,
+  requireSettingsAdmin,
+} from "@/lib/auth";
+
 const LOCAL_HOSTS = new Set([
   "localhost",
   "127.0.0.1",
@@ -156,5 +162,39 @@ export function guardAdminRequest(req: Request): Response | null {
         "This action is restricted to local-machine requests. Set APP_PASSWORD to enable authenticated remote access, or bind the server to 0.0.0.0 only on a trusted LAN.",
     },
     { status: 403 },
+  );
+}
+
+async function roleDenied(check: () => Promise<unknown>): Promise<Response | null> {
+  try {
+    await check();
+    return null;
+  } catch (err) {
+    if (err instanceof AccessDeniedError) {
+      return Response.json({ ok: false, error: err.message }, { status: 403 });
+    }
+    throw err;
+  }
+}
+
+/**
+ * `guardAdminRequest`, plus the role: on an accounts install only the
+ * owner may back up, restore, update or stop the server. APP_PASSWORD
+ * makes the base guard a no-op, so without this any signed-in viewer
+ * could download the whole database, credentials included.
+ */
+export async function guardOwnerRequest(req: Request): Promise<Response | null> {
+  return guardAdminRequest(req) ?? (await roleDenied(requireSettingsAdmin));
+}
+
+/** `guardAdminRequest`, plus access to one client (and edit rights, with `edit`). */
+export async function guardClientRequest(
+  req: Request,
+  clientId: number,
+  opts: { edit?: boolean } = {},
+): Promise<Response | null> {
+  return (
+    guardAdminRequest(req) ??
+    (await roleDenied(() => requireClientAccess(clientId, opts)))
   );
 }

@@ -653,6 +653,10 @@ export interface PageSnapshot {
         type?: string;
     };
     twitterCard?: string;
+    /** Best site icon declared in the head (apple-touch-icon, then the largest icon), as written */
+    logo?: string;
+    /** `<meta name="theme-color">` */
+    themeColor?: string;
     /** Heading outline in document order */
     headings: SnapshotHeading[];
     metrics: {

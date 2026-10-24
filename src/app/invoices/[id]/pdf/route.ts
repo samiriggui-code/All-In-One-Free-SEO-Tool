@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, invoices } from "@/db/schema";
 import { getSetting } from "@/lib/settings-store";
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardAdminRequest, guardClientRequest } from "@/lib/admin-auth";
 import {
   invoiceTotals,
   formatMoney,
@@ -39,6 +39,11 @@ export async function GET(
   if (!invoice) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  // Invoices are the agency's books, not progress a client viewer watches.
+  const forbidden = await guardClientRequest(request, invoice.clientId, {
+    edit: true,
+  });
+  if (forbidden) return forbidden;
 
   const [client] = await db
     .select()

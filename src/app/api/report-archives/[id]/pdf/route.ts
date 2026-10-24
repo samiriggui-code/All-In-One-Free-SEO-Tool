@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { reportArchives } from "@/db/schema";
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardAdminRequest, guardClientRequest } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,6 +29,8 @@ export async function GET(
     .limit(1);
   if (!row || !row.pdfBase64)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const forbidden = await guardClientRequest(req, row.clientId);
+  if (forbidden) return forbidden;
 
   const buf = Buffer.from(row.pdfBase64, "base64");
   const filename = `${safeFilename(row.title)}.pdf`;

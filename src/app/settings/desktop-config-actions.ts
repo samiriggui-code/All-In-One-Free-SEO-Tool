@@ -1,5 +1,6 @@
 "use server";
 
+import { requireSettingsAdmin } from "@/lib/auth";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -95,6 +96,7 @@ function resolveConfigPath(): string {
 }
 
 export async function installDesktopConfig(): Promise<InstallResult> {
+  await requireSettingsAdmin();
   try {
     const root = process.cwd();
 

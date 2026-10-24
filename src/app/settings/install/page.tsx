@@ -2,10 +2,12 @@ import Link from "next/link";
 import { ArrowLeft, Download } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { InstallActions } from "./install-actions";
+import { requireSettingsPage } from "../access";
 
 export const dynamic = "force-dynamic";
 
-export default function InstallPage() {
+export default async function InstallPage() {
+  await requireSettingsPage("/settings/install");
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link

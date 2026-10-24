@@ -6,12 +6,13 @@ import { Users2 } from "lucide-react";
 import { db } from "@/db/client";
 import { clientMembers, clients, users } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { accountsEnabled, canManageTeam, currentUser } from "@/lib/auth";
+import { accountsEnabled, canManageTeam } from "@/lib/auth";
 import { pendingInvites } from "@/lib/invites";
 import { TeamManager } from "./manager";
+import { requireSettingsPage } from "../access";
 
 export default async function TeamPage() {
-  const me = await currentUser();
+  const me = await requireSettingsPage("/settings/team");
 
   // Accounts are opt-in, so this page has a job to do before there is a
   // team: explain what turning them on gets you, and offer the switch.
