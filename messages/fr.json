@@ -1383,6 +1383,7 @@
     "heroTrust": "Vos données restent sur notre propre serveur.",
     "preview": {
       "label": "Audit du site",
+      "site": "www.votre-site.fr",
       "done": "Terminé",
       "score": "Score",
       "bars": {

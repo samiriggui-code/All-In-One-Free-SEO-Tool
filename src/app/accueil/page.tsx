@@ -65,6 +65,7 @@ export default async function LandingPage() {
   const email = brand?.email?.trim() || null;
   const phone = brand?.phone?.trim() || null;
   const website = brand?.website?.trim() || null;
+  const onAccent = readableOn(accent);
   const year = new Date().getFullYear();
 
   const services: { icon: LucideIcon; key: string }[] = [
@@ -81,7 +82,7 @@ export default async function LandingPage() {
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto scroll-smooth bg-white text-slate-900"
+      className="fixed inset-0 z-50 overflow-y-auto motion-safe:scroll-smooth bg-white text-slate-900"
       style={{ "--brand": accent } as CSSProperties}
     >
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -145,8 +146,8 @@ export default async function LandingPage() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href="/login"
-                className="inline-flex h-12 items-center gap-2 rounded-xl px-6 text-[15px] font-semibold text-white shadow-lg transition hover:brightness-110"
-                style={{ background: accent, boxShadow: `0 12px 32px -12px ${accent}` }}
+                className="inline-flex h-12 items-center gap-2 rounded-xl px-6 text-[15px] font-semibold shadow-lg transition hover:brightness-110"
+                style={{ background: accent, color: onAccent, boxShadow: `0 12px 32px -12px ${accent}` }}
               >
                 {t("heroPrimary")}
                 <ArrowRight className="size-4" />
@@ -262,8 +263,8 @@ export default async function LandingPage() {
               {portalPoints.map((p) => (
                 <li key={p} className="flex gap-3 text-[15px] text-slate-700">
                   <span
-                    className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-white"
-                    style={{ background: accent }}
+                    className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full"
+                    style={{ background: accent, color: onAccent }}
                   >
                     <Check className="size-3" strokeWidth={3} />
                   </span>
@@ -370,6 +371,18 @@ export default async function LandingPage() {
   );
 }
 
+/**
+ * Text colour for content drawn on the brand colour. Settings → Branding
+ * accepts any hex, and white text on a pale brand colour is unreadable.
+ */
+function readableOn(hex: string): string {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? "#0f172a" : "#ffffff";
+}
+
 type T = Awaited<ReturnType<typeof getTranslations<"landing">>>;
 
 function BrandMark({ brand, name, accent }: { brand: Brand | null; name: string; accent: string }) {
@@ -381,8 +394,8 @@ function BrandMark({ brand, name, accent }: { brand: Brand | null; name: string;
         <img src={logo} alt="" className="h-9 w-auto max-w-[140px] rounded-md bg-white/95 object-contain p-1" />
       ) : (
         <span
-          className="grid size-9 place-items-center rounded-lg text-sm font-bold text-white"
-          style={{ background: accent }}
+          className="grid size-9 place-items-center rounded-lg text-sm font-bold"
+          style={{ background: accent, color: readableOn(accent) }}
         >
           {name.slice(0, 1).toUpperCase()}
         </span>
@@ -440,7 +453,7 @@ function AuditPreview({ t, accent }: { t: T; accent: string }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.14em] text-white/40">{t("preview.label")}</p>
-              <p className="mt-1 font-medium text-white/90">www.votre-site.fr</p>
+              <p className="mt-1 font-medium text-white/90">{t("preview.site")}</p>
             </div>
             <span className="rounded-full bg-emerald-400/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300">
               {t("preview.done")}

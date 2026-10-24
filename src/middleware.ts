@@ -189,7 +189,10 @@ function applyEmbedHeader(req: NextRequest): Headers {
   }
   // And for the public landing page: a stranger must not receive the
   // sidebar either, and the page draws its own full-screen frame.
-  if (req.nextUrl.pathname === "/accueil") {
+  if (
+    req.nextUrl.pathname === "/accueil" ||
+    req.nextUrl.pathname.startsWith("/accueil/")
+  ) {
     requestHeaders.set("x-embed", "1");
   }
   return requestHeaders;
