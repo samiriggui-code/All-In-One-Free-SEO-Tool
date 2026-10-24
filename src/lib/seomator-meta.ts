@@ -1,7 +1,8 @@
 /**
  * SEOmator metadata helpers for SEO-Tool surfaces.
  *
- * The npm package exports the rule registry and category weights; the app
+ * The in-house engine (src/audit) holds the rule registry and category
+ * weights; the app
  * uses them for labels, CWV readout, and verdicts — without cloning
  * SEOmator's Electron/CLI UI.
  */
@@ -9,12 +10,12 @@
 import {
   categories,
   getCategoryById,
+  getFixSuggestion,
   getRuleById,
   scoreToVerdict,
   type AuditResult as SeomatorAuditResult,
   type CoreWebVitals,
-} from "@seomator/seo-audit";
-import { getFixSuggestion } from "@/lib/seomator-fix-suggestions";
+} from "@/audit/catalog";
 
 export type CategoryMeta = {
   id: string;

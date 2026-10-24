@@ -1,38 +1,38 @@
+import { badContentTypeRule } from "@/audit/rules/technical/bad-content-type";
+import { consentModeRule } from "@/audit/rules/technical/consent-mode";
+import { duplicateGaRule } from "@/audit/rules/technical/duplicate-ga";
+import { duplicateGtmRule } from "@/audit/rules/technical/duplicate-gtm";
+import { emptyHtmlRule } from "@/audit/rules/technical/empty-html";
+import { formGetMethodRule } from "@/audit/rules/technical/form-get-method";
+import { fourOhFourPageRule } from "@/audit/rules/technical/404-page";
+import { fourXxNon404Rule } from "@/audit/rules/technical/4xx-non-404";
 import { registerRule } from "@/audit/engine/rule-registry";
-import { httpOkRule, soft404Rule } from "./http-status";
-import { httpsRule, mixedContentRule } from "./https";
-import {
-  robotsTxtExistsRule,
-  robotsTxtValidRule,
-  sitemapExistsRule,
-  sitemapValidRule,
-} from "./robots-sitemap";
-import {
-  emptyHtmlRule,
-  contentTypeRule,
-  redirectChainRule,
-  wwwConsistencyRule,
-  trailingSlashRule,
-} from "./misc";
+import { robotsTxtExistsRule } from "@/audit/rules/technical/robots-txt-exists";
+import { robotsTxtValidRule } from "@/audit/rules/technical/robots-txt-valid";
+import { serverErrorRule } from "@/audit/rules/technical/server-error";
+import { sitemapExistsRule } from "@/audit/rules/technical/sitemap-exists";
+import { sitemapValidRule } from "@/audit/rules/technical/sitemap-valid";
+import { soft404Rule } from "@/audit/rules/technical/soft-404";
+import { timeoutRule } from "@/audit/rules/technical/timeout";
+import { trailingSlashRule } from "@/audit/rules/technical/trailing-slash";
+import { urlStructureRule } from "@/audit/rules/technical/url-structure";
+import { wwwRedirectRule } from "@/audit/rules/technical/www-redirect";
 
-const TECHNICAL_RULES = [
-  httpOkRule,
-  soft404Rule,
-  httpsRule,
-  mixedContentRule,
-  robotsTxtExistsRule,
-  robotsTxtValidRule,
-  sitemapExistsRule,
-  sitemapValidRule,
-  emptyHtmlRule,
-  contentTypeRule,
-  redirectChainRule,
-  wwwConsistencyRule,
-  trailingSlashRule,
-];
-
-export function registerTechnicalRules(): void {
-  for (const rule of TECHNICAL_RULES) registerRule(rule);
-}
-
-export { TECHNICAL_RULES };
+registerRule(robotsTxtExistsRule);
+registerRule(robotsTxtValidRule);
+registerRule(sitemapExistsRule);
+registerRule(sitemapValidRule);
+registerRule(urlStructureRule);
+registerRule(trailingSlashRule);
+registerRule(wwwRedirectRule);
+registerRule(fourOhFourPageRule);
+registerRule(soft404Rule);
+registerRule(serverErrorRule);
+registerRule(fourXxNon404Rule);
+registerRule(timeoutRule);
+registerRule(badContentTypeRule);
+registerRule(emptyHtmlRule);
+registerRule(formGetMethodRule);
+registerRule(duplicateGtmRule);
+registerRule(duplicateGaRule);
+registerRule(consentModeRule);

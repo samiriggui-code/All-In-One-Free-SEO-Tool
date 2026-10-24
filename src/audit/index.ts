@@ -1,17 +1,9 @@
 /**
- * Sidecar rule engine (~216 rules) — lab / future in-house port.
- * Production technical audits use `@seomator/seo-audit` via `src/lib/seomator-audit.ts`.
+ * The audit engine's public surface for the rest of the app: the catalogue
+ * (./catalog) plus the engine that runs it and the report renderers.
  */
-
-export { runNativeAudit, defaultAuditConfig, diffRuleStatuses } from "@/audit/engine/audit-runner";
-export {
-  ensureNativeRulesRegistered,
-  ensureWave1RulesRegistered,
-} from "@/audit/rules/register-native";
-export { getRuleCount, getAllRules, getRuleById } from "@/audit/engine/rule-registry";
-export type {
-  AuditRunResult,
-  AuditConfig,
-  AuditIssue,
-  RuleStatus,
-} from "@/audit/types";
+export * from "@/audit/catalog";
+export { Auditor, createAuditor } from "@/audit/engine/auditor";
+export { withNetPolicy } from "@/audit/crawler/net";
+export { renderMarkdownReport } from "@/audit/report/markdown";
+export { renderLlmReport } from "@/audit/report/llm";

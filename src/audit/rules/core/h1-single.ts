@@ -1,17 +1,37 @@
-import { defineRule, pass, warn } from "@/audit/engine/define-rule";
+import { defineRule, fail, pass, warn } from "@/audit/engine/define-rule";
 
 export const h1SingleRule = defineRule({
   id: "core-h1-single",
+  name: "Single H1 Tag",
+  description: "Checks that only one <h1> tag exists in the document",
   category: "core",
-  severity: "medium",
-  weight: 8,
-  title: "Single H1",
-  description: "Page should have only one H1",
-  recommendation: "Use one H1; demote other headings to H2–H6.",
-  check: async ({ page }) => {
-    if (page.h1s.length <= 1) {
-      return pass(page.h1s.length === 1 ? "Exactly one H1" : "No H1 (covered elsewhere)");
+  weight: 1,
+  run: async (context) => {
+    const { $ } = context;
+    const h1Elements = $("h1");
+    const count = h1Elements.length;
+    if (count === 0) {
+      return fail(
+        "core-h1-single",
+        "No <h1> tag found in the document",
+        { count: 0 }
+      );
     }
-    return warn(`Found ${page.h1s.length} H1 elements`, { count: page.h1s.length });
-  },
+    if (count > 1) {
+      const h1Texts: string[] = [];
+      h1Elements.each((_, el) => {
+        h1Texts.push($(el).text().trim());
+      });
+      return warn(
+        "core-h1-single",
+        `Multiple <h1> tags found (${count}). Best practice is to have only one <h1> per page`,
+        { count, texts: h1Texts }
+      );
+    }
+    return pass(
+      "core-h1-single",
+      "Document has exactly one <h1> tag",
+      { count: 1, text: h1Elements.first().text().trim() }
+    );
+  }
 });

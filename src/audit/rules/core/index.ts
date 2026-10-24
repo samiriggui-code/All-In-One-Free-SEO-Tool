@@ -1,54 +1,50 @@
+import { canonicalAttributesRule } from "@/audit/rules/core/canonical-attributes";
+import { canonicalConflictingRule } from "@/audit/rules/core/canonical-conflicting";
+import { canonicalExternalRule } from "@/audit/rules/core/canonical-external";
+import { canonicalHeaderRule } from "@/audit/rules/core/canonical-header";
+import { canonicalHttpMismatchRule } from "@/audit/rules/core/canonical-http-mismatch";
+import { canonicalLoopRule } from "@/audit/rules/core/canonical-loop";
+import { canonicalMultipleRule } from "@/audit/rules/core/canonical-multiple";
+import { canonicalOutsideHeadRule } from "@/audit/rules/core/canonical-outside-head";
+import { canonicalPresentRule } from "@/audit/rules/core/canonical-present";
+import { canonicalToHomepageRule } from "@/audit/rules/core/canonical-to-homepage";
+import { canonicalToNoindexRule } from "@/audit/rules/core/canonical-to-noindex";
+import { canonicalValidRule } from "@/audit/rules/core/canonical-valid";
+import { descriptionLengthRule } from "@/audit/rules/core/description-length";
+import { descriptionPresentRule } from "@/audit/rules/core/description-present";
+import { faviconPresentRule } from "@/audit/rules/core/favicon-present";
+import { h1PresentRule } from "@/audit/rules/core/h1-present";
+import { h1SingleRule } from "@/audit/rules/core/h1-single";
+import { nosnippetRule } from "@/audit/rules/core/nosnippet";
 import { registerRule } from "@/audit/engine/rule-registry";
-import { titlePresentRule } from "./title-present";
-import { titleLengthRule } from "./title-length";
-import { titleUniqueRule } from "./title-unique";
-import { descriptionPresentRule } from "./description-present";
-import { descriptionLengthRule } from "./description-length";
-import { h1PresentRule } from "./h1-present";
-import { h1SingleRule } from "./h1-single";
-import { headingOrderRule } from "./heading-order";
-import { canonicalPresentRule } from "./canonical-present";
-import { canonicalValidRule } from "./canonical-valid";
-import { canonicalMultipleRule } from "./canonical-multiple";
-import { canonicalOutsideHeadRule } from "./canonical-outside-head";
-import { canonicalHttpMismatchRule } from "./canonical-http-mismatch";
-import { canonicalToHomepageRule } from "./canonical-to-homepage";
-import { canonicalLoopRule } from "./canonical-loop";
-import { canonicalConflictingRule } from "./canonical-conflicting";
-import { robotsMetaRule } from "./robots-meta";
-import { robotsDirectiveMismatchRule } from "./robots-directive-mismatch";
-import { viewportPresentRule } from "./viewport-present";
-import { faviconPresentRule } from "./favicon-present";
-import { openGraphBasicRule } from "./open-graph-basic";
-import { nosnippetRule } from "./nosnippet";
+import { robotsDirectiveMismatchRule } from "@/audit/rules/core/robots-directive-mismatch";
+import { robotsMetaRule } from "@/audit/rules/core/robots-meta";
+import { titleLengthRule } from "@/audit/rules/core/title-length";
+import { titlePresentRule } from "@/audit/rules/core/title-present";
+import { titleUniqueRule } from "@/audit/rules/core/title-unique";
+import { viewportPresentRule } from "@/audit/rules/core/viewport-present";
 
-const CORE_RULES = [
-  titlePresentRule,
-  titleLengthRule,
-  titleUniqueRule,
-  descriptionPresentRule,
-  descriptionLengthRule,
-  h1PresentRule,
-  h1SingleRule,
-  headingOrderRule,
-  canonicalPresentRule,
-  canonicalValidRule,
-  canonicalMultipleRule,
-  canonicalOutsideHeadRule,
-  canonicalHttpMismatchRule,
-  canonicalToHomepageRule,
-  canonicalLoopRule,
-  canonicalConflictingRule,
-  robotsMetaRule,
-  robotsDirectiveMismatchRule,
-  viewportPresentRule,
-  faviconPresentRule,
-  openGraphBasicRule,
-  nosnippetRule,
-];
-
-export function registerCoreRules(): void {
-  for (const rule of CORE_RULES) registerRule(rule);
-}
-
-export { CORE_RULES };
+registerRule(titlePresentRule);
+registerRule(titleLengthRule);
+registerRule(descriptionPresentRule);
+registerRule(descriptionLengthRule);
+registerRule(canonicalPresentRule);
+registerRule(canonicalValidRule);
+registerRule(viewportPresentRule);
+registerRule(faviconPresentRule);
+registerRule(h1PresentRule);
+registerRule(h1SingleRule);
+registerRule(canonicalHeaderRule);
+registerRule(nosnippetRule);
+registerRule(robotsMetaRule);
+registerRule(titleUniqueRule);
+registerRule(canonicalConflictingRule);
+registerRule(canonicalToHomepageRule);
+registerRule(canonicalHttpMismatchRule);
+registerRule(canonicalLoopRule);
+registerRule(canonicalToNoindexRule);
+registerRule(canonicalOutsideHeadRule);
+registerRule(canonicalAttributesRule);
+registerRule(canonicalMultipleRule);
+registerRule(canonicalExternalRule);
+registerRule(robotsDirectiveMismatchRule);

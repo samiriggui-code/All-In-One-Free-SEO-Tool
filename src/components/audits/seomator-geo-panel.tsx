@@ -42,7 +42,7 @@ export function SeomatorGeoPanel({
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {categoryLabel("geo")} — llms.txt, semantic structure, and AI bot
-            access (same category as SEOmator demo audits).
+            access.
           </p>
           {geo ? (
             <div className="mt-3 flex flex-wrap gap-3 text-sm">

@@ -3,8 +3,7 @@
  * Used by the main /audits flow (not a parallel product).
  */
 
-import type { AuditResult as SeomatorAuditResult } from "@seomator/seo-audit";
-import { getRuleById } from "@seomator/seo-audit";
+import { getRuleById, type AuditResult as SeomatorAuditResult } from "@/audit/catalog";
 
 export type NormalizedIssue = {
   ruleId: string;

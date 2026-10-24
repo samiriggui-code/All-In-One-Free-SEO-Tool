@@ -1,11 +1,8 @@
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { audits, clients } from "@/db/schema";
-import {
-  formatSeomatorAuditLlm,
-  formatSeomatorAuditMarkdown,
-} from "@/lib/seomator-export";
+import { audits } from "@/db/schema";
+import { renderLlmReport, renderMarkdownReport, type AuditResult } from "@/audit";
 
 export const dynamic = "force-dynamic";
 
@@ -23,44 +20,20 @@ export async function GET(request: Request, { params }: Params) {
   }
 
   const [row] = await db
-    .select({
-      kind: audits.kind,
-      score: audits.score,
-      pagesCrawled: audits.pagesCrawled,
-      summary: audits.summary,
-      rawReport: audits.rawReport,
-      targetUrl: audits.targetUrl,
-      clientId: audits.clientId,
-    })
+    .select({ rawReport: audits.rawReport })
     .from(audits)
     .where(eq(audits.id, auditId))
     .limit(1);
 
-  if (!row || row.kind !== "seomator") notFound();
+  // The engine's full result, stored with the audit. Audits from before the
+  // engine ran (and failed ones) have none, so there is nothing to export.
+  const raw = row?.rawReport as AuditResult | null | undefined;
+  if (!raw || !Array.isArray(raw.categoryResults)) notFound();
 
-  const [client] = await db
-    .select({ url: clients.url })
-    .from(clients)
-    .where(eq(clients.id, row.clientId))
-    .limit(1);
-
-  const targetUrl = row.targetUrl ?? client?.url ?? "";
-
-  const input = {
-    url: targetUrl,
-    score: row.score,
-    pagesCrawled: row.pagesCrawled,
-    summary: row.summary,
-    rawReport: row.rawReport,
-  };
-
-  const body =
-    format === "llm"
-      ? formatSeomatorAuditLlm(input)
-      : formatSeomatorAuditMarkdown(input);
+  const body = format === "llm" ? renderLlmReport(raw) : renderMarkdownReport(raw);
 
   const ext = format === "llm" ? "llm.txt" : "md";
-  const filename = `audit-${auditId}-seomator.${ext}`;
+  const filename = `audit-${auditId}.${ext}`;
 
   return new Response(body, {
     headers: {

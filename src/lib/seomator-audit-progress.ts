@@ -1,4 +1,4 @@
-import type { CategoryResult } from "@seomator/seo-audit";
+import type { CategoryResult } from "@/audit/catalog";
 import { categoryLabel, seomatorCategories } from "@/lib/seomator-meta";
 
 export type SeomatorCategoryProgress = {

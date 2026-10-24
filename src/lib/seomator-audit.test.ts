@@ -3,7 +3,7 @@ import {
   mapSeomatorResult,
   seomatorFindingsToTasks,
 } from "./seomator-audit";
-import type { AuditResult } from "@seomator/seo-audit";
+import type { AuditResult } from "@/audit";
 
 function stubResult(
   overrides: Partial<AuditResult> & {
@@ -79,7 +79,7 @@ describe("mapSeomatorResult", () => {
     expect(mapped.findings[0]?.confidence).toBe("definitely");
     expect(mapped.findings[1]?.severity).toBe("medium");
     expect(mapped.findings[1]?.url).toBe("https://example.com/about");
-    expect(mapped.summary).toContain("SEOmator deep audit");
+    expect(mapped.summary).toContain("Technical audit — score");
     expect(mapped.summary).toContain("| Core |");
   });
 

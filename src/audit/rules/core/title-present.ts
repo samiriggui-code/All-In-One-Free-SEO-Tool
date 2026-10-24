@@ -1,18 +1,39 @@
+import { DOCUMENT_TITLE } from "@/audit/rules/document-title";
 import { defineRule, fail, pass } from "@/audit/engine/define-rule";
 
 export const titlePresentRule = defineRule({
   id: "core-title-present",
-  category: "core",
-  severity: "critical",
-  weight: 25,
-  title: "Title tag present",
+  name: "Title Tag Present",
   description: "Checks that a <title> tag exists in the document head",
-  recommendation: "Add a unique <title> inside <head> (50–60 characters).",
-  check: async ({ $, page }) => {
-    const title = page.title ?? $("head > title").first().text().trim();
-    if (!title) {
-      return fail("No <title> tag found (or it is empty)", { found: false });
+  category: "core",
+  // Raised from 1 in 5.0.0. Every core presence check sat at the bottom of a
+  // scale running to 25, so a page missing this lost a single weight-point
+  // while canonical edge cases passed vacuously at 6-8. A blank document
+  // scored 84/100. The single most important on-page element. Matches schema-present, the
+  // heaviest presence check in the product.
+  weight: 25,
+  run: async (context) => {
+    const { $ } = context;
+    const titleElement = $(DOCUMENT_TITLE);
+    if (titleElement.length === 0) {
+      return fail(
+        "core-title-present",
+        "No <title> tag found in the document",
+        { found: false }
+      );
     }
-    return pass("Title tag is present", { title });
-  },
+    const titleText = titleElement.first().text().trim();
+    if (!titleText) {
+      return fail(
+        "core-title-present",
+        "Title tag exists but is empty",
+        { found: true, empty: true }
+      );
+    }
+    return pass(
+      "core-title-present",
+      "Title tag is present",
+      { found: true, title: titleText }
+    );
+  }
 });

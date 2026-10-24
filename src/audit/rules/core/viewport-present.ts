@@ -2,16 +2,37 @@ import { defineRule, fail, pass } from "@/audit/engine/define-rule";
 
 export const viewportPresentRule = defineRule({
   id: "core-viewport-present",
+  name: "Viewport Meta Tag Present",
+  description: 'Checks that a <meta name="viewport"> tag exists in the document',
   category: "core",
-  severity: "high",
-  weight: 10,
-  title: "Viewport meta present",
-  description: "Mobile rendering needs a viewport meta tag",
-  recommendation:
-    'Add <meta name="viewport" content="width=device-width, initial-scale=1">.',
-  check: async ({ $ }) => {
-    const content = $('meta[name="viewport"]').attr("content");
-    if (!content) return fail("Missing viewport meta tag");
-    return pass("Viewport meta is present", { content });
-  },
+  // Raised from 1 in 5.0.0. Every core presence check sat at the bottom of a
+  // scale running to 25, so a page missing this lost a single weight-point
+  // while canonical edge cases passed vacuously at 6-8. A blank document
+  // scored 84/100. Mobile-first indexing: a missing viewport degrades every mobile result.
+  // Matches images-alt-present.
+  weight: 20,
+  run: async (context) => {
+    const { $ } = context;
+    const viewportElement = $('meta[name="viewport"]');
+    if (viewportElement.length === 0) {
+      return fail(
+        "core-viewport-present",
+        'No <meta name="viewport"> tag found in the document',
+        { found: false }
+      );
+    }
+    const content = viewportElement.first().attr("content")?.trim();
+    if (!content) {
+      return fail(
+        "core-viewport-present",
+        "Viewport meta tag exists but has no content",
+        { found: true, empty: true }
+      );
+    }
+    return pass(
+      "core-viewport-present",
+      "Viewport meta tag is present",
+      { found: true, viewport: content }
+    );
+  }
 });

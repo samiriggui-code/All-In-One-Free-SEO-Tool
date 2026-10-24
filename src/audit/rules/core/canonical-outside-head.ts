@@ -2,18 +2,34 @@ import { defineRule, fail, pass } from "@/audit/engine/define-rule";
 
 export const canonicalOutsideHeadRule = defineRule({
   id: "core-canonical-outside-head",
+  name: "Canonical Outside Head",
+  description: 'Checks that no <link rel="canonical"> element appears outside the <head>',
   category: "core",
-  severity: "high",
   weight: 8,
-  title: "Canonical inside head",
-  description: "Canonical links outside <head> are ignored by search engines",
-  recommendation: "Move <link rel=\"canonical\"> into the <head>.",
-  check: async ({ $ }) => {
-    const inHead = $("head link[rel='canonical']").length;
-    const total = $("link[rel='canonical']").length;
-    if (total > 0 && inHead === 0) {
-      return fail("Canonical found outside <head>");
+  run: async (context) => {
+    const { $ } = context;
+    const outsideHrefs: string[] = [];
+    $('link[rel="canonical"]').each((_, el) => {
+      if ($(el).closest("head").length === 0) {
+        outsideHrefs.push($(el).attr("href")?.trim() || "(no href)");
+      }
+    });
+    if (outsideHrefs.length === 0) {
+      return pass(
+        "core-canonical-outside-head",
+        "No canonical element outside the <head>",
+        { outsideHead: 0 }
+      );
     }
-    return pass("Canonical is inside <head> (or absent)");
-  },
+    return fail(
+      "core-canonical-outside-head",
+      `${outsideHrefs.length} canonical element(s) found outside the <head>: ${outsideHrefs.join(", ")}`,
+      {
+        outsideHead: outsideHrefs.length,
+        hrefs: outsideHrefs,
+        impact: "Canonical elements outside the <head> are ignored by search engines",
+        recommendation: 'Move the <link rel="canonical"> element into the <head>'
+      }
+    );
+  }
 });

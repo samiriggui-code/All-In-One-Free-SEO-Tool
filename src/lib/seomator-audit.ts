@@ -1,24 +1,21 @@
 /**
- * Bridge from SEOmator's 373-rule audit engine into this app's audit shape.
+ * The engine's result in this app's audit shape: findings, tasks, the
+ * per-category score table.
  *
- * The built-in crawler (~72 finding types) is still useful for the agent
- * (it knows how to fix those types) and for a fast smoke pass. SEOmator
- * is the deep technical audit: Core Web Vitals, security headers,
- * crawlability, a11y, schema, GEO/llms.txt, JS rendering, and the rest.
- *
- * Findings land in the same `audits` / `audit_issues` tables with
- * `kind = "seomator"`. Downstream planners that only understand crawler
- * types keep filtering on `kind = "crawler"`, so this never hides a
- * crawl or invents agent work the executor cannot do.
+ * The rules are SEOmator's (373 rules in 20 weighted categories), ported
+ * into src/audit and run in-process: no package, no second browser. Their
+ * findings are typed `seomator:<rule id>` and sit in the same audit as SEO
+ * Tool's own checks; the agent only acts on the types it knows how to fix.
  */
 
-import {
-  createAuditor,
-  type AuditResult as SeomatorAuditResult,
-  type CategoryResult,
-  type RuleResult,
-} from "@seomator/seo-audit";
+import type {
+  AuditResult as SeomatorAuditResult,
+  CategoryResult,
+  RuleResult,
+} from "@/audit";
+import { fetchPageWithPlaywright } from "@/audit/crawler/playwright-fetcher";
 import type { AuditFinding, Severity } from "./audit";
+import { runEngine, type AuditMode } from "@/lib/audit-engine";
 import {
   effortForPriority,
   priorityForIssue,
@@ -33,7 +30,6 @@ import {
   type CwvSnapshot,
   type ScoreCapInfo,
 } from "@/lib/seomator-meta";
-import { fetchPageWithBrowserPool } from "@/audit/rendering/browser-pool-fetcher";
 
 export type SeomatorFinding = AuditFinding & {
   category: string;
@@ -63,21 +59,12 @@ export type SeomatorBridgeResult = {
 };
 
 export type RunSeomatorAuditOptions = {
-  /** Crawl multiple pages (default true). */
-  crawl?: boolean;
+  /** quick: HTML only. full: browser render, Core Web Vitals, mobile parity. */
+  mode: AuditMode;
   maxPages?: number;
-  concurrency?: number;
-  /** Core Web Vitals via Playwright (default true). */
-  measureCwv?: boolean;
-  /**
-   * Synthetic click during render so INP can be measured (lab-only).
-   * Default true when measureCwv is on.
-   */
-  simulateInteraction?: boolean;
-  /** Limit to category ids, e.g. ["core","security","perf"]. Empty = all. */
-  categories?: string[];
-  timeoutMs?: number;
-  onPageComplete?: (url: string, pageNumber: number, totalPages: number) => void;
+  allowPrivateHosts?: boolean;
+  ignoreRobots?: boolean;
+  signal?: AbortSignal;
   onCrawlProgress?: (crawled: number) => void;
   onCategoryStart?: (categoryId: string, categoryName: string) => void;
   onCategoryComplete?: (
@@ -86,7 +73,7 @@ export type RunSeomatorAuditOptions = {
     result: CategoryResult,
   ) => void;
   onRuleComplete?: (ruleId: string, ruleName: string) => void;
-  /** Absolute path for first desktop render screenshot (Playwright). */
+  /** Absolute path for the first desktop render's screenshot (full mode). */
   previewScreenshotPath?: string;
   /** Fired once after the landing PNG is written. */
   onPreviewScreenshot?: () => void;
@@ -98,7 +85,7 @@ function severityFor(
   status: RuleResult["status"],
   categoryId: string,
 ): Severity | null {
-  if (status === "pass" || status === "not-measured") return null;
+  if (status !== "fail" && status !== "warn") return null;
   if (status === "fail") {
     return CRITICAL_CATEGORIES.has(categoryId) ? "critical" : "high";
   }
@@ -162,7 +149,7 @@ export function mapSeomatorResult(
   );
 
   const lines = [
-    `SEOmator deep audit — score ${result.overallScore}/100 across ${result.crawledPages} page(s).`,
+    `Technical audit — score ${result.overallScore}/100 across ${result.crawledPages} page(s).`,
     "",
     "| Category | Score | Pass | Warn | Fail |",
     "|---|---:|---:|---:|---:|",
@@ -288,12 +275,12 @@ export function seomatorFindingsToTasks(
       description: [
         sample.message,
         sample.fixSteps,
-        `Effort estimate: ${effort}. Source: SEOmator rule.`,
+        `Effort estimate: ${effort}.`,
       ]
         .filter(Boolean)
         .join("\n\n"),
       whyItMatters:
-        "SEOmator technical audit (373 rules). High-severity issues block crawlability, indexability or trust — fix before content work.",
+        "Technical audit rule. High-severity issues block crawlability, indexability or trust — fix before content work.",
       priority: taskPriorityFromPlan(planPriority),
       planPriority,
       toolPath: "/audits",
@@ -302,72 +289,41 @@ export function seomatorFindingsToTasks(
   return tasks;
 }
 
-/**
- * Run a SEOmator audit against a live URL.
- *
- * Playwright goes through the app browser-pool (queue, stealth, SSRF guard)
- * instead of SEOmator's private Chromium launch — same 373 rules, one pool.
- */
+/** Run the engine against a live URL and map its result. */
 export async function runSeomatorAudit(
   url: string,
-  options: RunSeomatorAuditOptions = {},
+  options: RunSeomatorAuditOptions,
 ): Promise<SeomatorBridgeResult> {
-  const crawl = options.crawl ?? true;
-  const maxPages = options.maxPages ?? 20;
-  const concurrency = options.concurrency ?? 3;
-  const measureCwv = options.measureCwv ?? true;
-  const simulateInteraction =
-    options.simulateInteraction ?? measureCwv;
-
   let previewCaptured = false;
-
-  const auditor = createAuditor({
-    measureCwv,
-    simulateInteraction,
-    timeout: options.timeoutMs ?? 30_000,
-    categories: options.categories ?? [],
+  const raw = await runEngine(url, {
+    mode: options.mode,
+    maxPages: options.maxPages,
+    allowPrivateHosts: options.allowPrivateHosts,
+    ignoreRobots: options.ignoreRobots,
+    signal: options.signal,
     onCategoryStart: options.onCategoryStart,
     onCategoryComplete: options.onCategoryComplete,
     onRuleComplete: options.onRuleComplete,
-    browserFetcher: measureCwv
-      ? async (pageUrl, timeout, renderOpts) => {
-          const wantPreview =
-            !previewCaptured &&
-            !renderOpts?.mobile &&
-            options.previewScreenshotPath;
-          const result = await fetchPageWithBrowserPool(pageUrl, timeout, {
-            mobile: renderOpts?.mobile,
-            simulateInteraction:
-              renderOpts?.simulateInteraction ?? simulateInteraction,
-            signal: renderOpts?.signal,
-            allowPrivate: true,
-            screenshotPath: wantPreview ? options.previewScreenshotPath : undefined,
-          });
-          if (wantPreview) {
-            previewCaptured = true;
-            options.onPreviewScreenshot?.();
-          }
-          // Map to SEOmator's PlaywrightFetchResult; omit diagnostics rather
-          // than invent ConsoleMessageInfo fields we don't fully share.
-          return {
-            html: result.html,
-            statusCode: result.statusCode,
-            responseTime: result.responseTime,
-            cwv: result.cwv,
-          };
-        }
-      : undefined,
-    onPageComplete: options.onPageComplete,
     onCrawlProgress: options.onCrawlProgress
       ? (progress) => {
           if (progress.crawled > 0) options.onCrawlProgress?.(progress.crawled);
         }
       : undefined,
+    browserFetcher: options.previewScreenshotPath
+      ? async (pageUrl, timeout, renderOpts) => {
+          const wantPreview = !previewCaptured && !renderOpts?.mobile;
+          const result = await fetchPageWithPlaywright(pageUrl, timeout, {
+            ...renderOpts,
+            ...(wantPreview && { screenshotPath: options.previewScreenshotPath }),
+          });
+          if (wantPreview) {
+            previewCaptured = true;
+            options.onPreviewScreenshot?.();
+          }
+          return result;
+        }
+      : undefined,
   });
-
-  const raw = crawl
-    ? await auditor.auditWithCrawl(url, maxPages, concurrency)
-    : await auditor.audit(url);
 
   const mapped = mapSeomatorResult(raw);
   return { ...mapped, raw };

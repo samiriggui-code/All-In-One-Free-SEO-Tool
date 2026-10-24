@@ -1,7 +1,6 @@
 import "server-only";
 
-import { getRuleById } from "@seomator/seo-audit";
-import { getFixSuggestion } from "@/lib/seomator-fix-suggestions";
+import { getFixSuggestion, getRuleById } from "@/audit/catalog";
 import { categoryLabel } from "@/lib/seomator-meta";
 import {
   getStaticExplainer,

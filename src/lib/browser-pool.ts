@@ -281,6 +281,10 @@ export type WithContextOptions = {
    * proxy-incompatible internal endpoint).
    */
   noProxy?: boolean;
+  /** Emulate a phone: touch, mobile viewport meta handling, device pixel ratio. */
+  isMobile?: boolean;
+  hasTouch?: boolean;
+  deviceScaleFactor?: number;
 };
 
 /**
@@ -312,6 +316,11 @@ export async function withBrowserContext<T>(
         "accept-language": opts.acceptLanguage ?? "en-US,en;q=0.9",
       },
       ...(proxy ? { proxy } : {}),
+      ...(opts.isMobile !== undefined ? { isMobile: opts.isMobile } : {}),
+      ...(opts.hasTouch !== undefined ? { hasTouch: opts.hasTouch } : {}),
+      ...(opts.deviceScaleFactor !== undefined
+        ? { deviceScaleFactor: opts.deviceScaleFactor }
+        : {}),
     });
 
     // Block heavy resource types by default — saves ~100-200 MB per page

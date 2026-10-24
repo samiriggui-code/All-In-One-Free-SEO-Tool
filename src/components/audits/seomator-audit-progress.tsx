@@ -23,10 +23,13 @@ export function SeomatorAuditProgressLive({
   auditId,
   targetUrl,
   initialPagesCrawled,
+  showPreview = true,
 }: {
   auditId: number;
   targetUrl: string;
   initialPagesCrawled: number | null;
+  /** False for a quick audit, which renders nothing to capture. */
+  showPreview?: boolean;
 }) {
   const [data, setData] = useState<ProgressPayload | null>(null);
   const [previewReady, setPreviewReady] = useState(false);
@@ -69,25 +72,27 @@ export function SeomatorAuditProgressLive({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-          {previewReady ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={`/audits/${auditId}/preview?t=${Date.now()}`}
-              alt={`Rendered preview of ${targetUrl}`}
-              className="aspect-[16/10] w-full object-cover object-top"
-            />
-          ) : (
-            <div className="flex aspect-[16/10] flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-900 to-slate-950 px-6 text-center">
-              <Loader2 className="size-8 animate-spin text-sky-300" />
-              <p className="text-sm text-muted-foreground">
-                Capturing landing page render…
-              </p>
-              <p className="text-xs text-muted-foreground">{targetUrl}</p>
-            </div>
-          )}
-        </div>
+      <div className={showPreview ? "grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]" : "grid gap-6"}>
+        {showPreview ? (
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+            {previewReady ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/audits/${auditId}/preview?t=${encodeURIComponent(progress?.updatedAt ?? "")}`}
+                alt={`Rendered preview of ${targetUrl}`}
+                className="aspect-[16/10] w-full object-cover object-top"
+              />
+            ) : (
+              <div className="flex aspect-[16/10] flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-900 to-slate-950 px-6 text-center">
+                <Loader2 className="size-8 animate-spin text-sky-300" />
+                <p className="text-sm text-muted-foreground">
+                  Capturing landing page render…
+                </p>
+                <p className="text-xs text-muted-foreground">{targetUrl}</p>
+              </div>
+            )}
+          </div>
+        ) : null}
 
         <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -101,8 +106,8 @@ export function SeomatorAuditProgressLive({
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
             {progress?.phase === "categories"
-              ? "Running SEOmator rule categories on crawled pages."
-              : "Discovering and rendering pages (373 rules after crawl)."}
+              ? "Running the 373 technical rules, category by category."
+              : "Crawling the site and running SEO Tool's checks."}
           </p>
           {currentCat || currentRule ? (
             <p className="mt-3 rounded-lg border border-sky-500/20 bg-sky-500/5 px-3 py-2 text-xs text-sky-100">
@@ -130,8 +135,7 @@ export function SeomatorAuditProgressLive({
             Category progress
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Same flow as SEOmator CLI — categories complete one by one with live
-            scores.
+            Categories complete one by one with live scores.
           </p>
           <ul className="mt-4 space-y-2">
             {progress.categories.map((cat) => {

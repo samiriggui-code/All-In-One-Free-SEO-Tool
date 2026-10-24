@@ -2,19 +2,37 @@ import { defineRule, fail, pass } from "@/audit/engine/define-rule";
 
 export const descriptionPresentRule = defineRule({
   id: "core-description-present",
+  name: "Meta Description Present",
+  description: 'Checks that a <meta name="description"> tag exists in the document',
   category: "core",
-  severity: "high",
-  weight: 20,
-  title: "Meta description present",
-  description: "Checks that a meta description exists",
-  recommendation:
-    'Add <meta name="description" content="..."> with 120–160 characters.',
-  check: async ({ page }) => {
-    if (!page.metaDescription) {
-      return fail("Missing meta description");
+  // Raised from 1 in 5.0.0. Every core presence check sat at the bottom of a
+  // scale running to 25, so a page missing this lost a single weight-point
+  // while canonical edge cases passed vacuously at 6-8. A blank document
+  // scored 84/100. Drives click-through from the SERP rather than ranking directly, so a tier
+  // below title.
+  weight: 15,
+  run: async (context) => {
+    const { $ } = context;
+    const descriptionElement = $('meta[name="description"]');
+    if (descriptionElement.length === 0) {
+      return fail(
+        "core-description-present",
+        'No <meta name="description"> tag found in the document',
+        { found: false }
+      );
     }
-    return pass("Meta description is present", {
-      description: page.metaDescription.slice(0, 160),
-    });
-  },
+    const content = descriptionElement.first().attr("content")?.trim();
+    if (!content) {
+      return fail(
+        "core-description-present",
+        "Meta description tag exists but has no content",
+        { found: true, empty: true }
+      );
+    }
+    return pass(
+      "core-description-present",
+      "Meta description tag is present",
+      { found: true, description: content }
+    );
+  }
 });
