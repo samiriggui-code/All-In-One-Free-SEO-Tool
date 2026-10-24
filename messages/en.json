@@ -528,7 +528,8 @@
       "saas": "SaaS",
       "blog": "Blog",
       "services": "Services"
-    }
+    },
+    "help": "Help"
   },
   "errors": {
     "generic": {
@@ -1063,5 +1064,30 @@
         "where": "Put it at the root of the site, e.g. https://example.com/llms.txt."
       }
     }
+  },
+  "docs": {
+    "metaTitle": "Docs — how to use every part of this",
+    "metaDescription": "Step-by-step guides and a reference for every tool, with what each one costs to run.",
+    "title": "Docs",
+    "description": "Short guides that get you to a result, then every tool with what it costs to run.",
+    "freeBanner": "<strong>{free} of the {total} tools need no AI and no API key.</strong> They work the moment the app starts. Everything tagged <tag>Free</tag> below never calls a model, so it cannot cost you anything.",
+    "groups": {
+      "start": "Start here",
+      "daily": "Daily work",
+      "clients": "Clients",
+      "running": "Running it"
+    },
+    "minutes": "{count} min",
+    "steps": "{count, plural, one {# step} other {# steps}}",
+    "everyTool": "Every tool ({count})",
+    "everyToolHint": "Grouped the same way the tools page groups them. Every entry has its own link — copy the # next to a name to point someone straight at it.",
+    "linkTo": "Link to {title}",
+    "allDocs": "All docs",
+    "duration": "About {minutes} minutes · {steps, plural, one {# step} other {# steps}}",
+    "officialDocs": "Official documentation",
+    "whatThisUses": "What this uses",
+    "next": "Next",
+    "notFound": "Not found",
+    "guideMetaTitle": "{title} — docs"
   }
 }

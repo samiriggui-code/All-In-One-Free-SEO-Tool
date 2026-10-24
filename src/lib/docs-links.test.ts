@@ -1,78 +1,46 @@
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { DOCS_BASE, DOCS_PAGES, docsPage, docsUrlFor } from "./docs-links";
+import { DOCS_HOME, docsUrlFor, mappedDocsPages } from "./docs-links";
+import { DOC_GUIDES } from "./docs-guides";
 
 /**
- * The help button is on 192 screens (195 render PageHeader; /docs,
- * /learn and /welcome pass noHelp because they are the help). A link that
- * 404s from there is
- * worse than no link: it is offered at the exact moment someone is
+ * The help button is on almost every screen. A link that 404s from there
+ * is worse than no link: it is offered at the exact moment someone is
  * already stuck, and it teaches them the docs are not worth trying.
  *
- * So every page this map can produce has to exist in docs-site/, which
- * is checked against the source content rather than a built folder —
- * dist/ is generated and gitignored, so a test that read it would pass
- * or fail depending on whether someone had run a build.
+ * So every guide the map can produce has to exist in docs-guides.ts.
  */
 
-const ROOT = process.cwd();
-const CONTENT = join(ROOT, "docs-site", "content.mjs");
-
-/** Slugs the written pages define, plus the two generated ones. */
-function knownSlugs(): Set<string> {
-  const src = existsSync(CONTENT) ? readFileSync(CONTENT, "utf8") : "";
-  const slugs = [...src.matchAll(/slug:\s*"([^"]+)"/g)].map((m) => m[1]);
-  // reference.mjs builds these two from the app's own source.
-  slugs.push("tools.html", "screens.html");
-  return new Set(slugs);
-}
-
 describe("documentation links", () => {
-  const slugs = knownSlugs();
+  const slugs = new Set(DOC_GUIDES.map((g) => g.slug));
 
-  it("finds the docs content to check against", () => {
-    expect(existsSync(CONTENT), "docs-site/content.mjs is missing").toBe(true);
-    expect(slugs.size).toBeGreaterThan(15);
-  });
-
-  it("every named page exists", () => {
-    for (const key of Object.keys(DOCS_PAGES) as (keyof typeof DOCS_PAGES)[]) {
-      const file = DOCS_PAGES[key];
-      expect(slugs.has(file.split("#")[0]), `DOCS_PAGES.${key} -> ${file} does not exist`).toBe(true);
-      expect(docsPage(key).startsWith(DOCS_BASE)).toBe(true);
+  it("every page in the map is the docs home or a guide that exists", () => {
+    for (const page of mappedDocsPages()) {
+      const [path] = page.split("#");
+      if (path === DOCS_HOME) continue;
+      const slug = path.replace(`${DOCS_HOME}/`, "");
+      expect(slugs.has(slug), `${page} is not a guide`).toBe(true);
     }
   });
 
-  it("every route in the map points at a page that exists", () => {
-    // Exercised through the public function, so the map cannot be right
-    // while the lookup is wrong.
-    const routes = [
-      "/", "/welcome", "/clients", "/audits", "/tasks", "/morning", "/keywords",
-      "/cannibalization", "/content", "/title-tests", "/backlinks", "/outreach",
-      "/gbp", "/citations", "/local-rank", "/competitors", "/compare",
-      "/ai-visibility", "/agent", "/agent/autopilot", "/automations", "/monitor",
-      "/reports", "/proposals", "/connect", "/settings", "/settings/backup",
-      "/tools", "/docs",
-    ];
-    for (const route of routes) {
-      const url = docsUrlFor(route);
-      const file = url.slice(DOCS_BASE.length).split("#")[0];
-      expect(slugs.has(file), `${route} -> ${file} does not exist`).toBe(true);
-    }
+  it("stays inside the app", () => {
+    for (const page of mappedDocsPages()) expect(page.startsWith(DOCS_HOME)).toBe(true);
+    expect(docsUrlFor("/content/c/1")).toBe("/docs/write-article");
   });
 
-  it("sends an unknown screen to the front page rather than nowhere", () => {
-    expect(docsUrlFor("/something/nobody/added")).toBe(DOCS_BASE + "index.html");
-    expect(docsUrlFor(null)).toBe(DOCS_BASE + "index.html");
+  it("sends an unknown screen to the docs home rather than nowhere", () => {
+    expect(docsUrlFor("/something/nobody/added")).toBe(DOCS_HOME);
+    expect(docsUrlFor("/")).toBe(DOCS_HOME);
+    expect(docsUrlFor(null)).toBe(DOCS_HOME);
+  });
+
+  it("points a single tool at its own entry in the reference", () => {
+    expect(docsUrlFor("/tools/health-check")).toBe("/docs#health-check");
+    expect(docsUrlFor("/tools")).toBe("/docs#tools");
   });
 
   it("picks the most specific match, not the first", () => {
-    // /agent/autopilot must not resolve to the /agent page just because
-    // that prefix also matches.
-    expect(docsUrlFor("/agent/autopilot")).toContain("#control");
-    expect(docsUrlFor("/settings/backup")).toContain("backup.html");
-    expect(docsUrlFor("/settings")).toContain("integrations.html");
+    expect(docsUrlFor("/settings/backup")).toBe("/docs/update-backup");
+    expect(docsUrlFor("/settings")).toBe("/docs/connect-ai");
   });
 
   it("handles a trailing slash and a query string", () => {
