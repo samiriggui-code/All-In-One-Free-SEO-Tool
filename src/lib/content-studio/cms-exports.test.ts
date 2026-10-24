@@ -3,7 +3,7 @@ import { buildWordPressWXR } from "@/lib/content-studio/exports/wordpress-xml";
 import { buildGhostJson } from "@/lib/content-studio/exports/ghost";
 import { buildWebflowCsv } from "@/lib/content-studio/exports/webflow-csv";
 import { buildHugoMarkdown } from "@/lib/content-studio/exports/hugo";
-import type { ExportPost } from "@/lib/content-studio/exports/common";
+import { csvEscape, markdownToHtml, type ExportPost } from "@/lib/content-studio/exports/common";
 
 const sample: ExportPost = {
   id: "p1",
@@ -52,5 +52,18 @@ describe("CMS exporters", () => {
     expect(md).toContain('title = "How to Bake Bread"');
     expect(md).toContain("draft = true");
     expect(md).toContain("# Title");
+  });
+
+  it("Ghost links each clustered post to its tag", () => {
+    const json = JSON.parse(buildGhostJson([sample, { ...sample, id: "p2", slug: "other", cluster: undefined }]));
+    expect(json.data.posts_tags).toEqual([{ post_id: json.data.posts[0].id, tag_id: json.data.tags[0].id }]);
+  });
+
+  it("keeps Markdown images as images", () => {
+    expect(markdownToHtml("![A loaf](bread.png)")).toContain('<img src="bread.png" alt="A loaf">');
+  });
+
+  it("neutralizes a formula hidden behind a leading newline", () => {
+    expect(csvEscape("\n=HYPERLINK(\"http://x\")").startsWith('"\'')).toBe(true);
   });
 });

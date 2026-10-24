@@ -52,7 +52,7 @@ LinkedIn · X · Muck Rack
 ### Short bio (40-60 words) — end-of-post
 
 ```markdown
-By **Jane Doe**, Senior SEO Strategist at Brand. 8 years in B2B SaaS SEO; has grown sites from 10K to 1M+ monthly sessions. Writes about technical SEO and content clusters. [LinkedIn](https://...) · [X](https://...) · [More posts](/authors/jane)
+By **Jane Doe**, Senior SEO Strategist at Brand. 8 years in B2B SaaS SEO; has grown sites from 10K to 1M+ monthly sessions. Writes about technical SEO and content clusters. [LinkedIn](https://...) · [X](https://...) · [More posts](https://brand.example/authors/jane)
 ```
 
 ## Person schema reinforcement

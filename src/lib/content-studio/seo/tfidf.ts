@@ -131,7 +131,9 @@ export function tfidfRank(documents: string[], topN = 100): TermScore[] {
   for (const [term, a] of acc) {
     if (a.df < 2) continue;
     if (term.length < 3) continue;
-    const idf = Math.log(N / a.df);
+    // Smoothed: plain log(N/df) is 0 for a term on every competing page,
+    // which sorted the most essential terms (the keyword itself) last.
+    const idf = Math.log(1 + N / a.df);
     const meanTf = a.tfs.reduce((x, y) => x + y, 0) / a.tfs.length;
     const weight = a.kind === "phrase" ? 1.5 : 1;
     results.push({

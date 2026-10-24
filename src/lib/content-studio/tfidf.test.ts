@@ -48,6 +48,12 @@ describe("tfidfRank", () => {
     expect(ranked.find((t) => t.term === "unicorn")).toBeUndefined();
   });
 
+  it("gives a term found on every page a positive weight", () => {
+    const docs = ["sourdough starter flour water", "sourdough loaf flour oven", "sourdough crumb flour"];
+    const sourdough = tfidfRank(docs).find((t) => t.term === "sourdough");
+    expect(sourdough?.tfidf).toBeGreaterThan(0);
+  });
+
   it("returns empty for empty corpus", () => {
     expect(tfidfRank([])).toEqual([]);
   });

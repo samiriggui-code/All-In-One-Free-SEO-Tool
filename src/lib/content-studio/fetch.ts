@@ -40,23 +40,12 @@ export interface SmartFetchResult extends FetchResult {
 }
 
 /**
- * Rendered fetch for JS-heavy pages, with a plain fetch as fallback when
- * Chromium is unavailable or the render fails.
+ * BlogPilot rendered this with Playwright. Here it stays a guarded plain
+ * fetch: Chromium follows redirects and loads sub-resources without
+ * going through the SSRF guard, and these URLs come from users and
+ * search results. `rendered` is kept so callers don't change.
  */
 export async function fetchHtmlSmart(url: string): Promise<SmartFetchResult> {
-  try {
-    const { guardUrl } = await import("@/lib/url-guard");
-    const verdict = await guardUrl(url);
-    if (verdict.ok) {
-      const { renderAndCapture } = await import("@/lib/render-capture");
-      const r = await renderAndCapture(url, { screenshot: false, waitUntil: "domcontentloaded" });
-      if (r.ok && r.html) {
-        return { html: r.html, finalUrl: r.finalUrl ?? url, status: r.status ?? 200, rendered: true };
-      }
-    }
-  } catch {
-    // fall through to the plain fetch
-  }
   const r = await fetchHtml(url);
   return { ...r, rendered: false };
 }

@@ -20,8 +20,8 @@ source: llmstxt.org (Jeremy Howard, 2024)
 
 ## Section heading
 
-- [Resource title](URL): one-line summary
-- [Another resource](URL): one-line summary
+- [Resource title](https://example.com/page): one-line summary
+- [Another resource](https://example.com/page): one-line summary
 
 ## Optional section heading
 ```
@@ -31,7 +31,7 @@ source: llmstxt.org (Jeremy Howard, 2024)
 1. **`# H1`** = site name. Exactly one.
 2. **`>` blockquote** immediately after H1 = description. One paragraph.
 3. **`## H2`** sections group resources. "Docs", "Blog", "API", etc.
-4. **List items** are `[Title](URL): description` — pipe-style summaries.
+4. **List items** are `[Title](https://example.com/page): description` — pipe-style summaries.
 5. Optional H2 named "Optional" — these are deprioritized; LLMs may skip if context budget is tight.
 6. Keep total file under 50 KB; if longer, split into `llms-full.txt`.
 
