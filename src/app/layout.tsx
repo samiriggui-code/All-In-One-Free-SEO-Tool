@@ -18,7 +18,12 @@ import { QuickAddClientProvider } from "@/components/shell/quick-add-client-dial
 import { ShortcutsHelpHotkey } from "@/components/shell/shortcuts-help-hotkey";
 import { getUnreadCounts } from "@/lib/unread-counts";
 import { redirect } from "next/navigation";
-import { accountsEnabled, currentUser, effectiveRole } from "@/lib/auth";
+import {
+  accountsEnabled,
+  currentUser,
+  effectiveRole,
+  visibleClientIds,
+} from "@/lib/auth";
 import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
@@ -40,12 +45,12 @@ const monoFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SEO Tool",
+  title: "rank_forge",
   description: "Self-hosted SEO platform — free, modern, beginner-friendly.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "SEO Tool",
+    title: "rank_forge",
     statusBarStyle: "black-translucent",
   },
 };
@@ -65,7 +70,9 @@ export default async function RootLayout({
   // with new content. Failure is non-fatal — empty counts = no badges.
   let unreadByHref: Record<string, number> = {};
   try {
-    const u = await getUnreadCounts();
+    const u = await getUnreadCounts(
+      await visibleClientIds(await currentUser()),
+    );
     unreadByHref = {
       "/news": u.news,
       "/agent": u.suggestions,

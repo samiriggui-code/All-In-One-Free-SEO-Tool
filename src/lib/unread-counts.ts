@@ -11,13 +11,14 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { gt, count } from "drizzle-orm";
+import { and, count, eq, gt, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   aiSuggestions,
   newsItems,
   pageChanges,
   activityLog,
+  monitoredPages,
 } from "@/db/schema";
 import { getSetting, setSetting } from "./settings-store";
 import { REPO_API_URL } from "./repo";
@@ -128,7 +129,13 @@ async function getUpdateAvailable(): Promise<boolean> {
   return available;
 }
 
-export async function getUnreadCounts(): Promise<UnreadCounts> {
+/**
+ * `scope` is the caller's visible client ids (null = every client), so a
+ * member's page-change badge only counts their own clients' pages.
+ */
+export async function getUnreadCounts(
+  scope: number[] | null = null,
+): Promise<UnreadCounts> {
   const [newsAt, sugAt, pageAt] = await Promise.all([
     getSetting<number>("seen.news.last_seen_at"),
     getSetting<number>("seen.suggestions.last_seen_at"),
@@ -149,10 +156,21 @@ export async function getUnreadCounts(): Promise<UnreadCounts> {
         .select({ value: count() })
         .from(aiSuggestions)
         .where(gt(aiSuggestions.createdAt, sugCutoff)),
-      db
-        .select({ value: count() })
-        .from(pageChanges)
-        .where(gt(pageChanges.detectedAt, pageCutoff)),
+      scope?.length === 0
+        ? [{ value: 0 }]
+        : db
+            .select({ value: count() })
+            .from(pageChanges)
+            .innerJoin(
+              monitoredPages,
+              eq(pageChanges.monitoredPageId, monitoredPages.id),
+            )
+            .where(
+              and(
+                gt(pageChanges.detectedAt, pageCutoff),
+                scope ? inArray(monitoredPages.clientId, scope) : undefined,
+              ),
+            ),
       getUpdateAvailable().catch(() => false),
     ]);
 

@@ -1,6 +1,6 @@
 {
-  "name": "SEO Tool",
-  "short_name": "SEO Tool",
+  "name": "rank_forge",
+  "short_name": "rank_forge",
   "description": "Self-hosted, AI-powered SEO platform — audits, rank tracking, AI agent, branded reports.",
   "start_url": "/",
   "scope": "/",

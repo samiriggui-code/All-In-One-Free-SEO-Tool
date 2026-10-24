@@ -123,7 +123,7 @@ export function isWhiteLabelled(brand: Brand): boolean {
 
 /** What a client-facing page should call this. */
 export function displayName(brand: Brand): string {
-  return isWhiteLabelled(brand) ? brand.name!.trim() : "SEO Tool";
+  return isWhiteLabelled(brand) ? brand.name!.trim() : "rank_forge";
 }
 
 /** A validated hex colour, or the product default. */

@@ -89,7 +89,7 @@ describe("isWhiteLabelled", () => {
 
 describe("displayName", () => {
   it("falls back to the product name when unbranded", () => {
-    expect(displayName(empty)).toBe("SEO Tool");
+    expect(displayName(empty)).toBe("rank_forge");
   });
 
   it("uses the agency name when branded, trimmed", () => {
