@@ -21,3 +21,5 @@ ALTER TABLE `proposals` ADD COLUMN `offers_json` text;
 ALTER TABLE `proposals` ADD COLUMN `quote_json` text;
 --> statement-breakpoint
 ALTER TABLE `invoices` ADD COLUMN `proposal_id` integer;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `invoices_proposal_id_unique` ON `invoices` (`proposal_id`);

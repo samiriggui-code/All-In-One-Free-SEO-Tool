@@ -178,7 +178,8 @@ export async function buildProposal(input: {
       pricingJson: [],
       offersJson: [],
       quoteJson: quote,
-      currency: locale === "fr" ? "EUR" : "USD",
+      // The catalogue and the hourly rate are in euros whatever the UI language.
+      currency: "EUR",
       auditId,
       basedOnScore: score,
       basedOnAt,
@@ -328,7 +329,7 @@ export async function deleteProposal(
 
 export type InvoiceFromProposalResult =
   | { ok: true; invoiceId: number }
-  | { ok: false; error: "readOnly" | "notFound" | "notAccepted" | "noClient" | "noPricing" };
+  | { ok: false; error: "readOnly" | "notFound" | "notAccepted" | "noClient" | "noPricing" | "alternatives" };
 
 /**
  * Bill an accepted proposal: one invoice line per price line.
@@ -361,6 +362,12 @@ export async function createInvoiceFromProposal(
     .limit(1);
   if (already) return { ok: true, invoiceId: already.id };
 
+  // Options to choose from: the client took only one of them, and adding
+  // up every line would bill services nobody ordered.
+  if (p.quoteJson?.alternatives && (p.offersJson?.length ?? 0) > 1) {
+    return { ok: false, error: "alternatives" };
+  }
+
   const fr = (await docLocale()) === "fr";
   const items = (p.pricingJson ?? [])
     .filter((l) => l.label.trim() && Number(l.amount) > 0)
@@ -384,7 +391,17 @@ export async function createInvoiceFromProposal(
       currency: p.currency,
       notes: p.title,
     })
+    // Two clicks racing: the unique index lets only one invoice through.
+    .onConflictDoNothing({ target: invoices.proposalId })
     .returning({ id: invoices.id });
+  if (!row) {
+    const [existing] = await db
+      .select({ id: invoices.id })
+      .from(invoices)
+      .where(eq(invoices.proposalId, p.id))
+      .limit(1);
+    return existing ? { ok: true, invoiceId: existing.id } : { ok: false, error: "notFound" };
+  }
 
   revalidatePath("/invoices");
   revalidatePath("/proposals");

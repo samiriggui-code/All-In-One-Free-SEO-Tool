@@ -1121,7 +1121,8 @@
       "notFound": "No such proposal.",
       "notAccepted": "Mark the proposal as Accepted first.",
       "noClient": "This proposal came from a lead: add them as a client to invoice them.",
-      "noPricing": "There is no price line to invoice."
+      "noPricing": "There is no price line to invoice.",
+      "alternatives": "Options to choose from: create the invoice by hand with the option the client picked."
     },
     "close": "Close",
     "edit": "Edit",

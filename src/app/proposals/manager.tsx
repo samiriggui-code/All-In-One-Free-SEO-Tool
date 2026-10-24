@@ -285,7 +285,10 @@ function ProposalRowView({
     () =>
       pricing.map((line) => {
         const offer = offers.find((o) => o.offerId === line.offerId);
-        return offer?.billing === "hourly" ? priceLineFor(offer, scope, quote, priceText) : line;
+        // The label stays the user's; only the amount and its detail move.
+        return offer?.billing === "hourly"
+          ? { ...priceLineFor(offer, scope, quote, priceText), label: line.label }
+          : line;
       }),
     // priceText only wraps t and money, which change with currency.
     // eslint-disable-next-line react-hooks/exhaustive-deps

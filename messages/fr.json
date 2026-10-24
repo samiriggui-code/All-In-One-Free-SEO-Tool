@@ -1121,7 +1121,8 @@
       "notFound": "Proposition introuvable.",
       "notAccepted": "Passez d’abord la proposition en « Acceptée ».",
       "noClient": "Cette proposition vient d’un prospect : ajoutez-le comme client pour pouvoir le facturer.",
-      "noPricing": "Aucune ligne de prix à facturer."
+      "noPricing": "Aucune ligne de prix à facturer.",
+      "alternatives": "Formules au choix : créez la facture à la main avec la formule retenue par le client."
     },
     "close": "Fermer",
     "edit": "Modifier",

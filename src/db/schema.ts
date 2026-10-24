@@ -444,7 +444,7 @@ export const invoices = sqliteTable("invoices", {
   taxRate: integer("tax_rate").notNull().default(0), // basis points (0–10000)
   notes: text("notes"),
   /** The accepted proposal this invoice bills, when it was made from one. */
-  proposalId: integer("proposal_id"),
+  proposalId: integer("proposal_id").unique(),
   ...timestamps,
 });
 

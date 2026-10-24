@@ -62,9 +62,12 @@ export type SeverityRow = { severity: Severity; findings: number; minutes: numbe
 
 /** One row per severity: how many findings, how many minutes, in or out. */
 export function bySeverity(scope: ScopeLine[], included: Severity[]): SeverityRow[] {
+  // Lines saved before severities were counted have no breakdown: they
+  // stay out of this table rather than appearing under every level.
+  const graded = scope.filter((l) => l.bySeverity);
   return SEVERITIES.map((severity) => {
-    const findings = scope.reduce((n, l) => n + countIn(l, [severity]), 0);
-    const minutes = scope.reduce((n, l) => n + lineMinutes(l, [severity]), 0);
+    const findings = graded.reduce((n, l) => n + countIn(l, [severity]), 0);
+    const minutes = graded.reduce((n, l) => n + lineMinutes(l, [severity]), 0);
     return { severity, findings, minutes, included: included.includes(severity) };
   });
 }

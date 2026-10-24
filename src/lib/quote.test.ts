@@ -78,3 +78,12 @@ describe("quote", () => {
     });
   });
 });
+
+describe("quote on older documents", () => {
+  it("leaves lines with no severity breakdown out of the severity table", () => {
+    const legacy = [{ label: "Old", detail: "", findings: 4, minutesEach: 10 }];
+    expect(bySeverity(legacy, ["critical"]).every((r) => r.findings === 0)).toBe(true);
+    // ...but still counts them as included work, as those documents did.
+    expect(workload(legacy, { hourlyRate: 60, severities: [] }).includedMinutes).toBe(40);
+  });
+});
