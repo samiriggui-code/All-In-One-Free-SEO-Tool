@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { ExternalLink, Globe, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   fetchBingInsights,
   fetchBingSites,
@@ -11,6 +12,7 @@ import {
 } from "./actions";
 
 export function BingTool() {
+  const t = useTranslations("tools.ui.bing");
   const [sites, setSites] = useState<
     | { url: string; verified: boolean }[]
     | "loading"
@@ -41,26 +43,28 @@ export function BingTool() {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <h2 className="text-base font-semibold flex items-center gap-2">
           <Globe className="size-4 text-cyan-300" />
-          Your verified Bing sites
+          {t("verifiedSites")}
         </h2>
         {sites === "loading" ? (
           <p className="mt-2 inline-flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="size-3 animate-spin" /> Loading…
+            <Loader2 className="size-3 animate-spin" /> {t("loading")}
           </p>
         ) : "error" in sites ? (
           <p className="mt-2 text-xs text-rose-300">{sites.error}</p>
         ) : sites.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            No sites verified in Bing Webmaster yet — add one in the{" "}
-            <a
-              href="https://www.bing.com/webmasters"
-              target="_blank"
-              rel="noreferrer"
-              className="text-cyan-300 hover:underline"
-            >
-              Bing dashboard
-            </a>
-            .
+            {t.rich("noSites", {
+              link: (chunks) => (
+                <a
+                  href="https://www.bing.com/webmasters"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cyan-300 hover:underline"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
           </p>
         ) : (
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -83,7 +87,7 @@ export function BingTool() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Site URL</span>
+          <span className="text-muted-foreground">{t("siteUrl")}</span>
           <input
             name="siteUrl"
             required
@@ -98,7 +102,7 @@ export function BingTool() {
           disabled={loadingInsights}
           className="inline-flex h-9 items-center rounded-md bg-cyan-500/15 px-4 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25 disabled:opacity-50"
         >
-          {loadingInsights ? "Loading…" : "Pull Bing data"}
+          {loadingInsights ? t("loading") : t("pull")}
         </button>
       </form>
 
@@ -112,14 +116,17 @@ export function BingTool() {
         <>
           {insightsState.quota && (
             <p className="text-xs text-muted-foreground">
-              URL submission quota: {insightsState.quota.daily}/day,{" "}
-              {insightsState.quota.monthly}/month.
+              {t("quota", {
+                daily: insightsState.quota.daily,
+                monthly: insightsState.quota.monthly,
+              })}
             </p>
           )}
 
-          <Section title={`Top queries (${insightsState.queries.length})`}>
+          <Section title={t("topQueries", { count: insightsState.queries.length })}>
             <DataTable
-              cols={["Query", "Clicks", "Imp.", "Avg. Pos"]}
+              cols={[t("colQuery"), t("colClicks"), t("colImpressions"), t("colPosition")]}
+              empty={t("noData")}
               rows={insightsState.queries.map((q) => [
                 q.query,
                 String(q.clicks),
@@ -129,9 +136,10 @@ export function BingTool() {
             />
           </Section>
 
-          <Section title={`Top pages (${insightsState.pages.length})`}>
+          <Section title={t("topPages", { count: insightsState.pages.length })}>
             <DataTable
-              cols={["Page", "Clicks", "Imp.", "Avg. Pos"]}
+              cols={[t("colPage"), t("colClicks"), t("colImpressions"), t("colPosition")]}
+              empty={t("noData")}
               rows={insightsState.pages.map((p) => [
                 <a
                   key={p.page}
@@ -150,14 +158,15 @@ export function BingTool() {
             />
           </Section>
 
-          <Section title={`Crawl issues (${insightsState.issues.length})`}>
+          <Section title={t("crawlIssues", { count: insightsState.issues.length })}>
             {insightsState.issues.length === 0 ? (
               <p className="px-5 py-4 text-xs text-muted-foreground">
-                Clean — Bing reports no crawl issues for this site.
+                {t("noIssues")}
               </p>
             ) : (
               <DataTable
-                cols={["URL", "Status", "Crawled"]}
+                cols={[t("colUrl"), t("colStatus"), t("colCrawled")]}
+                empty={t("noData")}
                 rows={insightsState.issues.map((i) => [
                   i.url,
                   String(i.httpCode),
@@ -173,7 +182,7 @@ export function BingTool() {
         action={submitAction}
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
-        <h2 className="text-base font-semibold">Submit URLs to Bing</h2>
+        <h2 className="text-base font-semibold">{t("submitTitle")}</h2>
         <input type="hidden" name="siteUrl" value={siteUrl} />
         <textarea
           name="urls"
@@ -187,12 +196,11 @@ export function BingTool() {
           disabled={submitting || !siteUrl}
           className="inline-flex h-9 items-center rounded-md bg-cyan-500/15 px-4 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25 disabled:opacity-50"
         >
-          {submitting ? "Submitting…" : "Submit URLs"}
+          {submitting ? t("submitting") : t("submit")}
         </button>
         {submitState && submitState.ok && (
           <p className="text-xs text-emerald-300">
-            ✓ Submitted {submitState.submitted} URL
-            {submitState.submitted === 1 ? "" : "s"} to Bing.
+            {t("submitted", { count: submitState.submitted })}
           </p>
         )}
         {submitState && !submitState.ok && (
@@ -223,13 +231,15 @@ function Section({
 function DataTable({
   cols,
   rows,
+  empty,
 }: {
   cols: string[];
   rows: (string | React.ReactNode)[][];
+  empty: string;
 }) {
   if (rows.length === 0) {
     return (
-      <p className="px-5 py-4 text-xs text-muted-foreground">No data.</p>
+      <p className="px-5 py-4 text-xs text-muted-foreground">{empty}</p>
     );
   }
   return (

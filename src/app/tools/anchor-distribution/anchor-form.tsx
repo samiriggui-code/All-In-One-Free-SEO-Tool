@@ -2,9 +2,12 @@
 
 import { useActionState } from "react";
 import { Link2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runAnchor, type AnchorState } from "./actions";
 
 export function AnchorForm() {
+  const t = useTranslations("tools.ui.anchor-distribution");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     AnchorState | null,
     FormData
@@ -24,18 +27,18 @@ export function AnchorForm() {
         />
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Brand terms (comma-separated)</span>
+            <span className="text-muted-foreground">{t("brandTerms")}</span>
             <input
               name="brandTerms"
-              placeholder="e.g. acme, acme corp, acmeapp"
+              placeholder={t("brandTermsPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Exact-match target keywords (comma-separated)</span>
+            <span className="text-muted-foreground">{t("exactTerms")}</span>
             <input
               name="exactMatchTerms"
-              placeholder="e.g. seo software, ranking tool"
+              placeholder={t("exactTermsPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
@@ -48,12 +51,12 @@ export function AnchorForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Analyzing…
+              {tCommon("analyzing")}
             </>
           ) : (
             <>
               <Link2 className="mr-2 size-4" />
-              Analyze
+              {tCommon("analyze")}
             </>
           )}
         </button>
@@ -68,20 +71,20 @@ export function AnchorForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label="Total anchors" value={state.result.totalAnchors.toString()} />
-            <Stat label="Internal" value={state.result.internal.length.toString()} />
-            <Stat label="External" value={state.result.external.length.toString()} />
+            <Stat label={t("statTotal")} value={state.result.totalAnchors.toString()} />
+            <Stat label={t("statInternal")} value={state.result.internal.length.toString()} />
+            <Stat label={t("statExternal")} value={state.result.external.length.toString()} />
             <Stat
-              label="Exact-match %"
+              label={t("statExact")}
               value={`${state.result.exactMatchPct.toFixed(1)}%`}
               tone={state.result.exactMatchPct > 5 ? "rose" : "emerald"}
-              hint={`branded ${state.result.brandedPct.toFixed(1)}%`}
+              hint={t("brandedHint", { pct: state.result.brandedPct.toFixed(1) })}
             />
           </div>
 
           {state.result.warnings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Warnings</h3>
+              <h3 className="text-sm font-semibold">{t("warnings")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.result.warnings.map((w, i) => (
                   <li
@@ -96,14 +99,14 @@ export function AnchorForm() {
           )}
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="mb-3 text-sm font-semibold">Top anchor phrases</h3>
+            <h3 className="mb-3 text-sm font-semibold">{t("topPhrases")}</h3>
             <div className="flex flex-wrap gap-1.5">
-              {state.result.topAnchorTerms.map((t) => (
+              {state.result.topAnchorTerms.map((term) => (
                 <span
-                  key={t.term}
+                  key={term.term}
                   className="rounded-md bg-white/5 px-2 py-0.5 text-xs ring-1 ring-inset ring-white/10"
                 >
-                  {t.term} <span className="text-muted-foreground">×{t.count}</span>
+                  {term.term} <span className="text-muted-foreground">×{term.count}</span>
                 </span>
               ))}
             </div>
@@ -111,7 +114,7 @@ export function AnchorForm() {
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">Internal anchors</h3>
+              <h3 className="text-sm font-semibold">{t("internalAnchors")}</h3>
             </header>
             <ul className="divide-y divide-white/[0.05]">
               {state.result.internal.slice(0, 30).map((a, i) => (
@@ -127,7 +130,7 @@ export function AnchorForm() {
           {state.result.external.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
-                <h3 className="text-sm font-semibold">External anchors</h3>
+                <h3 className="text-sm font-semibold">{t("externalAnchors")}</h3>
               </header>
               <ul className="divide-y divide-white/[0.05]">
                 {state.result.external.slice(0, 30).map((a, i) => (

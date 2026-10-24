@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import {
   PLATFORM_TACTICS,
@@ -11,13 +12,13 @@ import {
 } from "@/lib/ai-citation-tactics";
 
 const NICHE_LABELS = [
-  { id: null, label: "Universal" },
-  { id: "saas", label: "SaaS / B2B" },
-  { id: "local", label: "Local business" },
-  { id: "ecommerce", label: "E-commerce" },
-  { id: "blog", label: "Blog / publisher" },
-  { id: "services", label: "Services" },
-];
+  { id: null, label: "universal" },
+  { id: "saas", label: "saas" },
+  { id: "local", label: "local" },
+  { id: "ecommerce", label: "ecommerce" },
+  { id: "blog", label: "blog" },
+  { id: "services", label: "services" },
+] as const;
 
 const EFFORT_TONE = {
   low: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
@@ -26,7 +27,10 @@ const EFFORT_TONE = {
 };
 
 export default function AiCitationTacticsPage() {
+  const t = useTranslations("tools.ui.ai-citation-tactics");
+  const tCommon = useTranslations("tools.common");
   const [niche, setNiche] = useState<string | null>(null);
+  const nicheLabel = NICHE_LABELS.find((n) => n.id === niche)?.label;
   const priorities = priorityForNiche(niche);
   const priorityIds = new Set(priorities.map((p) => p.platform));
 
@@ -43,18 +47,18 @@ export default function AiCitationTacticsPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="AI citation tactics — platform-specific playbook"
-        description="Only ~11% of cited domains overlap between ChatGPT and Perplexity. A single 'be helpful' strategy is incomplete — each platform rewards different work. Pick your niche to see priority order + concrete tactics per platform."
+        title={t("title")}
+        description={t("description")}
         icon={Sparkles}
         accent="violet"
       />
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <p className="text-xs text-muted-foreground">Tune for niche</p>
+        <p className="text-xs text-muted-foreground">{t("tuneForNiche")}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {NICHE_LABELS.map((n) => (
             <button
@@ -67,14 +71,16 @@ export default function AiCitationTacticsPage() {
                   : "bg-white/5 text-muted-foreground ring-white/10 hover:bg-white/10"
               }`}
             >
-              {n.label}
+              {t(`niches.${n.label}`)}
             </button>
           ))}
         </div>
         {priorities.length > 0 && (
           <div className="mt-4 space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Priority order for {NICHE_LABELS.find((n) => n.id === niche)?.label ?? "your niche"}
+              {t("priorityOrderFor", {
+                niche: nicheLabel ? t(`niches.${nicheLabel}`) : t("yourNiche"),
+              })}
             </p>
             {priorities.map((p, i) => (
               <p key={p.platform} className="text-xs">
@@ -106,31 +112,33 @@ export default function AiCitationTacticsPage() {
                   {p.platform}
                   {isPriority && (
                     <span className="ml-2 rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                      Priority {priorities.findIndex((x) => x.platform === p.platform) + 1}
+                      {t("priorityBadge", {
+                        rank: priorities.findIndex((x) => x.platform === p.platform) + 1,
+                      })}
                     </span>
                   )}
                 </h2>
               </header>
               <p className="mt-1 text-xs text-muted-foreground">{p.audienceShare}</p>
               <p className="mt-1 text-[11px] text-muted-foreground/80">
-                <strong className="text-foreground/80">Citation bias:</strong>{" "}
+                <strong className="text-foreground/80">{t("citationBias")}</strong>{" "}
                 {p.citationBias}
               </p>
               <ul className="mt-4 space-y-2">
-                {p.tactics.map((t) => (
+                {p.tactics.map((tactic) => (
                   <li
-                    key={t.id}
+                    key={tactic.id}
                     className="rounded-md border border-white/5 bg-black/20 p-3 text-sm"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{t.title}</span>
+                      <span className="font-medium">{tactic.title}</span>
                       <span
-                        className={`rounded-full px-1.5 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${EFFORT_TONE[t.effort]}`}
+                        className={`rounded-full px-1.5 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${EFFORT_TONE[tactic.effort]}`}
                       >
-                        {t.effort} effort
+                        {t(`effort.${tactic.effort}`)}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{t.detail}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{tactic.detail}</p>
                   </li>
                 ))}
               </ul>
@@ -141,7 +149,7 @@ export default function AiCitationTacticsPage() {
                     href="/tools/aio-passage"
                     className="text-violet-200 hover:underline"
                   >
-                    → Use the AI Overview passage optimizer to score your content
+                    {t("upsellAio")}
                   </Link>
                 </div>
               )}
@@ -151,7 +159,7 @@ export default function AiCitationTacticsPage() {
                     href="/tools/person-schema"
                     className="text-violet-200 hover:underline"
                   >
-                    → Generate Person schema for your authors
+                    {t("upsellPersonSchema")}
                   </Link>
                 </div>
               )}

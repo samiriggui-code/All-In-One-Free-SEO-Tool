@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import type { AiFailure } from "@/lib/ai-error";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -38,7 +39,10 @@ const REGEX_FALLBACK: { intent: IntentRow["intent"]; re: RegExp }[] = [
   { intent: "informational", re: /\b(how|what|why|guide|tutorial|tips|examples|meaning|definition)\b/i },
 ];
 
-function fallbackClassify(q: string): IntentRow {
+function fallbackClassify(
+  q: string,
+  t: (key: string) => string,
+): IntentRow {
   for (const p of REGEX_FALLBACK) {
     if (p.re.test(q)) {
       return {
@@ -47,14 +51,14 @@ function fallbackClassify(q: string): IntentRow {
         confidence: 0.55,
         recommendedFormat:
           p.intent === "transactional"
-            ? "product / service page"
+            ? t("formats.transactional")
             : p.intent === "commercial"
-              ? "comparison / listicle"
+              ? t("formats.commercial")
               : p.intent === "local"
-                ? "local landing page"
+                ? t("formats.local")
                 : p.intent === "informational"
-                  ? "how-to / guide article"
-                  : "homepage / brand page",
+                  ? t("formats.informational")
+                  : t("formats.navigational"),
       };
     }
   }
@@ -62,7 +66,7 @@ function fallbackClassify(q: string): IntentRow {
     query: q,
     intent: "navigational",
     confidence: 0.3,
-    recommendedFormat: "homepage / brand page",
+    recommendedFormat: t("formats.navigational"),
   };
 }
 
@@ -71,8 +75,9 @@ export async function runClassify(
   formData: FormData,
 ): Promise<IntentState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.intent-classifier");
   const raw = String(formData.get("queries") ?? "").trim();
-  if (!raw) return { ok: false, error: "Paste at least one query." };
+  if (!raw) return { ok: false, error: t("errorEmpty") };
   const queries = Array.from(
     new Set(
       raw
@@ -81,7 +86,7 @@ export async function runClassify(
         .filter((s) => s.length >= 2),
     ),
   ).slice(0, 200);
-  if (queries.length === 0) return { ok: false, error: "No valid queries." };
+  if (queries.length === 0) return { ok: false, error: t("errorNoValid") };
 
   // Try AI first
   const aiPrompt = queries.map((q) => `- ${q}`).join("\n");
@@ -142,7 +147,7 @@ export async function runClassify(
   }
 
   // Regex fallback when AI unavailable
-  const rows = queries.map(fallbackClassify);
+  const rows = queries.map((q) => fallbackClassify(q, t));
   await saveToolRun({
     toolId: "intent-classifier",
     label: `${rows.length} queries classified (regex fallback)`,

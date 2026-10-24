@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   getOrCreateIndexNowKey,
   submitToIndexNow,
@@ -30,19 +31,20 @@ export async function submitIndexNow(
   formData: FormData,
 ): Promise<SubmitState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.indexnow");
   const parsed = submitSchema.safeParse({
     host: formData.get("host"),
     urls: formData.get("urls"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: t("invalidInput") };
   }
 
   const urls = parsed.data.urls
     .split(/\r?\n/)
     .map((u) => u.trim())
     .filter(Boolean);
-  if (urls.length === 0) return { ok: false, error: "No URLs provided" };
+  if (urls.length === 0) return { ok: false, error: t("noUrls") };
 
   const key = await getOrCreateIndexNowKey();
   let host: string;
@@ -53,7 +55,7 @@ export async function submitIndexNow(
         : `https://${parsed.data.host}`,
     ).hostname.toLowerCase();
   } catch {
-    return { ok: false, error: "Invalid host" };
+    return { ok: false, error: t("invalidHost") };
   }
   const keyUrl = `https://${host}/${key}.txt`;
 
@@ -94,7 +96,10 @@ export async function verifyIndexNowKeyFile(
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
   const host = String(formData.get("host") ?? "").trim();
-  if (!host) return { ok: false, error: "Host required" };
+  if (!host) {
+    const t = await getTranslations("tools.ui.indexnow");
+    return { ok: false, error: t("hostRequired") };
+  }
   const key = await getOrCreateIndexNowKey();
   return await verifyKeyFile({ host, key });
 }

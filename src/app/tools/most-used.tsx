@@ -1,23 +1,28 @@
 import Link from "next/link";
 import { History, Wrench } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { recentTools, topToolsByUsage } from "@/lib/tool-runs";
 
-function ago(d: Date | null): string {
+type HubT = Awaited<ReturnType<typeof getTranslations>>;
+
+function ago(t: HubT, d: Date | null): string {
   if (!d) return "";
   const mins = Math.round((Date.now() - d.getTime()) / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("justNow");
+  if (mins < 60) return t("minutesAgo", { count: mins });
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
+  if (hours < 24) return t("hoursAgo", { count: hours });
+  return t("daysAgo", { count: Math.round(hours / 24) });
 }
 
 function Rail({
+  t,
   title,
   hint,
   icon: Icon,
   items,
 }: {
+  t: HubT;
   title: string;
   hint: string;
   icon: typeof Wrench;
@@ -32,17 +37,17 @@ function Rail({
         <p className="text-[11px] text-muted-foreground">{hint}</p>
       </header>
       <ul className="flex flex-wrap gap-2 p-4">
-        {items.map((t) => (
-          <li key={t.toolId}>
+        {items.map((item) => (
+          <li key={item.toolId}>
             <Link
-              href={t.toolId.startsWith("/") ? t.toolId : `/tools/${t.toolId}`}
+              href={item.toolId.startsWith("/") ? item.toolId : `/tools/${item.toolId}`}
               className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-background/50 px-3 py-1.5 text-xs transition-colors hover:border-ring/50 hover:bg-accent"
             >
               <span className="max-w-[18ch] truncate font-medium">
-                {t.label}
+                {item.label}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                {t.runs > 1 ? `${t.runs}x` : ago(t.lastRunAt)}
+                {item.runs > 1 ? t("runs", { count: item.runs }) : ago(t, item.lastRunAt)}
               </span>
             </Link>
           </li>
@@ -77,19 +82,22 @@ export async function MostUsedTools() {
   // one until there's enough history for "most used" to say anything
   // "recent" doesn't.
   const showTop = top.length > 0 && top.some((t) => t.runs > 1);
+  const t = await getTranslations("tools.ui.hub");
 
   return (
     <>
       <Rail
-        title="Pick up where you left off"
-        hint="your most recent runs"
+        t={t}
+        title={t("recentTitle")}
+        hint={t("recentHint")}
         icon={History}
         items={recent}
       />
       {showTop && (
         <Rail
-          title="You use these most"
-          hint="across this workspace"
+          t={t}
+          title={t("topTitle")}
+          hint={t("topHint")}
           icon={Wrench}
           items={top}
         />

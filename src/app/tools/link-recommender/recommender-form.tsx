@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { ArrowRight, ExternalLink, Link2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { recommendLinks, type RecommendState } from "./actions";
 
 export function RecommenderForm() {
+  const t = useTranslations("tools.ui.link-recommender");
   const [state, formAction, pending] = useActionState<
     RecommendState | null,
     FormData
@@ -18,7 +20,7 @@ export function RecommenderForm() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Site URL</span>
+            <span className="text-muted-foreground">{t("siteUrl")}</span>
             <input
               name="siteUrl"
               required
@@ -28,7 +30,7 @@ export function RecommenderForm() {
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Skip URL (the page you&apos;re writing for, optional)
+              {t("skipUrl")}
             </span>
             <input
               name="excludeUrl"
@@ -39,13 +41,13 @@ export function RecommenderForm() {
         </div>
         <label className="block space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Draft (paste markdown or plain text, ≥100 chars)
+            {t("draft")}
           </span>
           <textarea
             name="draft"
             required
             rows={12}
-            placeholder="# How to start a vegan meal-planning routine\n\nFor most people..."
+            placeholder={t("draftPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -57,12 +59,12 @@ export function RecommenderForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Crawling + scoring… (1-2 min)
+              {t("running")}
             </>
           ) : (
             <>
               <Link2 className="mr-2 size-4" />
-              Recommend internal links
+              {t("submit")}
             </>
           )}
         </button>
@@ -78,11 +80,10 @@ export function RecommenderForm() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              Suggestions ({state.result.suggestions.length})
+              {t("suggestions", { count: state.result.suggestions.length })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Picked from {state.result.candidateCount} relevant existing
-              pages on the site.
+              {t("pickedFrom", { count: state.result.candidateCount })}
             </p>
           </header>
           {state.result.error && (
@@ -92,9 +93,7 @@ export function RecommenderForm() {
           )}
           {state.result.suggestions.length === 0 ? (
             <p className="px-5 py-6 text-sm text-muted-foreground">
-              No fitting internal links found. Either the site doesn&apos;t
-              have closely-related pages yet, or the AI couldn&apos;t place
-              one confidently.
+              {t("noSuggestions")}
             </p>
           ) : (
             <ul className="divide-y divide-white/[0.05]">
@@ -121,7 +120,12 @@ export function RecommenderForm() {
                         </a>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Insert near: <em className="text-foreground/80">&ldquo;{s.contextSnippet}&rdquo;</em>
+                        {t.rich("insertNear", {
+                          snippet: s.contextSnippet,
+                          em: (chunks) => (
+                            <em className="text-foreground/80">{chunks}</em>
+                          ),
+                        })}
                       </p>
                       {s.rationale && (
                         <p className="text-[11px] text-muted-foreground">

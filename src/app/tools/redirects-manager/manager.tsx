@@ -9,6 +9,7 @@ import {
   resolve404,
 } from "./actions";
 import type { RedirectRule, NotFoundLog } from "@/db/schema";
+import { useTranslations } from "next-intl";
 
 export function Manager({
   rules,
@@ -17,6 +18,7 @@ export function Manager({
   rules: RedirectRule[];
   notFound: NotFoundLog[];
 }) {
+  const t = useTranslations("tools.ui.redirects-manager");
   const [, startMut] = useTransition();
   const [resolveId, setResolveId] = useState<number | null>(null);
   const [resolveTarget, setResolveTarget] = useState("");
@@ -25,18 +27,20 @@ export function Manager({
   return (
     <>
       <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
-        {(["rules", "404"] as const).map((t) => (
+        {(["rules", "404"] as const).map((key) => (
           <button
-            key={t}
+            key={key}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(key)}
             className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
-              tab === t
+              tab === key
                 ? "border-amber-400 text-amber-300"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t === "rules" ? `Redirect rules (${rules.length})` : `404 log (${notFound.filter((n) => !n.resolved).length})`}
+            {key === "rules"
+              ? t("tabRules", { count: rules.length })
+              : t("tab404", { count: notFound.filter((n) => !n.resolved).length })}
           </button>
         ))}
       </div>
@@ -59,7 +63,7 @@ export function Manager({
               <input
                 name="targetUrl"
                 required
-                placeholder="/new-path or https://example.com/new"
+                placeholder={t("targetPlaceholder")}
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
               />
               <select
@@ -67,17 +71,17 @@ export function Manager({
                 defaultValue={301}
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
               >
-                <option value={301}>301 (permanent)</option>
-                <option value={302}>302 (temporary)</option>
-                <option value={307}>307 (temp, preserve method)</option>
-                <option value={308}>308 (perm, preserve method)</option>
-                <option value={410}>410 (gone)</option>
+                <option value={301}>{t("status301")}</option>
+                <option value={302}>{t("status302")}</option>
+                <option value={307}>{t("status307")}</option>
+                <option value={308}>{t("status308")}</option>
+                <option value={410}>{t("status410")}</option>
               </select>
             </div>
             <div className="grid gap-3 md:grid-cols-[1fr_140px]">
               <input
                 name="note"
-                placeholder="Note (optional)"
+                placeholder={t("notePlaceholder")}
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
               />
               <button
@@ -85,14 +89,14 @@ export function Manager({
                 className="inline-flex h-9 items-center justify-center rounded-md bg-amber-500/15 px-4 text-xs font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/25"
               >
                 <Plus className="mr-2 size-3" />
-                Add rule
+                {t("addRule")}
               </button>
             </div>
           </form>
 
           {rules.length === 0 ? (
             <p className="rounded-md bg-white/[0.02] px-3 py-2 text-sm text-muted-foreground">
-              No redirect rules yet.
+              {t("noRules")}
             </p>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -118,6 +122,8 @@ export function Manager({
                           await deleteRule(r.id);
                         })
                       }
+                      aria-label={t("deleteRule")}
+                      title={t("deleteRule")}
                       className="inline-flex h-6 items-center rounded-md bg-rose-500/10 px-2 text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20"
                     >
                       <Trash2 className="size-3" />
@@ -129,8 +135,7 @@ export function Manager({
           )}
 
           <p className="text-[10px] text-muted-foreground">
-            Export rules to your server as Nginx / Apache / Next.js blocks via
-            the Migration Map tool. This page is the source of truth.
+            {t("exportHint")}
           </p>
         </>
       )}
@@ -139,15 +144,15 @@ export function Manager({
         <>
           {notFound.length === 0 ? (
             <p className="rounded-md bg-white/[0.02] px-3 py-2 text-sm text-muted-foreground">
-              No 404s logged. POST{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">
-                {"{ sourcePath: '/path' }"}
-              </code>{" "}
-              from your site to{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">
-                /api/v1/track-404
-              </code>{" "}
-              to log automatically.
+              {t.rich("no404", {
+                body: "{ sourcePath: '/path' }",
+                endpoint: "/api/v1/track-404",
+                code: (chunks) => (
+                  <code className="rounded bg-white/5 px-1 py-0.5">
+                    {chunks}
+                  </code>
+                ),
+              })}
             </p>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -160,8 +165,10 @@ export function Manager({
                     <div className="flex items-center justify-between gap-3">
                       <code className="truncate font-medium">{n.sourcePath}</code>
                       <span className="text-muted-foreground tabular-nums">
-                        {n.hits} hit{n.hits === 1 ? "" : "s"} · last{" "}
-                        {n.lastSeen.toLocaleDateString()}
+                        {t("hits", {
+                          count: n.hits,
+                          date: n.lastSeen.toLocaleDateString(),
+                        })}
                       </span>
                       {!n.resolved && (
                         <button
@@ -171,7 +178,7 @@ export function Manager({
                           }
                           className="inline-flex h-7 items-center rounded-md bg-amber-500/15 px-2 text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/25"
                         >
-                          Resolve
+                          {t("resolve")}
                         </button>
                       )}
                       {n.resolved && n.resolvedToUrl && (
@@ -186,6 +193,8 @@ export function Manager({
                             await deleteNotFound(n.id);
                           })
                         }
+                        aria-label={t("delete404")}
+                        title={t("delete404")}
                         className="inline-flex h-6 items-center rounded-md bg-rose-500/10 px-2 text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20"
                       >
                         <Trash2 className="size-3" />
@@ -205,7 +214,7 @@ export function Manager({
                         <input
                           value={resolveTarget}
                           onChange={(e) => setResolveTarget(e.target.value)}
-                          placeholder="Redirect to URL or path"
+                          placeholder={t("resolvePlaceholder")}
                           className="h-7 flex-1 rounded-md border border-white/10 bg-card/60 px-2 text-xs"
                         />
                         <button
@@ -213,7 +222,7 @@ export function Manager({
                           disabled={!resolveTarget.trim()}
                           className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-3 text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
                         >
-                          Create 301
+                          {t("create301")}
                         </button>
                       </form>
                     )}

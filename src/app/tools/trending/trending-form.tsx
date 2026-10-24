@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, Flame, Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runTrending, type TrendingState } from "./actions";
 
 const FORMAT_TONE: Record<string, string> = {
@@ -16,6 +17,8 @@ const FORMAT_TONE: Record<string, string> = {
 };
 
 export function TrendingForm() {
+  const t = useTranslations("tools.ui.trending");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     TrendingState | null,
     FormData
@@ -39,13 +42,16 @@ export function TrendingForm() {
           <input
             name="topic"
             required
-            placeholder="vegan meal planning · serverless databases · pickleball"
+            placeholder={t("topicPlaceholder")}
+            aria-label={t("topicLabel")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <input
             name="country"
             defaultValue="US"
             maxLength={4}
+            aria-label={t("countryLabel")}
+            title={t("countryLabel")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm uppercase focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
@@ -56,12 +62,12 @@ export function TrendingForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Mining signals…
+                {t("running")}
               </>
             ) : (
               <>
                 <Flame className="mr-2 size-3" />
-                Find ideas
+                {t("submit")}
               </>
             )}
           </button>
@@ -79,36 +85,36 @@ export function TrendingForm() {
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
             <h3 className="text-sm font-semibold flex items-center gap-2">
               <Sparkles className="size-4 text-amber-300" />
-              Signal sources
+              {t("signalSources")}
             </h3>
             <div className="grid gap-2 text-xs sm:grid-cols-2 md:grid-cols-3">
               <SignalCard
-                label="Trends rising"
+                label={t("signals.trendsRising")}
                 items={state.result.signals.trendsRising}
                 tone="rose"
               />
               <SignalCard
-                label="Trends top"
+                label={t("signals.trendsTop")}
                 items={state.result.signals.trendsTop}
                 tone="amber"
               />
               <SignalCard
-                label="Autocomplete"
+                label={t("signals.autocomplete")}
                 items={state.result.signals.autocomplete}
                 tone="cyan"
               />
               <SignalCard
-                label="People Also Ask"
+                label={t("signals.paa")}
                 items={state.result.signals.paa}
                 tone="violet"
               />
               <SignalCard
-                label="Related searches"
+                label={t("signals.related")}
                 items={state.result.signals.related}
                 tone="emerald"
               />
               <SignalCard
-                label="Reddit"
+                label={t("signals.reddit")}
                 items={state.result.signals.reddit}
                 tone="rose"
               />
@@ -119,10 +125,10 @@ export function TrendingForm() {
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold">
-                  {state.result.ideas.length} content ideas
+                  {t("ideasCount", { count: state.result.ideas.length })}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Ranked roughly by signal strength × novelty.
+                  {t("ideasHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.05]">
@@ -135,7 +141,9 @@ export function TrendingForm() {
                           <span
                             className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${FORMAT_TONE[idea.format] ?? "bg-white/5 text-muted-foreground ring-white/10"}`}
                           >
-                            {idea.format}
+                            {t.has(`formats.${idea.format}`)
+                              ? t(`formats.${idea.format}`)
+                              : idea.format}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -148,7 +156,9 @@ export function TrendingForm() {
                                 key={s}
                                 className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-muted-foreground"
                               >
-                                {s.replace("_", " ")}
+                                {t.has(`sources.${s}`)
+                                  ? t(`sources.${s}`)
+                                  : s.replace("_", " ")}
                               </span>
                             ))}
                           </div>
@@ -162,12 +172,12 @@ export function TrendingForm() {
                         {copiedIdx === i ? (
                           <>
                             <Check className="mr-1 size-3 text-emerald-300" />
-                            Copied
+                            {tCommon("copied")}
                           </>
                         ) : (
                           <>
                             <Copy className="mr-1 size-3" />
-                            Copy
+                            {tCommon("copy")}
                           </>
                         )}
                       </button>
@@ -192,6 +202,7 @@ function SignalCard({
   items: string[];
   tone: "amber" | "cyan" | "violet" | "emerald" | "rose";
 }) {
+  const tr = useTranslations("tools.ui.trending");
   const t = {
     amber: "ring-amber-500/30",
     cyan: "ring-cyan-500/30",
@@ -205,7 +216,7 @@ function SignalCard({
         {label} ({items.length})
       </div>
       {items.length === 0 ? (
-        <p className="mt-1 text-[11px] text-muted-foreground/70">none</p>
+        <p className="mt-1 text-[11px] text-muted-foreground/70">{tr("none")}</p>
       ) : (
         <ul className="mt-1 space-y-0.5">
           {items.slice(0, 6).map((s) => (
@@ -215,7 +226,7 @@ function SignalCard({
           ))}
           {items.length > 6 && (
             <li className="text-[10px] text-muted-foreground">
-              + {items.length - 6} more
+              {tr("more", { count: items.length - 6 })}
             </li>
           )}
         </ul>

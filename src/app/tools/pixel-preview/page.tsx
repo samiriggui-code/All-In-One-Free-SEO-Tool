@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { ArrowLeft, Eye, Monitor, Smartphone } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function PixelPreviewPage() {
+  const t = useTranslations("tools.ui.pixel-preview");
+  const tCommon = useTranslations("tools.common");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
@@ -32,7 +35,7 @@ export default function PixelPreviewPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -41,36 +44,35 @@ export default function PixelPreviewPage() {
             <Eye className="size-5 text-violet-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Pixel preview</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Type below — see exactly how Google will render the search result on
-          mobile and desktop. Length warnings update live.
+          {t("description")}
         </p>
       </header>
 
       {/* Form */}
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <Field
-          label="Page URL"
+          label={t("pageUrl")}
           value={url}
           onChange={setUrl}
           placeholder="https://yoursite.com/page"
         />
         <Field
-          label="Title tag"
+          label={t("titleTag")}
           value={title}
           onChange={setTitle}
-          placeholder="Your title here"
+          placeholder={t("titlePlaceholder")}
           status={titleStatus}
           countLabel={`${title.length}/${titleMax}`}
         />
         <Field
-          label="Meta description"
+          label={t("metaDescription")}
           value={description}
           onChange={setDescription}
-          placeholder="Your meta description here"
+          placeholder={t("descriptionPlaceholder")}
           multiline
           status={descStatus}
           countLabel={`${description.length}/${descMax}`}
@@ -85,12 +87,12 @@ export default function PixelPreviewPage() {
 
       {/* Tips */}
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <h2 className="text-base font-semibold">Best practices</h2>
+        <h2 className="text-base font-semibold">{t("bestPractices")}</h2>
         <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-          <li>· Title tag ≤ 60 characters, primary keyword near the front, brand at the end</li>
-          <li>· Meta description ≤ 160 characters with a value prop + soft CTA</li>
-          <li>· Don&apos;t pad with keyword variations — write for click-through</li>
-          <li>· Each page needs a unique title + description; duplicates hurt</li>
+          <li>{t("tip1")}</li>
+          <li>{t("tip2")}</li>
+          <li>{t("tip3")}</li>
+          <li>{t("tip4")}</li>
         </ul>
       </section>
     </div>
@@ -169,8 +171,9 @@ function PreviewCard({
   title: string;
   desc: string;
 }) {
+  const t = useTranslations("tools.ui.pixel-preview");
   const breadcrumb = (() => {
-    if (!url) return "yoursite.com › path";
+    if (!url) return t("breadcrumbPlaceholder");
     try {
       const u = new URL(url);
       const parts = u.pathname.split("/").filter(Boolean);
@@ -201,7 +204,7 @@ function PreviewCard({
           ) : (
             <Smartphone className="size-3.5" />
           )}
-          {mode}
+          {t(`mode.${mode}`)}
         </div>
       </header>
       <div className="p-5">
@@ -214,14 +217,14 @@ function PreviewCard({
               mode === "mobile" ? "text-[18px]" : "text-[20px]"
             } leading-tight text-[#1a0dab] dark:text-[#8ab4f8]`}
           >
-            {truncatedTitle || "Your title appears here"}
+            {truncatedTitle || t("titleEmpty")}
           </div>
           <div
             className={`mt-1 ${
               mode === "mobile" ? "text-[14px]" : "text-[14px]"
             } leading-snug text-[#4d5156] dark:text-[#bdc1c6]`}
           >
-            {truncatedDesc || "Your meta description appears here. It influences click-through rate, not rankings directly."}
+            {truncatedDesc || t("descriptionEmpty")}
           </div>
         </div>
       </div>

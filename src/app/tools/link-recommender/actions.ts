@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   suggestInternalLinks,
   type InternalLinkAiResult,
@@ -33,13 +34,14 @@ export async function recommendLinks(
   formData: FormData,
 ): Promise<RecommendState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.link-recommender");
   const parsed = inputSchema.safeParse({
     siteUrl: formData.get("siteUrl"),
     draft: formData.get("draft"),
     excludeUrl: formData.get("excludeUrl") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: t("invalidInput") };
   }
   try {
     const result = await suggestInternalLinks({
@@ -55,6 +57,6 @@ export async function recommendLinks(
     }).catch(() => undefined);
     return { ok: true, result };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Recommendation failed" };
+    return { ok: false, error: (err as Error).message ?? t("failed") };
   }
 }

@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Compass } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { IntentForm } from "./intent-form";
 
-export default function IntentClassifierPage() {
+export default async function IntentClassifierPage() {
+  const t = await getTranslations("tools.ui.intent-classifier");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Bulk search-intent classifier"
-        description="Paste up to 200 queries — AI classifies each as informational / navigational / commercial / transactional / local + suggests the best content format. Falls back to regex heuristics if AI isn't configured."
+        title={t("title")}
+        description={t("description")}
         icon={Compass}
         accent="cyan"
       />

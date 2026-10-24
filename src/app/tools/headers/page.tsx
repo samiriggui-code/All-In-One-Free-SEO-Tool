@@ -12,6 +12,7 @@ import {
   Search,
   ServerCog,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,8 @@ import {
 } from "./actions";
 
 export default function HeadersPage() {
+  const t = useTranslations("tools.ui.headers");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [savePending, startSave] = useTransition();
@@ -52,7 +55,7 @@ export default function HeadersPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -61,19 +64,18 @@ export default function HeadersPage() {
             <ServerCog className="size-5 text-violet-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">HTTP headers + redirect chain</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Follow every redirect step-by-step + show full HTTP response headers
-          at each hop. Critical for canonicalization + redirect debugging.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="hurl">URL</Label>
+            <Label htmlFor="hurl">{tCommon("urlLabel")}</Label>
             <Input
               id="hurl"
               value={url}
@@ -85,12 +87,12 @@ export default function HeadersPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Tracing…
+                {t("tracing")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Trace
+                {t("trace")}
               </>
             )}
           </Button>
@@ -108,9 +110,14 @@ export default function HeadersPage() {
         <>
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <strong>{result.totalHops}</strong>{" "}
-              {result.totalHops === 1 ? "hop" : "hops"}, ended at{" "}
-              <span className="font-mono text-xs">{result.finalUrl}</span>
+              {t.rich("summary", {
+                count: result.totalHops,
+                url: result.finalUrl,
+                strong: (chunks) => <strong>{chunks}</strong>,
+                mono: (chunks) => (
+                  <span className="font-mono text-xs">{chunks}</span>
+                ),
+              })}
             </div>
             <Button
               type="button"
@@ -122,17 +129,17 @@ export default function HeadersPage() {
               {savePending ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  Saving…
+                  {t("saving")}
                 </>
               ) : saved ? (
                 <>
                   <CheckCircle2 className="size-3.5 text-emerald-300" />
-                  Saved
+                  {tCommon("saved")}
                 </>
               ) : (
                 <>
                   <Save className="size-3.5" />
-                  Save snapshot
+                  {t("saveSnapshot")}
                 </>
               )}
             </Button>
@@ -155,7 +162,7 @@ export default function HeadersPage() {
                             : "bg-rose-500/10 text-rose-300 ring-rose-500/30"
                       }`}
                     >
-                      {hop.status || "ERR"}
+                      {hop.status || t("err")}
                     </span>
                     <span className="truncate font-mono text-xs">
                       {hop.url}

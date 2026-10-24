@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { usePresetUrl } from "@/components/use-preset-url";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runEeatAudit, type EeatState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
@@ -10,6 +11,7 @@ import { AiDisclaimer } from "@/components/ai-disclaimer";
 export function EeatForm() {
   // Prefilled when opened from a client, so the domain is not retyped.
   const presetUrl = usePresetUrl();
+  const t = useTranslations("tools.ui.eeat-audit");
   const [state, formAction, pending] = useActionState<EeatState | null, FormData>(
     runEeatAudit,
     null,
@@ -23,7 +25,7 @@ export function EeatForm() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_160px]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Page URL</span>
+            <span className="text-muted-foreground">{t("pageUrl")}</span>
             <input
               name="url"
               defaultValue={presetUrl}
@@ -40,12 +42,12 @@ export function EeatForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                Auditing E-E-A-T…
+                {t("auditing")}
               </>
             ) : (
               <>
                 <ShieldCheck className="mr-2 size-4" />
-                Audit page
+                {t("submit")}
               </>
             )}
           </button>
@@ -61,16 +63,16 @@ export function EeatForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-4">
-            <Pillar label="Experience" value={state.result.score.experience} />
-            <Pillar label="Expertise" value={state.result.score.expertise} />
-            <Pillar label="Authority" value={state.result.score.authority} />
-            <Pillar label="Trust" value={state.result.score.trust} />
+            <Pillar label={t("signals.experience")} value={state.result.score.experience} />
+            <Pillar label={t("signals.expertise")} value={state.result.score.expertise} />
+            <Pillar label={t("signals.authority")} value={state.result.score.authority} />
+            <Pillar label={t("signals.trust")} value={state.result.score.trust} />
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold">
-                Total E-E-A-T score:{" "}
+                {t("totalScore")}{" "}
                 <span
                   className={
                     state.result.score.total >= 75
@@ -85,10 +87,10 @@ export function EeatForm() {
               </h2>
               <span className="text-xs text-muted-foreground">
                 {state.result.score.total >= 75
-                  ? "Strong"
+                  ? t("strong")
                   : state.result.score.total >= 50
-                    ? "Mixed"
-                    : "Needs work"}
+                    ? t("mixed")
+                    : t("needsWork")}
               </span>
             </div>
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/5">
@@ -106,80 +108,83 @@ export function EeatForm() {
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-semibold">Detected signals</h3>
+            <h3 className="text-sm font-semibold">{t("detectedSignals")}</h3>
             <div className="grid gap-2 text-xs sm:grid-cols-2">
               <SignalRow
-                label="Author byline"
-                value={state.result.signals.authorName ?? "(none)"}
+                label={t("signals.authorByline")}
+                value={state.result.signals.authorName ?? t("none")}
                 ok={state.result.signals.hasAuthorByline}
               />
               <SignalRow
-                label="Author bio"
-                value={state.result.signals.hasAuthorBio ? "yes" : "missing"}
+                label={t("signals.authorBio")}
+                value={state.result.signals.hasAuthorBio ? t("yes") : t("missing")}
                 ok={state.result.signals.hasAuthorBio}
               />
               <SignalRow
-                label="Person schema"
-                value={state.result.signals.hasAuthorSchema ? "yes" : "missing"}
+                label={t("signals.personSchema")}
+                value={state.result.signals.hasAuthorSchema ? t("yes") : t("missing")}
                 ok={state.result.signals.hasAuthorSchema}
               />
               <SignalRow
-                label="Reviewer line"
-                value={state.result.signals.hasReviewerLine ? "yes" : "missing"}
+                label={t("signals.reviewerLine")}
+                value={state.result.signals.hasReviewerLine ? t("yes") : t("missing")}
                 ok={state.result.signals.hasReviewerLine}
               />
               <SignalRow
-                label="Published"
-                value={state.result.signals.publishedDate ?? "(none)"}
+                label={t("signals.published")}
+                value={state.result.signals.publishedDate ?? t("none")}
                 ok={state.result.signals.hasPublishedDate}
               />
               <SignalRow
-                label="Updated"
-                value={state.result.signals.updatedDate ?? "(none)"}
+                label={t("signals.updated")}
+                value={state.result.signals.updatedDate ?? t("none")}
                 ok={state.result.signals.hasUpdatedDate}
               />
               <SignalRow
-                label="Outbound citations"
-                value={`${state.result.signals.outboundCitationCount} (${state.result.signals.authoritativeCitationCount} authoritative)`}
+                label={t("signals.outboundCitations")}
+                value={t("citationsValue", {
+                  count: state.result.signals.outboundCitationCount,
+                  authoritative: state.result.signals.authoritativeCitationCount,
+                })}
                 ok={state.result.signals.outboundCitationCount >= 3}
               />
               <SignalRow
-                label="Article schema"
-                value={state.result.signals.hasArticleSchema ? "yes" : "missing"}
+                label={t("signals.articleSchema")}
+                value={state.result.signals.hasArticleSchema ? t("yes") : t("missing")}
                 ok={state.result.signals.hasArticleSchema}
               />
               <SignalRow
-                label="Organization schema"
-                value={state.result.signals.hasOrganizationSchema ? "yes" : "missing"}
+                label={t("signals.organizationSchema")}
+                value={state.result.signals.hasOrganizationSchema ? t("yes") : t("missing")}
                 ok={state.result.signals.hasOrganizationSchema}
               />
               <SignalRow
-                label="About link"
-                value={state.result.signals.hasAboutLink ? "yes" : "missing"}
+                label={t("signals.aboutLink")}
+                value={state.result.signals.hasAboutLink ? t("yes") : t("missing")}
                 ok={state.result.signals.hasAboutLink}
               />
               <SignalRow
-                label="Contact link"
-                value={state.result.signals.hasContactLink ? "yes" : "missing"}
+                label={t("signals.contactLink")}
+                value={state.result.signals.hasContactLink ? t("yes") : t("missing")}
                 ok={state.result.signals.hasContactLink}
               />
               <SignalRow
-                label="Privacy link"
-                value={state.result.signals.hasPrivacyLink ? "yes" : "missing"}
+                label={t("signals.privacyLink")}
+                value={state.result.signals.hasPrivacyLink ? t("yes") : t("missing")}
                 ok={state.result.signals.hasPrivacyLink}
               />
               <SignalRow
-                label="Editorial policy"
-                value={state.result.signals.hasEditorialPolicy ? "yes" : "missing"}
+                label={t("signals.editorialPolicy")}
+                value={state.result.signals.hasEditorialPolicy ? t("yes") : t("missing")}
                 ok={state.result.signals.hasEditorialPolicy}
               />
               <SignalRow
                 label="HTTPS"
-                value={state.result.signals.hasHttps ? "yes" : "no"}
+                value={state.result.signals.hasHttps ? t("yes") : t("no")}
                 ok={state.result.signals.hasHttps}
               />
               <SignalRow
-                label="Image alt coverage"
+                label={t("signals.altCoverage")}
                 value={`${state.result.signals.describedImageCount}/${state.result.signals.imageCount}`}
                 ok={
                   state.result.signals.imageCount === 0 ||
@@ -193,7 +198,7 @@ export function EeatForm() {
 
           {state.result.missing.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Missing signals</h3>
+              <h3 className="text-sm font-semibold">{t("missingSignals")}</h3>
               <ul className="space-y-1 text-sm">
                 {state.result.missing.map((m) => (
                   <li key={m} className="flex items-start gap-2">
@@ -208,7 +213,7 @@ export function EeatForm() {
           {state.result.brief && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold">AI fix punch list</h2>
+                <h2 className="text-base font-semibold">{t("punchList")}</h2>
                 <AiFeedback
                   feature="content_idea"
                   aiOutput={state.result.brief}

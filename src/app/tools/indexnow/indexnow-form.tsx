@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   submitIndexNow,
   verifyIndexNowKeyFile,
@@ -9,6 +10,7 @@ import {
 } from "./actions";
 
 export function IndexNowForm() {
+  const t = useTranslations("tools.ui.indexnow");
   const [state, formAction, pending] = useActionState<
     SubmitState | null,
     FormData
@@ -23,7 +25,7 @@ export function IndexNowForm() {
     <>
       <form action={formAction} className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Host (your site)</span>
+          <span className="text-muted-foreground">{t("host")}</span>
           <input
             name="host"
             required
@@ -36,7 +38,7 @@ export function IndexNowForm() {
 
         <label className="block space-y-1 text-xs">
           <span className="text-muted-foreground">
-            URLs (one per line, all from the host above)
+            {t("urls")}
           </span>
           <textarea
             name="urls"
@@ -53,7 +55,7 @@ export function IndexNowForm() {
             disabled={pending}
             className="inline-flex h-9 items-center rounded-md bg-cyan-500/15 px-4 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25 disabled:opacity-50"
           >
-            {pending ? "Submitting…" : "Submit URLs"}
+            {pending ? t("submitting") : t("submit")}
           </button>
           <form action={verifyAction} className="inline">
             <input type="hidden" name="host" value={host} />
@@ -62,7 +64,7 @@ export function IndexNowForm() {
               disabled={verifying || !host}
               className="inline-flex h-9 items-center rounded-md bg-white/5 px-4 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground disabled:opacity-50"
             >
-              {verifying ? "Verifying…" : "Verify key file"}
+              {verifying ? t("verifying") : t("verify")}
             </button>
           </form>
         </div>
@@ -72,22 +74,23 @@ export function IndexNowForm() {
             <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
             <div>
               <p className="font-medium">
-                Submitted {state.submitted} URL
-                {state.submitted === 1 ? "" : "s"} (HTTP {state.status}).
+                {t("submitted", { count: state.submitted, status: state.status })}
               </p>
               {state.status === 202 && (
                 <p className="mt-1 text-emerald-300/80">
-                  Note: status 202 means engines accepted the request but
-                  couldn&apos;t verify the key file. Check{" "}
-                  <a
-                    href={state.keyUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline"
-                  >
-                    {state.keyUrl} <ExternalLink className="inline size-3" />
-                  </a>{" "}
-                  is reachable.
+                  {t.rich("note202", {
+                    keyUrl: state.keyUrl,
+                    link: (chunks) => (
+                      <a
+                        href={state.keyUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline"
+                      >
+                        {chunks} <ExternalLink className="inline size-3" />
+                      </a>
+                    ),
+                  })}
                 </p>
               )}
             </div>
@@ -107,7 +110,7 @@ export function IndexNowForm() {
 
         {verifyState && verifyState.ok && (
           <p className="rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-            ✓ Key file verified — engines can confirm ownership.
+            {t("verified")}
           </p>
         )}
         {verifyState && !verifyState.ok && verifyState.error && (
