@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { ContentHelpers } from "./content-helpers";
 
-export default function ContentHelpersPage() {
+export default async function ContentHelpersPage() {
+  const t = await getTranslations("tools.ui.content-helpers");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Content helpers — cover-image prompts + category / tag suggester"
-        description="Two AI helpers for every post you publish. Cover-image prompts in 3 distinct styles you can paste straight into Stable Diffusion / Midjourney / DALL-E. Category and tag suggestions tailored to your existing taxonomy."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Sparkles}
         accent="rose"
       />

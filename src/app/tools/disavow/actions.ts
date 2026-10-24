@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { saveToolRun } from "@/lib/tool-runs";
@@ -35,17 +36,21 @@ function hostOf(s: string): string | null {
   }
 }
 
-function detectToxic(host: string, anchor?: string): { toxic: boolean; reason: string } {
+function detectToxic(
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  host: string,
+  anchor?: string,
+): { toxic: boolean; reason: string } {
   for (const tld of TOXIC_TLDS) {
-    if (host.endsWith(tld)) return { toxic: true, reason: `Disposable / spam-prone TLD ${tld}` };
+    if (host.endsWith(tld)) return { toxic: true, reason: t("reasonTld", { tld }) };
   }
   for (const re of TOXIC_PATTERNS) {
-    if (re.test(host)) return { toxic: true, reason: `Spam keyword in domain` };
-    if (anchor && re.test(anchor)) return { toxic: true, reason: `Spam anchor text` };
+    if (re.test(host)) return { toxic: true, reason: t("reasonSpamDomain") };
+    if (anchor && re.test(anchor)) return { toxic: true, reason: t("reasonSpamAnchor") };
   }
-  if (host.length > 40) return { toxic: true, reason: `Suspiciously long domain` };
-  if (/^[a-z0-9]{20,}\./i.test(host)) return { toxic: true, reason: `Random-string subdomain` };
-  return { toxic: false, reason: "Manual review" };
+  if (host.length > 40) return { toxic: true, reason: t("reasonLongDomain") };
+  if (/^[a-z0-9]{20,}\./i.test(host)) return { toxic: true, reason: t("reasonRandomSubdomain") };
+  return { toxic: false, reason: t("reasonManual") };
 }
 
 export async function runDisavow(
@@ -53,9 +58,10 @@ export async function runDisavow(
   formData: FormData,
 ): Promise<DisavowState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.disavow");
   const raw = String(formData.get("backlinks") ?? "").trim();
   const mode = String(formData.get("mode") ?? "auto");
-  if (!raw) return { ok: false, error: "Paste at least one backlink (URL or domain per line)." };
+  if (!raw) return { ok: false, error: t("errNoBacklinks") };
 
   const lines = Array.from(
     new Set(
@@ -73,13 +79,13 @@ export async function runDisavow(
     const url = parts[0];
     const anchor = parts[1] ?? "";
     const host = hostOf(url);
-    if (!host) return { raw: line, domain: null, reason: "Couldn't parse", toxic: false };
-    const t = detectToxic(host, anchor);
+    if (!host) return { raw: line, domain: null, reason: t("reasonUnparsed"), toxic: false };
+    const verdict = detectToxic(t, host, anchor);
     return {
       raw: line,
       domain: host,
-      reason: t.reason,
-      toxic: t.toxic,
+      reason: verdict.reason,
+      toxic: verdict.toxic,
     };
   });
 
@@ -104,7 +110,11 @@ export async function runDisavow(
   };
   await saveToolRun({
     toolId: "disavow",
-    label: `${result.stats.total} input · ${result.stats.toxic} toxic · ${uniqDomains.length} disavowed`,
+    label: t("runLabel", {
+      total: result.stats.total,
+      toxic: result.stats.toxic,
+      disavowed: uniqDomains.length,
+    }),
     input: { mode, count: lines.length },
     result,
   }).catch(() => undefined);

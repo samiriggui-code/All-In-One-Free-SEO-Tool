@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Link2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { AutoLinkForm } from "./form";
 
-export default function AutoLinkPage() {
+export default async function AutoLinkPage() {
+  const t = await getTranslations("tools.ui.auto-link");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Auto-link suggester (RankMath-style)"
-        description="Paste content + your site's internal page list. AI proposes contextual internal links — exact anchor text + target URL — that you can apply manually or push via the WP bridge."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Link2}
         accent="violet"
       />

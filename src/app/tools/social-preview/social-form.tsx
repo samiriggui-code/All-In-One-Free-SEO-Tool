@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Loader2, Share2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runSocial, type SocialState } from "./actions";
 
 export function SocialForm() {
+  const t = useTranslations("tools.ui.social-preview");
   const [state, formAction, pending] = useActionState<
     SocialState | null,
     FormData
@@ -31,12 +33,12 @@ export function SocialForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Fetching…
+                {t("fetching")}
               </>
             ) : (
               <>
                 <Share2 className="mr-2 size-3" />
-                Preview
+                {t("submit")}
               </>
             )}
           </button>
@@ -53,7 +55,7 @@ export function SocialForm() {
         <>
           {state.result.warnings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Warnings</h3>
+              <h3 className="text-sm font-semibold">{t("warnings")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.result.warnings.map((w, i) => (
                   <li
@@ -84,7 +86,7 @@ export function SocialForm() {
                   />
                 ) : (
                   <div className="aspect-[1.91/1] w-full bg-neutral-200 grid place-items-center text-xs text-neutral-500">
-                    no og:image
+                    {t("noOgImage")}
                   </div>
                 )}
                 <div className="space-y-1 p-3 text-neutral-900">
@@ -92,10 +94,10 @@ export function SocialForm() {
                     {(state.result.og.siteName ?? new URL(state.result.url).hostname).toUpperCase()}
                   </p>
                   <p className="line-clamp-2 text-sm font-semibold">
-                    {state.result.og.title ?? "(no og:title)"}
+                    {state.result.og.title ?? t("noOgTitle")}
                   </p>
                   <p className="line-clamp-2 text-xs text-neutral-600">
-                    {state.result.og.description ?? "(no og:description)"}
+                    {state.result.og.description ?? t("noOgDescription")}
                   </p>
                 </div>
               </div>
@@ -106,7 +108,9 @@ export function SocialForm() {
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="text-sm font-semibold">X / Twitter</h3>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  Card type: {state.result.twitter.card ?? "(default summary)"}
+                  {t("cardType", {
+                    type: state.result.twitter.card ?? t("defaultSummary"),
+                  })}
                 </p>
               </header>
               <div className="overflow-hidden rounded-lg bg-black/30 ring-1 ring-inset ring-white/5 m-3">
@@ -119,17 +123,17 @@ export function SocialForm() {
                   />
                 ) : (
                   <div className="aspect-[1.91/1] w-full bg-neutral-800 grid place-items-center text-xs text-neutral-500">
-                    no twitter:image
+                    {t("noTwitterImage")}
                   </div>
                 )}
                 <div className="space-y-1 p-3">
                   <p className="line-clamp-2 text-sm font-semibold">
-                    {state.result.twitter.title ?? state.result.og.title ?? "(no title)"}
+                    {state.result.twitter.title ?? state.result.og.title ?? t("noTitle")}
                   </p>
                   <p className="line-clamp-2 text-xs text-muted-foreground">
                     {state.result.twitter.description ??
                       state.result.og.description ??
-                      "(no description)"}
+                      t("noDescription")}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     {new URL(state.result.url).hostname}
@@ -140,7 +144,7 @@ export function SocialForm() {
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="mb-3 text-sm font-semibold">Raw tags</h3>
+            <h3 className="mb-3 text-sm font-semibold">{t("rawTags")}</h3>
             <div className="grid gap-3 sm:grid-cols-2 text-xs">
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">og:</div>

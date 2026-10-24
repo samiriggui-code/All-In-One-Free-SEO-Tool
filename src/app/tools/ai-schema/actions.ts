@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -26,7 +27,8 @@ export async function runAiSchema(
   await requireSignedIn();
   const parsed = inputSchema.safeParse({ url: formData.get("url") });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };
+    const t = await getTranslations("tools.ui.ai-schema");
+    return { ok: false, error: t("errInvalidUrl") };
   }
   const r = await generateSchemaFromUrl({ url: parsed.data.url });
   if (!r.ok) return { ok: false, error: r.error };

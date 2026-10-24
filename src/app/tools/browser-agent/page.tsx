@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Bot } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { AgentForm } from "./agent-form";
 
-export default function BrowserAgentPage() {
+export default async function BrowserAgentPage() {
+  const t = await getTranslations("tools.ui.browser-agent");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Browser agent"
-        description="Goal-driven headless Chrome. Give it a starting URL + a plain-English goal — it reads the page, decides the next step, executes, and narrates each move with a screenshot. Replaces 'I need an API for that site' with browser automation."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Bot}
         accent="violet"
       />

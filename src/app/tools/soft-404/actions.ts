@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -33,15 +34,11 @@ export type SoftState =
  * return 404, or by giving it real content, and which of those is right
  * depends on whether the page was supposed to exist. That is a decision.
  */
-function softFindings(r: Soft404Result): FindingDraft[] {
+function softFindings(
+  t: Awaited<ReturnType<typeof getTranslations>>,
+  r: Soft404Result,
+): FindingDraft[] {
   if (r.flagged.length === 0) return [];
-
-  const LABEL: Record<string, string> = {
-    "thin-content": "Pages with almost no content returning 200",
-    "404-text-pattern": "Pages that say 'not found' but return 200",
-    "404-title-pattern": "Pages titled like an error but returning 200",
-    "no-h1-thin": "Thin pages with no heading returning 200",
-  };
 
   const byReason = new Map<string, typeof r.flagged>();
   for (const f of r.flagged) {
@@ -52,15 +49,21 @@ function softFindings(r: Soft404Result): FindingDraft[] {
 
   return [...byReason.entries()].map(([reason, list]) => ({
     signature: `soft-404.${reason}`,
-    title: `${LABEL[reason] ?? reason} — ${list.length} page${list.length === 1 ? "" : "s"}`,
+    title: t("findingTitle", {
+      label: t.has(`findingLabels.${reason}`)
+        ? t(`findingLabels.${reason}`)
+        : reason,
+      count: list.length,
+    }),
     // A page Google indexes as real content when it is an error page
     // competes with the pages that are real. More of them is worse.
     severity: list.length >= 5 ? "high" : "medium",
     category: "indexation",
     details:
-      `Google treats a 200 as "this page exists", so these get indexed and compete with real pages. ` +
-      `Affected: ${list.slice(0, 10).map((f) => f.url).join(", ")}` +
-      (list.length > 10 ? ` and ${list.length - 10} more.` : "."),
+      t("findingDetails", {
+        urls: list.slice(0, 10).map((f) => f.url).join(", "),
+      }) +
+      (list.length > 10 ? t("findingMore", { count: list.length - 10 }) : "."),
   }));
 }
 
@@ -69,22 +72,27 @@ export async function runSoft404(
   formData: FormData,
 ): Promise<SoftState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.soft-404");
   const parsed = schema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || 100,
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: t("errInvalidInput") };
   const r = await findSoft404s(parsed.data);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   const clientId = clientIdFrom(formData);
   await recordToolRun({
     toolId: "soft-404",
-    label: `${parsed.data.startUrl} · ${r.flagged.length} of ${r.pagesChecked} pages`,
+    label: t("runLabel", {
+      url: parsed.data.startUrl,
+      flagged: r.flagged.length,
+      checked: r.pagesChecked,
+    }),
     clientId,
     input: { ...parsed.data, clientId },
     result: { ok: true, result: r },
-    findings: softFindings(r),
+    findings: softFindings(t, r),
   });
   return { ok: true, result: r };
 }

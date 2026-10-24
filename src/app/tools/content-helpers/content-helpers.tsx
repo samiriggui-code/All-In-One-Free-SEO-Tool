@@ -9,6 +9,7 @@ import {
   Sparkles,
   Tags,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   getCategorySuggestions,
   getCoverImagePrompts,
@@ -28,6 +29,8 @@ export function ContentHelpers() {
 }
 
 function ImagePromptCard() {
+  const t = useTranslations("tools.ui.content-helpers");
+  const tCommon = useTranslations("tools.common");
   const [title, setTitle] = useState("");
   const [brief, setBrief] = useState("");
   const [niche, setNiche] = useState("");
@@ -67,40 +70,39 @@ function ImagePromptCard() {
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="text-base font-semibold flex items-center gap-2">
           <ImageIcon className="size-4 text-rose-300" />
-          Cover-image prompts
+          {t("coverTitle")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Paste these into Stable Diffusion, Midjourney, DALL-E, or any image
-          model. 3 distinct visual styles per call.
+          {t("coverHelp")}
         </p>
       </header>
       <form onSubmit={generate} className="space-y-3 p-5">
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Post title</span>
+          <span className="text-muted-foreground">{t("postTitleLabel")}</span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            placeholder="The 9 best vegan meal-prep services in 2026"
+            placeholder={t("coverTitlePlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Brief / angle (optional)</span>
+          <span className="text-muted-foreground">{t("briefLabel")}</span>
           <textarea
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
             rows={2}
-            placeholder="What the post is about in one or two sentences"
+            placeholder={t("briefPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Niche (optional)</span>
+          <span className="text-muted-foreground">{t("nicheLabel")}</span>
           <input
             value={niche}
             onChange={(e) => setNiche(e.target.value)}
-            placeholder="health · saas · ecommerce · local · ..."
+            placeholder={t("nichePlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -112,12 +114,12 @@ function ImagePromptCard() {
           {busy ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Drafting prompts…
+              {t("drafting")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-3" />
-              Generate prompts
+              {t("generatePrompts")}
             </>
           )}
         </button>
@@ -143,12 +145,12 @@ function ImagePromptCard() {
                   {copiedIdx === i ? (
                     <>
                       <Check className="mr-1 size-3 text-emerald-300" />
-                      Copied
+                      {tCommon("copied")}
                     </>
                   ) : (
                     <>
                       <Copy className="mr-1 size-3" />
-                      Copy
+                      {tCommon("copy")}
                     </>
                   )}
                 </button>
@@ -163,6 +165,7 @@ function ImagePromptCard() {
 }
 
 function CategoryCard() {
+  const t = useTranslations("tools.ui.content-helpers");
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [existing, setExisting] = useState("");
@@ -194,46 +197,40 @@ function CategoryCard() {
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="text-base font-semibold flex items-center gap-2">
           <Tags className="size-4 text-cyan-300" />
-          Categories + tags
+          {t("categoriesTitle")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Avoids tag-soup and category bloat. AI picks one primary category and
-          5-10 SEO-worthy tags. Paste your existing categories so it reuses,
-          doesn&apos;t reinvent.
+          {t("categoriesHelp")}
         </p>
       </header>
       <form onSubmit={generate} className="space-y-3 p-5">
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Post title</span>
+          <span className="text-muted-foreground">{t("postTitleLabel")}</span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            placeholder="How to set up Cloudflare full-page caching for WordPress"
+            placeholder={t("categoryTitlePlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">
-            Excerpt or first paragraph (optional)
-          </span>
+          <span className="text-muted-foreground">{t("excerptLabel")}</span>
           <textarea
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
             rows={3}
-            placeholder="What the post covers"
+            placeholder={t("excerptPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">
-            Existing site categories (one per line or comma-separated, optional)
-          </span>
+          <span className="text-muted-foreground">{t("existingLabel")}</span>
           <textarea
             value={existing}
             onChange={(e) => setExisting(e.target.value)}
             rows={3}
-            placeholder="Performance&#10;Security&#10;WordPress&#10;Hosting"
+            placeholder={t("existingPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -245,12 +242,12 @@ function CategoryCard() {
           {busy ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Suggesting…
+              {t("suggesting")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-3" />
-              Suggest categories + tags
+              {t("suggestCategories")}
             </>
           )}
         </button>
@@ -264,7 +261,7 @@ function CategoryCard() {
         <div className="space-y-3 px-5 pb-5">
           <div className="rounded-xl bg-emerald-500/5 px-4 py-3 ring-1 ring-inset ring-emerald-500/20">
             <div className="text-[10px] uppercase tracking-wider text-emerald-300/90">
-              Primary category
+              {t("primaryCategory")}
             </div>
             <div className="mt-1 text-base font-semibold text-foreground/95">
               {suggestion.primaryCategory}
@@ -273,7 +270,7 @@ function CategoryCard() {
           {suggestion.alternateCategories.length > 0 && (
             <div className="space-y-1.5">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Alternates
+                {t("alternates")}
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {suggestion.alternateCategories.map((c) => (
@@ -290,15 +287,15 @@ function CategoryCard() {
           {suggestion.tags.length > 0 && (
             <div className="space-y-1.5">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Tags
+                {t("tags")}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {suggestion.tags.map((t) => (
+                {suggestion.tags.map((tag) => (
                   <span
-                    key={t}
+                    key={tag}
                     className="rounded-md bg-cyan-500/10 px-2 py-0.5 text-[11px] text-cyan-200 ring-1 ring-inset ring-cyan-500/30"
                   >
-                    {t}
+                    {tag}
                   </span>
                 ))}
               </div>
@@ -306,7 +303,7 @@ function CategoryCard() {
           )}
           {suggestion.rationale && (
             <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground/70">Why: </span>
+              <span className="font-medium text-foreground/70">{t("why")}</span>
               {suggestion.rationale}
             </p>
           )}

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 /**
@@ -67,12 +68,13 @@ export async function scoreContent(opts: {
   targetKeyword: string;
 }): Promise<ContentScoreResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.content-score");
   const content = opts.content?.trim() ?? "";
   const keyword = opts.targetKeyword?.trim() ?? "";
-  if (!content) return { ok: false, error: "Paste some content first" };
-  if (!keyword) return { ok: false, error: "Target keyword required" };
+  if (!content) return { ok: false, error: t("errNoContent") };
+  if (!keyword) return { ok: false, error: t("errNoKeyword") };
 
-  const stats = analyzeStats(content, keyword);
+  const stats = analyzeStats(content, keyword, t);
 
   const userPrompt = [
     `Target keyword: "${keyword}"`,
@@ -104,7 +106,7 @@ export async function scoreContent(opts: {
   if (!raw) {
     return {
       ok: false,
-      error: lastAiFailure()?.message ?? "AI provider didn't respond. Set up an API key in Settings.",
+      error: lastAiFailure()?.message ?? t("errAiNoResponse"),
     };
   }
 
@@ -124,7 +126,7 @@ export async function scoreContent(opts: {
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    return { ok: false, error: "Model output wasn't valid JSON." };
+    return { ok: false, error: t("errInvalidJson") };
   }
 
   const score = computeScore(stats, parsed);
@@ -157,7 +159,11 @@ export async function scoreContent(opts: {
   return result;
 }
 
-function analyzeStats(content: string, keyword: string): ContentStats {
+function analyzeStats(
+  content: string,
+  keyword: string,
+  t: Awaited<ReturnType<typeof getTranslations>>,
+): ContentStats {
   // Strip HTML tags + collapse whitespace
   const plain = content
     .replace(/<[^>]+>/g, " ")
@@ -180,18 +186,18 @@ function analyzeStats(content: string, keyword: string): ContentStats {
   const fleschScore = Math.max(0, Math.min(100, flesch));
   const fleschGrade =
     fleschScore >= 90
-      ? "Very easy (5th grade)"
+      ? t("gradeVeryEasy")
       : fleschScore >= 80
-        ? "Easy (6th grade)"
+        ? t("gradeEasy")
         : fleschScore >= 70
-          ? "Fairly easy (7th grade)"
+          ? t("gradeFairlyEasy")
           : fleschScore >= 60
-            ? "Standard (8-9th grade)"
+            ? t("gradeStandard")
             : fleschScore >= 50
-              ? "Fairly difficult (10-12th)"
+              ? t("gradeFairlyDifficult")
               : fleschScore >= 30
-                ? "Difficult (college)"
-                : "Very difficult (graduate)";
+                ? t("gradeDifficult")
+                : t("gradeVeryDifficult");
 
   // Primary keyword count + density
   const lowerPlain = plain.toLowerCase();
@@ -288,14 +294,15 @@ export async function saveContentScoreSnapshot(opts: {
   result: ContentScoreResult;
 }): Promise<{ ok: true; id: number }> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.content-score");
   if (!opts.result.ok) {
-    return Promise.reject(new Error("Can't save a failed score"));
+    return Promise.reject(new Error(t("errSaveFailed")));
   }
   return saveSnapshot({
     clientId: null,
     kind: "content_stats",
     label: opts.targetKeyword,
-    note: `${opts.result.stats.wordCount} words`,
+    note: t("snapshotNote", { count: opts.result.stats.wordCount }),
     data: opts.result,
     primaryMetric: opts.result.score,
     primaryMetricLabel: "score",

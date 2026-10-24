@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import {
@@ -38,17 +39,21 @@ export async function runAutoLink(
   formData: FormData,
 ): Promise<AutoLinkState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.auto-link");
   const content = String(formData.get("content") ?? "").trim();
   const pagesRaw = String(formData.get("pages") ?? "").trim();
-  if (!content) return { ok: false, error: "Paste content." };
-  if (!pagesRaw) return { ok: false, error: "Paste internal pages." };
+  if (!content) return { ok: false, error: t("errNoContent") };
+  if (!pagesRaw) return { ok: false, error: t("errNoPages") };
   const pages = parsePages(pagesRaw);
-  if (pages.length === 0) return { ok: false, error: "No valid pages parsed." };
+  if (pages.length === 0) return { ok: false, error: t("errNoValidPages") };
   const r = await suggestAutoLinks({ content, internalPages: pages });
   if (!r.ok) return { ok: false, error: r.error };
   await saveToolRun({
     toolId: "auto-link",
-    label: `${r.suggestions.length} link suggestions · ${pages.length} pages`,
+    label: t("runLabel", {
+      suggestions: r.suggestions.length,
+      pages: pages.length,
+    }),
     input: { contentLen: content.length, pageCount: pages.length },
     result: { ok: true, suggestions: r.suggestions },
   }).catch(() => undefined);

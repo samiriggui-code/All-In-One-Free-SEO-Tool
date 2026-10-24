@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -27,6 +28,7 @@ export async function runLinkIntersect(
   formData: FormData,
 ): Promise<IntersectState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.link-intersect");
   const parsed = inputSchema.safeParse({
     yourDomain: formData.get("yourDomain"),
     competitor1: formData.get("competitor1"),
@@ -38,8 +40,8 @@ export async function runLinkIntersect(
       ok: false,
       error:
         parsed.error.issues[0]?.path.join(".") === "competitor1"
-          ? "Add at least one competitor domain."
-          : (parsed.error.issues[0]?.message ?? "Invalid input"),
+          ? t("errNoCompetitor")
+          : t("errInvalidDomain"),
     };
   }
 
@@ -58,6 +60,6 @@ export async function runLinkIntersect(
     }).catch(() => undefined);
     return { ok: true, result };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Link intersect failed" };
+    return { ok: false, error: (err as Error).message || t("errFailed") };
   }
 }

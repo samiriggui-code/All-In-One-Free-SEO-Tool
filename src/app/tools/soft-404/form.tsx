@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Loader2, Unlink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runSoft404, type SoftState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
 
@@ -13,6 +14,7 @@ const REASON_TONE: Record<string, string> = {
 };
 
 export function Soft404Form() {
+  const t = useTranslations("tools.ui.soft-404");
   const [state, formAction, pending] = useActionState<SoftState | null, FormData>(
     runSoft404,
     null,
@@ -38,6 +40,8 @@ export function Soft404Form() {
             defaultValue={100}
             min={20}
             max={300}
+            aria-label={t("maxPagesLabel")}
+            title={t("maxPagesLabel")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <button
@@ -48,12 +52,12 @@ export function Soft404Form() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Crawling…
+                {t("crawling")}
               </>
             ) : (
               <>
                 <Unlink className="mr-2 size-3" />
-                Find soft 404s
+                {t("submit")}
               </>
             )}
           </button>
@@ -69,32 +73,33 @@ export function Soft404Form() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Pages crawled" value={state.result.pagesChecked.toString()} />
+            <Stat label={t("statCrawled")} value={state.result.pagesChecked.toString()} />
             <Stat
-              label="Soft-404 candidates"
+              label={t("statCandidates")}
               value={state.result.flagged.length.toString()}
               tone={state.result.flagged.length > 0 ? "rose" : "emerald"}
             />
             <Stat
-              label="Status"
-              value={state.result.flagged.length === 0 ? "Healthy" : "Needs review"}
+              label={t("statStatus")}
+              value={
+                state.result.flagged.length === 0 ? t("healthy") : t("needsReview")
+              }
               tone={state.result.flagged.length === 0 ? "emerald" : "amber"}
             />
           </div>
 
           {state.result.flagged.length === 0 ? (
             <p className="rounded-md bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-              ✓ No soft-404 candidates on the first {state.result.pagesChecked} pages.
+              {t("noCandidates", { count: state.result.pagesChecked })}
             </p>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="text-sm font-semibold">
-                  {state.result.flagged.length} flagged
+                  {t("flagged", { count: state.result.flagged.length })}
                 </h3>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">
-                  Fix order: 410 if intentionally deleted, 301 if there&apos;s a
-                  better page, expand content otherwise.
+                  {t("fixOrder")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.05]">
@@ -104,10 +109,12 @@ export function Soft404Form() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${REASON_TONE[f.reason]}`}
                       >
-                        {f.reason.replace(/-/g, " ")}
+                        {t.has(`reasons.${f.reason}`)
+                          ? t(`reasons.${f.reason}`)
+                          : f.reason.replace(/-/g, " ")}
                       </span>
                       <span className="text-[10px] text-muted-foreground tabular-nums">
-                        {f.wordCount} words
+                        {t("words", { count: f.wordCount })}
                       </span>
                     </div>
                     <code className="block truncate">{f.url}</code>
