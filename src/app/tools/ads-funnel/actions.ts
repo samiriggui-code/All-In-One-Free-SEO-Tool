@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -105,6 +106,7 @@ export async function generateAdsFunnel(
   formData: FormData,
 ): Promise<AdsFunnelState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.ads-funnel");
   const clientIdRaw = formData.get("clientId");
   const clientId = clientIdRaw ? Number(clientIdRaw) : null;
   const platformIdsRaw = formData.getAll("platforms") as string[];
@@ -125,12 +127,12 @@ export async function generateAdsFunnel(
   const productName = String(formData.get("productName") ?? "").slice(0, 200);
 
   if (platformIds.length === 0) {
-    return { ok: false, error: "Pick at least one platform." };
+    return { ok: false, error: t("errors.noPlatform") };
   }
   if (!productName && !landingUrl && !clientId) {
     return {
       ok: false,
-      error: "Tell us what you're advertising — product/service name or landing URL or a connected client.",
+      error: t("errors.noSubject"),
     };
   }
 
@@ -209,17 +211,15 @@ export async function generateAdsFunnel(
   if (!raw) {
     return {
       ok: false,
-      error:
-        "AI provider didn't respond. Check Settings → AI provider and confirm a key is configured.",
+      error: t("errors.aiNoResponse"),
     };
   }
 
-  const parsed = parseAdsFunnel(raw, platformIds);
+  const parsed = parseAdsFunnel(raw, platformIds, t("errors.platformOmitted"));
   if (!parsed) {
     return {
       ok: false,
-      error:
-        "AI returned a response we couldn't parse as JSON. Try again, or shorten your inputs.",
+      error: t("errors.aiUnparseable"),
     };
   }
 
@@ -354,6 +354,7 @@ Important rules:
 function parseAdsFunnel(
   raw: string,
   expectedPlatformIds: AdPlatformId[],
+  omittedRationale: string,
 ): AdsFunnelResult | null {
   const cleaned = raw
     .trim()
@@ -455,7 +456,7 @@ function parseAdsFunnel(
         platformId: id,
         platformName: meta.name,
         funnelStage: meta.effectiveFunnelStages[0] ?? "consideration",
-        rationale: "(AI omitted this platform — re-run to get full coverage)",
+        rationale: omittedRationale,
         copyVariants: [],
         imagePrompts: [],
         monthlyBudgetSuggestion: meta.costBenchmarks.minMonthlyBudget,

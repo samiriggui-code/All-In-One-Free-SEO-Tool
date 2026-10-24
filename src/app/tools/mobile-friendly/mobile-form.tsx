@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, Loader2, Smartphone, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runMobile, type MobileState } from "./actions";
 
 export function MobileForm() {
+  const t = useTranslations("tools.ui.mobile-friendly");
   const [state, formAction, pending] = useActionState<
     MobileState | null,
     FormData
@@ -31,12 +33,12 @@ export function MobileForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Checking…
+                {t("checking")}
               </>
             ) : (
               <>
                 <Smartphone className="mr-2 size-3" />
-                Check
+                {t("check")}
               </>
             )}
           </button>
@@ -52,35 +54,35 @@ export function MobileForm() {
       {state?.ok && (
         <>
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-semibold">Checks</h3>
-            <Row label="Viewport meta" ok={state.result.hasViewport} note={state.result.viewport ?? "—"} />
-            <Row label="Viewport sane (width=device-width, scalable)" ok={state.result.viewportSane} />
-            <Row label="Charset declared" ok={state.result.hasCharset} />
+            <h3 className="text-sm font-semibold">{t("checks")}</h3>
+            <Row label={t("viewportMeta")} ok={state.result.hasViewport} note={state.result.viewport ?? "—"} />
+            <Row label={t("viewportSane")} ok={state.result.viewportSane} />
+            <Row label={t("charsetDeclared")} ok={state.result.hasCharset} />
             <Row
-              label="Responsive images"
+              label={t("responsiveImages")}
               ok={state.result.hasResponsiveImages || state.result.imageCount === 0}
-              note={`${state.result.imageCount} image${state.result.imageCount === 1 ? "" : "s"}`}
+              note={t("imageCount", { count: state.result.imageCount })}
             />
             <Row
-              label="No fixed-width elements"
+              label={t("noFixedWidth")}
               ok={state.result.fixedWidthElements <= 3}
-              note={`${state.result.fixedWidthElements} suspicious`}
+              note={t("suspiciousCount", { count: state.result.fixedWidthElements })}
             />
             <Row
-              label="Tap targets reasonable"
+              label={t("tapTargets")}
               ok={state.result.potentialTapTargetIssues <= 5}
-              note={`${state.result.potentialTapTargetIssues} small`}
+              note={t("smallCount", { count: state.result.potentialTapTargetIssues })}
             />
             <Row
-              label="No intrusive interstitial"
+              label={t("noInterstitial")}
               ok={!state.result.hasInterstitial}
-              note={state.result.hasInterstitial ? "modal/popup/cookie banner detected" : "ok"}
+              note={state.result.hasInterstitial ? t("interstitialDetected") : t("ok")}
             />
           </section>
 
           {state.result.warnings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Warnings</h3>
+              <h3 className="text-sm font-semibold">{t("warnings")}</h3>
               <ul className="space-y-1 text-xs">
                 {state.result.warnings.map((w, i) => (
                   <li

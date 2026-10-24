@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { saveToolRun } from "@/lib/tool-runs";
+import { getTranslations } from "next-intl/server";
 
 export type UtmTouch = {
   timestamp: string;
@@ -142,11 +143,12 @@ export async function runAttribution(
   formData: FormData,
 ): Promise<AttrState> {
   await requireSignedIn();
+  const tUi = await getTranslations("tools.ui.utm-attribution");
   const raw = String(formData.get("touches") ?? "").trim();
-  if (!raw) return { ok: false, error: "Paste touch data first." };
+  if (!raw) return { ok: false, error: tUi("errorEmpty") };
   const { touches, conversions } = parsePastedTouches(raw);
   if (touches.length === 0) {
-    return { ok: false, error: "Couldn't parse any touches." };
+    return { ok: false, error: tUi("errorUnparsable") };
   }
 
   // Group touches by user

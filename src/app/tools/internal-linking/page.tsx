@@ -11,6 +11,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,8 @@ import {
 import { useClientId } from "@/components/client-id-field";
 
 export default function InternalLinkingPage() {
+  const t = useTranslations("tools.ui.internal-linking");
+  const tCommon = useTranslations("tools.common");
   const [targetUrl, setTargetUrl] = useState("");
   const [keyword, setKeyword] = useState("");
   const [result, setResult] = useState<InternalLinkResult | null>(null);
@@ -50,7 +53,7 @@ export default function InternalLinkingPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -59,21 +62,18 @@ export default function InternalLinkingPage() {
             <Link2 className="size-5 text-violet-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Internal linking suggester</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Pick a target page + the keyword you&apos;re trying to rank it for.
-          We crawl the site (sitemap + on-page links), find pages that mention
-          the keyword in body text, and flag missing internal links you should
-          add.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <div>
           <Label htmlFor="il-target" className="text-sm">
-            Target page URL (the page you want to rank)
+            {t("targetLabel")}
           </Label>
           <Input
             id="il-target"
@@ -86,13 +86,13 @@ export default function InternalLinkingPage() {
         </div>
         <div>
           <Label htmlFor="il-keyword" className="text-sm">
-            Target keyword
+            {t("keywordLabel")}
           </Label>
           <Input
             id="il-keyword"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="best espresso machine"
+            placeholder={t("keywordPlaceholder")}
             className="mt-1.5"
             disabled={pending}
           />
@@ -104,12 +104,12 @@ export default function InternalLinkingPage() {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Crawling…
+              {t("running")}
             </>
           ) : (
             <>
               <Search className="size-4" />
-              Find link opportunities
+              {t("submit")}
             </>
           )}
         </Button>
@@ -127,39 +127,39 @@ export default function InternalLinkingPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
               <span>
-                Scanned{" "}
-                <strong className="text-foreground">
-                  {result.pagesScanned}
-                </strong>{" "}
-                internal pages
+                {t.rich("scanned", {
+                  count: result.pagesScanned,
+                  strong: (chunks) => (
+                    <strong className="text-foreground">{chunks}</strong>
+                  ),
+                })}
               </span>
               <span className="text-muted-foreground">·</span>
               <span>
-                Found{" "}
-                <strong className="text-foreground">
-                  {result.suggestions.filter((s) => !s.alreadyLinks).length}
-                </strong>{" "}
-                pages that mention &ldquo;{result.targetKeyword}&rdquo; without
-                linking to your target
+                {t.rich("found", {
+                  count: result.suggestions.filter((s) => !s.alreadyLinks)
+                    .length,
+                  keyword: result.targetKeyword,
+                  strong: (chunks) => (
+                    <strong className="text-foreground">{chunks}</strong>
+                  ),
+                })}
               </span>
             </div>
           </section>
 
           {result.suggestions.length === 0 ? (
             <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-              No pages found that mention this keyword. Either the keyword is
-              very rare on your site or the sitemap is missing — try a related
-              term.
+              {t("empty")}
             </div>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold">
-                  Suggested link insertions
+                  {t("suggestionsTitle")}
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  Pages that mention the keyword. Pages without an existing
-                  link to your target are listed first — those are your wins.
+                  {t("suggestionsHelp")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -173,7 +173,7 @@ export default function InternalLinkingPage() {
                             : "shrink-0 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-300 ring-1 ring-inset ring-emerald-500/30"
                         }
                       >
-                        {s.alreadyLinks ? "Already links" : "Missing link"}
+                        {s.alreadyLinks ? t("alreadyLinks") : t("missingLink")}
                       </span>
                       <div className="min-w-0 flex-1">
                         <a
@@ -218,25 +218,15 @@ export default function InternalLinkingPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <CheckCircle2 className="size-4 text-emerald-300" />
-              How to use this
+              {t("howToTitle")}
             </h2>
             <ol className="mt-2 space-y-1.5 text-muted-foreground">
-              <li>
-                <strong className="text-foreground">1.</strong> Pick a page
-                from &ldquo;Missing link&rdquo; — those are highest impact.
-              </li>
-              <li>
-                <strong className="text-foreground">2.</strong> Open the page,
-                find the highlighted phrase, link it to your target URL.
-              </li>
-              <li>
-                <strong className="text-foreground">3.</strong> Use descriptive
-                anchor text — the matched phrase usually works.
-              </li>
-              <li>
-                <strong className="text-foreground">4.</strong> Re-submit the
-                edited page in GSC URL Inspection so Google re-crawls fast.
-              </li>
+              {(["step1", "step2", "step3", "step4"] as const).map((key, i) => (
+                <li key={key}>
+                  <strong className="text-foreground">{i + 1}.</strong>{" "}
+                  {t(`howTo.${key}`)}
+                </li>
+              ))}
             </ol>
           </section>
         </>

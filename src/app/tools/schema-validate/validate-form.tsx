@@ -2,10 +2,12 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, Loader2, ShieldCheck, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runValidate, type ValidateState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
 
 export function ValidateForm() {
+  const t = useTranslations("tools.ui.schema-validate");
   const [state, formAction, pending] = useActionState<
     ValidateState | null,
     FormData
@@ -33,12 +35,12 @@ export function ValidateForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Validating…
+                {t("validating")}
               </>
             ) : (
               <>
                 <ShieldCheck className="mr-2 size-3" />
-                Validate
+                {t("validate")}
               </>
             )}
           </button>
@@ -54,18 +56,21 @@ export function ValidateForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Schema blocks" value={state.result.blocks.length.toString()} />
-            <Stat label="Errors" value={state.result.totalErrors.toString()} tone={state.result.totalErrors > 0 ? "rose" : "emerald"} />
-            <Stat label="Warnings" value={state.result.totalWarnings.toString()} tone={state.result.totalWarnings > 0 ? "amber" : "emerald"} />
+            <Stat label={t("schemaBlocks")} value={state.result.blocks.length.toString()} />
+            <Stat label={t("errors")} value={state.result.totalErrors.toString()} tone={state.result.totalErrors > 0 ? "rose" : "emerald"} />
+            <Stat label={t("warnings")} value={state.result.totalWarnings.toString()} tone={state.result.totalWarnings > 0 ? "amber" : "emerald"} />
           </div>
 
           {state.result.blocks.length === 0 && (
             <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-              No JSON-LD blocks found on this page. Add a{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">
-                &lt;script type=&quot;application/ld+json&quot;&gt;
-              </code>{" "}
-              tag in &lt;head&gt;.
+              {t.rich("noBlocks", {
+                code: () => (
+                  <code className="rounded bg-white/5 px-1 py-0.5">
+                    &lt;script type=&quot;application/ld+json&quot;&gt;
+                  </code>
+                ),
+                head: () => <>&lt;head&gt;</>,
+              })}
             </p>
           )}
 
@@ -82,11 +87,14 @@ export function ValidateForm() {
                     <XCircle className="size-4 text-rose-300" />
                   )}
                   <span className="text-sm font-semibold">
-                    Block {i + 1}: {Array.isArray(b.type) ? b.type.join(", ") : (b.type ?? "unknown")}
+                    {t("blockTitle", {
+                      n: i + 1,
+                      type: Array.isArray(b.type) ? b.type.join(", ") : (b.type ?? t("unknownType")),
+                    })}
                   </span>
                 </div>
                 <span className="text-[10px] text-muted-foreground">
-                  {b.errors.length} err · {b.warnings.length} warn
+                  {t("blockCounts", { errors: b.errors.length, warnings: b.warnings.length })}
                 </span>
               </header>
               <div className="space-y-2 p-5">

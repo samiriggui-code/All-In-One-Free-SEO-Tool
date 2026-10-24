@@ -5,6 +5,7 @@ import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import { useSearchParams } from "next/navigation";
 import { Eye, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
+import { useTranslations } from "next-intl";
 import { runSxoAudit, type SxoState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
@@ -12,6 +13,7 @@ import { FindingsChecklist } from "@/components/findings-checklist";
 import { ClientIdField } from "@/components/client-id-field";
 
 export default function SxoPage() {
+  const t = useTranslations("tools.ui.sxo");
   const [state, formAction, pending] = useActionState<SxoState, FormData>(
     runSxoAudit,
     null,
@@ -27,8 +29,8 @@ export default function SxoPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="SXO — Search Experience Optimization"
-        description="Audits ranking pages on the user-experience signals Google now weights heavily: page promise, time-to-answer, next step, friction, Core Web Vitals. Blends SEO with UX."
+        title={t("title")}
+        description={t("description")}
         icon={Eye}
         accent="cyan"
       />
@@ -39,7 +41,7 @@ export default function SxoPage() {
       >
         <ClientIdField />
         <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">URL to audit</span>
+          <span className="text-muted-foreground">{t("urlLabel")}</span>
           {/* Input + button on one row, button visually attached to the right */}
           <div className="flex w-full overflow-hidden rounded-md border border-input bg-background focus-within:ring-2 focus-within:ring-cyan-500/40">
             <input
@@ -57,12 +59,12 @@ export default function SxoPage() {
               {pending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Auditing…
+                  {t("auditing")}
                 </>
               ) : (
                 <>
                   <Eye className="size-4" />
-                  Run SXO audit
+                  {t("submit")}
                 </>
               )}
             </button>
@@ -91,8 +93,11 @@ export default function SxoPage() {
               <div className="space-y-1">
                 <h2 className="text-base font-semibold">{state.audit.url}</h2>
                 <p className="text-xs text-muted-foreground">
-                  Intent: <strong>{state.audit.intent}</strong> · Primary persona:{" "}
-                  <strong>{state.audit.primaryPersona}</strong>
+                  {t.rich("intentLine", {
+                    intent: t(`intents.${state.audit.intent}`),
+                    persona: state.audit.primaryPersona,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </p>
               </div>
               <div
@@ -111,18 +116,18 @@ export default function SxoPage() {
           </section>
 
           <section className="grid gap-3 md:grid-cols-2">
-            <Card title="Page promise" ok={state.audit.pagePromise.ok}>
+            <Card title={t("cards.pagePromise")} ok={state.audit.pagePromise.ok}>
               {state.audit.pagePromise.note}
             </Card>
-            <Card title="Time-to-answer" score={state.audit.timeToAnswer.score}>
+            <Card title={t("cards.timeToAnswer")} score={state.audit.timeToAnswer.score}>
               {state.audit.timeToAnswer.note}
             </Card>
-            <Card title="Next step" ok={state.audit.nextStep.ok}>
+            <Card title={t("cards.nextStep")} ok={state.audit.nextStep.ok}>
               {state.audit.nextStep.note}
             </Card>
-            <Card title="Friction" score={state.audit.friction.score}>
+            <Card title={t("cards.friction")} score={state.audit.friction.score}>
               {state.audit.friction.items.length === 0 ? (
-                "No friction items detected."
+                t("noFriction")
               ) : (
                 <ul className="mt-1 space-y-0.5">
                   {state.audit.friction.items.map((f, i) => (
@@ -133,7 +138,7 @@ export default function SxoPage() {
                 </ul>
               )}
             </Card>
-            <Card title="Core Web Vitals (lab)" score={state.audit.cwv.score}>
+            <Card title={t("cards.cwvLab")} score={state.audit.cwv.score}>
               LCP {state.audit.cwv.lcpMs ?? "?"}ms · CLS{" "}
               {state.audit.cwv.cls?.toFixed(3) ?? "?"}
             </Card>
@@ -163,7 +168,7 @@ export default function SxoPage() {
             />
           ) : (
             <section className="rounded-lg border border-border bg-card p-5">
-              <h3 className="text-sm font-semibold">Recommended fixes</h3>
+              <h3 className="text-sm font-semibold">{t("recommendedFixes")}</h3>
               <ul className="mt-2 space-y-1.5 text-sm">
                 {state.audit.recommendations.map((r, i) => (
                   <li key={i} className="flex items-start gap-2">
@@ -196,6 +201,7 @@ function Card({
   score?: number;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("tools.ui.sxo");
   const tone =
     score !== undefined
       ? score >= 75
@@ -223,7 +229,7 @@ function Card({
           {title}
         </p>
         <span className={`text-lg font-semibold ${txt}`}>
-          {score !== undefined ? `${score}/100` : ok ? "✓ Pass" : "✗ Fix"}
+          {score !== undefined ? `${score}/100` : ok ? t("pass") : t("fix")}
         </span>
       </div>
       <div className="mt-1.5 text-xs">{children}</div>

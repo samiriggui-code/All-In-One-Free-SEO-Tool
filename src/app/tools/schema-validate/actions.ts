@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   validateSchemaFromUrl,
   type SchemaValidationResult,
@@ -36,18 +37,21 @@ export type ValidateState =
  * things: an error means Google will not use the block at all, a warning
  * means it will use it and show less.
  */
-function schemaFindings(r: SchemaValidationResult): FindingDraft[] {
+type Translate = Awaited<ReturnType<typeof getTranslations>>;
+
+function schemaFindings(
+  r: SchemaValidationResult,
+  t: Translate,
+): FindingDraft[] {
   const out: FindingDraft[] = [];
 
   if (r.blocks.length === 0) {
     out.push({
       signature: "schema-validate.none",
-      title: "No structured data on this page",
+      title: t("findings.noneTitle"),
       severity: "low",
       category: "structured-data",
-      details:
-        "No JSON-LD blocks found. Schema is what makes a result eligible for the richer " +
-        "listings — review stars, FAQ dropdowns, product prices — rather than a plain link.",
+      details: t("findings.noneDetails"),
     });
     return out;
   }
@@ -56,7 +60,7 @@ function schemaFindings(r: SchemaValidationResult): FindingDraft[] {
   if (broken.length > 0) {
     out.push({
       signature: "schema-validate.errors",
-      title: `${broken.length} structured-data block${broken.length === 1 ? "" : "s"} ${broken.length === 1 ? "has" : "have"} errors`,
+      title: t("findings.errorsTitle", { count: broken.length }),
       // An invalid block is not partially useful. Google discards it, so
       // the markup is doing nothing at all.
       severity: "medium",
@@ -67,8 +71,7 @@ function schemaFindings(r: SchemaValidationResult): FindingDraft[] {
             (b) =>
               `${typeName(b.type)}: ${b.errors.slice(0, 3).join("; ")}`,
           )
-          .join(" | ") +
-        ". Google ignores a block it cannot parse, so this markup is currently doing nothing.",
+          .join(" | ") + t("findings.errorsDetails"),
     });
   }
 
@@ -78,14 +81,13 @@ function schemaFindings(r: SchemaValidationResult): FindingDraft[] {
   if (warned.length > 0) {
     out.push({
       signature: "schema-validate.warnings",
-      title: `${warned.length} block${warned.length === 1 ? "" : "s"} missing recommended fields`,
+      title: t("findings.warningsTitle", { count: warned.length }),
       severity: "low",
       category: "structured-data",
       details:
         warned
           .map((b) => `${typeName(b.type)}: ${b.warnings.slice(0, 3).join("; ")}`)
-          .join(" | ") +
-        ". These are valid but incomplete — Google will use them and show less.",
+          .join(" | ") + t("findings.warningsDetails"),
     });
   }
 
@@ -102,9 +104,10 @@ export async function runValidate(
   formData: FormData,
 ): Promise<ValidateState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.schema-validate");
   const parsed = schema.safeParse({ url: formData.get("url") });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidUrl") };
   const r = await validateSchemaFromUrl(parsed.data.url);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   const clientId = clientIdFrom(formData);
@@ -114,7 +117,7 @@ export async function runValidate(
     clientId,
     input: { url: parsed.data.url, clientId },
     result: { ok: true, result: r },
-    findings: schemaFindings(r),
+    findings: schemaFindings(r, t),
   });
   return { ok: true, result: r };
 }

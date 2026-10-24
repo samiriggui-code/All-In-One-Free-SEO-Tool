@@ -3,10 +3,13 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, GitBranch, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runOpenPr, type PrState } from "./actions";
 
 export default function GithubPrPage() {
+  const t = useTranslations("tools.ui.github-pr");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<PrState, FormData>(
     runOpenPr,
     null,
@@ -19,12 +22,12 @@ export default function GithubPrPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="GitHub PR generator for SEO fixes"
-        description="For sites without a CMS write-bridge (Next.js, custom code, static sites), open a structured PR on GitHub with a checklist of SEO fixes for your developer to implement. Doesn't auto-edit application code — just lands the proposal."
+        title={t("title")}
+        description={t("description")}
         icon={GitBranch}
         accent="cyan"
       />
@@ -35,7 +38,7 @@ export default function GithubPrPage() {
       >
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">GitHub owner / org</span>
+            <span className="text-muted-foreground">{t("ownerLabel")}</span>
             <input
               name="owner"
               required
@@ -44,7 +47,7 @@ export default function GithubPrPage() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Repo</span>
+            <span className="text-muted-foreground">{t("repoLabel")}</span>
             <input
               name="repo"
               required
@@ -54,7 +57,7 @@ export default function GithubPrPage() {
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Domain (cosmetic, used in PR body)
+              {t("domainLabel")}
             </span>
             <input
               name="domain"
@@ -66,8 +69,7 @@ export default function GithubPrPage() {
         </div>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            GitHub Personal Access Token (scope: repo for private, public_repo
-            otherwise)
+            {t("tokenLabel")}
           </span>
           <input
             name="token"
@@ -78,7 +80,7 @@ export default function GithubPrPage() {
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Base branch (optional)</span>
+          <span className="text-muted-foreground">{t("baseBranchLabel")}</span>
           <input
             name="baseBranch"
             placeholder="main"
@@ -87,7 +89,9 @@ export default function GithubPrPage() {
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Fixes — paste structured JSON (array of {`{ title, type, suggestedValue, targetUrl?, rationale? }`})
+            {t("fixesLabel", {
+              shape: "{ title, type, suggestedValue, targetUrl?, rationale? }",
+            })}
           </span>
           <textarea
             name="fixesJson"
@@ -113,17 +117,17 @@ export default function GithubPrPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Opening PR…
+              {t("submitting")}
             </>
           ) : (
             <>
               <GitBranch className="mr-2 size-4" />
-              Open SEO fixes PR
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          The PAT is sent only to GitHub; it&apos;s not stored on the server.
+          {t("tokenNote")}
         </p>
       </form>
 
@@ -136,7 +140,7 @@ export default function GithubPrPage() {
       {state?.ok && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
           <p className="font-medium text-emerald-300">
-            ✓ PR #{state.prNumber} opened on {state.branch}
+            {t("prOpened", { number: state.prNumber, branch: state.branch })}
           </p>
           <a
             href={state.prUrl}
@@ -144,11 +148,14 @@ export default function GithubPrPage() {
             rel="noreferrer"
             className="mt-1 inline-flex items-center gap-1 text-violet-300 hover:underline"
           >
-            View on GitHub
+            {t("viewOnGithub")}
             <ExternalLink className="size-3" />
           </a>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Manifest committed at <code>{state.manifestPath}</code>.
+            {t.rich("manifestCommitted", {
+              path: state.manifestPath,
+              code: (chunks) => <code>{chunks}</code>,
+            })}
           </p>
         </section>
       )}
