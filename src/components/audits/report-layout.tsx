@@ -63,22 +63,40 @@ export function ReportLayout({
   const active = owner ?? ids[0];
 
   useEffect(() => {
+    // Keep the picked tab in view in the phone tab bar.
+    document
+      .querySelector(`[data-tab="${CSS.escape(active)}"]`)
+      ?.scrollIntoView({ block: "nearest", inline: "center" });
     if (!hash) return;
     if (ids.includes(hash)) {
       // A new section starts at its top, but don't jump when that is in view.
       const box = contentRef.current;
-      if (box && box.getBoundingClientRect().top < 0) box.scrollIntoView({ block: "start" });
+      if (box && box.getBoundingClientRect().top < 120) box.scrollIntoView({ block: "start" });
     } else {
       document.getElementById(hash)?.scrollIntoView({ block: "start" });
     }
     // Only on navigation: the ids are stable for one report.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash]);
+  }, [hash, active]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <nav aria-label={navLabel} className="lg:sticky lg:top-20 lg:self-start">
-        <div className="max-h-72 space-y-5 overflow-y-auto rounded-2xl border border-white/5 bg-card/40 p-3 backdrop-blur-md lg:max-h-[calc(100vh-6rem)]">
+      {/* Phones get SEOmator's tab bar: one scrollable row pinned to the top. */}
+      <nav
+        aria-label={navLabel}
+        className="sticky top-0 z-20 -mx-3 overflow-x-auto border-b border-white/5 bg-background/90 px-3 py-2 sm:-mx-4 sm:px-4 backdrop-blur-md [scrollbar-width:none] lg:hidden"
+      >
+        <ul className="flex w-max gap-2">
+          {groups.flatMap((group) => group.items).map((item) => (
+            <li key={item.id} data-tab={item.id}>
+              <TabLink item={item} active={item.id === active} />
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav aria-label={navLabel} className="hidden lg:sticky lg:top-6 lg:block lg:self-start">
+        <div className="space-y-5 overflow-y-auto rounded-2xl border border-white/5 bg-card/40 p-3 backdrop-blur-md lg:max-h-[calc(100vh-8rem)]">
           {groups.map((group) => (
             <div key={group.label}>
               <div className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -96,7 +114,7 @@ export function ReportLayout({
         </div>
       </nav>
 
-      <div ref={contentRef} className="min-w-0 scroll-mt-20">
+      <div ref={contentRef} className="min-w-0 scroll-mt-20 lg:scroll-mt-6">
         {panels.map((p) => (
           <div key={p.id} id={p.id} data-panel={p.id} hidden={p.id !== active} className="space-y-6">
             {p.content}
@@ -104,6 +122,36 @@ export function ReportLayout({
         ))}
       </div>
     </div>
+  );
+}
+
+function TabLink({ item, active }: { item: ReportNavItem; active: boolean }) {
+  const issues = (item.fail ?? 0) + (item.warn ?? 0);
+  return (
+    <a
+      href={`#${item.id}`}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+        active
+          ? "border-cyan-400/50 bg-cyan-400/15 text-foreground"
+          : "border-white/10 bg-white/[0.03] text-muted-foreground",
+      )}
+    >
+      {item.label}
+      {item.score != null ? (
+        <span
+          className={cn(
+            "font-mono tabular-nums",
+            item.score >= 80 ? "text-emerald-300" : item.score >= 60 ? "text-amber-300" : "text-rose-300",
+          )}
+        >
+          {item.score}
+        </span>
+      ) : issues > 0 ? (
+        <span className={item.fail ? "text-rose-300" : "text-amber-300"}>{issues}</span>
+      ) : null}
+    </a>
   );
 }
 

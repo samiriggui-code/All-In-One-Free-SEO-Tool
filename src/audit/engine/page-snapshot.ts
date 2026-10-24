@@ -10,6 +10,32 @@ export function clean(text: string | undefined, limit = 300): string | undefined
   if (!trimmed) return void 0;
   return trimmed.length > limit ? `${trimmed.slice(0, limit - 1)}\u2026` : trimmed;
 }
+/** Largest declared size of an icon link ("180x180", "any" counts as huge). */
+function iconSize(sizes: string | undefined): number {
+  if (!sizes) return 0;
+  if (/\bany\b/i.test(sizes)) return 1e4;
+  return Math.max(0, ...sizes.split(/\s+/).map((s) => Number(s.split(/x/i)[0]) || 0));
+}
+
+/**
+ * The icon that best stands for the site: an apple-touch-icon (made to be
+ * shown large), else the largest `icon` link, else the legacy shortcut icon.
+ */
+export function pickLogo($: AuditContext["$"]): string | undefined {
+  const touch = $('link[rel~="apple-touch-icon"], link[rel~="apple-touch-icon-precomposed"]')
+    .toArray()
+    .map((el) => ({ href: $(el).attr("href"), size: iconSize($(el).attr("sizes")) }))
+    .filter((i) => i.href)
+    .sort((a, b) => b.size - a.size);
+  if (touch[0]?.href) return clean(touch[0].href, 2000);
+  const icons = $('link[rel~="icon"]')
+    .toArray()
+    .map((el) => ({ href: $(el).attr("href"), size: iconSize($(el).attr("sizes")) }))
+    .filter((i) => i.href)
+    .sort((a, b) => b.size - a.size);
+  return clean(icons[0]?.href, 2000);
+}
+
 export function buildPageSnapshot(context: AuditContext): PageSnapshot {
   const { $, html, links, images } = context;
   const meta = (name: string) => clean($(`meta[name="${name}"]`).attr("content"));
@@ -36,6 +62,8 @@ export function buildPageSnapshot(context: AuditContext): PageSnapshot {
       type: property("og:type")
     },
     twitterCard: meta("twitter:card"),
+    logo: pickLogo($),
+    themeColor: meta("theme-color"),
     headings,
     metrics: {
       wordCount: words3,

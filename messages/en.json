@@ -862,7 +862,43 @@
         "redirect": "Redirects",
         "htmlval": "HTML validation",
         "geo": "AI/GEO readiness"
-      }
+      },
+      "heroEyebrow": "SEO audit report",
+      "heroMeta": "{rules} checks · {categories} categories",
+      "pagesAnalyzed": "{count, plural, one {# page analyzed} other {# pages analyzed}}",
+      "seoScore": "SEO score",
+      "geoScore": "GEO score",
+      "verdict": {
+        "A": "Excellent",
+        "B": "Good",
+        "C": "Fair",
+        "D": "Needs work",
+        "F": "Poor"
+      },
+      "verdictText": {
+        "A": "Excellent on-page SEO: the page follows best practices across nearly all checks.",
+        "B": "Good shape: a few fixes stand between this page and the top tier.",
+        "C": "A fair base, but several issues are holding rankings back.",
+        "D": "Significant issues are hurting rankings: fix these first.",
+        "F": "The page has serious SEO problems: the fundamentals need work."
+      },
+      "keyMetricsTitle": "Key metrics",
+      "keyMetricsHint": "Checks, links, images and content of the analyzed page",
+      "checks": "Checks",
+      "categoriesTitle": "Audit categories",
+      "categoriesHint": "{count} weighted categories · click to see the details",
+      "categoryMeta": "{count, plural, one {# check} other {# checks}} · {verdict}",
+      "weight": "Weight {weight}%",
+      "priorityTitle": "Fix these first",
+      "priorityHint": "The {count} most important findings out of {total}",
+      "passedChecks": "{count, plural, one {# passed check} other {# passed checks}}",
+      "notMeasuredChecks": "{count, plural, one {# check not measured} other {# checks not measured}}",
+      "snapshotTitle": "Analyzed page",
+      "snapshotHint": "What Google and social networks see of the page",
+      "metaTags": "Meta tags",
+      "outlineHint": "The H1 to H6 hierarchy found on the page",
+      "tagsFound": "{count, plural, one {# tag} other {# tags}}",
+      "categoriesCount": "{count} categories"
     }
   },
   "tools": {

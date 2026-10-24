@@ -29,6 +29,8 @@ export type CategoryRow = {
   id: string;
   name: string;
   score: number;
+  /** Share of the overall score, out of the categories' total weight */
+  weight: number;
   counts: Record<RuleStatus, number>;
   /** Failures then warnings, highest priority first */
   issues: RuleRow[];
@@ -37,6 +39,8 @@ export type CategoryRow = {
 };
 
 export type EngineReport = {
+  /** The audited URL */
+  url: string;
   score: number;
   totals: Record<RuleStatus, number> & { total: number };
   categories: CategoryRow[];
@@ -68,7 +72,8 @@ export function buildEngineReport(result: AuditResult, topCount = 10): EngineRep
   const categories: CategoryRow[] = [];
 
   for (const category of result.categoryResults) {
-    const name = getCategoryById(category.categoryId)?.name ?? category.categoryId;
+    const meta = getCategoryById(category.categoryId);
+    const name = meta?.name ?? category.categoryId;
     const statuses = new Map<string, RuleStatus>();
     for (const r of category.results) {
       const status: RuleStatus = isNotMeasured(r) ? "not-measured" : r.status;
@@ -108,6 +113,7 @@ export function buildEngineReport(result: AuditResult, topCount = 10): EngineRep
       id: category.categoryId,
       name,
       score: category.score,
+      weight: meta?.weight ?? 0,
       counts,
       issues: rows.filter((r) => r.status === "fail" || r.status === "warn").sort(byPriority),
       quiet: rows.filter((r) => r.status === "pass" || r.status === "not-measured").sort(byPriority),
@@ -126,6 +132,7 @@ export function buildEngineReport(result: AuditResult, topCount = 10): EngineRep
     .slice(0, topCount);
 
   return {
+    url: result.url,
     score: result.overallScore,
     totals,
     categories,

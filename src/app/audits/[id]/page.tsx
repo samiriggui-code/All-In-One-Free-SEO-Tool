@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ClipboardList,
   ExternalLink,
+  FileDown,
   Info,
   Loader2,
 } from "lucide-react";
@@ -677,129 +678,181 @@ export default async function AuditDetailPage({
     </>
   );
 
+  const kindLabel =
+    audit.kind === "seomator"
+      ? t("seomatorKind")
+      : audit.kind === "ai_full"
+        ? t("aiKind")
+        : audit.mode === "full"
+          ? t("fullKind")
+          : audit.mode === "quick"
+            ? t("quickKind")
+            : t("crawlerKind");
+  const crumb = "rounded px-1 py-0.5 transition-colors hover:bg-white/10 hover:text-white";
+  const reportBreadcrumb = (
+    <>
+      <Link href="/clients" className={crumb}>
+        {t("breadcrumbClients")}
+      </Link>
+      <span>/</span>
+      <Link href={`/clients/${client.id}`} className={`${crumb} truncate`}>
+        {client.name}
+      </Link>
+      <span>/</span>
+      <span className="shrink-0 text-white">{t("auditNumber", { id: audit.id })}</span>
+    </>
+  );
+  const ghostBtn =
+    "inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm font-medium transition-colors hover:bg-white/10";
+  const reportActions = (
+    <>
+      <Link
+        href={`/audits/${auditId}/export?format=markdown`}
+        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-3.5 py-2 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition-opacity hover:opacity-90"
+      >
+        <FileDown className="size-4" />
+        {t("exportMarkdown")}
+      </Link>
+      <Link href={`/audits/${auditId}/export?format=llm`} className={ghostBtn}>
+        {t("exportLlm")}
+      </Link>
+      <Link href={`/clients/${client.id}`} className={ghostBtn}>
+        <ExternalLink className="size-3.5" />
+        {t("viewClient")}
+      </Link>
+      <Link href={`/audits/c/${client.id}`} className={ghostBtn}>
+        {t("allAudits")}
+      </Link>
+    </>
+  );
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      {/* HERO */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 px-6 py-7 backdrop-blur-md">
-        <div className="pointer-events-none absolute -left-20 -top-20 size-72 rounded-full bg-gradient-to-br from-cyan-500/30 to-violet-500/15 blur-[100px]" />
-        <div className="pointer-events-none absolute -right-16 -bottom-16 size-56 rounded-full bg-fuchsia-500/15 blur-[80px]" />
+      {report ? null : (
+        <>
+          {/* HERO */}
+          <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 px-6 py-7 backdrop-blur-md">
+            <div className="pointer-events-none absolute -left-20 -top-20 size-72 rounded-full bg-gradient-to-br from-cyan-500/30 to-violet-500/15 blur-[100px]" />
+            <div className="pointer-events-none absolute -right-16 -bottom-16 size-56 rounded-full bg-fuchsia-500/15 blur-[80px]" />
 
-        <nav className="relative flex items-center gap-1 text-xs text-muted-foreground">
-          <Link
-            href="/clients"
-            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
-          >
-            {t("breadcrumbClients")}
-          </Link>
-          <span>/</span>
-          <Link
-            href={`/clients/${client.id}`}
-            className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
-          >
-            {client.name}
-          </Link>
-          <span>/</span>
-          <span className="text-foreground">{t("auditNumber", { id: audit.id })}</span>
-        </nav>
-
-        <div className="relative z-10 mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-400/30">
-                <ClipboardList className="size-5 text-cyan-300" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  <span className="text-gradient-brand">{t("resultsTitle")}</span>
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {audit.completedAt
-                    ? t("completedAt", {
-                        date: audit.completedAt.toLocaleString(),
-                      })
-                    : t("startedAt", {
-                        date: (audit.startedAt ?? audit.createdAt).toLocaleString(),
-                      })}{" "}
-                  · {client.name}
-                  {" · "}
-                  {audit.kind === "seomator"
-                    ? t("seomatorKind")
-                    : audit.kind === "ai_full"
-                      ? t("aiKind")
-                      : audit.mode === "full"
-                        ? t("fullKind")
-                        : audit.mode === "quick"
-                          ? t("quickKind")
-                          : t("crawlerKind")}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <nav className="relative flex items-center gap-1 text-xs text-muted-foreground">
+              <Link
+                href="/clients"
+                className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
+              >
+                {t("breadcrumbClients")}
+              </Link>
+              <span>/</span>
               <Link
                 href={`/clients/${client.id}`}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                className="rounded px-1 py-0.5 transition-colors hover:bg-white/5 hover:text-foreground"
               >
-                <ExternalLink className="size-3" />
-                View client
+                {client.name}
               </Link>
-              {hasEngine && audit.status === "completed" ? (
-                <>
+              <span>/</span>
+              <span className="text-foreground">{t("auditNumber", { id: audit.id })}</span>
+            </nav>
+
+            <div className="relative z-10 mt-4 grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-400/30">
+                    <ClipboardList className="size-5 text-cyan-300" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-semibold tracking-tight">
+                      <span className="text-gradient-brand">{t("resultsTitle")}</span>
+                    </h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {audit.completedAt
+                        ? t("completedAt", {
+                            date: audit.completedAt.toLocaleString(),
+                          })
+                        : t("startedAt", {
+                            date: (audit.startedAt ?? audit.createdAt).toLocaleString(),
+                          })}{" "}
+                      · {client.name}
+                      {" · "}
+                      {audit.kind === "seomator"
+                        ? t("seomatorKind")
+                        : audit.kind === "ai_full"
+                          ? t("aiKind")
+                          : audit.mode === "full"
+                            ? t("fullKind")
+                            : audit.mode === "quick"
+                              ? t("quickKind")
+                              : t("crawlerKind")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
                   <Link
-                    href={`/audits/${auditId}/export?format=markdown`}
+                    href={`/clients/${client.id}`}
                     className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                   >
-                    Export Markdown
+                    <ExternalLink className="size-3" />
+                    View client
                   </Link>
-                  <Link
-                    href={`/audits/${auditId}/export?format=llm`}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                  >
-                    Export LLM
-                  </Link>
-                  <Link
-                    href={`/audits/c/${client.id}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                  >
-                    All audits
-                  </Link>
-                </>
+                  {hasEngine && audit.status === "completed" ? (
+                    <>
+                      <Link
+                        href={`/audits/${auditId}/export?format=markdown`}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                      >
+                        Export Markdown
+                      </Link>
+                      <Link
+                        href={`/audits/${auditId}/export?format=llm`}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                      >
+                        Export LLM
+                      </Link>
+                      <Link
+                        href={`/audits/c/${client.id}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                      >
+                        All audits
+                      </Link>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+
+              {!report ? (
+                <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
+                  <div className="origin-center scale-90 sm:scale-100">
+                    <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Health score
+                    </div>
+                    <div className="text-sm font-medium">
+                      {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
+                      {pagesCrawled !== null
+                        ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
+                        : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {audit.status === "completed"
+                        ? verdict
+                          ? `${verdict.grade} · ${verdict.label}`
+                          : "Out of 100"
+                        : audit.status}
+                    </div>
+                    {/* The number most likely to end up in front of a client,
+                        and the one whose basis is least obvious. It describes
+                        what our crawler saw on the pages it reached — not
+                        what Google has indexed, and not every page on the
+                        site. */}
+                    {sourceBadge}
+                  </div>
+                </div>
               ) : null}
             </div>
-          </div>
-
-          {!report ? (
-            <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
-              <div className="origin-center scale-90 sm:scale-100">
-                <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Health score
-                </div>
-                <div className="text-sm font-medium">
-                  {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
-                  {pagesCrawled !== null
-                    ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
-                    : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {audit.status === "completed"
-                    ? verdict
-                      ? `${verdict.grade} · ${verdict.label}`
-                      : "Out of 100"
-                    : audit.status}
-                </div>
-                {/* The number most likely to end up in front of a client,
-                    and the one whose basis is least obvious. It describes
-                    what our crawler saw on the pages it reached — not
-                    what Google has indexed, and not every page on the
-                    site. */}
-                {sourceBadge}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       {report ? (
         <EngineReportView
@@ -810,7 +863,14 @@ export default async function AuditDetailPage({
           issuesCount={audit.issuesCount}
           badge={sourceBadge}
           afterSnapshot={measured}
-          preview={landingPreview}
+          hero={{
+            breadcrumb: reportBreadcrumb,
+            actions: reportActions,
+            kindLabel,
+            completedAt: audit.completedAt,
+            screenshotSrc: showLandingPreview ? `/audits/${auditId}/preview` : null,
+            geoScore: audit.geoScore ?? null,
+          }}
           extra={[
             ...(geoPanel ? [{ id: "geo", label: tr("navGeo"), content: geoPanel }] : []),
             {

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { audits } from "@/db/schema";
 import { dataDir } from "@/lib/data-dir";
+import { AccessDeniedError, requireClientAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,21 @@ export async function GET(
   }
 
   const [row] = await db
-    .select({ previewScreenshotPath: audits.previewScreenshotPath })
+    .select({ previewScreenshotPath: audits.previewScreenshotPath, clientId: audits.clientId })
     .from(audits)
     .where(eq(audits.id, auditId))
     .limit(1);
 
   if (!row?.previewScreenshotPath) {
     return new NextResponse("Not found", { status: 404 });
+  }
+  // The screenshot shows a client's site: only users who may see that
+  // client get it.
+  try {
+    await requireClientAccess(row.clientId);
+  } catch (err) {
+    if (err instanceof AccessDeniedError) return new NextResponse("Forbidden", { status: 403 });
+    throw err;
   }
 
   const root = path.resolve(dataDir());

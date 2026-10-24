@@ -862,7 +862,43 @@
         "redirect": "Redirections",
         "htmlval": "Validation HTML",
         "geo": "Préparation IA (GEO)"
-      }
+      },
+      "heroEyebrow": "Rapport d’audit SEO",
+      "heroMeta": "{rules} contrôles · {categories} rubriques",
+      "pagesAnalyzed": "{count, plural, one {# page analysée} other {# pages analysées}}",
+      "seoScore": "Score SEO",
+      "geoScore": "Score GEO",
+      "verdict": {
+        "A": "Excellent",
+        "B": "Bon",
+        "C": "Correct",
+        "D": "À améliorer",
+        "F": "Faible"
+      },
+      "verdictText": {
+        "A": "Excellent SEO on-page : la page suit les bonnes pratiques sur presque tous les contrôles.",
+        "B": "Bon niveau : quelques points à corriger pour passer au niveau supérieur.",
+        "C": "Base correcte, mais plusieurs problèmes freinent le référencement.",
+        "D": "Des problèmes importants pénalisent le référencement : à traiter en priorité.",
+        "F": "La page a de sérieux problèmes SEO : une refonte des fondamentaux s’impose."
+      },
+      "keyMetricsTitle": "Indicateurs clés",
+      "keyMetricsHint": "Contrôles, liens, images et contenu de la page analysée",
+      "checks": "Contrôles",
+      "categoriesTitle": "Rubriques de l’audit",
+      "categoriesHint": "{count} rubriques pondérées · cliquez pour voir le détail",
+      "categoryMeta": "{count, plural, one {# contrôle} other {# contrôles}} · {verdict}",
+      "weight": "Poids {weight} %",
+      "priorityTitle": "À corriger en priorité",
+      "priorityHint": "Les {count} constats les plus importants sur {total}",
+      "passedChecks": "{count, plural, one {# contrôle réussi} other {# contrôles réussis}}",
+      "notMeasuredChecks": "{count, plural, one {# contrôle non mesuré} other {# contrôles non mesurés}}",
+      "snapshotTitle": "Page analysée",
+      "snapshotHint": "Ce que Google et les réseaux sociaux voient de la page",
+      "metaTags": "Balises meta",
+      "outlineHint": "La hiérarchie H1 à H6 trouvée sur la page",
+      "tagsFound": "{count, plural, one {# balise} other {# balises}}",
+      "categoriesCount": "{count} rubriques"
     }
   },
   "tools": {
