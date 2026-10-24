@@ -9,6 +9,7 @@ import { clients, invoices } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { getLocale, getTranslations } from "next-intl/server";
 import { invoiceTotals, formatMoney } from "@/lib/invoice-utils";
 
 const statusTone: Record<string, string> = {
@@ -20,6 +21,9 @@ const statusTone: Record<string, string> = {
 };
 
 export default async function InvoicesPage() {
+  const t = await getTranslations("invoices");
+  const locale = await getLocale();
+  const money = (n: number, currency: string) => formatMoney(n, currency, locale);
   const rows = await db
     .select({
       id: invoices.id,
@@ -53,8 +57,8 @@ export default async function InvoicesPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Invoices"
-        description="Create simple client invoices, track status, export PDF. Built for freelancers who don't want a separate billing tool."
+        title={t("title")}
+        description={t("description")}
         icon={Receipt}
         accent="amber"
         actions={
@@ -66,19 +70,19 @@ export default async function InvoicesPage() {
             })}
           >
             <Plus className="size-4" />
-            New invoice
+            {t("new")}
           </Link>
         }
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/20">
-              Paid: {formatMoney(totals.paid, "EUR")}
+              {t("totals.paid", { amount: money(totals.paid, "EUR") })}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300 ring-1 ring-inset ring-amber-500/20">
-              Outstanding: {formatMoney(totals.outstanding, "EUR")}
+              {t("totals.outstanding", { amount: money(totals.outstanding, "EUR") })}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              Draft: {formatMoney(totals.draft, "EUR")}
+              {t("totals.draft", { amount: money(totals.draft, "EUR") })}
             </span>
           </div>
         }
@@ -88,9 +92,9 @@ export default async function InvoicesPage() {
         <div className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <EmptyState
             icon={Receipt}
-            title="No invoices yet"
-            body="Draft and send invoices to clients without leaving the tool. Branded PDF, payment terms, multiple line items."
-            primary={{ href: "/invoices/new", label: "Create your first invoice" }}
+            title={t("empty.title")}
+            body={t("empty.body")}
+            primary={{ href: "/invoices/new", label: t("empty.cta") }}
           />
         </div>
       ) : (
@@ -98,12 +102,12 @@ export default async function InvoicesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Number</th>
-                <th className="px-5 py-3 text-left font-medium">Client</th>
-                <th className="px-5 py-3 text-left font-medium">Issued</th>
-                <th className="px-5 py-3 text-left font-medium">Due</th>
-                <th className="px-5 py-3 text-left font-medium">Status</th>
-                <th className="px-5 py-3 text-right font-medium">Total</th>
+                <th className="px-5 py-3 text-left font-medium">{t("columns.number")}</th>
+                <th className="px-5 py-3 text-left font-medium">{t("columns.client")}</th>
+                <th className="px-5 py-3 text-left font-medium">{t("columns.issued")}</th>
+                <th className="px-5 py-3 text-left font-medium">{t("columns.due")}</th>
+                <th className="px-5 py-3 text-left font-medium">{t("columns.status")}</th>
+                <th className="px-5 py-3 text-right font-medium">{t("columns.total")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -135,20 +139,20 @@ export default async function InvoicesPage() {
                       )}
                     </td>
                     <td className="px-5 py-4 text-xs text-muted-foreground">
-                      {r.issueDate.toLocaleDateString()}
+                      {r.issueDate.toLocaleDateString(locale)}
                     </td>
                     <td className="px-5 py-4 text-xs text-muted-foreground">
-                      {r.dueDate?.toLocaleDateString() ?? "—"}
+                      {r.dueDate?.toLocaleDateString(locale) ?? "—"}
                     </td>
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusTone[r.status]}`}
                       >
-                        {r.status}
+                        {t(`status.${r.status}`)}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-right font-mono">
-                      {formatMoney(total, r.currency)}
+                      {money(total, r.currency)}
                     </td>
                   </tr>
                 );

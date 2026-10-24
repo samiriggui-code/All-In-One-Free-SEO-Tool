@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Plus, X, AlertCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,8 +26,12 @@ export function NewInvoiceForm({
   clients: { id: number; name: string }[];
   defaultInvoiceNumber: string;
 }) {
+  const t = useTranslations("invoices.form");
+  const locale = useLocale();
+  const amount = (n: number) =>
+    new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   const [lines, setLines] = useState<Line[]>([
-    { description: "Monthly SEO retainer", quantity: "1", rate: "" },
+    { description: t("defaultLine"), quantity: "1", rate: "" },
   ]);
   const [taxPercent, setTaxPercent] = useState("0");
 
@@ -38,7 +43,7 @@ export function NewInvoiceForm({
   if (clients.length === 0) {
     return (
       <div className="rounded-2xl border border-white/5 bg-card/40 p-5 text-sm text-muted-foreground backdrop-blur-md">
-        Add a client first, then create an invoice.
+        {t("noClients")}
       </div>
     );
   }
@@ -72,7 +77,7 @@ export function NewInvoiceForm({
     >
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
-          <Label htmlFor="clientId">Client</Label>
+          <Label htmlFor="clientId">{t("client")}</Label>
           <select
             id="clientId"
             name="clientId"
@@ -88,7 +93,7 @@ export function NewInvoiceForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="invoiceNumber">Invoice number</Label>
+          <Label htmlFor="invoiceNumber">{t("number")}</Label>
           <Input
             id="invoiceNumber"
             name="invoiceNumber"
@@ -96,7 +101,7 @@ export function NewInvoiceForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="currency">Currency</Label>
+          <Label htmlFor="currency">{t("currency")}</Label>
           <Input
             id="currency"
             name="currency"
@@ -108,7 +113,7 @@ export function NewInvoiceForm({
 
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
-          <Label htmlFor="issueDate">Issue date</Label>
+          <Label htmlFor="issueDate">{t("issueDate")}</Label>
           <Input
             id="issueDate"
             name="issueDate"
@@ -117,7 +122,7 @@ export function NewInvoiceForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="dueDate">Due date</Label>
+          <Label htmlFor="dueDate">{t("dueDate")}</Label>
           <Input
             id="dueDate"
             name="dueDate"
@@ -126,7 +131,7 @@ export function NewInvoiceForm({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="taxPercent">Tax %</Label>
+          <Label htmlFor="taxPercent">{t("taxPercent")}</Label>
           <Input
             id="taxPercent"
             name="taxPercent"
@@ -141,7 +146,7 @@ export function NewInvoiceForm({
       </div>
 
       <div className="mt-6 space-y-2">
-        <Label>Line items</Label>
+        <Label>{t("lines")}</Label>
         <div className="rounded-xl border border-white/5 bg-black/20 p-3 space-y-2">
           {lines.map((l, i) => (
             <div
@@ -150,7 +155,7 @@ export function NewInvoiceForm({
             >
               <Input
                 name="description"
-                placeholder="Description"
+                placeholder={t("descriptionPlaceholder")}
                 value={l.description}
                 onChange={(e) =>
                   updateLine(i, "description", e.target.value)
@@ -170,14 +175,14 @@ export function NewInvoiceForm({
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="Rate"
+                placeholder={t("ratePlaceholder")}
                 value={l.rate}
                 onChange={(e) => updateLine(i, "rate", e.target.value)}
               />
               <button
                 type="button"
                 onClick={() => removeLine(i)}
-                aria-label="Remove line"
+                aria-label={t("removeLine")}
                 disabled={lines.length === 1}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-30"
               >
@@ -191,26 +196,26 @@ export function NewInvoiceForm({
             className="inline-flex items-center gap-1 rounded-md bg-white/5 px-2 py-1 text-xs text-muted-foreground hover:bg-white/10 hover:text-foreground"
           >
             <Plus className="size-3" />
-            Add line
+            {t("addLine")}
           </button>
         </div>
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="notes">Notes</Label>
+          <Label htmlFor="notes">{t("notes")}</Label>
           <Input
             id="notes"
             name="notes"
-            placeholder="Payment instructions, thank-you message, etc."
+            placeholder={t("notesPlaceholder")}
             maxLength={1000}
           />
         </div>
         <div className="rounded-xl border border-white/5 bg-black/20 p-4 text-sm">
-          <Row label="Subtotal" value={subtotal.toFixed(2)} />
-          <Row label={`Tax (${taxPercent}%)`} value={tax.toFixed(2)} />
+          <Row label={t("subtotal")} value={amount(subtotal)} />
+          <Row label={t("tax", { percent: taxPercent })} value={amount(tax)} />
           <div className="my-2 h-px bg-white/10" />
-          <Row label="Total" value={total.toFixed(2)} bold />
+          <Row label={t("total")} value={amount(total)} bold />
         </div>
       </div>
 
@@ -227,7 +232,7 @@ export function NewInvoiceForm({
           disabled={pending}
           className="shadow-md shadow-amber-500/20"
         >
-          {pending ? "Creating…" : "Create invoice"}
+          {pending ? t("creating") : t("create")}
         </Button>
       </div>
     </form>
