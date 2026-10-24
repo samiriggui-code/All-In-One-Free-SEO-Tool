@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { deriveScope } from "./proposal-scope";
-import { cartLines, cartQuote, checkCart, initialCart, type CartInput } from "./quote-cart";
+import { cartLines, cartQuote, checkCart, initialCart, withOffers, type CartInput } from "./quote-cart";
 import { totals } from "./quote";
 import { defaultOffers, type OfferSnapshot } from "./service-offers";
 
@@ -63,6 +63,19 @@ describe("quote cart", () => {
     // Dropping a quoted service for a cheaper add-on is not a choice the page offers.
     expect(checkCart(i, { ...cart, offerIds: [monthly.offerId] })).toBe("offers");
     expect(checkCart(i, { ...cart, offerIds: [fixes.offerId] })).toBe("offers");
+  });
+
+  it("refuses an extra severity when no hourly service is in the cart", () => {
+    const i = input({ offers: [audit], pricing: [] });
+    const cart = initialCart(i);
+    expect(checkCart(i, { ...cart, severities: ["critical", "high", "medium"] })).toBe("severities");
+    const withFixes = { offerIds: [audit.offerId, fixes.offerId], severities: ["critical" as const, "high" as const, "medium" as const] };
+    expect(checkCart(input({ offers: [audit], addons: [fixes] }), withFixes)).toBeNull();
+    // Taking the fixes out again drops the extras, keeps what was quoted.
+    expect(withOffers(input({ offers: [audit], addons: [fixes] }), withFixes, [audit.offerId]).severities).toEqual([
+      "critical",
+      "high",
+    ]);
   });
 
   it("asks for exactly one formula when they are alternatives", () => {

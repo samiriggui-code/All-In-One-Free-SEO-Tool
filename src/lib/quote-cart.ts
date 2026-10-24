@@ -67,10 +67,25 @@ export function checkCart(input: CartInput, cart: Cart): "offers" | "choice" | "
 
   if (cart.severities.some((s) => !SEVERITIES.includes(s))) return "severities";
   if (input.quote.severities.some((s) => !cart.severities.includes(s))) return "severities";
+  // Extra severities only price the hourly fixes: without one in the
+  // cart they would be stored as bought for nothing, so the page does
+  // not offer them and the server refuses them the same way.
+  const added = cart.severities.some((s) => !input.quote.severities.includes(s));
+  if (added && !cartOffers(input, cart).some((o) => o.billing === "hourly")) return "severities";
 
   const lines = input.pricing.filter((l) => l.offerId === undefined);
   if (cart.offerIds.length === 0 && lines.length === 0) return "offers";
   return null;
+}
+
+/**
+ * The cart after a service change: the extra severities go when the
+ * last hourly service leaves, since nothing would price them any more.
+ */
+export function withOffers(input: CartInput, cart: Cart, offerIds: number[]): Cart {
+  const next = { ...cart, offerIds };
+  if (cartOffers(input, next).some((o) => o.billing === "hourly")) return next;
+  return { ...next, severities: cart.severities.filter((s) => input.quote.severities.includes(s)) };
 }
 
 /** The services in the cart, proposal ones first, in their original order. */
