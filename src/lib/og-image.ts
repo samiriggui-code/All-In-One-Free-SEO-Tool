@@ -144,7 +144,7 @@ export async function generateOgImage(opts: OgOptions): Promise<{
 function buildTree(opts: OgOptions): React.ReactElement {
   const tmpl = opts.template ?? "gradient";
   const brand = opts.brand;
-  const color = opts.brandColor ?? "#7c3aed";
+  const color = opts.brandColor ?? "#0b7fae";
   const { title, subtitle, imageUrl } = opts;
 
   if (tmpl === "minimal") {

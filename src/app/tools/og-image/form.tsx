@@ -51,7 +51,7 @@ export function OgForm() {
             <span className="text-muted-foreground">Brand color (hex)</span>
             <input
               name="brandColor"
-              defaultValue="#7c3aed"
+              defaultValue="#0b7fae"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 font-mono text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>

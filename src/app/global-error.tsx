@@ -184,7 +184,7 @@ export default function GlobalError({
                 fontSize: 13,
                 fontWeight: 500,
                 color: "#fff",
-                background: "#5e6ad2",
+                background: "#0b7fae",
                 border: "1px solid #6e7adc",
                 borderRadius: 6,
                 cursor: "pointer",

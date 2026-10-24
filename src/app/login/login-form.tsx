@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, Loader2, Lock } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +56,6 @@ function LoginInner({ mode }: { mode: "accounts" | "password" }) {
 
   return (
     <AuthCard
-      icon={<Lock className="size-5" />}
       title={t("welcomeBack")}
       subtitle={accounts ? t("signInAccount") : t("signInPassword")}
     >

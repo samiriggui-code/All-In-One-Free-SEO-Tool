@@ -14,6 +14,7 @@ import {
 import { navItemMessageKey } from "@/i18n/nav";
 import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
 import { useStoredState } from "@/components/use-stored-state";
+import { ProductMark, ProductWordmark } from "@/components/brand/product-logo";
 
 /**
  * Per-group accent. Pre-baked Tailwind class strings so the JIT picks
@@ -293,22 +294,20 @@ export function Sidebar({
         collapsed ? "w-[60px]" : "w-[260px]"
       }`}
     >
-      {/* Workspace header — shadcn-admin style: rounded primary mark
-          + app name + role/version line beneath + collapse toggle */}
+      {/* Workspace header: the rank_forge mark and wordmark, the
+          version line beneath, and the collapse toggle */}
       <div
         className={`flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border ${
           collapsed ? "justify-center px-2" : "px-3"
         }`}
       >
-        <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
-          S
-        </div>
+        <Link href="/" aria-label={t("appName")} className="shrink-0">
+          <ProductMark className="size-8" />
+        </Link>
         {!collapsed && (
           <>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold leading-none text-sidebar-foreground">
-                {t("appName")}
-              </div>
+              <ProductWordmark tone="auto" className="block truncate text-[15px]" />
               <div className="mt-1 truncate text-xs text-sidebar-foreground/60">
                 {t("appTagline")}
               </div>
