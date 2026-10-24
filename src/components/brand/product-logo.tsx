@@ -1,95 +1,105 @@
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The product's own logo: a code tag whose slash is a rising arrow,
- * `</>` read as "ranking up", next to the name written as a tag.
+ * The product's own logo. The mark is the monogram `<rf/>` with its
+ * slash in the app's blue; the name is written as a tag, `<rank_forge/>`,
+ * with "forge" in the same blue gradient.
  */
 
-export function ProductMark({
-  className,
-  from = "#7c3aed",
-  to = "#38bdf8",
-}: {
-  className?: string;
-  from?: string;
-  to?: string;
-}) {
-  const id = `pm-${from.slice(1)}-${to.slice(1)}`;
+/** The product's name, written as it appears in the tag. */
+export const PRODUCT_NAME = "rank_forge";
+
+/**
+ * The app's own blue, from `--primary` in globals.css (light, then dark
+ * theme), with a lighter cyan to finish the gradient.
+ */
+export const BRAND_GRADIENT = ["#0b7fae", "#14b3e0", "#6fe3ff"] as const;
+export const INK = "#0b0d14";
+
+export function ProductMark({ className }: { className?: string }) {
+  const id = useId();
   return (
-    <svg viewBox="0 0 40 40" className={cn("size-9", className)} aria-hidden>
+    <svg viewBox="0 0 48 48" className={cn("size-9", className)} aria-hidden>
       <defs>
-        <linearGradient id={id} x1="0" y1="40" x2="40" y2="0" gradientUnits="userSpaceOnUse">
-          <stop stopColor={from} />
-          <stop offset="1" stopColor={to} />
+        <linearGradient id={id} x1="0" y1="48" x2="48" y2="0" gradientUnits="userSpaceOnUse">
+          <stop stopColor={BRAND_GRADIENT[0]} />
+          <stop offset="0.55" stopColor={BRAND_GRADIENT[1]} />
+          <stop offset="1" stopColor={BRAND_GRADIENT[2]} />
         </linearGradient>
       </defs>
-      <rect width="40" height="40" rx="11" fill={`url(#${id})`} />
-      <g fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12.5 14 7 20l5.5 6" />
-        <path d="M27.5 14 33 20l-5.5 6" />
-        <path d="M16.5 28 23.5 12" />
-        <path d="M18.6 12.4 23.5 12l1.6 4.6" />
+      <rect width="48" height="48" rx="13" fill={INK} />
+      <rect x="1" y="1" width="46" height="46" rx="12" fill="none" stroke={`url(#${id})`} strokeOpacity=".55" />
+      <text
+        x="20.5"
+        y="29.5"
+        textAnchor="middle"
+        fontFamily="var(--font-geist-mono), ui-monospace, monospace"
+        fontWeight="700"
+        fontSize="14.5"
+        letterSpacing="-1.2"
+        fill="#fff"
+      >
+        rf
+      </text>
+      <path d="M28.5 31.5 32 16.5" stroke={`url(#${id})`} strokeWidth="3" strokeLinecap="round" />
+      <g fill="none" stroke="#fff" strokeOpacity=".55" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 18.5 6.5 24l4.5 5.5" />
+        <path d="M36.5 18.5 41 24l-4.5 5.5" />
       </g>
     </svg>
   );
 }
 
-/**
- * `<name/>` in monospace. An underscore in the name is drawn in the
- * accent colour, so `seo_rank` reads as two words.
- */
+/** `<rank_forge/>` in monospace: brackets dimmed, "forge" in the brand blue. */
 export function ProductWordmark({
-  name,
   className,
-  accent = "#a78bfa",
+  tone = "dark",
 }: {
-  name: string;
   className?: string;
-  accent?: string;
+  /** The background it sits on. */
+  tone?: "dark" | "light";
 }) {
-  const parts = name.split(/(_|\.)/);
+  const [first, second] = PRODUCT_NAME.split("_");
+  const dim = tone === "dark" ? "rgba(255,255,255,.38)" : "rgba(11,13,20,.35)";
   return (
     <span
-      className={cn("whitespace-nowrap font-mono font-semibold tracking-tight", className)}
-      aria-label={name}
+      className={cn("whitespace-nowrap font-mono leading-none tracking-[-0.04em]", className)}
+      aria-label={PRODUCT_NAME}
     >
-      <span style={{ color: accent }}>&lt;</span>
-      {parts.map((p, i) =>
-        p === "_" || p === "." ? (
-          <span key={i} style={{ color: accent }}>
-            {p}
-          </span>
-        ) : (
-          <span key={i}>{p}</span>
-        ),
-      )}
-      <span style={{ color: accent }}>/&gt;</span>
+      <span style={{ color: dim }}>&lt;</span>
+      <span className="font-medium" style={{ color: tone === "dark" ? "#fff" : INK }}>
+        {first}
+      </span>
+      <span className="font-bold" style={{ color: BRAND_GRADIENT[1] }}>
+        _
+      </span>
+      <span
+        className="bg-clip-text font-extrabold text-transparent"
+        style={{
+          backgroundImage: `linear-gradient(90deg, ${BRAND_GRADIENT[0]}, ${BRAND_GRADIENT[1]} 55%, ${BRAND_GRADIENT[2]})`,
+        }}
+      >
+        {second}
+      </span>
+      <span style={{ color: dim }}>/&gt;</span>
     </span>
   );
 }
 
 export function ProductLogo({
-  name,
   className,
-  from,
-  to,
-  accent,
+  tone,
   wordmarkClassName,
 }: {
-  name: string;
   className?: string;
-  from?: string;
-  to?: string;
-  accent?: string;
+  tone?: "dark" | "light";
   wordmarkClassName?: string;
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <ProductMark from={from} to={to} />
-      <ProductWordmark name={name} accent={accent} className={cn("text-[17px]", wordmarkClassName)} />
+      <ProductMark />
+      <ProductWordmark tone={tone} className={cn("text-[19px]", wordmarkClassName)} />
     </span>
   );
 }
-
-/** The product's name, written as it appears in the tag. */
-export const PRODUCT_NAME = "rank_forge";

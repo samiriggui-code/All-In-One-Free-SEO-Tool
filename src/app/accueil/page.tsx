@@ -23,8 +23,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { isLocale } from "@/i18n/config";
-import { accentColor, loadBrand, type Brand } from "@/lib/brand";
-import { PRODUCT_NAME, ProductLogo, ProductWordmark } from "@/components/brand/product-logo";
+import { loadBrand, type Brand } from "@/lib/brand";
+import { BRAND_GRADIENT, PRODUCT_NAME, ProductLogo, ProductWordmark } from "@/components/brand/product-logo";
 import { LocaleToggle } from "./locale-toggle";
 
 /**
@@ -59,7 +59,9 @@ export default async function LandingPage() {
   ]);
   const locale = isLocale(rawLocale) ? rawLocale : "fr";
   const name = PRODUCT_NAME;
-  const accent = brand ? accentColor(brand) : "#7c3aed";
+  // The product's blue, not Settings → Branding: the page carries the
+  // product's own logo, and another brand colour would clash with it.
+  const accent = BRAND_GRADIENT[1];
   const tagline = brand?.tagline?.trim() || null;
   const email = brand?.email?.trim() || null;
   const phone = brand?.phone?.trim() || null;
@@ -93,7 +95,7 @@ export default async function LandingPage() {
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-56 right-[-10rem] size-[32rem] rounded-full bg-sky-500 opacity-20 blur-[120px]"
+          className="pointer-events-none absolute -bottom-56 right-[-10rem] size-[32rem] rounded-full bg-cyan-400 opacity-20 blur-[120px]"
         />
         <div
           aria-hidden
@@ -108,12 +110,7 @@ export default async function LandingPage() {
 
         <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5 sm:px-8">
           <Link href="/accueil" className="min-w-0 text-white">
-            <ProductLogo
-              name={name}
-              from={accent}
-              accent={`color-mix(in oklab, ${accent} 55%, white)`}
-              wordmarkClassName="text-[15px] sm:text-[17px]"
-            />
+            <ProductLogo wordmarkClassName="text-[16px] sm:text-[19px]" />
           </Link>
           <nav className="hidden items-center gap-7 text-sm text-white/70 md:flex">
             <a href="#services" className="hover:text-white">{t("navServices")}</a>
@@ -143,7 +140,7 @@ export default async function LandingPage() {
               {t("heroTitleStart")}{" "}
               <span
                 className="bg-clip-text text-transparent"
-                style={{ backgroundImage: `linear-gradient(90deg, ${accent}, #38bdf8)` }}
+                style={{ backgroundImage: `linear-gradient(90deg, ${BRAND_GRADIENT[0]}, ${BRAND_GRADIENT[1]} 55%, ${BRAND_GRADIENT[2]})` }}
               >
                 {t("heroTitleAccent")}
               </span>
@@ -314,7 +311,7 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-8">
           <div
             className="relative overflow-hidden rounded-3xl px-6 py-14 text-center text-white sm:px-12"
-            style={{ background: `linear-gradient(135deg, ${accent} 0%, #0b1024 85%)` }}
+            style={{ background: `linear-gradient(135deg, ${BRAND_GRADIENT[0]} 0%, #06283d 45%, #0b0d14 90%)` }}
           >
             <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
               {t("ctaTitle")}
@@ -348,7 +345,7 @@ export default async function LandingPage() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <ProductWordmark name={name} accent={accent} className="text-base text-slate-900" />
+            <ProductWordmark tone="light" className="text-base" />
             <p className="mt-1">{tagline ?? t("footerTagline")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
