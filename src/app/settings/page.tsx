@@ -27,7 +27,7 @@ import { db } from "@/db/client";
 import { audits, clients, keywords, tasks, users } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { getSetting } from "@/lib/settings-store";
-import { currentUser } from "@/lib/auth";
+import { canManageSettings, currentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import {
   configuredProviders,
@@ -61,6 +61,9 @@ import { getLocalePreference } from "./locale-actions";
 export default async function SettingsPage() {
   const me = await currentUser();
   if (me?.role === "viewer") redirect("/");
+  // The MCP tokens and the browser pool's cookies/proxies are secrets the
+  // owner manages; managers and members see the rest of the page.
+  const isAdmin = !me || canManageSettings(me.role);
 
   const t = await getTranslations("settings");
   const locale = await getLocalePreference();
@@ -103,7 +106,17 @@ export default async function SettingsPage() {
   const defaultModel = (await getSetting<string>("ai.default_model")) ?? null;
   const connectionMode = await getConnectionMode();
   const aiStatus = await getAiConnectionStatus();
-  const mcpStatus = await getMcpStatus();
+  const mcpStatus = isAdmin
+    ? await getMcpStatus()
+    : {
+        enabled: false,
+        token: null,
+        readOnlyToken: null,
+        lastSeenAt: null,
+        lastClient: null,
+        connected: false,
+        lastSeenLabel: null,
+      };
   // Read here rather than from window.location in the client component:
   // the two disagree during hydration and React errors on the mismatch.
   const hdrs = await headers();
@@ -121,7 +134,7 @@ export default async function SettingsPage() {
   const smtpFromName = await getSetting<string>("smtp.from_name");
   const smtpSecure = await getSetting<string>("smtp.secure");
   const smtpHasPassword = Boolean(await getSetting<string>("smtp.password"));
-  const browserSettings = await loadBrowserSettings();
+  const browserSettings = isAdmin ? await loadBrowserSettings() : null;
 
   const apiKeyRows = await dbClient
     .select()
@@ -496,7 +509,13 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative p-5">
-          <BrowserForm initial={browserSettings} />
+          {browserSettings ? (
+            <BrowserForm initial={browserSettings} />
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Only the workspace owner can change the browser pool.
+            </p>
+          )}
         </div>
       </section>
 

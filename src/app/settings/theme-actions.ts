@@ -1,5 +1,6 @@
 "use server";
 
+import { mayEdit } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { setSetting, getSetting } from "@/lib/settings-store";
 
@@ -16,6 +17,8 @@ export async function getThemePreference(): Promise<ThemePreference> {
 }
 
 export async function setThemePreference(theme: ThemePreference) {
+  // The toggle is in the shell for everyone; for a viewer it does nothing.
+  if (!(await mayEdit())) return;
   await setSetting("ui.theme", theme);
   // Layout-level: the <html> class is rendered in the root layout, so
   // every route needs revalidating for the change to take effect.
@@ -24,6 +27,8 @@ export async function setThemePreference(theme: ThemePreference) {
 
 /** Cycle light -> dark -> system, for the single-button toggle. */
 export async function cycleTheme() {
+  // The toggle is in the shell for everyone; for a viewer it does nothing.
+  if (!(await mayEdit())) return;
   const current = await getThemePreference();
   const next: ThemePreference =
     current === "light" ? "dark" : current === "dark" ? "system" : "light";
