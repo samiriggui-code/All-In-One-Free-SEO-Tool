@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import {
@@ -19,7 +20,11 @@ export async function runHeadline(
   await requireSignedIn();
   const headline = String(formData.get("headline") ?? "").trim();
   const topic = String(formData.get("topic") ?? "").trim() || undefined;
-  if (!headline) return { ok: false, error: "Headline required." };
+  if (!headline)
+    return {
+      ok: false,
+      error: (await getTranslations("tools.ui.news-headline"))("headlineRequired"),
+    };
   const r = await auditNewsHeadline({ headline, topic });
   if (!r.ok) return { ok: false, error: r.error };
   await saveToolRun({

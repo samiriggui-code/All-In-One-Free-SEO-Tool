@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import {
@@ -20,14 +21,14 @@ export async function analyzePassages(
   formData: FormData,
 ): Promise<AnalyzeState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.aio-passage");
   const md = String(formData.get("markdown") ?? "").trim();
-  if (!md) return { ok: false, error: "Paste a draft first." };
+  if (!md) return { ok: false, error: t("pasteDraftFirst") };
   const passages = scoreAllPassages(md);
   if (passages.length === 0) {
     return {
       ok: false,
-      error:
-        "Couldn't extract any passages — make sure paragraphs are separated by blank lines.",
+      error: t("noPassages"),
     };
   }
   const avg = Math.round(
@@ -35,7 +36,7 @@ export async function analyzePassages(
   );
   await saveToolRun({
     toolId: "aio-passage",
-    label: `${passages.length} passages · avg score ${avg}`,
+    label: t("runLabelDraft", { count: passages.length, avg }),
     input: { markdown: md.slice(0, 4000) },
     result: { ok: true, passages },
   }).catch(() => undefined);
@@ -51,8 +52,7 @@ export async function suggestRewrite(
   if (!r)
     return {
       ok: false,
-      error:
-        "AI didn't return a rewrite. Either the passage already scores 70+ or no AI provider is configured.",
+      error: (await getTranslations("tools.ui.aio-passage"))("noRewrite"),
     };
   return { ok: true, rewrite: r };
 }
@@ -67,29 +67,28 @@ export async function analyzeUrl(
   formData: FormData,
 ): Promise<AnalyzeState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.aio-passage");
   const rawUrl = String(formData.get("url") ?? "").trim();
-  if (!rawUrl) return { ok: false, error: "Enter a URL first." };
+  if (!rawUrl) return { ok: false, error: t("enterUrlFirst") };
   let url = rawUrl;
   if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
   try {
     new URL(url);
   } catch {
-    return { ok: false, error: "That doesn't look like a valid URL." };
+    return { ok: false, error: t("invalidUrl") };
   }
   const extracted = await extractMainContent(url);
   if (!extracted.ok) {
     return {
       ok: false,
-      error: extracted.error ?? "Couldn't fetch or parse that URL.",
+      error: extracted.error ?? t("fetchFailed"),
     };
   }
   const passages = scoreAllPassages(extracted.markdown);
   if (passages.length === 0) {
     return {
       ok: false,
-      error:
-        "Fetched the page but couldn't split it into scoreable passages. " +
-        "The main content may be too short or too fragmented.",
+      error: t("noPassagesUrl"),
     };
   }
   const avg = Math.round(
@@ -97,7 +96,11 @@ export async function analyzeUrl(
   );
   await saveToolRun({
     toolId: "aio-passage",
-    label: `${extracted.title || url} · ${passages.length} passages · avg ${avg}`,
+    label: t("runLabelUrl", {
+      source: extracted.title || url,
+      count: passages.length,
+      avg,
+    }),
     input: { url },
     result: { ok: true, passages, sourceUrl: url, sourceTitle: extracted.title },
   }).catch(() => undefined);

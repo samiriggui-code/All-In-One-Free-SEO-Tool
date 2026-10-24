@@ -2,11 +2,13 @@
 
 import { useActionState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runRefresh, type RefreshState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function RefreshForm() {
+  const t = useTranslations("tools.ui.refresh");
   const [state, formAction, pending] = useActionState<RefreshState | null, FormData>(
     runRefresh,
     null,
@@ -20,7 +22,7 @@ export function RefreshForm() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_120px]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Page URL</span>
+            <span className="text-muted-foreground">{t("pageUrl")}</span>
             <input
               name="url"
               required
@@ -29,16 +31,16 @@ export function RefreshForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Target keyword</span>
+            <span className="text-muted-foreground">{t("targetKeyword")}</span>
             <input
               name="targetKeyword"
               required
-              placeholder="vegan meal planning"
+              placeholder={t("keywordPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{t("country")}</span>
             <input
               name="country"
               defaultValue="US"
@@ -55,12 +57,12 @@ export function RefreshForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Diffing your page vs the SERP… (1-2 min)
+              {t("running")}
             </>
           ) : (
             <>
               <RefreshCw className="mr-2 size-4" />
-              Detect refresh gap
+              {t("submit")}
             </>
           )}
         </button>
@@ -84,25 +86,25 @@ export function RefreshForm() {
             <>
               <div className="grid gap-3 sm:grid-cols-3">
                 <Stat
-                  label="Word-count gap"
+                  label={t("wordGap")}
                   value={
                     state.plan.wordGap > 0
                       ? `+${state.plan.wordGap}`
                       : `${state.plan.wordGap}`
                   }
-                  hint={`SERP median: ${state.plan.serpMedianWordCount}`}
+                  hint={t("serpMedian", { count: state.plan.serpMedianWordCount })}
                   tone={state.plan.wordGap > 200 ? "rose" : state.plan.wordGap > 0 ? "amber" : "emerald"}
                 />
                 <Stat
-                  label="Missing topics"
+                  label={t("missingTopics")}
                   value={String(state.plan.missingTerms.length)}
-                  hint="High-frequency SERP terms"
+                  hint={t("missingTopicsHint")}
                   tone={state.plan.missingTerms.length > 10 ? "rose" : "amber"}
                 />
                 <Stat
-                  label="Missing sections"
+                  label={t("missingSections")}
                   value={String(state.plan.missingSections.length)}
-                  hint="Headings used by 2+ top results"
+                  hint={t("missingSectionsHint")}
                   tone={state.plan.missingSections.length > 3 ? "rose" : "amber"}
                 />
               </div>
@@ -110,7 +112,7 @@ export function RefreshForm() {
               {state.plan.brief && (
                 <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold">Refresh plan</h2>
+                    <h2 className="text-base font-semibold">{t("planTitle")}</h2>
                     <AiFeedback
                       feature="content_idea"
                       aiOutput={state.plan.brief}
@@ -127,15 +129,15 @@ export function RefreshForm() {
               {state.plan.missingTerms.length > 0 && (
                 <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
                   <h3 className="text-sm font-semibold">
-                    Topics missing from your page
+                    {t("missingTopicsTitle")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
-                    {state.plan.missingTerms.map((t) => (
+                    {state.plan.missingTerms.map((term) => (
                       <span
-                        key={t}
+                        key={term}
                         className="rounded-md bg-rose-500/10 px-2 py-0.5 text-[11px] text-rose-200 ring-1 ring-inset ring-rose-500/30"
                       >
-                        {t}
+                        {term}
                       </span>
                     ))}
                   </div>
@@ -144,7 +146,7 @@ export function RefreshForm() {
 
               {state.plan.missingSections.length > 0 && (
                 <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-                  <h3 className="text-sm font-semibold">Sections to add</h3>
+                  <h3 className="text-sm font-semibold">{t("sectionsTitle")}</h3>
                   <ul className="space-y-1 text-sm">
                     {state.plan.missingSections.map((s) => (
                       <li key={s} className="flex items-start gap-2">

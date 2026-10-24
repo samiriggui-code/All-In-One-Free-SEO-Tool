@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { GitMerge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCanonical, type CanonState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
 
@@ -15,7 +16,25 @@ const KIND_TONE: Record<string, string> = {
   "noindex-conflict": "bg-rose-500/15 text-rose-300 ring-rose-500/30",
 };
 
+const KIND_LABEL_KEY: Record<string, string> = {
+  missing: "kindMissing",
+  "off-host": "kindOffHost",
+  "broken-target": "kindBrokenTarget",
+  "redirect-target": "kindRedirectTarget",
+  "self-mismatch": "kindSelfMismatch",
+  multiple: "kindMultiple",
+  "noindex-conflict": "kindNoindexConflict",
+};
+
+const SEVERITY_LABEL_KEY: Record<string, string> = {
+  critical: "severityCritical",
+  high: "severityHigh",
+  medium: "severityMedium",
+  low: "severityLow",
+};
+
 export function CanonForm() {
+  const t = useTranslations("tools.ui.canonical-audit");
   const [state, formAction, pending] = useActionState<
     CanonState | null,
     FormData
@@ -51,12 +70,12 @@ export function CanonForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Crawling…
+                {t("crawling")}
               </>
             ) : (
               <>
                 <GitMerge className="mr-2 size-3" />
-                Audit
+                {t("submit")}
               </>
             )}
           </button>
@@ -72,20 +91,20 @@ export function CanonForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-            <Stat label="Pages crawled" value={state.result.pagesChecked.toString()} />
-            <Stat label="Issues" value={state.result.issues.length.toString()} tone={state.result.issues.length === 0 ? "emerald" : "amber"} />
-            <Stat label="Critical" value={String(state.result.summary["broken-target"] ?? 0 + (state.result.summary["multiple"] ?? 0) + (state.result.summary["noindex-conflict"] ?? 0))} tone="rose" />
-            <Stat label="Self-mismatch" value={(state.result.summary["self-mismatch"] ?? 0).toString()} tone="amber" />
+            <Stat label={t("pagesCrawled")} value={state.result.pagesChecked.toString()} />
+            <Stat label={t("issues")} value={state.result.issues.length.toString()} tone={state.result.issues.length === 0 ? "emerald" : "amber"} />
+            <Stat label={t("critical")} value={String(state.result.summary["broken-target"] ?? 0 + (state.result.summary["multiple"] ?? 0) + (state.result.summary["noindex-conflict"] ?? 0))} tone="rose" />
+            <Stat label={t("selfMismatch")} value={(state.result.summary["self-mismatch"] ?? 0).toString()} tone="amber" />
           </div>
 
           {state.result.issues.length === 0 ? (
             <p className="rounded-md bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-              ✓ No canonical issues detected on the first {state.result.pagesChecked} pages.
+              ✓ {t("noIssues", { count: state.result.pagesChecked })}
             </p>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
-                <h3 className="text-sm font-semibold">{state.result.issues.length} issues</h3>
+                <h3 className="text-sm font-semibold">{t("issuesTitle", { count: state.result.issues.length })}</h3>
               </header>
               <ul className="divide-y divide-white/[0.05]">
                 {state.result.issues.map((i, idx) => (
@@ -94,7 +113,7 @@ export function CanonForm() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${KIND_TONE[i.kind]}`}
                       >
-                        {i.kind}
+                        {KIND_LABEL_KEY[i.kind] ? t(KIND_LABEL_KEY[i.kind]) : i.kind}
                       </span>
                       <span
                         className={`text-[10px] font-medium ${
@@ -105,13 +124,13 @@ export function CanonForm() {
                               : "text-cyan-300"
                         }`}
                       >
-                        {i.severity}
+                        {SEVERITY_LABEL_KEY[i.severity] ? t(SEVERITY_LABEL_KEY[i.severity]) : i.severity}
                       </span>
                     </div>
                     <code className="block truncate">{i.url}</code>
                     {i.canonicalUrl && (
                       <code className="block truncate text-muted-foreground">
-                        ↪ canonical: {i.canonicalUrl}
+                        ↪ {t("canonicalArrow", { url: i.canonicalUrl })}
                       </code>
                     )}
                     <p className="text-muted-foreground">{i.reason}</p>

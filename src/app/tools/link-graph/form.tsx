@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { AlertCircle, ArrowRight, ExternalLink, Loader2, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runLinkGraph, type LinkGraphState } from "./actions";
 
 export function LinkGraphForm() {
+  const t = useTranslations("tools.ui.link-graph");
   const [state, formAction, pending] = useActionState<
     LinkGraphState | null,
     FormData
@@ -18,7 +20,7 @@ export function LinkGraphForm() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Start URL</span>
+            <span className="text-muted-foreground">{t("startUrl")}</span>
             <input
               name="startUrl"
               required
@@ -27,7 +29,7 @@ export function LinkGraphForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Max pages</span>
+            <span className="text-muted-foreground">{t("maxPages")}</span>
             <input
               name="maxPages"
               type="number"
@@ -45,10 +47,10 @@ export function LinkGraphForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Analysing… (1-3 min)
+                {t("running")}
               </>
             ) : (
-              "Analyse"
+              t("submit")
             )}
           </button>
         </div>
@@ -64,22 +66,22 @@ export function LinkGraphForm() {
         <>
           <div className="grid gap-3 sm:grid-cols-4">
             <Stat
-              label="Pages analysed"
+              label={t("pagesAnalysed")}
               value={state.analysis.pages.length}
               tone="neutral"
             />
             <Stat
-              label="Total internal links"
+              label={t("totalInternalLinks")}
               value={state.analysis.totalLinks}
               tone="violet"
             />
             <Stat
-              label="Orphans"
+              label={t("orphans")}
               value={state.analysis.orphans.length}
               tone={state.analysis.orphans.length > 0 ? "rose" : "emerald"}
             />
             <Stat
-              label="Hub pages"
+              label={t("hubPages")}
               value={state.analysis.hubs.length}
               tone="emerald"
             />
@@ -96,13 +98,13 @@ export function LinkGraphForm() {
               filename="link-graph-pages.csv"
               mime="text/csv"
               content={pagesToCsv(state.analysis.pages)}
-              label="Pages CSV"
+              label={t("pagesCsv")}
             />
             <DownloadButton
               filename="link-graph-orphans.csv"
               mime="text/csv"
               content={orphansToCsv(state.analysis.suggestions)}
-              label="Orphan suggestions CSV"
+              label={t("orphansCsv")}
             />
           </div>
 
@@ -111,13 +113,10 @@ export function LinkGraphForm() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold flex items-center gap-2">
                   <AlertCircle className="size-4 text-rose-300" />
-                  Orphan pages — {state.analysis.suggestions.length} need
-                  inbound links
+                  {t("orphansTitle", { count: state.analysis.suggestions.length })}
                 </h2>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  For each, the top-3 most-relevant source pages (by
-                  TF-IDF cosine similarity). Add a contextual link from
-                  one of them.
+                  {t("orphansHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.05]">
@@ -150,7 +149,7 @@ export function LinkGraphForm() {
                                 c.url.replace(/^https?:\/\/[^/]+/, "")}
                             </a>
                             <div className="text-[10px] text-muted-foreground">
-                              similarity: {(c.score * 100).toFixed(1)}%
+                              {t("similarity", { value: (c.score * 100).toFixed(1) })}
                             </div>
                           </div>
                         </li>
@@ -167,12 +166,10 @@ export function LinkGraphForm() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold flex items-center gap-2">
                   <Star className="size-4 text-emerald-300" />
-                  Hub pages
+                  {t("hubPages")}
                 </h2>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Pages with 5+ inbound internal links. They&apos;re your
-                  authority distributors — make sure they link to your
-                  most-important pages.
+                  {t("hubsHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.05]">

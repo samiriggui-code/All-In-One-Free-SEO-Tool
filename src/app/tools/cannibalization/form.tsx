@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { ChevronDown, ChevronRight, Loader2, Split } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCannibalScan, type CannibalState } from "./actions";
 
 const SEVERITY_TONE = {
@@ -10,13 +11,14 @@ const SEVERITY_TONE = {
   low: "border-white/10 bg-white/[0.02] text-muted-foreground",
 } as const;
 
-const SEVERITY_LABEL = {
-  high: "High",
-  medium: "Medium",
-  low: "Low",
+const SEVERITY_LABEL_KEY = {
+  high: "severityHigh",
+  medium: "severityMedium",
+  low: "severityLow",
 } as const;
 
 export function CannibalForm({ properties }: { properties: string[] }) {
+  const t = useTranslations("tools.ui.cannibalization");
   const [state, formAction, pending] = useActionState<
     CannibalState | null,
     FormData
@@ -29,7 +31,7 @@ export function CannibalForm({ properties }: { properties: string[] }) {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">GSC property</span>
+          <span className="text-muted-foreground">{t("gscProperty")}</span>
           <select
             name="site"
             required
@@ -50,18 +52,17 @@ export function CannibalForm({ properties }: { properties: string[] }) {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Scanning…
+              {t("scanning")}
             </>
           ) : (
             <>
               <Split className="mr-2 size-4" />
-              Scan for cannibalization
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Only flags queries where ≥2 pages each pull ≥5 impressions and at
-          least one is in the top 30 — filters out random long-tail noise.
+          {t("filterHint")}
         </p>
       </form>
 
@@ -75,19 +76,19 @@ export function CannibalForm({ properties }: { properties: string[] }) {
         <>
           <div className="grid gap-3 sm:grid-cols-3">
             <Stat
-              label="Groups found"
+              label={t("groupsFound")}
               value={state.summary.groupsFound.toString()}
               tone={
                 state.summary.groupsFound > 0 ? "rose" : "emerald"
               }
             />
             <Stat
-              label="High severity"
+              label={t("highSeverity")}
               value={state.summary.highSeverity.toString()}
               tone={state.summary.highSeverity > 0 ? "rose" : "emerald"}
             />
             <Stat
-              label="Queries analyzed"
+              label={t("queriesAnalyzed")}
               value={state.summary.queriesAnalyzed.toLocaleString()}
               tone="muted"
             />
@@ -95,19 +96,16 @@ export function CannibalForm({ properties }: { properties: string[] }) {
 
           {state.groups.length === 0 ? (
             <div className="glass-apple rounded-2xl p-6 text-center text-sm text-emerald-300">
-              ✓ No cannibalization detected in the last 28 days.
+              ✓ {t("noneDetected")}
             </div>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="text-sm font-semibold">
-                  Cannibal groups ({state.groups.length})
+                  {t("groupsTitle", { count: state.groups.length })}
                 </h3>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Expand a row to see the competing pages. Recommended keeper
-                  is the page with the best current position — usually the
-                  one Google is already favoring. Fix: canonical or 301 the
-                  rest to it, or differentiate their intent.
+                  {t("groupsHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -128,6 +126,7 @@ function CannibalRow({
 }: {
   group: NonNullable<Extract<CannibalState, { ok: true }>["groups"]>[number];
 }) {
+  const t = useTranslations("tools.ui.cannibalization");
   const [open, setOpen] = useState(false);
   return (
     <li>
@@ -145,10 +144,13 @@ function CannibalRow({
         <span
           className={`rounded-md border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${SEVERITY_TONE[group.severity]}`}
         >
-          {SEVERITY_LABEL[group.severity]}
+          {t(SEVERITY_LABEL_KEY[group.severity])}
         </span>
         <span className="tabular-nums text-xs text-muted-foreground">
-          {group.pages.length} pages · {group.totalClicks} clicks
+          {t("rowStats", {
+            pages: group.pages.length,
+            clicks: group.totalClicks,
+          })}
         </span>
       </button>
       {open && (
@@ -156,11 +158,11 @@ function CannibalRow({
           <table className="w-full text-xs">
             <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-2 py-1.5 text-left">Page</th>
-                <th className="px-2 py-1.5 text-right">Position</th>
-                <th className="px-2 py-1.5 text-right">Clicks</th>
-                <th className="px-2 py-1.5 text-right">Impr</th>
-                <th className="px-2 py-1.5 text-right">CTR</th>
+                <th className="px-2 py-1.5 text-left">{t("colPage")}</th>
+                <th className="px-2 py-1.5 text-right">{t("colPosition")}</th>
+                <th className="px-2 py-1.5 text-right">{t("colClicks")}</th>
+                <th className="px-2 py-1.5 text-right">{t("colImpressions")}</th>
+                <th className="px-2 py-1.5 text-right">{t("colCtr")}</th>
               </tr>
             </thead>
             <tbody>
@@ -182,7 +184,7 @@ function CannibalRow({
                       </a>
                       {keeper && (
                         <span className="ml-2 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                          Keep
+                          {t("keep")}
                         </span>
                       )}
                     </td>

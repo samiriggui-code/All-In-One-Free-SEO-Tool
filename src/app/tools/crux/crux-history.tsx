@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runCruxHistory, type CruxHistoryState } from "./actions";
 import { ratingForMetric, type CwvKind } from "@/lib/crux-thresholds";
 
@@ -20,6 +21,8 @@ const RATING_TONE: Record<string, string> = {
 };
 
 export function CruxHistoryPanel() {
+  const t = useTranslations("tools.ui.crux");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<CruxHistoryState, FormData>(
     runCruxHistory,
     null,
@@ -29,16 +32,14 @@ export function CruxHistoryPanel() {
     <section className="space-y-3">
       <form action={formAction} className="glass-apple relative space-y-3 overflow-hidden rounded-2xl p-5">
         <div>
-          <h2 className="text-base font-semibold">Trend over the last six months</h2>
+          <h2 className="text-base font-semibold">{t("historyTitle")}</h2>
           <p className="text-[11px] text-muted-foreground">
-            CrUX History: one 28-day window per week. Neighbouring windows share
-            three weeks, so the latest is compared with the window four weeks
-            earlier — the nearest one with no days in common.
+            {t("historyIntro")}
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-[1fr_180px_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">URL</span>
+            <span className="text-muted-foreground">{tCommon("urlLabel")}</span>
             <input
               name="url"
               required
@@ -47,15 +48,15 @@ export function CruxHistoryPanel() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Form factor</span>
+            <span className="text-muted-foreground">{t("formFactor")}</span>
             <select
               name="formFactor"
               defaultValue="PHONE"
               className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="PHONE">Phone</option>
-              <option value="DESKTOP">Desktop</option>
-              <option value="ALL_FORM_FACTORS">All</option>
+              <option value="PHONE">{t("phone")}</option>
+              <option value="DESKTOP">{t("desktop")}</option>
+              <option value="ALL_FORM_FACTORS">{t("allFormFactors")}</option>
             </select>
           </label>
           <button
@@ -63,7 +64,7 @@ export function CruxHistoryPanel() {
             disabled={pending}
             className="inline-flex h-9 items-center self-end rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
           >
-            {pending ? <Loader2 className="size-3 animate-spin" /> : "Show trend"}
+            {pending ? <Loader2 className="size-3 animate-spin" /> : t("showTrend")}
           </button>
         </div>
       </form>
@@ -76,15 +77,15 @@ export function CruxHistoryPanel() {
 
       {state && state.ok && !state.hasData && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          No CrUX history for this URL or its origin — too little Chrome traffic.
+          {t("noHistory")}
         </p>
       )}
 
       {state && state.ok && state.hasData && (
         <>
           <p className="text-xs text-muted-foreground">
-            {state.scope === "url" ? "URL-level" : "Origin-level"} · {state.formFactor} ·{" "}
-            {state.periods.length} weekly windows
+            {state.scope === "url" ? t("urlLevel") : t("originLevel")} · {state.formFactor} ·{" "}
+            {t("weeklyWindows", { count: state.periods.length })}
             {state.periods.length > 0 &&
               `, ${state.periods[0].start} → ${state.periods[state.periods.length - 1].end}`}
           </p>
@@ -108,10 +109,10 @@ export function CruxHistoryPanel() {
                   <Sparkline values={series} />
                   <p className="mt-2 text-[11px] text-muted-foreground">
                     {trend.latest === null
-                      ? "Not enough data in the latest window."
+                      ? t("notEnoughLatest")
                       : trend.earlier === null
-                        ? "No window four weeks earlier to compare with."
-                        : `Four weeks earlier: ${format(trend.earlier)}${
+                        ? t("noEarlierWindow")
+                        : `${t("fourWeeksEarlier", { value: format(trend.earlier) })}${
                             trend.changePct !== null
                               ? ` (${trend.changePct > 0 ? "+" : ""}${trend.changePct}%)`
                               : ""
@@ -119,7 +120,7 @@ export function CruxHistoryPanel() {
                   </p>
                   {trend.regressed && (
                     <p className="mt-1 text-[11px] font-medium text-rose-300">
-                      More than 20% worse than four weeks earlier.
+                      {t("regressed")}
                     </p>
                   )}
                 </div>

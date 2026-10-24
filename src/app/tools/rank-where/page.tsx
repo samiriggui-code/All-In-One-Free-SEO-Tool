@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import { ExternalLink, Loader2, Target } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { checkRank, type RankWhereState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
@@ -10,6 +11,7 @@ import { CountrySelect } from "@/components/country-select";
 
 
 export default function RankWherePage() {
+  const t = useTranslations("tools.ui.rank-where");
   const [state, formAction, pending] = useActionState<RankWhereState, FormData>(
     checkRank,
     null,
@@ -19,8 +21,8 @@ export default function RankWherePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Where do I rank? (country-aware)"
-        description="Enter a domain + keyword + country, get your exact position in Google's top 100. See who outranks you, whether AI Overview is present, and get specific fixes to climb."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Target}
         accent="emerald"
       />
@@ -31,7 +33,7 @@ export default function RankWherePage() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Domain</span>
+            <span className="text-muted-foreground">{t("domain")}</span>
             <input
               name="domain"
               required
@@ -40,34 +42,34 @@ export default function RankWherePage() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Keyword</span>
+            <span className="text-muted-foreground">{t("keyword")}</span>
             <input
               name="query"
               required
-              placeholder="best running shoes"
+              placeholder={t("keywordPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
         </div>
         <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{t("country")}</span>
             <CountrySelect
               defaultValue="US"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Scan depth</span>
+            <span className="text-muted-foreground">{t("scanDepth")}</span>
             <select
               name="topN"
               defaultValue="100"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="10">Top 10 (fast)</option>
-              <option value="20">Top 20</option>
-              <option value="50">Top 50</option>
-              <option value="100">Top 100 (slow)</option>
+              <option value="10">{t("top10Fast")}</option>
+              <option value="20">{t("topN", { n: 20 })}</option>
+              <option value="50">{t("topN", { n: 50 })}</option>
+              <option value="100">{t("top100Slow")}</option>
             </select>
           </label>
         </div>
@@ -79,19 +81,17 @@ export default function RankWherePage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Scanning Google…
+              {t("running")}
             </>
           ) : (
             <>
               <Target className="mr-2 size-4" />
-              Find my rank
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Uses the shared headless-browser pool with stealth + proxy
-          rotation. One scan per minute is fine; rapid repeats may trip
-          Google&apos;s rate limiter.
+          {t("hint")}
         </p>
       </form>
 
@@ -117,15 +117,21 @@ export default function RankWherePage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  {state.result.domain} · &quot;{state.result.query}&quot; in{" "}
-                  {state.result.country}
+                  {t("resultContext", {
+                    domain: state.result.domain,
+                    query: state.result.query,
+                    country: state.result.country,
+                  })}
                 </p>
                 <h2 className="text-base font-semibold">
                   {state.result.position === null ? (
-                    <>Not found in top {state.result.topN}</>
+                    <>{t("notFound", { topN: state.result.topN })}</>
                   ) : (
                     <>
-                      Ranked at <strong>#{state.result.position}</strong>
+                      {t.rich("rankedAt", {
+                        position: state.result.position,
+                        strong: (chunks) => <strong>{chunks}</strong>,
+                      })}
                     </>
                   )}
                 </h2>
@@ -167,12 +173,12 @@ export default function RankWherePage() {
                   }`}
                 >
                   AI Overview{" "}
-                  {state.result.citedInAiOverview ? "(you're cited ✓)" : "(not cited)"}
+                  {state.result.citedInAiOverview ? t("cited") : t("notCited")}
                 </span>
               )}
               {state.result.featuredSnippet && (
                 <span className="rounded-md bg-violet-500/15 px-2 py-0.5 text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                  Featured snippet: {state.result.featuredSnippet.domain}
+                  {t("featuredSnippet", { domain: state.result.featuredSnippet.domain })}
                 </span>
               )}
             </div>
@@ -183,8 +189,8 @@ export default function RankWherePage() {
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="text-sm font-semibold">
                   {state.result.position === null
-                    ? "Top 3 competitors to study"
-                    : "Outrank these next"}
+                    ? t("competitorsToStudy")
+                    : t("outrankNext")}
                 </h3>
               </header>
               <ul className="divide-y divide-white/[0.06]">
@@ -213,7 +219,7 @@ export default function RankWherePage() {
           )}
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="text-sm font-semibold">What to do next</h3>
+            <h3 className="text-sm font-semibold">{t("nextSteps")}</h3>
             <ul className="mt-2 space-y-1.5 text-sm">
               {state.result.recommendations.map((r, i) => (
                 <li key={i} className="flex items-start gap-2">

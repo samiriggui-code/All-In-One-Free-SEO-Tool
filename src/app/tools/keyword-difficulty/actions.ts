@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { scanSerp } from "@/lib/serp-scanner";
@@ -134,14 +135,15 @@ export async function estimateDifficulty(
   rawQuery: string,
 ): Promise<DifficultyApiResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.keyword-difficulty");
   const query = rawQuery.trim();
-  if (!query) return { ok: false, error: "Enter a keyword" };
+  if (!query) return { ok: false, error: t("enterKeyword") };
 
   const serp = await scanSerp({ query });
   if (!serp.ok) {
     return {
       ok: false,
-      error: serp.error ?? "SERP scrape failed — try again in a minute.",
+      error: serp.error ?? t("serpFailed"),
     };
   }
 
@@ -149,7 +151,7 @@ export async function estimateDifficulty(
   if (top.length === 0) {
     return {
       ok: false,
-      error: "Couldn't read SERP results. Try a different query.",
+      error: t("serpEmpty"),
     };
   }
 

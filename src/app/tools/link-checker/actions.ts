@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { saveToolRun } from "@/lib/tool-runs";
@@ -60,13 +61,14 @@ function decode(s: string): string {
 
 export async function analyzeLinks(rawUrl: string): Promise<LinkAnalysisResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.link-checker");
   const trimmed = rawUrl.trim();
-  if (!trimmed) return { ok: false, error: "Paste a URL" };
+  if (!trimmed) return { ok: false, error: t("pasteUrl") };
   let url: string;
   try {
     url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`).toString();
   } catch {
-    return { ok: false, error: "Not a valid URL" };
+    return { ok: false, error: t("invalidUrl") };
   }
 
   const controller = new AbortController();
@@ -79,13 +81,13 @@ export async function analyzeLinks(rawUrl: string): Promise<LinkAnalysisResult> 
       headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml" },
     });
   } catch {
-    return { ok: false, error: "Couldn't fetch — site unreachable or timeout." };
+    return { ok: false, error: t("fetchFailed") };
   } finally {
     clearTimeout(timeout);
   }
 
   if (!res.ok) {
-    return { ok: false, error: `Server returned ${res.status}.` };
+    return { ok: false, error: t("serverStatus", { status: String(res.status) }) };
   }
   const finalUrl = res.url || url;
   const html = (await res.text()).slice(0, 1_500_000);
@@ -176,7 +178,12 @@ export async function analyzeLinks(rawUrl: string): Promise<LinkAnalysisResult> 
   };
   await saveToolRun({
     toolId: "link-checker",
-    label: `${finalUrl} · ${links.length} links (${internal} int / ${external} ext)`,
+    label: t("runLabel", {
+      url: finalUrl,
+      count: links.length,
+      internal,
+      external,
+    }),
     input: { url: rawUrl },
     result,
   }).catch(() => undefined);

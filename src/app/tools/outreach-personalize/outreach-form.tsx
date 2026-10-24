@@ -2,10 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runPersonalize, type OutreachState } from "./actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export function OutreachForm() {
+  const t = useTranslations("tools.ui.outreach-personalize");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<
     OutreachState | null,
     FormData
@@ -27,7 +30,7 @@ export function OutreachForm() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Prospect URL</span>
+            <span className="text-muted-foreground">{t("prospectUrl")}</span>
             <input
               name="prospectUrl"
               required
@@ -36,39 +39,39 @@ export function OutreachForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Goal (optional)</span>
+            <span className="text-muted-foreground">{t("goalLabel")}</span>
             <input
               name="goal"
-              placeholder="Pitch a guest post / link insertion / partnership"
+              placeholder={t("goalPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Subject (optional)</span>
+            <span className="text-muted-foreground">{t("subjectLabel")}</span>
             <input
               name="templateSubject"
-              placeholder="Your generic subject line"
+              placeholder={t("subjectPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Sender name</span>
+            <span className="text-muted-foreground">{t("senderLabel")}</span>
             <input
               name="senderName"
-              placeholder="Your name"
+              placeholder={t("senderPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
         </div>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Generic template</span>
+          <span className="text-muted-foreground">{t("templateLabel")}</span>
           <textarea
             name="template"
             required
             rows={8}
-            placeholder={`Hi there,\n\nI write about [topic] over at [site]. Wanted to share a piece I think your readers would like — [link]. Mind if I send the highlights?\n\nThanks,\n[name]`}
+            placeholder={t("templatePlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -80,12 +83,12 @@ export function OutreachForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Researching prospect…
+              {t("running")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-4" />
-              Personalize
+              {t("submit")}
             </>
           )}
         </button>
@@ -102,7 +105,7 @@ export function OutreachForm() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Subject
+                {t("subject")}
               </span>
               <button
                 type="button"
@@ -112,12 +115,12 @@ export function OutreachForm() {
                 {copied === "subject" ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied
+                    {tCommon("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy
+                    {tCommon("copy")}
                   </>
                 )}
               </button>
@@ -129,7 +132,7 @@ export function OutreachForm() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Body
+                {t("body")}
               </span>
               <button
                 type="button"
@@ -139,12 +142,12 @@ export function OutreachForm() {
                 {copied === "body" ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied
+                    {tCommon("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy
+                    {tCommon("copy")}
                   </>
                 )}
               </button>
@@ -156,7 +159,7 @@ export function OutreachForm() {
           {state.result.email.signals.length > 0 && (
             <div className="text-xs">
               <span className="text-muted-foreground">
-                Personalization signals used:{" "}
+                {t("signals")}{" "}
               </span>
               {state.result.email.signals.map((s) => (
                 <span

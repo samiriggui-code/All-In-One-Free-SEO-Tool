@@ -9,12 +9,15 @@ import {
   Loader2,
   Wand2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { generateMetaTags, type MetaTagState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export default function MetaTagGeneratorPage() {
+  const t = useTranslations("tools.ui.meta-tag-generator");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<MetaTagState, FormData>(
     generateMetaTags,
     null,
@@ -32,8 +35,8 @@ export default function MetaTagGeneratorPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Meta tag generator"
-        description="Produces 3 SEO-optimized title + description options for any page — keyword-led, benefit-led, and curiosity-led angles. Copy-paste ready HTML. Also generates Open Graph tags for social shares."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Code2}
         accent="violet"
       />
@@ -44,28 +47,28 @@ export default function MetaTagGeneratorPage() {
       >
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Page topic (1-2 sentences about the page)
+            {t("topicLabel")}
           </span>
           <textarea
             name="topic"
             required
             rows={3}
-            placeholder="A landing page for our small-business invoicing app. Covers free plan, recurring invoices, payment reminders."
+            placeholder={t("topicPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
 
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Primary keyword</span>
+            <span className="text-muted-foreground">{t("keywordLabel")}</span>
             <input
               name="keyword"
-              placeholder="free invoicing software"
+              placeholder={t("keywordPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Brand</span>
+            <span className="text-muted-foreground">{t("brandLabel")}</span>
             <input
               name="brand"
               placeholder="InvoicePro"
@@ -73,23 +76,23 @@ export default function MetaTagGeneratorPage() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Search intent</span>
+            <span className="text-muted-foreground">{t("intentLabel")}</span>
             <select
               name="intent"
               defaultValue="informational"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="informational">Informational</option>
-              <option value="navigational">Navigational</option>
-              <option value="commercial">Commercial</option>
-              <option value="transactional">Transactional</option>
+              <option value="informational">{t("intentInformational")}</option>
+              <option value="navigational">{t("intentNavigational")}</option>
+              <option value="commercial">{t("intentCommercial")}</option>
+              <option value="transactional">{t("intentTransactional")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Target audience</span>
+            <span className="text-muted-foreground">{t("audienceLabel")}</span>
             <input
               name="audience"
-              placeholder="freelancers, small agencies"
+              placeholder={t("audiencePlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
@@ -103,12 +106,12 @@ export default function MetaTagGeneratorPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Generating…
+              {t("generating")}
             </>
           ) : (
             <>
               <Wand2 className="mr-2 size-4" />
-              Generate 3 options
+              {t("submit")}
             </>
           )}
         </button>
@@ -125,7 +128,7 @@ export default function MetaTagGeneratorPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
               <h3 className="text-sm font-semibold">
-                3 options — pick the angle that fits your page
+                {t("optionsTitle")}
               </h3>
             </header>
             <ul className="divide-y divide-white/[0.06]">
@@ -136,7 +139,7 @@ export default function MetaTagGeneratorPage() {
                   <li key={i} className="space-y-2 px-5 py-4 text-sm">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Option {i + 1}
+                        {t("option", { n: i + 1 })}
                       </p>
                       <button
                         type="button"
@@ -145,29 +148,29 @@ export default function MetaTagGeneratorPage() {
                       >
                         {copied === `opt-${i}` ? (
                           <>
-                            <Check className="size-3" /> Copied
+                            <Check className="size-3" /> {tCommon("copied")}
                           </>
                         ) : (
                           <>
-                            <Copy className="size-3" /> Copy HTML
+                            <Copy className="size-3" /> {t("copyHtml")}
                           </>
                         )}
                       </button>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground">
-                        Title · {opt.title.length} chars
+                        {t("titleChars", { count: opt.title.length })}
                         {tooLong && (
-                          <span className="ml-1 text-rose-400">(too long)</span>
+                          <span className="ml-1 text-rose-400">{t("tooLong")}</span>
                         )}
                       </p>
                       <p className="font-medium">{opt.title}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground">
-                        Description · {opt.description.length} chars
+                        {t("descriptionChars", { count: opt.description.length })}
                         {descTooLong && (
-                          <span className="ml-1 text-rose-400">(too long)</span>
+                          <span className="ml-1 text-rose-400">{t("tooLong")}</span>
                         )}
                       </p>
                       <p className="text-xs">{opt.description}</p>
@@ -179,13 +182,13 @@ export default function MetaTagGeneratorPage() {
                     {/* SERP preview */}
                     <div className="rounded-md bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5">
                       <p className="text-[10px] text-muted-foreground mb-1">
-                        Google SERP preview
+                        {t("serpPreview")}
                       </p>
                       <p className="truncate text-[15px] text-blue-300 leading-tight">
                         {opt.title}
                       </p>
                       <p className="text-[12px] text-emerald-300/80">
-                        yoursite.com
+                        {t("previewDomain")}
                       </p>
                       <p className="text-[13px] text-muted-foreground leading-snug">
                         {opt.description}
@@ -198,7 +201,7 @@ export default function MetaTagGeneratorPage() {
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-            <h3 className="text-sm font-semibold">Open Graph (social share) tags</h3>
+            <h3 className="text-sm font-semibold">{t("ogTitle")}</h3>
             <pre className="mt-2 overflow-x-auto rounded-md bg-white/[0.03] p-3 text-[11px] ring-1 ring-inset ring-white/5">
 {`<meta property="og:title" content="${state.socialPreview.ogTitle}">
 <meta property="og:description" content="${state.socialPreview.ogDescription}">

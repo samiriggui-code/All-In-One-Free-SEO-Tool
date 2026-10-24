@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Newspaper } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { HeadlineForm } from "./form";
 
 export default function NewsHeadlinePage() {
+  const t = useTranslations("tools.ui.news-headline");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="News SEO — headline audit"
-        description="Score a journalistic headline. Length, Top Stories fit (30-110 chars sweet spot), AP-style hook, primary keyword placement. AI suggests 3-5 alternates."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Newspaper}
         accent="rose"
       />
