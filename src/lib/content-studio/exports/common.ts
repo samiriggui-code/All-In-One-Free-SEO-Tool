@@ -15,16 +15,17 @@ export interface ExportPost {
   siteUrl?: string;
 }
 
-// Drafts come from a model and get pasted into a CMS, so a link or image
-// may not carry a script URL or break out of its quoted attribute.
+// Drafts come from a model and get pasted into a CMS, so raw HTML in them
+// is escaped and a link or image may not carry a script URL.
 // Browsers drop tabs, newlines and other control characters while parsing
 // a URL, so "java\tscript:" still runs: strip them before checking.
 const UNSAFE_SCHEME = /^(javascript|vbscript|data):/i;
 const safeUrl = (u: string) => !UNSAFE_SCHEME.test(u.replace(/[\u0000-\u0020\u007f]/g, ""));
-const attr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
 export function markdownToHtml(md: string): string {
-  let html = md
+  // Escaping first also covers link text and attributes: everything the
+  // replacements below copy into the output is already escaped.
+  let html = xmlEscape(md)
     .replace(/^#{1}\s+(.+)$/gm, "<h1>$1</h1>")
     .replace(/^#{2}\s+(.+)$/gm, "<h2>$1</h2>")
     .replace(/^#{3}\s+(.+)$/gm, "<h3>$1</h3>")
@@ -34,10 +35,10 @@ export function markdownToHtml(md: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) =>
-      safeUrl(src) ? `<img src="${attr(src)}" alt="${attr(alt)}">` : alt,
+      safeUrl(src) ? `<img src="${src}" alt="${alt}">` : alt,
     )
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text: string, href: string) =>
-      safeUrl(href) ? `<a href="${attr(href)}">${text}</a>` : text,
+      safeUrl(href) ? `<a href="${href}">${text}</a>` : text,
     );
   html = html.replace(/(<li>[\s\S]*?<\/li>)(?!\n<li>)/g, (m) => `<ul>${m}</ul>`);
   html = html

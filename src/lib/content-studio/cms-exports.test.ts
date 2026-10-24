@@ -72,5 +72,8 @@ describe("CMS exporters", () => {
     expect(markdownToHtml("[run](java\tscript:alert)")).not.toContain("href");
     expect(markdownToHtml("[ok](https://example.com)")).toContain('href="https://example.com"');
     expect(markdownToHtml('![The "best" bread](a.png)')).toContain('alt="The &quot;best&quot; bread"');
+    expect(markdownToHtml("<script>alert(1)</script>")).toBe("<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>");
+    expect(markdownToHtml("[<img src=x onerror=alert(1)>](https://example.com)")).not.toContain("<img");
+    expect(markdownToHtml("[a](https://example.com/?a=1&b=2)")).toContain('href="https://example.com/?a=1&amp;b=2"');
   });
 });
