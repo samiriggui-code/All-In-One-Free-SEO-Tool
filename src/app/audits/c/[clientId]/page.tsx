@@ -13,7 +13,6 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { Play } from "lucide-react";
 import {
   runAuditForClient,
-  runSeomatorAuditForClient,
 } from "@/app/audits/actions";
 import { clientScope } from "@/lib/client-scope";
 
@@ -76,13 +75,8 @@ export default async function PerClientAuditsPage({
     .where(eq(audits.clientId, clientId))
     .orderBy(desc(audits.createdAt));
 
-  const runCrawlAction = runAuditForClient.bind(null, clientId);
-  const runDeepAction = runSeomatorAuditForClient.bind(null, clientId, "full");
-  const runQuickAction = runSeomatorAuditForClient.bind(
-    null,
-    clientId,
-    "quick",
-  );
+  const runQuickAction = runAuditForClient.bind(null, clientId, "quick");
+  const runDeepAction = runAuditForClient.bind(null, clientId, "full");
 
   const t = await getTranslations("audits");
   const tStatus = await getTranslations("audits.status");
@@ -109,18 +103,8 @@ export default async function PerClientAuditsPage({
         accent="cyan"
         actions={
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-            <form action={runDeepAction}>
-              <SubmitButton
-                icon={<Play className="size-3.5" />}
-                pendingToast={t("pendingFullTitle")}
-                pendingToastDescription={t("pendingFullDescription")}
-              >
-                {t("runFull")}
-              </SubmitButton>
-            </form>
             <form action={runQuickAction}>
               <SubmitButton
-                variant="outline"
                 icon={<Play className="size-3.5" />}
                 pendingToast={t("pendingQuickTitle")}
                 pendingToastDescription={t("pendingQuickDescription")}
@@ -128,13 +112,14 @@ export default async function PerClientAuditsPage({
                 {t("runQuick")}
               </SubmitButton>
             </form>
-            <form action={runCrawlAction}>
+            <form action={runDeepAction}>
               <SubmitButton
                 variant="outline"
-                pendingToast={t("pendingCrawlTitle")}
-                pendingToastDescription={t("pendingCrawlDescription")}
+                icon={<Play className="size-3.5" />}
+                pendingToast={t("pendingFullTitle")}
+                pendingToastDescription={t("pendingFullDescription")}
               >
-                {t("runCrawl")}
+                {t("runFull")}
               </SubmitButton>
             </form>
           </div>
@@ -184,11 +169,15 @@ export default async function PerClientAuditsPage({
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                        {a.kind === "seomator"
-                          ? "SEOmator"
-                          : a.kind === "ai_full"
-                            ? "AI"
-                            : "Crawl"}
+                        {a.kind === "ai_full"
+                          ? "AI"
+                          : a.mode === "full"
+                            ? "Full"
+                            : a.mode === "quick"
+                              ? "Quick"
+                              : a.kind === "seomator"
+                                ? "Technical"
+                                : "Crawl"}
                       </span>
                     </td>
                     <td className="px-5 py-4">

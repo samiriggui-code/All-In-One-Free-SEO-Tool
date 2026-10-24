@@ -39,7 +39,6 @@ import {
 import { pickStackTemplates, STACK_LABELS } from "@/lib/tech-stack-templates";
 import {
   runAuditForClient,
-  runSeomatorAuditForClient,
 } from "@/app/audits/actions";
 import { ShareCard } from "./share-card";
 import { ClientGooglePanel } from "./google-panel";
@@ -181,33 +180,20 @@ export default async function ClientDetailPage({
     .orderBy(desc(audits.createdAt))
     .limit(5);
 
-  // Health score prefers the SEOmator technical audit (373 rules). Fall
-  // back to the built-in crawl. Never mix in ai_full — different scale.
-  const [latestSeomator] = await db
+  // Health score from the latest site audit (or a legacy SEOmator one).
+  // Never ai_full: a different scale.
+  const [latestCompleted = null] = await db
     .select()
     .from(audits)
     .where(
       and(
         eq(audits.clientId, clientId),
         eq(audits.status, "completed"),
-        eq(audits.kind, "seomator"),
+        inArray(audits.kind, ["crawler", "seomator"]),
       ),
     )
     .orderBy(desc(audits.completedAt))
     .limit(1);
-  const [latestCrawl] = await db
-    .select()
-    .from(audits)
-    .where(
-      and(
-        eq(audits.clientId, clientId),
-        eq(audits.status, "completed"),
-        eq(audits.kind, "crawler"),
-      ),
-    )
-    .orderBy(desc(audits.completedAt))
-    .limit(1);
-  const latestCompleted = latestSeomator ?? latestCrawl ?? null;
 
   const [{ value: openTaskCount }] = await db
     .select({ value: count() })
@@ -305,9 +291,8 @@ export default async function ClientDetailPage({
 
   const redetectAction = redetectTechStack.bind(null, client.id);
   const refreshMetadataAction = refreshClientMetadataForm.bind(null, client.id);
-  const runAction = runAuditForClient.bind(null, client.id);
-  const runQuickAction = runSeomatorAuditForClient.bind(null, client.id, "quick");
-  const runDeepAction = runSeomatorAuditForClient.bind(null, client.id, "full");
+  const runQuickAction = runAuditForClient.bind(null, client.id, "quick");
+  const runDeepAction = runAuditForClient.bind(null, client.id, "full");
   const applyTemplatesAction = applyNicheTemplates.bind(null, client.id);
   const applyStackAction = applyStackTemplates.bind(null, client.id);
   const { matched: matchedStacks } = pickStackTemplates(client.techStack);
@@ -643,13 +628,13 @@ export default async function ClientDetailPage({
               {/* Hairline + action row */}
               <div className="mt-7 border-t border-border pt-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  {/* Primary audit = SEOmator 373 rules → same /audits tables. */}
+                  {/* One audit, two depths: same crawl, checks and tables. */}
                   <form action={runQuickAction}>
                     <SubmitButton
                       icon={<Play className="size-3.5" />}
                       pendingChildren="Running quick audit…"
                       pendingToast="Starting SEO + GEO quick audit"
-                      pendingToastDescription="SEOmator core/tech/security/crawl/perf + CWV, then native GEO scoring on the start URL."
+                      pendingToastDescription="Site crawl and checks, all 373 technical rules on the HTML (up to 8 pages), then GEO scoring."
                     >
                       Audit rapide
                     </SubmitButton>
@@ -660,20 +645,9 @@ export default async function ClientDetailPage({
                       icon={<Play className="size-3.5" />}
                       pendingChildren="Running full audit…"
                       pendingToast="Starting SEO + GEO full audit"
-                      pendingToastDescription="Full 373-rule SEOmator crawl + Playwright CWV, then GEO site crawl (up to 20 pages)."
+                      pendingToastDescription="Everything in the quick audit, plus browser rendering, Core Web Vitals and mobile parity on up to 20 pages."
                     >
                       Audit complet
-                    </SubmitButton>
-                  </form>
-                  <form action={runAction}>
-                    <SubmitButton
-                      variant="outline"
-                      icon={<Play className="size-3.5" />}
-                      pendingChildren="Running agent crawl…"
-                      pendingToast="Starting agent crawl"
-                      pendingToastDescription="Built-in crawl (~72 checks) the autopilot agent can auto-fix."
-                    >
-                      Agent crawl
                     </SubmitButton>
                   </form>
 
@@ -937,7 +911,7 @@ export default async function ClientDetailPage({
                 <div>
                   <div className="text-sm font-semibold">Audit rapide</div>
                   <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    373-rule technical audit (quick categories + CWV).
+                    Site crawl and 373 technical rules, HTML only.
                   </div>
                 </div>
                 <span className="mt-1 text-[11px] font-medium text-cyan-300 transition-transform group-hover:translate-x-0.5">
@@ -1277,11 +1251,15 @@ export default async function ClientDetailPage({
                   >
                     Audit #{a.id}
                     <span className="ml-2 text-[10px] font-normal text-muted-foreground">
-                      {a.kind === "seomator"
-                        ? "SEOmator"
-                        : a.kind === "ai_full"
-                          ? "AI"
-                          : "Crawl"}
+                      {a.kind === "ai_full"
+                        ? "AI"
+                        : a.mode === "full"
+                          ? "Full"
+                          : a.mode === "quick"
+                            ? "Quick"
+                            : a.kind === "seomator"
+                              ? "Technical"
+                              : "Crawl"}
                     </span>
                   </Link>
                   <div className="flex items-center gap-3">

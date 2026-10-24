@@ -6,10 +6,10 @@
  * and averaged that into the page's citability.
  */
 
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { scoreAllPassages } from "./aio-passage-scorer";
 import { parseHtmlToMarkdown } from "./main-content-extractor";
+import { extract, proseBlocks } from "./geo-audit/lib/extract";
 
 // Constructed, not captured: the shape of a typical page — analytics
 // script and JSON-LD in the head, navigation, one real paragraph.
@@ -44,9 +44,13 @@ describe("scoring a page's passages", () => {
     expect(passages.some((p) => /pressure-sensitive packaging tape/.test(passageText(p)))).toBe(true);
   });
 
+  // The GEO score now runs the site GEO audit, whose extractor must drop the
+  // same noise before any passage is scored.
   it("is what the GEO score does", () => {
-    const src = readFileSync(new URL("../app/tools/geo-score/actions.ts", import.meta.url), "utf8");
-    expect(src).toMatch(/scoreAllPassages\(parseHtmlToMarkdown\(html\)\.markdown\)/);
-    expect(src).not.toMatch(/scoreAllPassages\(html\)/);
+    const blocks = proseBlocks(extract(PAGE, "https://example.com/"));
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const b of blocks) {
+      expect(b.text).not.toMatch(/dataLayer|@context|margin: 0 auto|gtag/);
+    }
   });
 });

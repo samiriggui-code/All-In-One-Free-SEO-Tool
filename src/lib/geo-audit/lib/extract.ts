@@ -201,7 +201,7 @@ function stripChrome($: cheerio.CheerioAPI, $root: cheerio.Cheerio<Element>, chr
   });
 }
 
-function hasBlockAncestor(node: AnyNode, $: cheerio.CheerioAPI): boolean {
+function hasBlockAncestor(node: AnyNode, _$: cheerio.CheerioAPI): boolean {
   let parent = node.parent;
   while (parent) {
     if (parent.type === "tag" && BLOCK_TAGS.has(parent.name)) return true;

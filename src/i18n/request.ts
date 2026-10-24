@@ -46,6 +46,10 @@ export default getRequestConfig(async () => {
   const base = (await import(`../../messages/${locale}.json`)).default;
   return {
     locale,
+    // Without one, next-intl logs ENVIRONMENT_FALLBACK on every request and
+    // dates can render in the server's zone on the server and the
+    // browser's on the client, which React reports as a hydration mismatch.
+    timeZone: process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone,
     messages: {
       ...base,
       tools: {

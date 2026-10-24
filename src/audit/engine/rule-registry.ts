@@ -1,11 +1,16 @@
 import type { AuditRule } from "@/audit/types";
 
-const rules = new Map<string, AuditRule>();
-const resettables = new Set<() => void>();
+export const rules = new Map<string, AuditRule>();
 
 export function registerRule(rule: AuditRule): void {
-  if (rules.has(rule.id)) {
-    throw new Error(`Duplicate audit rule id: ${rule.id}`);
+  const existing = rules.get(rule.id);
+  // The same object again is a module evaluated twice (dev reloads), not a
+  // clash. Two different rules sharing an id is a bug worth stopping on.
+  if (existing === rule) return;
+  if (existing) {
+    throw new Error(
+      `Duplicate rule ID: "${rule.id}" is already registered. Each rule must have a unique identifier.`,
+    );
   }
   rules.set(rule.id, rule);
 }
@@ -15,25 +20,31 @@ export function getAllRules(): AuditRule[] {
 }
 
 export function getRulesByCategory(categoryId: string): AuditRule[] {
-  return getAllRules().filter((r) => r.category === categoryId);
+  return Array.from(rules.values()).filter((rule) => rule.category === categoryId);
 }
 
 export function getRuleById(ruleId: string): AuditRule | undefined {
   return rules.get(ruleId);
 }
 
-export function getRuleCount(): number {
-  return rules.size;
-}
-
-export function clearRegistry(): void {
-  rules.clear();
-}
+/**
+ * Rules that keep state across the pages of one crawl (duplicate titles,
+ * near-duplicate content…) register a reset here. The audit runner calls
+ * resetCrossPageState() before each audit, and runs audits one at a time
+ * so two crawls never share that state.
+ */
+export const resettables = new Set<() => void>();
 
 export function registerResettable(reset: () => void): void {
   resettables.add(reset);
 }
 
 export function resetCrossPageState(): void {
-  for (const reset of resettables) reset();
+  for (const reset of resettables) {
+    reset();
+  }
+}
+
+export function getRuleCount(): number {
+  return rules.size;
 }

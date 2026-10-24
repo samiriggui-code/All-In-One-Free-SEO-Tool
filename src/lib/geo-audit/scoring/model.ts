@@ -160,7 +160,7 @@ export function findingsFor(signals: Signal[], page: string): Finding[] {
     if (ratio === null || ratio > rules.no_finding_above) continue;
     const template = signalsMap[signal.id];
     if (!template) continue;
-    let severity =
+    const severity =
       ratio < rules.full_severity_below
         ? template.severity
         : demote(template.severity);

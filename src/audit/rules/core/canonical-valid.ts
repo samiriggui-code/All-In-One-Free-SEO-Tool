@@ -1,28 +1,48 @@
 import { defineRule, fail, pass, warn } from "@/audit/engine/define-rule";
 
+export function isValidAbsoluteUrl(urlString: string|URL) {
+  try {
+    const url = new URL(urlString);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 export const canonicalValidRule = defineRule({
   id: "core-canonical-valid",
+  name: "Canonical URL Valid",
+  description: "Checks that the canonical URL is a valid absolute URL",
   category: "core",
-  severity: "high",
-  weight: 10,
-  title: "Canonical is absolute URL",
-  description: "Canonical should be a valid absolute http(s) URL",
-  recommendation: "Use an absolute https:// canonical pointing at the preferred URL.",
-  check: async ({ page }) => {
-    if (!page.canonical) return fail("No canonical to validate");
-    try {
-      const u = new URL(page.canonical, page.finalUrl);
-      if (u.protocol !== "http:" && u.protocol !== "https:") {
-        return fail("Canonical uses a non-http(s) protocol", { canonical: page.canonical });
-      }
-      if (!page.canonical.includes("://")) {
-        return warn("Canonical is relative — prefer absolute URLs", {
-          resolved: u.href,
-        });
-      }
-      return pass("Canonical is a valid absolute URL", { canonical: u.href });
-    } catch {
-      return fail("Canonical is not a valid URL", { canonical: page.canonical });
+  weight: 1,
+  run: async (context) => {
+    const { $ } = context;
+    const canonicalElement = $('link[rel="canonical"]');
+    if (canonicalElement.length === 0) {
+      return warn(
+        "core-canonical-valid",
+        'No <link rel="canonical"> tag found in the document',
+        { found: false }
+      );
     }
-  },
+    const href = canonicalElement.first().attr("href")?.trim();
+    if (!href) {
+      return fail(
+        "core-canonical-valid",
+        "Canonical link tag exists but has no href",
+        { found: true, empty: true }
+      );
+    }
+    if (!isValidAbsoluteUrl(href)) {
+      return fail(
+        "core-canonical-valid",
+        `Canonical URL is not a valid absolute URL: "${href}"`,
+        { canonicalUrl: href, isAbsolute: false }
+      );
+    }
+    return pass(
+      "core-canonical-valid",
+      "Canonical URL is a valid absolute URL",
+      { canonicalUrl: href, isAbsolute: true }
+    );
+  }
 });

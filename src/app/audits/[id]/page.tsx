@@ -133,6 +133,7 @@ export default async function AuditDetailPage({
       issuesCount: audits.issuesCount,
       pagesCrawled: audits.pagesCrawled,
       kind: audits.kind,
+      mode: audits.mode,
       targetUrl: audits.targetUrl,
       summary: audits.summary,
       categoryScores: audits.categoryScores,
@@ -249,16 +250,15 @@ export default async function AuditDetailPage({
   // the column; the UI shows the affected-page count instead and says so.
   const pagesCrawled = audit.pagesCrawled;
   const pagesWithIssues = new Set(issues.map((i) => i.url)).size;
-  const cwv =
-    audit.kind === "seomator" ? extractCwv(audit.rawReport) : null;
-  const scoreCap =
-    audit.kind === "seomator" ? extractScoreCap(audit.rawReport) : null;
-  const waivedCaps =
-    audit.kind === "seomator" ? extractWaivedCaps(audit.rawReport) : [];
+  // The rule engine's reading: every site audit since it joined the
+  // crawl (with a mode), and the separate SEOmator audits from before.
+  const hasEngine = audit.kind === "seomator" || audit.rawReport != null;
+  const tracksProgress = audit.kind === "seomator" || audit.mode != null;
+  const cwv = hasEngine ? extractCwv(audit.rawReport) : null;
+  const scoreCap = hasEngine ? extractScoreCap(audit.rawReport) : null;
+  const waivedCaps = hasEngine ? extractWaivedCaps(audit.rawReport) : [];
   const verdict =
-    audit.kind === "seomator" && audit.score != null
-      ? verdictForScore(audit.score)
-      : null;
+    hasEngine && audit.score != null ? verdictForScore(audit.score) : null;
 
   const geoIssues = issues
     .filter(
@@ -275,7 +275,7 @@ export default async function AuditDetailPage({
     }));
 
   const showLandingPreview =
-    audit.kind === "seomator" &&
+    hasEngine &&
     audit.status === "completed" &&
     Boolean(audit.previewScreenshotPath);
 
@@ -328,7 +328,11 @@ export default async function AuditDetailPage({
                     ? t("seomatorKind")
                     : audit.kind === "ai_full"
                       ? t("aiKind")
-                      : t("crawlerKind")}
+                      : audit.mode === "full"
+                        ? t("fullKind")
+                        : audit.mode === "quick"
+                          ? t("quickKind")
+                          : t("crawlerKind")}
                 </p>
               </div>
             </div>
@@ -340,7 +344,7 @@ export default async function AuditDetailPage({
                 <ExternalLink className="size-3" />
                 View client
               </Link>
-              {audit.kind === "seomator" && audit.status === "completed" ? (
+              {hasEngine && audit.status === "completed" ? (
                 <>
                   <Link
                     href={`/audits/${auditId}/export?format=markdown`}
@@ -395,10 +399,10 @@ export default async function AuditDetailPage({
                 source="crawl"
                 asOf={audit.completedAt}
                 note={
-                  audit.kind === "seomator"
+                  hasEngine
                     ? pagesCrawled !== null
-                      ? `SEOmator crawl of ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} against 373 technical rules.`
-                      : "SEOmator deep technical audit."
+                      ? `Crawl of ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"}, scored against 373 technical rules in 20 weighted categories.`
+                      : "Scored against 373 technical rules in 20 weighted categories."
                     : pagesCrawled !== null
                       ? `Based on the ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} we crawled.`
                       : "This audit predates page-count tracking, so we can only show the pages that had findings — the crawl covered at least that many."
@@ -418,7 +422,7 @@ export default async function AuditDetailPage({
             className="aspect-[16/10] w-full object-cover object-top"
           />
           <p className="border-t border-white/5 px-4 py-2 text-xs text-muted-foreground">
-            Landing page as rendered during the SEOmator audit (Playwright).
+            Landing page as rendered during the audit (Playwright).
           </p>
         </section>
       ) : null}
@@ -441,8 +445,8 @@ export default async function AuditDetailPage({
             Core Web Vitals
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Measured via Playwright during the SEOmator run (lab data, not
-            CrUX field data).
+            Measured in a browser during the audit (lab data, not CrUX
+            field data).
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-5">
             {(
@@ -484,15 +488,14 @@ export default async function AuditDetailPage({
         </section>
       ) : null}
 
-      {audit.kind === "seomator" && audit.status === "completed" ? (
+      {hasEngine && audit.status === "completed" ? (
         <SeomatorGeoPanel
           categoryScores={audit.categoryScores}
           geoIssues={geoIssues}
         />
       ) : null}
 
-      {audit.kind === "seomator" &&
-      audit.status === "completed" &&
+      {audit.status === "completed" &&
       (audit.geoScore != null || audit.geoEnvelopeJson) ? (
         <GeoAuditPanel
           geoScore={audit.geoScore}
@@ -500,13 +503,13 @@ export default async function AuditDetailPage({
         />
       ) : null}
 
-      {audit.kind === "seomator" && audit.categoryScores ? (
+      {hasEngine && audit.categoryScores ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
             Category scores
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Weighted SEOmator categories (373 rules). Lower scores first.
+            20 weighted categories, 373 rules. Lowest scores first.
           </p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {Object.entries(audit.categoryScores)
@@ -541,7 +544,7 @@ export default async function AuditDetailPage({
               })}
           </div>
         </section>
-      ) : audit.kind === "seomator" && audit.summary ? (
+      ) : hasEngine && audit.summary ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
             Category breakdown
@@ -738,7 +741,14 @@ export default async function AuditDetailPage({
                         <IssueExplainer
                           issueType={g.type}
                           url={g.affectedUrls[0]}
-                          explainer={getExplainer(g.type)}
+                          explainer={
+                            // Built-in guides carry functions (externalTool),
+                            // which cannot cross to a client component; the
+                            // component looks those up itself.
+                            g.type.startsWith("seomator:")
+                              ? getExplainer(g.type)
+                              : undefined
+                          }
                         />
                       </div>
 
@@ -839,12 +849,13 @@ export default async function AuditDetailPage({
         Auto-refreshes, because an audit finishing is not something the
         user can trigger and a page that never updates looks broken.
       */}
-      {audit.status === "running" && audit.kind === "seomator" ? (
+      {audit.status === "running" && tracksProgress ? (
         <div className="space-y-4">
           <SeomatorAuditProgressLive
             auditId={auditId}
             targetUrl={audit.targetUrl ?? client.url}
             initialPagesCrawled={pagesCrawled}
+            showPreview={audit.mode !== "quick"}
           />
           {isStalled ? (
             <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3">
@@ -868,7 +879,7 @@ export default async function AuditDetailPage({
         </div>
       ) : null}
 
-      {audit.status === "running" && audit.kind !== "seomator" ? (
+      {audit.status === "running" && !tracksProgress ? (
         <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-sky-500/5 px-6 py-12 text-center backdrop-blur-md">
           <meta httpEquiv="refresh" content="10" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-500/10 blur-3xl" />

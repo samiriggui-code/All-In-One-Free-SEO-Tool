@@ -15,9 +15,16 @@ import { runAutomations } from "@/lib/automation-engine";
 import {
   runSeomatorAudit,
   seomatorFindingsToTasks,
+  type SeomatorBridgeResult,
 } from "@/lib/seomator-audit";
 import { normalizeSeomatorReport } from "@/lib/cabinet/normalize";
-import { getCategoryIds } from "@seomator/seo-audit";
+import { getCategoryIds } from "@/audit";
+import {
+  dropCovered,
+  ENGINE_MAX_PAGES,
+  isAuditMode,
+  type AuditMode,
+} from "@/lib/audit-engine";
 import {
   auditPreviewAbsolutePath,
   auditPreviewRelativePath,
@@ -29,7 +36,6 @@ import {
   progressOnRuleComplete,
   type SeomatorAuditProgress,
 } from "@/lib/seomator-audit-progress";
-import { QUICK_AUDIT_CATEGORIES } from "@/lib/seomator-meta";
 import { existsSync } from "node:fs";
 import { runGeoSiteAudit } from "@/lib/geo-audit";
 
@@ -64,7 +70,22 @@ async function takeOverOrRedirectInFlight(clientId: number): Promise<void> {
   }
 }
 
-export async function runAuditForClient(clientId: number) {
+/**
+ * Run the site audit for a client: SEO Tool's crawl and checks, then the
+ * technical rule engine (373 rules, 20 weighted categories) and the GEO
+ * audit, into one audit row.
+ *
+ * `input` is the mode, or the form that submitted it (a bound server
+ * action receives the FormData as its second argument): a `mode` field of
+ * "full" adds browser rendering, Core Web Vitals and a deeper crawl;
+ * anything else runs the quick audit.
+ */
+export async function runAuditForClient(
+  clientId: number,
+  input?: FormData | AuditMode,
+) {
+  const requested = input instanceof FormData ? input.get("mode") : input;
+  const mode: AuditMode = isAuditMode(requested) ? requested : "quick";
   const [client] = await db
     .select()
     .from(clients)
@@ -88,12 +109,18 @@ export async function runAuditForClient(clientId: number) {
   const previousScore = previousAudit?.score ?? null;
 
   const startedAt = new Date();
+  let progressState: SeomatorAuditProgress = initialSeomatorProgress(
+    getCategoryIds(),
+  );
   const [auditRow] = await db
     .insert(audits)
     .values({
       clientId,
       status: "running",
+      mode,
+      targetUrl: client.url,
       startedAt,
+      progressJson: progressState,
     })
     .returning({ id: audits.id });
 
@@ -157,13 +184,88 @@ export async function runAuditForClient(clientId: number) {
     return;
   }
 
+  // The rule engine reads the same site. Its failure never fails the
+  // audit: the crawl above already stands on its own, with its own score.
+  let lastProgressWrite = 0;
+  const persistProgress = (pagesCrawled?: number) => {
+    const now = Date.now();
+    if (now - lastProgressWrite < 300) return;
+    lastProgressWrite = now;
+    void db
+      .update(audits)
+      .set({
+        progressJson: progressState,
+        ...(pagesCrawled !== undefined ? { pagesCrawled } : {}),
+      })
+      .where(eq(audits.id, auditRow.id))
+      .catch(() => {});
+  };
+  progressState = { ...progressState, phase: "crawl", updatedAt: new Date().toISOString() };
+  let engine: SeomatorBridgeResult | null = null;
+  try {
+    engine = await runSeomatorAudit(result.url, {
+      mode,
+      maxPages: ENGINE_MAX_PAGES[mode],
+      ...(mode === "full" && {
+        previewScreenshotPath: auditPreviewAbsolutePath(auditRow.id),
+        onPreviewScreenshot: () => {
+          void db
+            .update(audits)
+            .set({ previewScreenshotPath: auditPreviewRelativePath(auditRow.id) })
+            .where(eq(audits.id, auditRow.id))
+            .catch(() => {});
+        },
+      }),
+      onCrawlProgress: (crawled) => {
+        progressState = {
+          ...progressState,
+          pagesCrawled: crawled,
+          updatedAt: new Date().toISOString(),
+        };
+        persistProgress();
+      },
+      onCategoryStart: (categoryId, categoryName) => {
+        progressState = progressOnCategoryStart(progressState, categoryId, categoryName);
+        persistProgress();
+      },
+      onCategoryComplete: (categoryId, _categoryName, categoryResult) => {
+        progressState = progressOnCategoryComplete(progressState, categoryId, categoryResult);
+        persistProgress();
+      },
+      onRuleComplete: (_ruleId, ruleName) => {
+        progressState = progressOnRuleComplete(progressState, ruleName);
+        persistProgress();
+      },
+    });
+  } catch {
+    engine = null;
+  }
+
+  let geoResult: Awaited<ReturnType<typeof runGeoSiteAudit>> | null = null;
+  try {
+    geoResult = await runGeoSiteAudit(result.url, {
+      mode,
+      maxPages: ENGINE_MAX_PAGES[mode],
+    });
+  } catch {
+    geoResult = null;
+  }
+  const geoFindings = geoResult?.findings ?? [];
+
   // Infrastructure URLs out before anything is stored or turned into work.
   //
   // The crawler skips them now, but this is the one place every finding
   // passes through on its way into the database, so a guard here catches
   // every source. Before it, a Cloudflare email-protection link became a
   // "critical" finding on every crawl and four generators made tasks of it.
-  const realFindings = withoutInfrastructure(result.findings);
+  //
+  // Engine findings that repeat one of SEO Tool's own checks on the same
+  // page are dropped: the check's type is the one the agent can fix.
+  const crawlFindings = withoutInfrastructure(result.findings);
+  const engineFindings = engine
+    ? withoutInfrastructure(dropCovered(engine.findings, crawlFindings))
+    : [];
+  const realFindings = [...crawlFindings, ...engineFindings];
 
   if (realFindings.length > 0) {
     // Carry forward issue status (ignored / resolved / false_positive)
@@ -196,11 +298,15 @@ export async function runAuditForClient(clientId: number) {
           severity: f.severity,
           url: f.url,
           message: f.message,
-          confidence: confidenceForIssue({
-            type: f.type,
-            aiGenerated: false,
-            severity: f.severity,
-          }),
+          ...(f.category && { category: f.category }),
+          ...(f.fixSteps && { fixSteps: f.fixSteps }),
+          confidence:
+            f.confidence ??
+            confidenceForIssue({
+              type: f.type,
+              aiGenerated: false,
+              severity: f.severity,
+            }),
           ...(inheritedStatus
             ? { status: inheritedStatus as "ignored" | "resolved" | "false_positive" }
             : {}),
@@ -208,7 +314,7 @@ export async function runAuditForClient(clientId: number) {
       }),
     );
 
-    const generatedTasks = findingsToTasks(realFindings);
+    const generatedTasks = findingsToTasks(crawlFindings);
     if (generatedTasks.length > 0) {
       // One open task per finding type, however many times the site is
       // audited. This inserted every blueprint again on every run and
@@ -254,327 +360,11 @@ export async function runAuditForClient(clientId: number) {
         );
       }
     }
-  }
 
-  await db
-    .update(audits)
-    .set({
-      status: "completed",
-      score: result.score,
-      issuesCount: realFindings.length,
-      pagesCrawled: result.pagesCrawled,
-      completedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(audits.id, auditRow.id));
-
-  // Build webhook notification (best effort)
-  const score = result.score;
-  const delta = previousScore !== null ? score - previousScore : null;
-  const topIssue =
-    result.findings.find((f) => f.severity === "critical")?.message ??
-    result.findings.find((f) => f.severity === "high")?.message ??
-    null;
-
-  const isScoreDrop = delta !== null && delta <= -SCORE_DROP_THRESHOLD;
-  const level: "success" | "warning" = isScoreDrop ? "warning" : "success";
-  const titlePrefix = isScoreDrop
-    ? "Score dropped"
-    : delta !== null && delta > 0
-      ? "Score improved"
-      : "Audit completed";
-
-  const fields: NotificationField[] = [
-    { label: "Score", value: `${score}/100` },
-    {
-      label: "Issues",
-      value: `${result.findings.length} found`,
-    },
-  ];
-  if (delta !== null) {
-    const sign = delta > 0 ? "+" : "";
-    fields.push({
-      label: "Vs last audit",
-      value: `${sign}${delta}`,
-    });
-  }
-  if (topIssue) {
-    fields.push({ label: "Top issue", value: topIssue.slice(0, 200) });
-  }
-
-  notify({
-    title: `${titlePrefix} — ${client.name}`,
-    body: `Audit run on ${client.url}.`,
-    level,
-    fields,
-  }).catch(() => {});
-
-  await logActivity({
-    kind: "audit.completed",
-    message: `Audit #${auditRow.id} for ${client.name} — score ${score}/100, ${result.findings.length} issues.`,
-    level: isScoreDrop ? "warning" : "success",
-    clientId,
-    entityType: "audit",
-    entityId: auditRow.id,
-  });
-
-  await runAutomations("audit_completed", {
-    clientId,
-    clientName: client.name,
-    data: {
-      auditId: auditRow.id,
-      score,
-      previousScore,
-      issuesCount: realFindings.length,
-      topIssue: topIssue ?? "",
-    },
-  });
-
-  if (isScoreDrop) {
-    await runAutomations("score_drop", {
-      clientId,
-      clientName: client.name,
-      data: {
-        auditId: auditRow.id,
-        score,
-        previousScore,
-        delta,
-        topIssue: topIssue ?? "",
-      },
-    });
-  }
-
-  // Refresh quick-wins from the new audit so the "Fix today" list stays
-  // current. Best-effort — never block the redirect.
-  try {
-    const { applyQuickWins } = await import("@/lib/quick-wins");
-    await applyQuickWins({ clientId });
-  } catch {
-    // ignore
-  }
-
-  safeRevalidatePath(`/clients/${clientId}`);
-  safeRevalidatePath("/");
-  redirect(`/audits/${auditRow.id}`);
-}
-
-/**
- * Technical audit powered by SEOmator (373 rules / 20 categories).
- *
- * Stored as `kind = "seomator"` so the agent planner keeps reading crawler
- * audits for auto-fixes, while humans get the mature technical report here.
- *
- * `mode: "quick"` still uses SEOmator — same tables — but only core /
- * technical / security / crawl / perf (faster smoke with CWV).
- */
-export async function runSeomatorAuditForClient(
-  clientId: number,
-  mode: "full" | "quick" = "full",
-) {
-  const [client] = await db
-    .select()
-    .from(clients)
-    .where(eq(clients.id, clientId))
-    .limit(1);
-
-  if (!client) return;
-
-  await takeOverOrRedirectInFlight(clientId);
-
-  const [previousAudit] = await db
-    .select()
-    .from(audits)
-    .where(
-      and(
-        eq(audits.clientId, clientId),
-        eq(audits.status, "completed"),
-        eq(audits.kind, "seomator"),
-      ),
-    )
-    .orderBy(desc(audits.completedAt))
-    .limit(1);
-  const previousScore = previousAudit?.score ?? null;
-  const isQuick = mode === "quick";
-
-  const startedAt = new Date();
-  const categoryIds = isQuick
-    ? [...QUICK_AUDIT_CATEGORIES]
-    : getCategoryIds();
-  const initialProgress = initialSeomatorProgress(categoryIds);
-
-  const [auditRow] = await db
-    .insert(audits)
-    .values({
-      clientId,
-      status: "running",
-      kind: "seomator",
-      targetUrl: client.url,
-      startedAt,
-      progressJson: initialProgress,
-    })
-    .returning({ id: audits.id });
-
-  let result;
-  let progressState: SeomatorAuditProgress = initialProgress;
-  try {
-    let lastWrite = 0;
-
-    const persistProgress = (pagesCrawled?: number) => {
-      const now = Date.now();
-      if (now - lastWrite < 300) return;
-      lastWrite = now;
-      void db
-        .update(audits)
-        .set({
-          progressJson: progressState,
-          ...(pagesCrawled !== undefined ? { pagesCrawled } : {}),
-        })
-        .where(eq(audits.id, auditRow.id))
-        .catch(() => {});
-    };
-
-    result = await runSeomatorAudit(client.url, {
-      crawl: true,
-      maxPages: isQuick ? 8 : 20,
-      concurrency: 3,
-      measureCwv: true,
-      categories: isQuick ? [...QUICK_AUDIT_CATEGORIES] : [],
-      previewScreenshotPath: auditPreviewAbsolutePath(auditRow.id),
-      onPreviewScreenshot: () => {
-        void db
-          .update(audits)
-          .set({
-            previewScreenshotPath: auditPreviewRelativePath(auditRow.id),
-          })
-          .where(eq(audits.id, auditRow.id))
-          .catch(() => {});
-      },
-      onCrawlProgress: (crawled) => {
-        progressState = {
-          ...progressState,
-          pagesCrawled: crawled,
-          updatedAt: new Date().toISOString(),
-        };
-        persistProgress(crawled);
-      },
-      onCategoryStart: (categoryId, categoryName) => {
-        progressState = progressOnCategoryStart(
-          progressState,
-          categoryId,
-          categoryName,
-        );
-        persistProgress();
-      },
-      onCategoryComplete: (categoryId, categoryName, categoryResult) => {
-        progressState = progressOnCategoryComplete(
-          progressState,
-          categoryId,
-          categoryResult,
-        );
-        persistProgress();
-      },
-      onRuleComplete: (_ruleId, ruleName) => {
-        progressState = progressOnRuleComplete(progressState, ruleName);
-        persistProgress();
-      },
-    });
-  } catch (err) {
-    const reason =
-      err instanceof Error ? err.message : "SEOmator audit failed unexpectedly.";
-    await db
-      .update(audits)
-      .set({
-        status: "failed",
-        summary: reason.slice(0, 2000),
-        completedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(audits.id, auditRow.id));
-
-    notify({
-      title: `Audit failed for ${client.name}`,
-      body: reason.slice(0, 400),
-      level: "error",
-      fields: [{ label: "Client", value: client.name }],
-    }).catch(() => {});
-
-    await logActivity({
-      kind: "audit.failed",
-      message: `SEOmator audit failed for ${client.name}: ${reason.slice(0, 200)}`,
-      level: "error",
-      clientId,
-      entityType: "audit",
-      entityId: auditRow.id,
-    });
-
-    await runAutomations("audit_failed", {
-      clientId,
-      clientName: client.name,
-      data: { url: client.url, auditId: auditRow.id, engine: "seomator" },
-    });
-
-    safeRevalidatePath(`/clients/${clientId}`);
-    return;
-  }
-
-  const realFindings = withoutInfrastructure(result.findings);
-
-  let geoResult: Awaited<ReturnType<typeof runGeoSiteAudit>> | null = null;
-  try {
-    geoResult = await runGeoSiteAudit(client.url, {
-      mode: isQuick ? "quick" : "full",
-      maxPages: isQuick ? 8 : 20,
-    });
-  } catch {
-    geoResult = null;
-  }
-
-  const geoFindings = geoResult?.findings ?? [];
-
-  if (realFindings.length > 0) {
-    const priorIssues = await db
-      .select({
-        type: auditIssues.type,
-        url: auditIssues.url,
-        status: auditIssues.status,
-      })
-      .from(auditIssues)
-      .innerJoin(audits, eq(audits.id, auditIssues.auditId))
-      .where(
-        and(eq(audits.clientId, clientId), ne(auditIssues.status, "new")),
-      );
-    const statusByKey = new Map<string, string>();
-    for (const p of priorIssues) {
-      if (p.type && p.url) statusByKey.set(`${p.type}::${p.url}`, p.status);
-    }
-
-    await db.insert(auditIssues).values(
-      realFindings.map((f) => {
-        const inheritedStatus = statusByKey.get(`${f.type}::${f.url}`);
-        return {
-          auditId: auditRow.id,
-          type: f.type,
-          severity: f.severity,
-          url: f.url,
-          message: f.message,
-          category: f.category,
-          fixSteps: f.fixSteps,
-          confidence: f.confidence,
-          aiGenerated: false,
-          ...(inheritedStatus
-            ? {
-                status: inheritedStatus as
-                  | "ignored"
-                  | "resolved"
-                  | "false_positive",
-              }
-            : {}),
-        };
-      }),
-    );
-
-    const generatedTasks = seomatorFindingsToTasks(realFindings);
-    if (generatedTasks.length > 0) {
+    // The engine's worst rules, one task per rule, tagged by rule so the
+    // next audit does not open them again.
+    const engineTasks = seomatorFindingsToTasks(engineFindings);
+    if (engineTasks.length > 0) {
       const open = await db
         .select({ sourceRef: tasks.sourceRef })
         .from(tasks)
@@ -586,9 +376,7 @@ export async function runSeomatorAuditForClient(
           ),
         );
       const alreadyOpen = new Set(open.map((t) => t.sourceRef));
-      const fresh = generatedTasks.filter(
-        (t) => !alreadyOpen.has(`seomator:${t.type}`),
-      );
+      const fresh = engineTasks.filter((t) => !alreadyOpen.has(t.type));
       const now = Date.now();
       const dayMs = 86_400_000;
       if (fresh.length > 0) {
@@ -601,7 +389,8 @@ export async function runSeomatorAuditForClient(
             priority: t.priority,
             toolPath: t.toolPath,
             status: "todo" as const,
-            sourceRef: `seomator:${t.type}`,
+            // The finding type is already `seomator:<rule id>`.
+            sourceRef: t.type,
             dueDate:
               t.priority === "high"
                 ? new Date(now + 7 * dayMs)
@@ -630,9 +419,8 @@ export async function runSeomatorAuditForClient(
     );
   }
 
-  const previewRel = auditPreviewRelativePath(auditRow.id);
-  const hasPreview = existsSync(auditPreviewAbsolutePath(auditRow.id));
-
+  const hasPreview =
+    mode === "full" && existsSync(auditPreviewAbsolutePath(auditRow.id));
   const geoSummaryLine =
     geoResult != null
       ? `\n\n**GEO composite:** ${geoResult.composite}/100 (${Object.entries(
@@ -641,20 +429,27 @@ export async function runSeomatorAuditForClient(
           .map(([k, v]) => `${k} ${v}`)
           .join(", ")})`
       : "";
+  const issuesCount = realFindings.length + geoFindings.length;
 
+  // With the engine, the score is its weighted category score (with caps);
+  // without it, SEO Tool's own. Pages crawled stays the site crawl's count.
   await db
     .update(audits)
     .set({
       status: "completed",
-      score: result.score,
-      issuesCount: realFindings.length + geoFindings.length,
+      score: engine?.score ?? result.score,
+      issuesCount,
       pagesCrawled: result.pagesCrawled,
-      summary: `${result.summary ?? ""}${geoSummaryLine}`.trim(),
-      categoryScores: result.categoryScores,
+      ...(engine && {
+        summary: `${engine.summary}${geoSummaryLine}`.trim(),
+        categoryScores: engine.categoryScores,
+        rawReport: engine.raw as unknown as Record<string, unknown>,
+      }),
       geoScore: geoResult?.composite ?? null,
       geoEnvelopeJson: geoResult?.envelope ?? null,
-      rawReport: result.raw as unknown as Record<string, unknown>,
-      previewScreenshotPath: hasPreview ? previewRel : null,
+      previewScreenshotPath: hasPreview
+        ? auditPreviewRelativePath(auditRow.id)
+        : null,
       progressJson: {
         ...progressState,
         phase: "done",
@@ -665,56 +460,69 @@ export async function runSeomatorAuditForClient(
     })
     .where(eq(audits.id, auditRow.id));
 
-  const normalized = normalizeSeomatorReport(result.raw);
-  if (normalized.history.length > 0) {
-    await db.insert(auditRuleHistory).values(
-      normalized.history.map((h) => ({
-        clientId,
-        auditId: auditRow.id,
-        ruleId: h.ruleId,
-        category: h.category,
-        status: h.status,
-        score: h.score,
-      })),
-    );
+  if (engine) {
+    const normalized = normalizeSeomatorReport(engine.raw);
+    if (normalized.history.length > 0) {
+      await db.insert(auditRuleHistory).values(
+        normalized.history.map((h) => ({
+          clientId,
+          auditId: auditRow.id,
+          ruleId: h.ruleId,
+          category: h.category,
+          status: h.status,
+          score: h.score,
+        })),
+      );
+    }
   }
 
-  const score = result.score;
+  // Build webhook notification (best effort)
+  const score = engine?.score ?? result.score;
   const delta = previousScore !== null ? score - previousScore : null;
   const topIssue =
     realFindings.find((f) => f.severity === "critical")?.message ??
     realFindings.find((f) => f.severity === "high")?.message ??
     null;
-  const isScoreDrop = delta !== null && delta <= -SCORE_DROP_THRESHOLD;
 
-  const engineLabel = isQuick
-    ? "SEOmator quick (core/tech/security/crawl/perf)"
-    : "SEOmator (373 rules)";
+  const isScoreDrop = delta !== null && delta <= -SCORE_DROP_THRESHOLD;
+  const level: "success" | "warning" = isScoreDrop ? "warning" : "success";
+  const titlePrefix = isScoreDrop
+    ? "Score dropped"
+    : delta !== null && delta > 0
+      ? "Score improved"
+      : "Audit completed";
+
+  const fields: NotificationField[] = [
+    { label: "Score", value: `${score}/100` },
+    {
+      label: "Issues",
+      value: `${issuesCount} found`,
+    },
+  ];
+  if (geoResult != null) {
+    fields.push({ label: "GEO score", value: `${geoResult.composite}/100` });
+  }
+  if (delta !== null) {
+    const sign = delta > 0 ? "+" : "";
+    fields.push({
+      label: "Vs last audit",
+      value: `${sign}${delta}`,
+    });
+  }
+  if (topIssue) {
+    fields.push({ label: "Top issue", value: topIssue.slice(0, 200) });
+  }
 
   notify({
-    title: `${isScoreDrop ? "Audit score dropped" : "Audit completed"} — ${client.name}`,
-    body: `SEO + GEO audit (${engineLabel}) on ${client.url}: SEO ${score}/100${
-      geoResult != null ? `, GEO ${geoResult.composite}/100` : ""
-    }, ${realFindings.length + geoFindings.length} issues.`,
-    level: isScoreDrop ? "warning" : "success",
-    fields: [
-      { label: "SEO score", value: `${score}/100` },
-      ...(geoResult != null
-        ? [{ label: "GEO score", value: `${geoResult.composite}/100` } satisfies NotificationField]
-        : []),
-      {
-        label: "Issues",
-        value: `${realFindings.length + geoFindings.length} found`,
-      },
-      { label: "Engine", value: engineLabel },
-    ] satisfies NotificationField[],
+    title: `${titlePrefix} — ${client.name}`,
+    body: `Audit (${mode}) run on ${client.url}.`,
+    level,
+    fields,
   }).catch(() => {});
 
   await logActivity({
     kind: "audit.completed",
-    message: `Audit #${auditRow.id} for ${client.name} — ${engineLabel} SEO ${score}/100${
-      geoResult != null ? `, GEO ${geoResult.composite}/100` : ""
-    }, ${realFindings.length + geoFindings.length} issues.`,
+    message: `Audit #${auditRow.id} for ${client.name} (${mode}) — score ${score}/100, ${issuesCount} issues.`,
     level: isScoreDrop ? "warning" : "success",
     clientId,
     entityType: "audit",
@@ -728,13 +536,35 @@ export async function runSeomatorAuditForClient(
       auditId: auditRow.id,
       score,
       previousScore,
-      issuesCount: realFindings.length + geoFindings.length,
+      issuesCount,
       geoScore: geoResult?.composite ?? null,
       topIssue: topIssue ?? "",
-      engine: "seomator",
-      mode: isQuick ? "quick" : "full",
+      mode,
     },
   });
+
+  if (isScoreDrop) {
+    await runAutomations("score_drop", {
+      clientId,
+      clientName: client.name,
+      data: {
+        auditId: auditRow.id,
+        score,
+        previousScore,
+        delta,
+        topIssue: topIssue ?? "",
+      },
+    });
+  }
+
+  // Refresh quick-wins from the new audit so the "Fix today" list stays
+  // current. Best-effort — never block the redirect.
+  try {
+    const { applyQuickWins } = await import("@/lib/quick-wins");
+    await applyQuickWins({ clientId });
+  } catch {
+    // ignore
+  }
 
   safeRevalidatePath(`/clients/${clientId}`);
   safeRevalidatePath("/");

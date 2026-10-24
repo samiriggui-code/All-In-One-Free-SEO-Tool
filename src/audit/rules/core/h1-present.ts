@@ -2,14 +2,37 @@ import { defineRule, fail, pass } from "@/audit/engine/define-rule";
 
 export const h1PresentRule = defineRule({
   id: "core-h1-present",
+  name: "H1 Tag Present",
+  description: "Checks that at least one <h1> tag exists in the document",
   category: "core",
-  severity: "high",
+  // Raised from 1 in 5.0.0. Every core presence check sat at the bottom of a
+  // scale running to 25, so a page missing this lost a single weight-point
+  // while canonical edge cases passed vacuously at 6-8. A blank document
+  // scored 84/100. A primary on-page relevance signal and a structural requirement for
+  // accessibility.
   weight: 15,
-  title: "H1 present",
-  description: "Page should have at least one H1",
-  recommendation: "Add a single H1 that describes the page topic.",
-  check: async ({ page }) => {
-    if (page.h1s.length === 0) return fail("No H1 found on the page");
-    return pass("H1 is present", { h1: page.h1s[0] });
-  },
+  run: async (context) => {
+    const { $ } = context;
+    const h1Elements = $("h1");
+    if (h1Elements.length === 0) {
+      return fail(
+        "core-h1-present",
+        "No <h1> tag found in the document",
+        { found: false, count: 0 }
+      );
+    }
+    const h1Text = h1Elements.first().text().trim();
+    if (!h1Text) {
+      return fail(
+        "core-h1-present",
+        "H1 tag exists but is empty",
+        { found: true, empty: true, count: h1Elements.length }
+      );
+    }
+    return pass(
+      "core-h1-present",
+      "H1 tag is present",
+      { found: true, count: h1Elements.length, text: h1Text }
+    );
+  }
 });

@@ -133,11 +133,19 @@ export const audits = sqliteTable("audits", {
   completedAt: integer("completed_at", { mode: "timestamp" }),
   /**
    * Audit engine:
-   * - "crawler" — built-in site crawl (~72 finding types; agent can auto-fix)
+   * - "crawler" — the site audit: SEO Tool's crawl and checks (the agent can
+   *   auto-fix those types) plus the 373-rule engine and the GEO audit
    * - "ai_full" — AI single-page audit
-   * - "seomator" — SEOmator deep technical audit (373 rules / 20 categories)
+   * - "seomator" — legacy: the separate SEOmator audit, before the engine
+   *   ran inside the site audit. Older rows only.
    */
   kind: text("kind").notNull().default("crawler"),
+  /**
+   * How deep the rule engine read the site: "quick" (HTML only) or "full"
+   * (browser render, Core Web Vitals, deeper crawl). Null for audits from
+   * before the engine ran inside the site audit.
+   */
+  mode: text("mode", { enum: ["quick", "full"] }),
   /** For ai_full / seomator: which URL was analyzed (start URL for crawls). */
   targetUrl: text("target_url"),
   /** AI-written executive summary, or SEOmator category breakdown markdown. */

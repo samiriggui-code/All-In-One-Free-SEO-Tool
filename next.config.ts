@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
   // so end-users can run the app by double-clicking, no Node install required.
   output: "standalone",
 
+  // Read from disk at runtime (injected into rendered pages to measure Core
+  // Web Vitals), so the file tracer cannot see it through an import.
+  outputFileTracingIncludes: {
+    "/**/*": [
+      "./node_modules/web-vitals/package.json",
+      "./node_modules/web-vitals/dist/web-vitals.attribution.iife.js",
+    ],
+  },
+
   // Native modules and ones that load files from disk at runtime must not be
   // bundled by Next — let Node's normal resolution handle them.
   serverExternalPackages: [
@@ -23,8 +32,6 @@ const nextConfig: NextConfig = {
     "@resvg/resvg-js",
     "satori",
     "qrcode",
-    // SEOmator pulls Playwright + better-sqlite3; keep it out of the bundle.
-    "@seomator/seo-audit",
   ],
 
   // Hide the dev-mode "Compiling…" bottom-left indicator. For self-hosters

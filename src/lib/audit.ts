@@ -13,6 +13,12 @@ export type AuditFinding = {
   severity: Severity;
   message: string;
   url: string;
+  /** Engine category id, for findings from the rule engine. */
+  category?: string;
+  /** How to fix it, for findings from the rule engine. */
+  fixSteps?: string | null;
+  /** Set by the rule engine; SEO Tool's checks get theirs from audit-confidence. */
+  confidence?: "definitely" | "probably" | "test";
 };
 
 export type AuditResult = {

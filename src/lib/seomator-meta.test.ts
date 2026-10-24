@@ -9,7 +9,7 @@ import {
   verdictForScore,
 } from "./seomator-meta";
 import { getExplainer } from "./issue-explainers.server";
-import type { AuditResult } from "@seomator/seo-audit";
+import type { AuditResult } from "@/audit";
 
 describe("seomator-meta", () => {
   it("exposes 20 weighted categories with human names", () => {

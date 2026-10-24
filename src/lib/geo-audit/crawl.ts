@@ -46,7 +46,7 @@ export async function crawlGeoSite(
   const pages: GeoPage[] = [];
   const failures: Array<{ url: string; reason: string }> = [];
 
-  let frontier: string[] = [startUrl];
+  const frontier: string[] = [startUrl];
 
   while (frontier.length && pages.length < maxPages) {
     const level = frontier.splice(0, maxPages - pages.length);

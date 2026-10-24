@@ -269,7 +269,7 @@ export default async function AuditDiffPage({
           ruleDiff.worsenedRules.length > 0) && (
           <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
             <h2 className="text-sm font-semibold tracking-tight">
-              SEOmator rule changes
+              Rule changes
             </h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-xs">
               <RuleChipList

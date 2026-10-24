@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Settings,
   HelpCircle,
@@ -33,9 +34,11 @@ const ROLE_LABEL: Record<string, string> = {
  * there is anything to sign out of) Sign out.
  */
 export function ProfileMenu() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<AuthStatus | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const onLoginScreen = pathname === "/login" || pathname === "/register";
 
   // Who am I, and is there anything to sign out of? On a solo install
   // the answer is "nobody" and "no", and the menu says so rather than
@@ -57,6 +60,10 @@ export function ProfileMenu() {
 
   const authEnabled = Boolean(status?.enabled);
   const me = status?.user ?? null;
+  // Admin links are hidden only from someone signed out of a workspace
+  // with accounts. A solo or shared-password install has nobody to sign
+  // in as, and there the menu is the way into Settings.
+  const signedOut = status?.mode === "accounts" && !me;
   const initial = (me?.name || me?.email || "P").trim().charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -96,68 +103,89 @@ export function ProfileMenu() {
             <p className="truncate text-[10px] text-muted-foreground">
               {me
                 ? `${me.email} · ${ROLE_LABEL[me.role] ?? me.role}`
-                : status?.mode === "password"
-                  ? "Shared password"
-                  : "Local · single-user"}
+                : status?.mode === "accounts"
+                  ? onLoginScreen
+                    ? "Sign in below"
+                    : "Not signed in"
+                  : status?.mode === "password"
+                    ? "Shared password"
+                    : "Local · single-user"}
             </p>
           </div>
           <div className="flex flex-col py-1">
-            <Link
-              href="/settings/team"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Users2 className="size-3.5 text-muted-foreground" />
-              {me ? "Team" : "Set up team accounts"}
-            </Link>
-            <Link
-              href="/settings"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Settings className="size-3.5 text-muted-foreground" />
-              Settings
-            </Link>
-            <Link
-              href="/settings#ai"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Settings className="size-3.5 text-muted-foreground" />
-              AI provider keys
-            </Link>
-            <Link
-              href="/settings#update"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <RefreshCw className="size-3.5 text-muted-foreground" />
-              Check for updates
-            </Link>
-            <Link
-              href="/settings/health"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Settings className="size-3.5 text-muted-foreground" />
-              System health
-            </Link>
-            <Link
-              href="/settings/errors"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Settings className="size-3.5 text-muted-foreground" />
-              Error log
-            </Link>
-            <Link
-              href="/settings/backup"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Settings className="size-3.5 text-muted-foreground" />
-              Backup &amp; restore
-            </Link>
+            {!signedOut ? (
+              <>
+                <Link
+                  href="/settings/team"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Users2 className="size-3.5 text-muted-foreground" />
+                  {me ? "Team" : "Set up team accounts"}
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Settings className="size-3.5 text-muted-foreground" />
+                  Settings
+                </Link>
+                <Link
+                  href="/settings#ai"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Settings className="size-3.5 text-muted-foreground" />
+                  AI provider keys
+                </Link>
+                <Link
+                  href="/settings#update"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <RefreshCw className="size-3.5 text-muted-foreground" />
+                  Check for updates
+                </Link>
+                <Link
+                  href="/settings/health"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Settings className="size-3.5 text-muted-foreground" />
+                  System health
+                </Link>
+                <Link
+                  href="/settings/errors"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Settings className="size-3.5 text-muted-foreground" />
+                  Error log
+                </Link>
+                <Link
+                  href="/settings/backup"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+                >
+                  <Settings className="size-3.5 text-muted-foreground" />
+                  Backup &amp; restore
+                </Link>
+              </>
+            ) : onLoginScreen ? (
+              <p className="px-3 py-2 text-[11px] text-muted-foreground">
+                Admin links appear after you sign in. Use the form below.
+              </p>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+              >
+                <Settings className="size-3.5 text-muted-foreground" />
+                Sign in
+              </Link>
+            )}
             <Link
               href="/seo-chat/capabilities"
               onClick={() => setOpen(false)}
