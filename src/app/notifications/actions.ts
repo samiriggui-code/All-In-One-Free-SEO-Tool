@@ -2,7 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import {
@@ -12,6 +12,7 @@ import {
   monitoredPages,
   pageChanges,
 } from "@/db/schema";
+import { currentUser, visibleClientIds } from "@/lib/auth";
 
 export type Notification = {
   id: string; // composite to support multiple sources
@@ -33,9 +34,12 @@ export async function recentNotifications(): Promise<Notification[]> {
   await requireSignedIn();
   const t = await getTranslations("serverMessages.notifications");
   const out: Notification[] = [];
+  // A member only hears about the clients they're assigned to; null
+  // means they see every client.
+  const scope = await visibleClientIds(await currentUser());
 
-  // Audits — last 8 across clients
-  const recentAudits = await db
+  // Audits — last 8 across the clients the caller can see
+  const recentAudits = scope?.length === 0 ? [] : await db
     .select({
       id: audits.id,
       score: audits.score,
@@ -48,6 +52,7 @@ export async function recentNotifications(): Promise<Notification[]> {
     })
     .from(audits)
     .leftJoin(clients, eq(audits.clientId, clients.id))
+    .where(scope ? inArray(audits.clientId, scope) : undefined)
     .orderBy(desc(audits.createdAt))
     .limit(8);
 
@@ -95,7 +100,7 @@ export async function recentNotifications(): Promise<Notification[]> {
   }
 
   // Page changes — last 10 (skip pure content-hash diffs to reduce noise)
-  const changes = await db
+  const changes = scope?.length === 0 ? [] : await db
     .select({
       id: pageChanges.id,
       field: pageChanges.field,
@@ -113,6 +118,7 @@ export async function recentNotifications(): Promise<Notification[]> {
       eq(pageChanges.monitoredPageId, monitoredPages.id),
     )
     .leftJoin(clients, eq(monitoredPages.clientId, clients.id))
+    .where(scope ? inArray(monitoredPages.clientId, scope) : undefined)
     .orderBy(desc(pageChanges.detectedAt))
     .limit(10);
 
