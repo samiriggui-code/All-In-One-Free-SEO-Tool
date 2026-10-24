@@ -19,6 +19,7 @@ import {
   replyToGbpReview,
   type GbpReview,
 } from "@/lib/gbp-api";
+import { getTranslations } from "next-intl/server";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import type { AiFailure } from "@/lib/ai-error";
 
@@ -156,11 +157,12 @@ export async function submitReply(
   await requireSignedIn();
   const reviewName = String(formData.get("reviewName") ?? "");
   const comment = String(formData.get("comment") ?? "").trim();
-  if (!reviewName) return { ok: false, error: "Missing review name." };
+  const t = await getTranslations("tools.ui.gbp-reply");
+  if (!reviewName) return { ok: false, error: t("errorMissingReview") };
   if (comment.length < 5)
-    return { ok: false, error: "Reply too short." };
+    return { ok: false, error: t("errorTooShort") };
   const r = await replyToGbpReview({ reviewName, comment });
-  if (!r.ok) return { ok: false, error: r.error ?? "Reply failed." };
+  if (!r.ok) return { ok: false, error: r.error ?? t("errorFailed") };
   const reviewId = reviewName.split("/").pop() ?? "";
   return { ok: true, reviewId, aiFailure: lastAiFailure() };
 }

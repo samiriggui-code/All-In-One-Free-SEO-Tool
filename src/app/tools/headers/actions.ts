@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { saveSnapshot } from "@/lib/snapshots";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardUrl } from "@/lib/url-guard";
@@ -24,7 +25,8 @@ export async function inspectHeaders(
   rawUrl: string,
 ): Promise<HeadersResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
+  const tr = await getTranslations("tools.ui.headers");
+  if (!rawUrl?.trim()) return { ok: false, error: tr("errorRequired") };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 
   const chain: HeaderHop[] = [];
@@ -52,8 +54,12 @@ export async function inspectHeaders(
           ok: false,
           error:
             chain.length === 0
-              ? `Can't check that address: ${verdict.reason}`
-              : `Stopped after ${chain.length} hop${chain.length === 1 ? "" : "s"}: ${current} ${verdict.reason.toLowerCase()}. A public URL that redirects into a private address is a known way to make a server fetch something it shouldn't, so this tool won't follow it.`,
+              ? tr("errorBlocked", { reason: verdict.reason })
+              : tr("errorStopped", {
+                  count: chain.length,
+                  url: current,
+                  reason: verdict.reason.toLowerCase(),
+                }),
         };
       }
       const res = await fetch(current, {
@@ -107,14 +113,17 @@ export async function inspectHeaders(
       });
       return {
         ok: false,
-        error: `Hop ${chain.length} failed: ${(err as Error).message}`,
+        error: tr("errorHop", {
+          hop: chain.length,
+          message: (err as Error).message,
+        }),
       };
     } finally {
       clearTimeout(t);
     }
   }
 
-  return { ok: false, error: `Too many redirects (>${MAX_HOPS})` };
+  return { ok: false, error: tr("errorTooMany", { max: MAX_HOPS }) };
 }
 
 export async function saveHeadersSnapshot(opts: {

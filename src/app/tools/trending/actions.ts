@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import {
   findTrendingIdeas,
   type TrendingResult,
@@ -28,7 +29,8 @@ export async function runTrending(
     country: formData.get("country") || "US",
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    const t = await getTranslations("tools.ui.trending");
+    return { ok: false, error: t("invalidInput") };
   }
   const r = await findTrendingIdeas({
     topic: parsed.data.topic,

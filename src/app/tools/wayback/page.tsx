@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { History } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { WaybackForm } from "./form";
 
-export default function WaybackPage() {
+export default async function WaybackPage() {
+  const t = await getTranslations("tools.ui.wayback");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Wayback Machine timeline"
-        description="See how a page evolved over years. Pulls Internet Archive CDX (free, no key). Critical when investigating ranking drops, content changes by competitors, or your own historical content."
+        title={t("title")}
+        description={t("description")}
         icon={History}
         accent="violet"
       />

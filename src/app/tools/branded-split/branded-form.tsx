@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { GitMerge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runSplit, type BrandedSplitState } from "./actions";
 
 export function BrandedForm({ properties }: { properties: string[] }) {
+  const t = useTranslations("tools.ui.branded-split");
   const [state, formAction, pending] = useActionState<
     BrandedSplitState | null,
     FormData
@@ -17,7 +19,7 @@ export function BrandedForm({ properties }: { properties: string[] }) {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">GSC property</span>
+          <span className="text-muted-foreground">{t("property")}</span>
           <select
             name="site"
             required
@@ -32,7 +34,7 @@ export function BrandedForm({ properties }: { properties: string[] }) {
         </label>
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Brand terms (comma-separated — include misspellings + abbreviations)
+            {t("brandTerms")}
           </span>
           <input
             name="brandTerms"
@@ -49,12 +51,12 @@ export function BrandedForm({ properties }: { properties: string[] }) {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Splitting…
+              {t("splitting")}
             </>
           ) : (
             <>
               <GitMerge className="mr-2 size-4" />
-              Split
+              {t("split")}
             </>
           )}
         </button>
@@ -70,7 +72,7 @@ export function BrandedForm({ properties }: { properties: string[] }) {
         <>
           <div className="grid gap-3 md:grid-cols-2">
             <SideCard
-              label="Branded"
+              label={t("branded")}
               clicks={state.summary.brandedClicks}
               impressions={state.summary.brandedImpressions}
               queries={state.summary.brandedQueries}
@@ -79,7 +81,7 @@ export function BrandedForm({ properties }: { properties: string[] }) {
               tone="violet"
             />
             <SideCard
-              label="Non-branded"
+              label={t("nonBranded")}
               clicks={state.summary.nonBrandedClicks}
               impressions={state.summary.nonBrandedImpressions}
               queries={state.summary.nonBrandedQueries}
@@ -91,18 +93,18 @@ export function BrandedForm({ properties }: { properties: string[] }) {
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">All queries (28 days)</h3>
+              <h3 className="text-sm font-semibold">{t("allQueries")}</h3>
             </header>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2 text-left">Query</th>
-                    <th className="px-4 py-2 text-center">Type</th>
-                    <th className="px-4 py-2 text-right">Clicks</th>
-                    <th className="px-4 py-2 text-right">Impr.</th>
-                    <th className="px-4 py-2 text-right">CTR</th>
-                    <th className="px-4 py-2 text-right">Pos.</th>
+                    <th className="px-4 py-2 text-left">{t("colQuery")}</th>
+                    <th className="px-4 py-2 text-center">{t("colType")}</th>
+                    <th className="px-4 py-2 text-right">{t("colClicks")}</th>
+                    <th className="px-4 py-2 text-right">{t("colImpressions")}</th>
+                    <th className="px-4 py-2 text-right">{t("colCtr")}</th>
+                    <th className="px-4 py-2 text-right">{t("colPosition")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,7 +115,7 @@ export function BrandedForm({ properties }: { properties: string[] }) {
                         <span
                           className={`rounded-full px-2 py-0.5 text-[9px] uppercase tracking-wider ring-1 ring-inset ${r.branded ? "bg-violet-500/15 text-violet-300 ring-violet-500/30" : "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30"}`}
                         >
-                          {r.branded ? "brand" : "non-brand"}
+                          {r.branded ? t("tagBrand") : t("tagNonBrand")}
                         </span>
                       </td>
                       <td className="px-4 py-1.5 text-right tabular-nums">{r.clicks}</td>
@@ -162,6 +164,7 @@ function SideCard({
       : delta > 0
         ? "text-emerald-300"
         : "text-muted-foreground";
+  const tr = useTranslations("tools.ui.branded-split");
   const t = tone === "violet" ? "text-violet-300" : "text-cyan-300";
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
@@ -170,12 +173,13 @@ function SideCard({
       </div>
       <div className="text-3xl font-bold tabular-nums">{clicks.toLocaleString()}</div>
       <div className="text-xs text-muted-foreground tabular-nums">
-        {impressions.toLocaleString()} impressions · {queries} queries
+        {tr("sideStats", { impressions: impressions.toLocaleString(), queries })}
       </div>
       <div className={`text-xs tabular-nums ${deltaTone}`}>
-        Δ {delta >= 0 ? "+" : ""}
-        {delta} ({pct >= 0 ? "+" : ""}
-        {pct.toFixed(1)}%) vs prior 28 days
+        {tr("sideDelta", {
+          delta: `${delta >= 0 ? "+" : ""}${delta}`,
+          pct: `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}`,
+        })}
       </div>
     </section>
   );

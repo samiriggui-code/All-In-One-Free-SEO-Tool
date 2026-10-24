@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { runAudit } from "@/lib/audit";
 import { checkRobots } from "@/app/tools/robots/actions";
 import { checkHreflang } from "@/app/tools/hreflang/actions";
@@ -21,6 +22,7 @@ import { inspectHeaders } from "@/app/tools/headers/actions";
  */
 
 export type HealthFinding = {
+  /** Stable English key (On-page, Security…); the page translates it. */
   category: string;
   severity: "critical" | "high" | "medium" | "low" | "info";
   type: string;
@@ -72,7 +74,8 @@ export async function runHealthCheck(
   clientId?: number | null,
 ): Promise<HealthResult> {
   await requireSignedIn();
-  if (!rawUrl?.trim()) return { ok: false, error: "URL required" };
+  const t = await getTranslations("tools.ui.health-check");
+  if (!rawUrl?.trim()) return { ok: false, error: t("errorRequired") };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
 
   // All checks fire in parallel; each is best-effort
@@ -89,7 +92,7 @@ export async function runHealthCheck(
     ]);
 
   if (!meta || !meta.reachable) {
-    return { ok: false, error: "Couldn't reach the site." };
+    return { ok: false, error: t("errorUnreachable") };
   }
 
   const findings: HealthFinding[] = [];
@@ -139,7 +142,10 @@ export async function runHealthCheck(
           category: "Security",
           severity: "low",
           type: `missing_${h.name}`,
-          message: `${h.name} ${h.value ? "weak" : "missing"} — ${h.hint ?? ""}`,
+          message: t(h.value ? "msg.headerWeak" : "msg.headerMissing", {
+            name: h.name,
+            hint: h.hint ?? "",
+          }),
         });
       }
     }
@@ -148,7 +154,10 @@ export async function runHealthCheck(
         category: "Security",
         severity: "medium",
         type: "observatory_low",
-        message: `Mozilla Observatory grade ${security.observatory.grade ?? "?"} (${security.observatory.score ?? 0}/100). Multiple security headers need attention.`,
+        message: t("msg.observatoryLow", {
+          grade: security.observatory.grade ?? "?",
+          score: security.observatory.score ?? 0,
+        }),
       });
     }
     if (security.ssl && security.ssl.grade && /^[CDFE]/.test(security.ssl.grade)) {
@@ -156,7 +165,7 @@ export async function runHealthCheck(
         category: "Security",
         severity: "high",
         type: "ssl_low",
-        message: `SSL Labs grade ${security.ssl.grade}. Renew or upgrade your TLS configuration.`,
+        message: t("msg.sslLow", { grade: security.ssl.grade }),
       });
     }
   }
@@ -170,7 +179,7 @@ export async function runHealthCheck(
         category: "Performance",
         severity: "high",
         type: "low_performance",
-        message: `PageSpeed performance score ${cwv.performance}/100 — below 50 indicates serious issues.`,
+        message: t("msg.lowPerformance", { score: cwv.performance }),
       });
     }
     if (typeof cwv.lcpMs === "number" && cwv.lcpMs > 4000) {
@@ -178,7 +187,7 @@ export async function runHealthCheck(
         category: "Performance",
         severity: "high",
         type: "lcp_poor",
-        message: `LCP ${(cwv.lcpMs / 1000).toFixed(1)}s — Google's "poor" threshold is >4s. Identify the LCP element and fix it.`,
+        message: t("msg.lcpPoor", { seconds: (cwv.lcpMs / 1000).toFixed(1) }),
       });
     }
     if (typeof cwv.cls === "number" && cwv.cls > 25) {
@@ -186,7 +195,7 @@ export async function runHealthCheck(
         category: "Performance",
         severity: "medium",
         type: "cls_poor",
-        message: `CLS ${(cwv.cls / 100).toFixed(2)} — layout shift exceeds Google's "poor" threshold of 0.25.`,
+        message: t("msg.clsPoor", { cls: (cwv.cls / 100).toFixed(2) }),
       });
     }
     for (const opp of cwv.opportunities ?? []) {
@@ -195,7 +204,10 @@ export async function runHealthCheck(
           category: "Performance",
           severity: "low",
           type: opp.id,
-          message: `${opp.title} — could save ~${Math.round((opp.savingsMs ?? 0) / 100) / 10}s.`,
+          message: t("msg.opportunity", {
+            title: opp.title,
+            seconds: Math.round((opp.savingsMs ?? 0) / 100) / 10,
+          }),
         });
       }
     }
@@ -213,7 +225,7 @@ export async function runHealthCheck(
         category: "Images",
         severity: "medium",
         type: "missing_alt",
-        message: `${noAlt.length} image${noAlt.length === 1 ? "" : "s"} missing alt text.`,
+        message: t("msg.missingAlt", { count: noAlt.length }),
       });
     }
     if (oversize.length > 0) {
@@ -221,7 +233,7 @@ export async function runHealthCheck(
         category: "Images",
         severity: "medium",
         type: "oversize_images",
-        message: `${oversize.length} image${oversize.length === 1 ? "" : "s"} > 200KB. Compress or convert to WebP.`,
+        message: t("msg.oversize", { count: oversize.length }),
       });
     }
     if (noDims.length > 0) {
@@ -229,7 +241,7 @@ export async function runHealthCheck(
         category: "Images",
         severity: "low",
         type: "no_dimensions",
-        message: `${noDims.length} image${noDims.length === 1 ? "" : "s"} missing width/height — causes CLS.`,
+        message: t("msg.noDimensions", { count: noDims.length }),
       });
     }
   }
@@ -240,7 +252,7 @@ export async function runHealthCheck(
       category: "On-page",
       severity: headers.totalHops > 2 ? "medium" : "low",
       type: "redirect_chain",
-      message: `${headers.totalHops} hops to reach the final URL. More than 2 wastes crawl budget + slows the page.`,
+      message: t("msg.redirectChain", { count: headers.totalHops }),
     });
   }
 
@@ -344,11 +356,12 @@ export async function saveHealthSnapshot(opts: {
   if (!opts.result.ok) {
     return Promise.reject(new Error("Can't save a failed health check"));
   }
+  const t = await getTranslations("tools.ui.health-check");
   return saveSnapshot({
     clientId: null,
     kind: "cwv",
     label: opts.url,
-    note: opts.note ?? "Health check",
+    note: opts.note ?? t("snapshotNote"),
     data: opts.result,
     primaryMetric: opts.result.summary.score,
     primaryMetricLabel: "health",

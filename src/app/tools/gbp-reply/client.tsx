@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
   fetchReviewsWithDrafts,
   submitReply,
@@ -21,6 +22,7 @@ import {
 } from "./actions";
 
 export function ReplyClient({ locations }: { locations: ReplyLocation[] }) {
+  const t = useTranslations("tools.ui.gbp-reply");
   const [locationName, setLocationName] = useState<string>(
     locations[0]?.name ?? "",
   );
@@ -44,16 +46,18 @@ export function ReplyClient({ locations }: { locations: ReplyLocation[] }) {
   if (locations.length === 0) {
     return (
       <div className="glass-apple rounded-2xl p-6 text-sm text-muted-foreground">
-        No GBP locations on this Google account. Verify a location on{" "}
-        <a
-          href="https://business.google.com"
-          target="_blank"
-          rel="noreferrer"
-          className="text-cyan-300 hover:underline"
-        >
-          business.google.com
-        </a>{" "}
-        first, then come back.
+        {t.rich("noLocations", {
+          link: (chunks) => (
+            <a
+              href="https://business.google.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-cyan-300 hover:underline"
+            >
+              {chunks}
+            </a>
+          ),
+        })}
       </div>
     );
   }
@@ -62,7 +66,7 @@ export function ReplyClient({ locations }: { locations: ReplyLocation[] }) {
     <>
       <section className="glass-apple flex flex-wrap items-end gap-3 rounded-2xl p-4">
         <label className="min-w-[260px] flex-1 space-y-1 text-xs">
-          <span className="text-muted-foreground">Location</span>
+          <span className="text-muted-foreground">{t("location")}</span>
           <select
             value={locationName}
             onChange={(e) => {
@@ -90,12 +94,12 @@ export function ReplyClient({ locations }: { locations: ReplyLocation[] }) {
           {loading ? (
             <>
               <Loader2 className="mr-2 size-3.5 animate-spin" />
-              Loading reviews + drafting…
+              {t("loading")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-3.5" />
-              Load reviews + draft replies
+              {t("load")}
             </>
           )}
         </button>
@@ -109,7 +113,7 @@ export function ReplyClient({ locations }: { locations: ReplyLocation[] }) {
 
       {reviews && reviews.length === 0 && (
         <div className="glass-apple rounded-2xl p-6 text-sm text-muted-foreground">
-          No reviews for this location yet.
+          {t("noReviews")}
         </div>
       )}
 
@@ -131,6 +135,7 @@ function ReviewRow({
   review: ReviewWithDraft;
   locationName: string;
 }) {
+  const t = useTranslations("tools.ui.gbp-reply");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(review.draft ?? "");
   const [posted, setPosted] = useState(Boolean(review.reply));
@@ -143,7 +148,7 @@ function ReviewRow({
   // green without forcing a full page reload
   if (state?.ok && !posted) {
     setPosted(true);
-    toast.success("Reply posted to Google Business Profile.");
+    toast.success(t("posted"));
   }
 
   const reviewName = `${locationName}/reviews/${review.reviewId}`;
@@ -162,13 +167,13 @@ function ReviewRow({
             </span>
           </div>
           <p className="mt-1.5 whitespace-pre-wrap text-sm text-foreground/90">
-            {review.comment ?? <i className="text-muted-foreground">No text — star rating only</i>}
+            {review.comment ?? <i className="text-muted-foreground">{t("noText")}</i>}
           </p>
         </div>
         {posted && (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
             <CheckCircle2 className="size-3" />
-            Replied
+            {t("replied")}
           </span>
         )}
       </div>
@@ -176,7 +181,7 @@ function ReviewRow({
       {review.reply ? (
         <div className="border-t border-white/[0.04] bg-emerald-500/[0.03] p-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
-            Existing reply
+            {t("existingReply")}
           </p>
           <p className="mt-1 whitespace-pre-wrap text-sm text-foreground/85">
             {review.reply.comment}
@@ -184,8 +189,7 @@ function ReviewRow({
         </div>
       ) : !review.draft ? (
         <div className="p-4 text-sm text-muted-foreground">
-          AI didn&apos;t draft a reply for this one (likely above the
-          per-run cap of 20). Re-run to draft.
+          {t("noDraft")}
         </div>
       ) : (
         <form action={formAction} className="space-y-3 p-4">
@@ -193,10 +197,10 @@ function ReviewRow({
           <div className="flex items-center gap-1.5">
             <Sparkles className="size-3 text-emerald-300" />
             <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
-              AI draft
+              {t("aiDraft")}
             </p>
             <p className="text-[10px] text-muted-foreground">
-              · review before posting
+              {t("reviewBeforePosting")}
             </p>
           </div>
           {editing ? (
@@ -230,12 +234,12 @@ function ReviewRow({
               {pending ? (
                 <>
                   <Loader2 className="mr-1.5 size-3 animate-spin" />
-                  Posting…
+                  {t("posting")}
                 </>
               ) : (
                 <>
                   <Send className="mr-1.5 size-3" />
-                  {posted ? "Posted" : "Post reply"}
+                  {posted ? t("postedShort") : t("postReply")}
                 </>
               )}
             </button>
@@ -247,12 +251,12 @@ function ReviewRow({
               {editing ? (
                 <>
                   <X className="mr-1.5 size-3" />
-                  Done editing
+                  {t("doneEditing")}
                 </>
               ) : (
                 <>
                   <Edit3 className="mr-1.5 size-3" />
-                  Edit
+                  {t("edit")}
                 </>
               )}
             </button>
@@ -267,11 +271,12 @@ function ReviewRow({
 }
 
 function StarRating({ value }: { value: number | null }) {
+  const t = useTranslations("tools.ui.gbp-reply");
   if (!value) {
     return (
       <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
         <MessageCircle className="size-3" />
-        no rating
+        {t("noRating")}
       </span>
     );
   }

@@ -4,6 +4,7 @@ import { requireSignedIn } from "@/lib/action-guard";
 import { requireEditor } from "@/lib/auth";
 
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { redirectRules, notFoundLog } from "@/db/schema";
@@ -15,14 +16,15 @@ export async function addRule(formData: FormData) {
   const targetUrl = String(formData.get("targetUrl") ?? "").trim();
   const statusCode = Number(formData.get("statusCode") ?? 301);
   const note = String(formData.get("note") ?? "").trim() || null;
+  const t = await getTranslations("tools.ui.redirects-manager");
   if (!sourcePath || !targetUrl)
-    return { ok: false as const, error: "Source path + target URL required." };
+    return { ok: false as const, error: t("errorRequired") };
   if (!sourcePath.startsWith("/"))
-    return { ok: false as const, error: "Source path must start with /" };
+    return { ok: false as const, error: t("errorSourceSlash") };
   if (!/^https?:\/\//i.test(targetUrl) && !targetUrl.startsWith("/"))
-    return { ok: false as const, error: "Target must be absolute URL or /-prefixed path." };
+    return { ok: false as const, error: t("errorTarget") };
   if (![301, 302, 307, 308, 410].includes(statusCode))
-    return { ok: false as const, error: "Status code must be 301/302/307/308/410." };
+    return { ok: false as const, error: t("errorStatus") };
   await db.insert(redirectRules).values({
     sourcePath,
     targetUrl,
@@ -76,11 +78,12 @@ export async function resolve404(formData: FormData) {
     .where(eq(notFoundLog.id, id))
     .limit(1);
   if (!row) return { ok: false as const };
+  const t = await getTranslations("tools.ui.redirects-manager");
   await db.insert(redirectRules).values({
     sourcePath: row.sourcePath,
     targetUrl,
     statusCode: 301,
-    note: `Auto-created from 404 log (${row.hits} hits)`,
+    note: t("autoNote", { count: row.hits }),
   });
   await db
     .update(notFoundLog)

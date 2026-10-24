@@ -2,31 +2,32 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, Check, X, Circle, Copy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runAiRobotsAudit } from "./actions";
 import { usePresetClientId, usePresetUrl } from "@/components/use-preset-url";
 import type { RobotsAudit } from "@/lib/ai-bot-robots";
 
 const STATUS_META: Record<
   "explicit-allow" | "explicit-block" | "star-default" | "missing",
-  { label: string; tone: string; icon: React.ReactNode }
+  { label: "allowed" | "blocked" | "wildcard" | "missing"; tone: string; icon: React.ReactNode }
 > = {
   "explicit-allow": {
-    label: "Explicitly allowed",
+    label: "allowed",
     tone: "text-emerald-300",
     icon: <Check className="size-3.5" />,
   },
   "explicit-block": {
-    label: "Explicitly blocked",
+    label: "blocked",
     tone: "text-rose-300",
     icon: <X className="size-3.5" />,
   },
   "star-default": {
-    label: "Falls under * wildcard",
+    label: "wildcard",
     tone: "text-amber-300",
     icon: <Circle className="size-3.5" />,
   },
   missing: {
-    label: "No rule (crawler-default)",
+    label: "missing",
     tone: "text-amber-300",
     icon: <Circle className="size-3.5" />,
   },
@@ -35,6 +36,8 @@ const STATUS_META: Record<
 export function AiRobotsForm() {
   // Prefilled when the tool is opened from a client, so the domain is
   // not retyped and the findings attach to the right client.
+  const t = useTranslations("tools.ui.ai-robots");
+  const tCommon = useTranslations("tools.common");
   const presetUrl = usePresetUrl();
   const clientId = usePresetClientId();
   const [url, setUrl] = useState(presetUrl);
@@ -87,17 +90,17 @@ export function AiRobotsForm() {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Fetching robots.txt…
+              {t("fetching")}
             </>
           ) : (
-            "Audit AI bots"
+            t("submit")
           )}
         </button>
       </form>
 
       {result && !result.ok && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 px-4 py-3 text-sm text-rose-200">
-          <div className="font-semibold">Couldn&apos;t fetch robots.txt</div>
+          <div className="font-semibold">{t("fetchError")}</div>
           <p className="mt-1 text-rose-200/80">{result.error}</p>
         </div>
       )}
@@ -107,7 +110,7 @@ export function AiRobotsForm() {
           {/* Headline stats */}
           <div className="grid gap-3 sm:grid-cols-3">
             <StatCard
-              label="AI bots addressed"
+              label={t("statAddressed")}
               value={`${result.bots.length - result.unaddressedCount}/${result.bots.length}`}
               tone={
                 result.unaddressedCount === 0
@@ -118,12 +121,12 @@ export function AiRobotsForm() {
               }
             />
             <StatCard
-              label="Unaddressed"
+              label={t("statUnaddressed")}
               value={String(result.unaddressedCount)}
               tone={result.unaddressedCount === 0 ? "emerald" : "rose"}
             />
             <StatCard
-              label="robots.txt size"
+              label={t("statSize")}
               value={`${result.rawBytes} B`}
               tone="neutral"
             />
@@ -132,18 +135,21 @@ export function AiRobotsForm() {
           {/* Per-bot detail table */}
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h2 className="text-base font-semibold">Per-crawler status</h2>
+              <h2 className="text-base font-semibold">{t("perCrawler")}</h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Fetched {result.url} · {new Date(result.fetchedAt).toLocaleString()}
+                {t("fetchedAt", {
+                  url: result.url,
+                  date: new Date(result.fetchedAt).toLocaleString(),
+                })}
               </p>
             </header>
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="px-5 py-3 text-left font-medium">Bot</th>
-                  <th className="px-3 py-3 text-left font-medium">Vendor</th>
-                  <th className="px-3 py-3 text-left font-medium">Status</th>
-                  <th className="px-3 py-3 text-left font-medium">Currently</th>
+                  <th className="px-5 py-3 text-left font-medium">{t("colBot")}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t("colVendor")}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t("colStatus")}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t("colCurrently")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -170,7 +176,7 @@ export function AiRobotsForm() {
                       <td className={`px-3 py-3 text-xs ${meta.tone}`}>
                         <span className="inline-flex items-center gap-1.5">
                           {meta.icon}
-                          {meta.label}
+                          {t(`status.${meta.label}`)}
                         </span>
                       </td>
                       <td className="px-3 py-3 text-xs">
@@ -181,7 +187,7 @@ export function AiRobotsForm() {
                               : "text-emerald-300"
                           }
                         >
-                          {b.effectivelyBlocked ? "Blocked" : "Allowed"}
+                          {b.effectivelyBlocked ? t("blocked") : t("allowed")}
                         </span>
                       </td>
                     </tr>
@@ -197,11 +203,10 @@ export function AiRobotsForm() {
               <header className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-base font-semibold">
-                    Suggested patch for your robots.txt
+                    {t("patchTitle")}
                   </h2>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Default is Disallow (opt out of training). Flip
-                    Disallow → Allow for any bot you want to permit.
+                    {t("patchHint")}
                   </p>
                 </div>
                 <button
@@ -210,7 +215,7 @@ export function AiRobotsForm() {
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 text-xs font-medium hover:bg-white/[0.08]"
                 >
                   <Copy className="size-3.5" />
-                  {copied ? "Copied!" : "Copy"}
+                  {copied ? t("copiedBang") : tCommon("copy")}
                 </button>
               </header>
               <pre className="overflow-x-auto rounded-lg border border-white/[0.06] bg-black/40 p-4 text-[11px] leading-relaxed">
@@ -219,10 +224,9 @@ export function AiRobotsForm() {
             </section>
           ) : (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-200">
-              <div className="font-semibold">All AI bots addressed ✓</div>
+              <div className="font-semibold">{t("allAddressed")}</div>
               <p className="mt-1 text-emerald-200/80">
-                Every known AI crawler has an explicit rule in your robots.txt.
-                No patch needed.
+                {t("allAddressedHint")}
               </p>
             </div>
           )}

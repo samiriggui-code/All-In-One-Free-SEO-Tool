@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Compass, Loader2 } from "lucide-react";
 import { AiFailureNotice } from "@/components/ui/ai-failure-notice";
+import { useTranslations } from "next-intl";
 import { runClassify, type IntentState } from "./actions";
 
 const TONE: Record<string, string> = {
@@ -14,6 +15,7 @@ const TONE: Record<string, string> = {
 };
 
 export function IntentForm() {
+  const t = useTranslations("tools.ui.intent-classifier");
   const [state, formAction, pending] = useActionState<
     IntentState | null,
     FormData
@@ -26,7 +28,7 @@ export function IntentForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Queries (one per line, max 200)</span>
+          <span className="text-muted-foreground">{t("queries")}</span>
           <textarea
             name="queries"
             required
@@ -44,12 +46,12 @@ export function IntentForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Classifying…
+              {t("classifying")}
             </>
           ) : (
             <>
               <Compass className="mr-2 size-4" />
-              Classify
+              {t("classify")}
             </>
           )}
         </button>
@@ -75,10 +77,10 @@ export function IntentForm() {
             <table className="w-full text-xs">
               <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-2 text-left">Query</th>
-                  <th className="px-4 py-2 text-left">Intent</th>
-                  <th className="px-4 py-2 text-right">Conf.</th>
-                  <th className="px-4 py-2 text-left">Recommended format</th>
+                  <th className="px-4 py-2 text-left">{t("colQuery")}</th>
+                  <th className="px-4 py-2 text-left">{t("colIntent")}</th>
+                  <th className="px-4 py-2 text-right">{t("colConfidence")}</th>
+                  <th className="px-4 py-2 text-left">{t("colFormat")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -89,7 +91,7 @@ export function IntentForm() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${TONE[r.intent]}`}
                       >
-                        {r.intent}
+                        {t(`intents.${r.intent}`)}
                       </span>
                     </td>
                     <td className="px-4 py-1.5 text-right tabular-nums text-muted-foreground">

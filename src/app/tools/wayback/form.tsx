@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { ExternalLink, History, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runWayback, type WaybackState } from "./actions";
 
 export function WaybackForm() {
+  const t = useTranslations("tools.ui.wayback");
   const [state, formAction, pending] = useActionState<
     WaybackState | null,
     FormData
@@ -31,12 +33,12 @@ export function WaybackForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Fetching…
+                {t("fetching")}
               </>
             ) : (
               <>
                 <History className="mr-2 size-3" />
-                Fetch
+                {t("fetch")}
               </>
             )}
           </button>
@@ -51,7 +53,7 @@ export function WaybackForm() {
 
       {state?.ok && state.snaps.length === 0 && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          No archived snapshots for this URL.
+          {t("noSnapshots")}
         </p>
       )}
 
@@ -59,7 +61,7 @@ export function WaybackForm() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
             <h3 className="text-sm font-semibold">
-              {state.snaps.length} snapshots
+              {t("snapshots", { count: state.snaps.length })}
             </h3>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
               {state.url}
@@ -78,7 +80,7 @@ export function WaybackForm() {
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-violet-300 hover:underline"
                 >
-                  View archive <ExternalLink className="size-3" />
+                  {t("viewArchive")} <ExternalLink className="size-3" />
                 </a>
               </li>
             ))}

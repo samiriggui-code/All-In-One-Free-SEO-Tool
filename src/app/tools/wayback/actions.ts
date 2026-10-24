@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { saveToolRun } from "@/lib/tool-runs";
 
 export type WaybackSnap = {
@@ -20,8 +21,9 @@ export async function runWayback(
   formData: FormData,
 ): Promise<WaybackState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.wayback");
   const raw = String(formData.get("url") ?? "").trim();
-  if (!raw) return { ok: false, error: "Enter a URL." };
+  if (!raw) return { ok: false, error: t("errorEmpty") };
   const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   // Internet Archive CDX API — free, no key.
   const cdxUrl = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(
@@ -33,7 +35,7 @@ export async function runWayback(
       signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
-      return { ok: false, error: `Internet Archive returned ${res.status}` };
+      return { ok: false, error: t("errorStatus", { status: res.status }) };
     }
     const data = (await res.json()) as string[][];
     if (!Array.isArray(data) || data.length <= 1) {
@@ -65,6 +67,6 @@ export async function runWayback(
     }).catch(() => undefined);
     return { ok: true, url, snaps };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Wayback fetch failed" };
+    return { ok: false, error: (err as Error).message ?? t("errorFailed") };
   }
 }
