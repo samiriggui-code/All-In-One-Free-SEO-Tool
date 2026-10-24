@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, inArray, isNotNull } from "drizzle-orm";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +14,16 @@ import {
   Activity,
 } from "lucide-react";
 import { db } from "@/db/client";
-import { audits, clients, tasks } from "@/db/schema";
+import { audits, clients, contentPosts, invoices, proposals, reportArchives, tasks } from "@/db/schema";
+import { invoiceTotals } from "@/lib/invoice-utils";
 import { ScoreGauge } from "@/components/ui/score-gauge";
 import { displayName, loadBrand } from "@/lib/brand";
 import { SnapshotSparklines } from "@/components/snapshot-sparklines";
 import { PortalChat } from "./portal-chat";
 import { isOpenTask } from "@/lib/task-status";
+import { Deliverables } from "./deliverables";
+import { cartInputFor, openQuoteFor } from "./quote-data";
+import { QuoteShop } from "./quote-shop";
 
 /**
  * The browser tab is a white-label leak nobody notices until a client
@@ -43,14 +48,15 @@ export async function generateMetadata({
 
   const brand = await loadBrand();
   const agency = displayName(brand);
+  const t = await getTranslations("portal");
 
   // Client name first: this page is about them, and it's what they'll
   // recognise in a row of tabs.
-  const title = row ? `${row.name} — SEO progress` : `${agency} — SEO progress`;
+  const title = t("metaTitle", { name: row?.name ?? agency });
 
   return {
     title,
-    description: `SEO progress and current priorities, from ${agency}.`,
+    description: t("metaDescription", { agency }),
     // Overriding `title` alone leaves the root layout's appleWebApp
     // title in place, so a client who adds this to their iPhone home
     // screen gets an icon labelled "SEO Tool".
@@ -117,6 +123,44 @@ export default async function PortalPage({
   // One brand loader, shared with the PDF renderer and the quarterly
   // strategy doc. Reading the three settings directly here was a fourth
   // partial copy of the same logic.
+  const [quote, accepted, reports, posts, bills] = await Promise.all([
+    openQuoteFor(client.id),
+    db
+      .select()
+      .from(proposals)
+      .where(and(eq(proposals.clientId, client.id), eq(proposals.status, "accepted")))
+      .orderBy(desc(proposals.updatedAt))
+      .limit(5),
+    db
+      .select({ id: reportArchives.id, title: reportArchives.title, createdAt: reportArchives.createdAt })
+      .from(reportArchives)
+      .where(
+        and(
+          eq(reportArchives.clientId, client.id),
+          inArray(reportArchives.status, ["approved", "sent"]),
+          isNotNull(reportArchives.pdfBase64),
+        ),
+      )
+      .orderBy(desc(reportArchives.createdAt))
+      .limit(6),
+    db
+      .select({ id: contentPosts.id, title: contentPosts.title, url: contentPosts.publishedUrl, date: contentPosts.publishDate })
+      .from(contentPosts)
+      .where(and(eq(contentPosts.clientId, client.id), eq(contentPosts.status, "published")))
+      .orderBy(desc(contentPosts.publishDate))
+      .limit(6),
+    db
+      .select()
+      .from(invoices)
+      .where(and(eq(invoices.clientId, client.id), inArray(invoices.status, ["sent", "paid", "overdue"])))
+      .orderBy(desc(invoices.issueDate))
+      .limit(12),
+  ]);
+  const quoteInput = quote ? await cartInputFor(quote) : null;
+  const t = await getTranslations("portal");
+  const locale = await getLocale();
+  const day = (d: Date) => d.toLocaleDateString(locale);
+
   const brand = await loadBrand();
   const brandName = brand.name;
   const brandColor = brand.color;
@@ -152,7 +196,7 @@ export default async function PortalPage({
             )}
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                Client portal
+                {t("eyebrow")}
               </div>
               <div className="text-sm font-semibold">
                 {displayName(brand)}
@@ -164,7 +208,7 @@ export default async function PortalPage({
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
             </span>
-            Live
+            {t("live")}
           </span>
         </header>
 
@@ -176,12 +220,11 @@ export default async function PortalPage({
           <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="space-y-4">
               <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                <span className="text-foreground">SEO progress for </span>
+                <span className="text-foreground">{t("heroTitle")} </span>
                 <span className="text-gradient-brand">{client.name}</span>
               </h1>
               <p className="max-w-xl text-sm text-muted-foreground">
-                Live overview of your SEO health, work in progress, and recently
-                completed items. Updated whenever your team runs a new audit.
+                {t("heroBody")}
               </p>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs">
                 <Globe className="size-3 text-cyan-300" />
@@ -199,16 +242,16 @@ export default async function PortalPage({
               <ScoreGauge score={latest?.score ?? null} size={140} />
               <div className="space-y-1.5">
                 <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Latest score
+                  {t("latestScore")}
                 </div>
                 <div className="text-sm font-medium">
                   {latest
-                    ? latest.completedAt?.toLocaleDateString()
-                    : "Awaiting audit"}
+                    ? latest.completedAt && day(latest.completedAt)
+                    : t("awaitingAudit")}
                 </div>
                 {latest && (
                   <div className="text-xs text-muted-foreground">
-                    {latest.issuesCount} issues found
+                    {t("issuesFound", { count: latest.issuesCount })}
                   </div>
                 )}
               </div>
@@ -216,23 +259,34 @@ export default async function PortalPage({
           </div>
         </section>
 
+        {quote && quoteInput && (
+          <QuoteShop
+            token={token}
+            proposalId={quote.id}
+            title={quote.title}
+            intro={quote.intro}
+            sentAt={quote.sentAt ? day(quote.sentAt) : null}
+            input={quoteInput}
+          />
+        )}
+
         {/* Counters */}
         <div className="grid gap-4 sm:grid-cols-3">
           <Counter
             icon={ClipboardList}
-            label="Audits run"
+            label={t("counters.audits")}
             value={recentAudits.length}
             tone="cyan"
           />
           <Counter
             icon={ListChecks}
-            label="Tasks open"
+            label={t("counters.open")}
             value={open.length}
             tone="amber"
           />
           <Counter
             icon={CheckCircle2}
-            label="Tasks completed"
+            label={t("counters.done")}
             value={done.length}
             tone="emerald"
           />
@@ -246,27 +300,27 @@ export default async function PortalPage({
                 <CheckCircle2 className="size-4 text-emerald-300" />
               </div>
               <div>
-                <h2 className="text-base font-semibold">Recently completed</h2>
+                <h2 className="text-base font-semibold">{t("recent.title")}</h2>
                 <p className="text-xs text-muted-foreground">
-                  Last 5 SEO tasks closed
+                  {t("recent.hint")}
                 </p>
               </div>
             </header>
             <ul className="divide-y divide-white/5">
-              {recentDone.map((t) => (
-                <li key={t.id} className="px-5 py-3 text-sm">
+              {recentDone.map((task) => (
+                <li key={task.id} className="px-5 py-3 text-sm">
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-400" />
                     <div className="space-y-0.5">
-                      <div className="font-medium">{t.title}</div>
-                      {t.description && (
+                      <div className="font-medium">{task.title}</div>
+                      {task.description && (
                         <p className="text-xs text-muted-foreground">
-                          {t.description}
+                          {task.description}
                         </p>
                       )}
-                      {t.updatedAt && (
+                      {task.updatedAt && (
                         <div className="text-[10px] text-muted-foreground">
-                          {t.updatedAt.toLocaleDateString()}
+                          {day(task.updatedAt)}
                         </div>
                       )}
                     </div>
@@ -285,43 +339,61 @@ export default async function PortalPage({
                 <Sparkles className="size-4 text-amber-300" />
               </div>
               <div>
-                <h2 className="text-base font-semibold">In progress</h2>
+                <h2 className="text-base font-semibold">{t("upcoming.title")}</h2>
                 <p className="text-xs text-muted-foreground">
-                  Top open tasks your team is working on
+                  {t("upcoming.hint")}
                 </p>
               </div>
             </header>
             <ul className="divide-y divide-white/5">
-              {upcoming.map((t) => (
+              {upcoming.map((task) => (
                 <li
-                  key={t.id}
+                  key={task.id}
                   className="flex items-start gap-3 px-5 py-3 text-sm"
                 >
                   <Activity className="mt-0.5 size-4 shrink-0 text-violet-300" />
                   <div className="min-w-0 flex-1 space-y-0.5">
-                    <div className="font-medium">{t.title}</div>
-                    {t.whyItMatters && (
+                    <div className="font-medium">{task.title}</div>
+                    {task.whyItMatters && (
                       <p className="text-xs text-muted-foreground">
-                        {t.whyItMatters}
+                        {task.whyItMatters}
                       </p>
                     )}
                   </div>
                   <span
                     className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${
-                      t.priority === "high"
+                      task.priority === "high"
                         ? "bg-rose-500/15 text-rose-300 ring-rose-500/30"
-                        : t.priority === "medium"
+                        : task.priority === "medium"
                           ? "bg-amber-500/15 text-amber-300 ring-amber-500/30"
                           : "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30"
                     }`}
                   >
-                    {t.priority}
+                    {t(`priority.${task.priority}`)}
                   </span>
                 </li>
               ))}
             </ul>
           </section>
         )}
+
+        <Deliverables
+          token={token}
+          accepted={accepted.map((p) => ({ id: p.id, title: p.title, offers: p.offersJson ?? [] }))}
+          reports={reports.map((r) => ({ id: r.id, title: r.title, date: day(r.createdAt) }))}
+          posts={posts
+            .filter((p) => p.url)
+            .map((p) => ({ id: p.id, title: p.title ?? p.url!, url: p.url!, date: p.date ? day(p.date) : null }))}
+          invoices={bills.map((i) => ({
+            id: i.id,
+            number: i.invoiceNumber,
+            status: i.status,
+            date: day(i.issueDate),
+            total: new Intl.NumberFormat(locale, { style: "currency", currency: i.currency }).format(
+              invoiceTotals(i.items, i.taxRate).total,
+            ),
+          }))}
+        />
 
         {/* Snapshot timeline — public-facing trends */}
         <SnapshotSparklines clientId={client.id} />
@@ -330,7 +402,7 @@ export default async function PortalPage({
         {recentAudits.length > 0 && (
           <section className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
             <header className="border-b border-white/5 px-5 py-4">
-              <h2 className="text-base font-semibold">Audit history</h2>
+              <h2 className="text-base font-semibold">{t("history.title")}</h2>
             </header>
             <ul className="divide-y divide-white/5">
               {recentAudits.map((a) => (
@@ -339,10 +411,10 @@ export default async function PortalPage({
                   className="flex items-center justify-between gap-3 px-5 py-3 text-sm"
                 >
                   <div className="space-y-0.5">
-                    <div className="font-medium">Audit #{a.id}</div>
+                    <div className="font-medium">{t("history.audit", { id: a.id })}</div>
                     <div className="text-xs text-muted-foreground">
-                      {(a.completedAt ?? a.createdAt).toLocaleDateString()} ·{" "}
-                      {a.issuesCount} issues
+                      {day(a.completedAt ?? a.createdAt)} ·{" "}
+                      {t("history.issues", { count: a.issuesCount })}
                     </div>
                   </div>
                   <span
@@ -365,12 +437,11 @@ export default async function PortalPage({
         )}
 
         <footer className="pb-6 pt-4 text-center text-[10px] text-muted-foreground">
-          Read-only client portal · Powered by{" "}
-          {brandName ? `${brandName} via SEO tool` : "SEO tool"}
+          {t("footer", { brand: brandName ? `${brandName} via SEO tool` : "SEO tool" })}
         </footer>
       </div>
 
-      <PortalChat token={token} />
+      <PortalChat token={token} hasQuote={Boolean(quote)} />
     </div>
   );
 }

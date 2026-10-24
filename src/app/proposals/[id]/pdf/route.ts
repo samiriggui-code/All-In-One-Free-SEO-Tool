@@ -1,10 +1,9 @@
 import { eq } from "drizzle-orm";
-import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { db } from "@/db/client";
 import { proposals } from "@/db/schema";
 import { canSeeClient, currentUser } from "@/lib/auth";
 import { getLocale } from "next-intl/server";
-import { generateProposalPdf } from "@/lib/proposal-pdf";
+import { proposalPdfFromRow, proposalPdfName } from "@/lib/proposal-pdf";
 
 export const dynamic = "force-dynamic";
 
@@ -30,38 +29,8 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
-  const pdf = await generateProposalPdf({
-    prospectName: row.prospectName,
-    prospectUrl: row.prospectUrl,
-    title: row.title,
-    intro: row.intro,
-    scope: row.scopeJson ?? [],
-    pricing: row.pricingJson ?? [],
-    offers: row.offersJson ?? null,
-    quote: row.quoteJson ?? null,
-    locale: await getLocale(),
-    currency: row.currency,
-    terms: row.terms,
-    basedOnScore: row.basedOnScore,
-    basedOnAt: row.basedOnAt,
-    // Present only on kickoff documents; the PDF skips both sections when
-    // they're null, so ordinary sales proposals render exactly as before.
-    keywordBaseline: row.baselineJson ?? null,
-    timeline: row.timelineJson ?? null,
-    // Read from the frozen column, never recomputed from the client
-    // record. What they agreed to has to keep reading the same after
-    // somebody edits the client's scope next month.
-    surfaces: row.surfacesJson
-      ? (() => {
-          const { inScope, outOfScope } = splitSurfaces(
-            surfacesFor(row.surfacesJson, null),
-          );
-          return { inScope, outOfScope };
-        })()
-      : null,
-  });
-
-  const filename = `${slug(row.prospectName)}-proposal.pdf`;
+  const pdf = await proposalPdfFromRow(row, await getLocale());
+  const filename = proposalPdfName(row.prospectName);
 
   return new Response(new Uint8Array(pdf), {
     headers: {
@@ -71,14 +40,4 @@ export async function GET(
       "cache-control": "no-store",
     },
   });
-}
-
-function slug(s: string): string {
-  return (
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 60) || "proposal"
-  );
 }

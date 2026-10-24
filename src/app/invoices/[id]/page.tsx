@@ -4,11 +4,12 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-import { Receipt, FileDown, Send, Check, X, Trash2 } from "lucide-react";
+import { Receipt, FileDown, Send, Check, Trash2 } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, invoices } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { getLocale, getTranslations } from "next-intl/server";
 import { invoiceTotals, formatMoney, lineAmount } from "@/lib/invoice-utils";
 import { deleteInvoice, setInvoiceStatus } from "../actions";
 
@@ -43,6 +44,9 @@ export default async function InvoiceDetailPage({
     .limit(1);
 
   const { subtotal, tax, total } = invoiceTotals(invoice.items, invoice.taxRate);
+  const t = await getTranslations("invoices");
+  const locale = await getLocale();
+  const money = (n: number) => formatMoney(n, invoice.currency, locale);
 
   const setSent = setInvoiceStatus.bind(null, invoice.id, "sent");
   const setPaid = setInvoiceStatus.bind(null, invoice.id, "paid");
@@ -53,12 +57,12 @@ export default async function InvoiceDetailPage({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title={`Invoice ${invoice.invoiceNumber}`}
-        description={`For ${client?.name ?? "—"}. Total ${formatMoney(total, invoice.currency)}.`}
+        title={t("detail.title", { number: invoice.invoiceNumber })}
+        description={t("detail.description", { client: client?.name ?? "—", total: money(total) })}
         icon={Receipt}
         accent="amber"
         crumbs={[
-          { label: "Invoices", href: "/invoices" },
+          { label: t("title"), href: "/invoices" },
           { label: invoice.invoiceNumber },
         ]}
         actions={
@@ -72,13 +76,13 @@ export default async function InvoiceDetailPage({
               download
             >
               <FileDown className="size-4" />
-              Download PDF
+              {t("detail.pdf")}
             </a>
             {invoice.status === "draft" && (
               <form action={setSent}>
                 <Button type="submit">
                   <Send className="size-4" />
-                  Mark sent
+                  {t("detail.markSent")}
                 </Button>
               </form>
             )}
@@ -89,7 +93,7 @@ export default async function InvoiceDetailPage({
                   className="shadow-md shadow-emerald-500/20"
                 >
                   <Check className="size-4" />
-                  Mark paid
+                  {t("detail.markPaid")}
                 </Button>
               </form>
             )}
@@ -99,28 +103,28 @@ export default async function InvoiceDetailPage({
           <span
             className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${statusTone[invoice.status]}`}
           >
-            {invoice.status}
+            {t(`status.${invoice.status}`)}
           </span>
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Subtotal" value={formatMoney(subtotal, invoice.currency)} />
-        <Stat label="Tax" value={formatMoney(tax, invoice.currency)} />
-        <Stat label="Total" value={formatMoney(total, invoice.currency)} bold />
+        <Stat label={t("detail.subtotal")} value={money(subtotal)} />
+        <Stat label={t("detail.tax")} value={money(tax)} />
+        <Stat label={t("detail.total")} value={money(total)} bold />
       </div>
 
       <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
         <header className="border-b border-white/5 px-5 py-3 text-sm font-semibold">
-          Line items
+          {t("detail.lines")}
         </header>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-5 py-2 text-left font-medium">Description</th>
-              <th className="px-5 py-2 text-right font-medium">Qty</th>
-              <th className="px-5 py-2 text-right font-medium">Rate</th>
-              <th className="px-5 py-2 text-right font-medium">Amount</th>
+              <th className="px-5 py-2 text-left font-medium">{t("detail.description_col")}</th>
+              <th className="px-5 py-2 text-right font-medium">{t("detail.qty")}</th>
+              <th className="px-5 py-2 text-right font-medium">{t("detail.rate")}</th>
+              <th className="px-5 py-2 text-right font-medium">{t("detail.amount")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -129,10 +133,10 @@ export default async function InvoiceDetailPage({
                 <td className="px-5 py-3">{it.description}</td>
                 <td className="px-5 py-3 text-right font-mono">{it.quantity}</td>
                 <td className="px-5 py-3 text-right font-mono">
-                  {formatMoney(it.rate, invoice.currency)}
+                  {money(it.rate)}
                 </td>
                 <td className="px-5 py-3 text-right font-mono">
-                  {formatMoney(lineAmount(it), invoice.currency)}
+                  {money(lineAmount(it))}
                 </td>
               </tr>
             ))}
@@ -143,7 +147,7 @@ export default async function InvoiceDetailPage({
       {invoice.notes && (
         <section className="rounded-2xl border border-white/5 bg-card/40 p-5 text-sm backdrop-blur-md">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Notes
+            {t("detail.notes")}
           </div>
           <p className="mt-1.5 whitespace-pre-wrap text-foreground/85">
             {invoice.notes}
@@ -153,7 +157,7 @@ export default async function InvoiceDetailPage({
 
       <section className="rounded-2xl border border-rose-500/20 bg-rose-500/5 backdrop-blur-md">
         <header className="border-b border-rose-500/20 px-5 py-3 text-sm font-semibold text-rose-300">
-          Manage
+          {t("detail.manage")}
         </header>
         <div className="flex flex-wrap items-center gap-2 px-5 py-4 text-xs">
           {invoice.status !== "draft" && invoice.status !== "void" && (
@@ -162,7 +166,7 @@ export default async function InvoiceDetailPage({
                 type="submit"
                 className="rounded-md bg-white/5 px-2 py-1 font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
               >
-                Revert to draft
+                {t("detail.revert")}
               </button>
             </form>
           )}
@@ -172,7 +176,7 @@ export default async function InvoiceDetailPage({
                 type="submit"
                 className="rounded-md bg-white/5 px-2 py-1 font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
               >
-                Void
+                {t("detail.void")}
               </button>
             </form>
           )}
@@ -182,7 +186,7 @@ export default async function InvoiceDetailPage({
               className="inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-1 font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/25"
             >
               <Trash2 className="size-3" />
-              Delete
+              {t("detail.delete")}
             </button>
           </form>
           {client && client.id ? (
@@ -190,14 +194,12 @@ export default async function InvoiceDetailPage({
               href={`/clients/${client.id}`}
               className="ml-auto text-muted-foreground hover:text-foreground hover:underline"
             >
-              View client → {client.name}
+              {t("detail.viewClient", { name: client.name })}
             </Link>
           ) : null}
         </div>
       </section>
 
-      {/* Suppress unused import if no need for X */}
-      {false && <X />}
     </div>
   );
 }

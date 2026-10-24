@@ -21,9 +21,9 @@ export function invoiceTotals(
   };
 }
 
-export function formatMoney(amount: number, currency: string): string {
+export function formatMoney(amount: number, currency: string, locale = "en-US"): string {
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       minimumFractionDigits: 2,

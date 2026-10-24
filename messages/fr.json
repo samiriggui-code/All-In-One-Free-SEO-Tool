@@ -1106,7 +1106,7 @@
     "listTitle": "{count, plural, =0 {Propositions} one {# proposition} other {# propositions}}",
     "listEmpty": "Aucune pour l’instant. Choisissez un client ou un prospect ci-dessus : vous obtiendrez un brouillon avec le travail déjà chiffré en heures.",
     "scopeCount": "{count, plural, one {# ligne de travail} other {# lignes de travail}}",
-    "statusHint": "Où en est ce document avec le client",
+    "statusHint": "Où en est ce document avec le client. « Envoyée » le publie dans l’espace client, où il peut l’accepter en ligne.",
     "status": {
       "draft": "Brouillon",
       "sent": "Envoyée",
@@ -1239,6 +1239,205 @@
       "active": "Proposée dans les devis",
       "delete": "Supprimer",
       "cancel": "Annuler"
+    }
+  },
+  "portal": {
+    "metaTitle": "{name} — suivi SEO",
+    "metaDescription": "Suivi SEO et priorités du moment, par {agency}.",
+    "eyebrow": "Espace client",
+    "live": "En direct",
+    "heroTitle": "Suivi SEO de",
+    "heroBody": "La santé SEO de votre site, le travail en cours et ce qui vient d'être fait. Mis à jour à chaque nouvel audit.",
+    "latestScore": "Dernier score",
+    "awaitingAudit": "Audit à venir",
+    "issuesFound": "{count, plural, =0 {aucun problème trouvé} one {# problème trouvé} other {# problèmes trouvés}}",
+    "counters": {
+      "audits": "Audits réalisés",
+      "open": "Tâches en cours",
+      "done": "Tâches terminées"
+    },
+    "recent": {
+      "title": "Terminé récemment",
+      "hint": "Les 5 dernières tâches SEO terminées"
+    },
+    "upcoming": {
+      "title": "En cours",
+      "hint": "Les principales tâches sur lesquelles nous travaillons"
+    },
+    "priority": {
+      "high": "haute",
+      "medium": "moyenne",
+      "low": "basse"
+    },
+    "history": {
+      "title": "Historique des audits",
+      "audit": "Audit n° {id}",
+      "issues": "{count, plural, =0 {aucun problème} one {# problème} other {# problèmes}}"
+    },
+    "footer": "Espace client en lecture seule · Propulsé par {brand}",
+    "quote": {
+      "eyebrow": "Votre devis",
+      "sentOn": "Envoyé le {date}",
+      "explainQuote": "Expliquez-moi ce devis",
+      "pdf": "Télécharger le PDF",
+      "askQuote": "Pouvez-vous m'expliquer ce devis simplement : ce qui sera fait, pourquoi, et ce que ça va changer pour mon site ?",
+      "askOffer": "Qu'est-ce que la prestation « {name} » va concrètement m'apporter, et que vais-je recevoir ?",
+      "findingsTitle": "Ce que l'audit a trouvé",
+      "findingsHint": "Les erreurs les plus graves sont incluses. Vous pouvez ajouter la correction des autres : le prix se met à jour.",
+      "findingsHintNoFixes": "Le nombre d'erreurs trouvées sur votre site, par gravité.",
+      "included": "incluses",
+      "added": "ajoutées",
+      "addFor": "ajouter (+{price})",
+      "notIncluded": "non incluses",
+      "formulas": "Les prestations",
+      "formulasPick": "Choisissez votre formule",
+      "chooseFormula": "Choisir cette formule",
+      "inQuote": "Incluse",
+      "addons": "Compléments possibles",
+      "addonsHint": "Ajoutez ce qui vous intéresse : le devis se recalcule tout de suite.",
+      "addToQuote": "Ajouter au devis",
+      "summary": "Récapitulatif",
+      "perMonthShort": "/ mois",
+      "once": "{amount} à la commande",
+      "monthly": "puis {amount} par mois",
+      "accept": "Accepter le devis",
+      "confirmAccept": "Accepter ce devis ({amount} à la commande, hors taxes) ? Votre interlocuteur sera prévenu et lancera le travail.",
+      "acceptedTitle": "Merci, votre devis est accepté",
+      "acceptedBody": "Nous sommes prévenus et lançons le travail. Vos livrables apparaîtront ici au fur et à mesure.",
+      "onTime": "au temps passé",
+      "flat": "forfait",
+      "minMonths": "Engagement {months} mois minimum",
+      "deliveredIn": "Livré en {days} jours",
+      "whatForMe": "Ce que ça m'apporte",
+      "notifyTitle": "{client} a accepté son devis",
+      "notifyOnce": "À la commande",
+      "notifyMonthly": "Par mois",
+      "errors": {
+        "notFound": "Ce devis n'est plus disponible.",
+        "answered": "Ce devis a déjà reçu une réponse. Rechargez la page.",
+        "offers": "Choisissez au moins une prestation.",
+        "choice": "Choisissez une formule.",
+        "severities": "Les corrections incluses par votre interlocuteur ne peuvent pas être retirées.",
+        "invalid": "Sélection invalide. Rechargez la page."
+      }
+    },
+    "chat": {
+      "open": "Poser une question",
+      "title": "Assistant SEO",
+      "subtitle": "Lecture seule · votre site uniquement",
+      "close": "Fermer",
+      "welcome": "Bonjour ! Je peux vous résumer le travail fait sur votre site et vous expliquer votre devis. Essayez :",
+      "thinking": "Je réfléchis…",
+      "placeholder": "Posez votre question…",
+      "send": "Envoyer",
+      "aiNote": "Généré par IA · exactitude non garantie",
+      "suggestions": {
+        "quote": "Quelle formule me conseillez-vous ?",
+        "month": "Où en est-on ce mois-ci ?",
+        "done": "Qu'est-ce qui a été fait récemment ?",
+        "keywords": "Quels mots-clés progressent ?",
+        "progress": "Qu'est-ce qui est en cours ?"
+      },
+      "errors": {
+        "session": "Lien d'accès invalide.",
+        "noQuestion": "Aucune question à traiter.",
+        "tooLong": "Posez une question plus courte.",
+        "unavailable": "L'assistant n'est pas disponible pour le moment. Votre interlocuteur peut vous répondre à tout moment."
+      }
+    },
+    "deliverables": {
+      "title": "Vos prestations et livrables",
+      "hint": "Tout ce que nous vous livrons, au même endroit",
+      "services": "Prestations commandées",
+      "signedQuote": "Devis accepté (PDF)",
+      "reports": "Rapports",
+      "articles": "Articles publiés",
+      "invoices": "Factures",
+      "invoiceStatus": {
+        "sent": "à régler",
+        "paid": "payée",
+        "overdue": "en retard"
+      }
+    }
+  },
+  "invoices": {
+    "title": "Factures",
+    "description": "Des factures clients simples : suivi du statut et export PDF, sans outil de facturation à part.",
+    "new": "Nouvelle facture",
+    "totals": {
+      "paid": "Payé : {amount}",
+      "outstanding": "À encaisser : {amount}",
+      "draft": "Brouillons : {amount}"
+    },
+    "empty": {
+      "title": "Aucune facture pour l'instant",
+      "body": "Préparez et envoyez vos factures sans quitter l'outil : PDF à vos couleurs, échéance, plusieurs lignes.",
+      "cta": "Créer votre première facture"
+    },
+    "columns": {
+      "number": "Numéro",
+      "client": "Client",
+      "issued": "Émise le",
+      "due": "Échéance",
+      "status": "Statut",
+      "total": "Total"
+    },
+    "status": {
+      "draft": "brouillon",
+      "sent": "envoyée",
+      "paid": "payée",
+      "overdue": "en retard",
+      "void": "annulée"
+    },
+    "detail": {
+      "title": "Facture {number}",
+      "description": "Pour {client}. Total {total}.",
+      "pdf": "Télécharger le PDF",
+      "markSent": "Marquer envoyée",
+      "markPaid": "Marquer payée",
+      "subtotal": "Total HT",
+      "tax": "TVA",
+      "total": "Total TTC",
+      "lines": "Lignes",
+      "description_col": "Désignation",
+      "qty": "Qté",
+      "rate": "Prix unitaire",
+      "amount": "Montant",
+      "notes": "Notes",
+      "manage": "Gérer",
+      "revert": "Repasser en brouillon",
+      "void": "Annuler",
+      "delete": "Supprimer",
+      "viewClient": "Voir le client → {name}"
+    },
+    "form": {
+      "title": "Nouvelle facture",
+      "description": "Une facture rapide pour n'importe quel client : lignes, TVA et notes, puis téléchargement en PDF.",
+      "crumb": "Nouvelle",
+      "defaultLine": "Suivi SEO mensuel",
+      "noClients": "Ajoutez d'abord un client, puis créez une facture.",
+      "client": "Client",
+      "number": "Numéro de facture",
+      "currency": "Devise",
+      "issueDate": "Date d'émission",
+      "dueDate": "Échéance",
+      "taxPercent": "TVA %",
+      "lines": "Lignes",
+      "descriptionPlaceholder": "Désignation",
+      "ratePlaceholder": "Prix unitaire",
+      "removeLine": "Retirer la ligne",
+      "addLine": "Ajouter une ligne",
+      "notes": "Notes",
+      "notesPlaceholder": "Modalités de paiement, IBAN, remerciements…",
+      "subtotal": "Total HT",
+      "tax": "TVA ({percent} %)",
+      "total": "Total TTC",
+      "creating": "Création…",
+      "create": "Créer la facture"
+    },
+    "errors": {
+      "invalid": "Vérifiez les champs de la facture.",
+      "noLines": "Ajoutez au moins une ligne."
     }
   }
 }

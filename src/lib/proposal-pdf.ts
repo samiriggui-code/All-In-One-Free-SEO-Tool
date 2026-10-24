@@ -27,6 +27,8 @@ import {
   type QuoteSettings,
 } from "./quote";
 import type { OfferSnapshot } from "./service-offers";
+import type { Proposal } from "@/db/schema";
+import { splitSurfaces, surfacesFor } from "./engagement-surfaces";
 
 export type ProposalDoc = {
   prospectName: string;
@@ -915,4 +917,47 @@ function money(amount: number, currency: string, locale?: string): string {
   } catch {
     return `${currency} ${amount.toLocaleString()}`;
   }
+}
+
+/**
+ * The PDF of a stored proposal, read from its frozen columns.
+ *
+ * Shared by the app's download and the client portal, so both always
+ * render the same document.
+ */
+export function proposalPdfFromRow(row: Proposal, locale: string): Promise<Buffer> {
+  return generateProposalPdf({
+    prospectName: row.prospectName,
+    prospectUrl: row.prospectUrl,
+    title: row.title,
+    intro: row.intro,
+    scope: row.scopeJson ?? [],
+    pricing: row.pricingJson ?? [],
+    offers: row.offersJson ?? null,
+    quote: row.quoteJson ?? null,
+    locale,
+    currency: row.currency,
+    terms: row.terms,
+    basedOnScore: row.basedOnScore,
+    basedOnAt: row.basedOnAt,
+    // Present only on kickoff documents; the PDF skips both sections when
+    // they're null, so ordinary sales proposals render exactly as before.
+    keywordBaseline: row.baselineJson ?? null,
+    timeline: row.timelineJson ?? null,
+    // Read from the frozen column, never recomputed from the client
+    // record. What they agreed to has to keep reading the same after
+    // somebody edits the client's scope next month.
+    surfaces: row.surfacesJson ? splitSurfaces(surfacesFor(row.surfacesJson, null)) : null,
+  });
+}
+
+/** A file name for the proposal's PDF. */
+export function proposalPdfName(prospectName: string): string {
+  const slug =
+    prospectName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 60) || "proposal";
+  return `${slug}-proposal.pdf`;
 }
