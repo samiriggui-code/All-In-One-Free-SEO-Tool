@@ -22,7 +22,15 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener("hashchange", onChange);
 }
 
-const readHash = () => decodeURIComponent(window.location.hash.slice(1));
+const readHash = () => {
+  const raw = window.location.hash.slice(1);
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    // A malformed escape like "#%E0" must not crash the report.
+    return raw;
+  }
+};
 const noHash = () => "";
 
 /**

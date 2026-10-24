@@ -9,6 +9,7 @@ import { getEdgeToken } from "@/lib/edge-token";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { EdgeSetup } from "./setup";
+import { requireSettingsPage } from "../access";
 
 /**
  * Installing the edge worker.
@@ -23,6 +24,7 @@ import { EdgeSetup } from "./setup";
  * the reason is not obvious.
  */
 export default async function EdgeSettingsPage() {
+  await requireSettingsPage("/settings/edge", { owner: true });
   const [token, rows] = await Promise.all([
     getEdgeToken(),
     db.select({ id: clients.id, name: clients.name, url: clients.url }).from(clients),

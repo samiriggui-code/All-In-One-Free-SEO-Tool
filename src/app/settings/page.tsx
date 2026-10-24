@@ -27,17 +27,18 @@ import { db } from "@/db/client";
 import { audits, clients, keywords, tasks, users } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { getSetting } from "@/lib/settings-store";
-import { canManageSettings, currentUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { canManageSettings } from "@/lib/auth";
 import {
   configuredProviders,
   getActiveProvider,
   getOllamaUrl,
+  type ActiveProvider,
 } from "@/lib/api-keys";
 import { WebhookForm } from "./webhook-form";
 import { BrandForm } from "./brand-form";
 import { ApiKeysSection } from "./api-keys-section";
 import { ActiveProviderCard } from "./active-provider-card";
+import { DefaultModelForm } from "./default-model-form";
 import { CreditSaverForm } from "./credit-saver-form";
 import { ConnectionModePicker } from "./connection-mode";
 import { MCP_TOOL_LIST } from "@/lib/mcp/server";
@@ -57,10 +58,10 @@ import { UpdateCard } from "./update-card";
 import { MaintainerCredit } from "@/components/shell/maintainer-credit";
 import { LocaleForm } from "./locale-form";
 import { getLocalePreference } from "./locale-actions";
+import { requireSettingsPage } from "./access";
 
 export default async function SettingsPage() {
-  const me = await currentUser();
-  if (me?.role === "viewer") redirect("/");
+  const me = await requireSettingsPage("/settings");
   // The MCP tokens and the browser pool's cookies/proxies are secrets the
   // owner manages; managers and members see the rest of the page.
   const isAdmin = !me || canManageSettings(me.role);
@@ -88,7 +89,9 @@ export default async function SettingsPage() {
     process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbsolutePath = path.resolve(dbPath);
 
-  const webhookUrl = await getSetting<string>("webhook.url");
+  // The webhook URL carries its secret, and the SMTP and API-key forms
+  // call owner-only actions: managers and members don't get them.
+  const webhookUrl = isAdmin ? await getSetting<string>("webhook.url") : null;
   const brandName = await getSetting<string>("brand.name");
   const brandColor = await getSetting<string>("brand.color");
   const brandLogo = await getSetting<string>("brand.logo_data_url");
@@ -127,20 +130,26 @@ export default async function SettingsPage() {
 
   // SMTP config — read individually so we can pass an "initial" object to the
   // form without leaking the password value
-  const smtpHost = await getSetting<string>("smtp.host");
-  const smtpPort = await getSetting<string>("smtp.port");
-  const smtpUser = await getSetting<string>("smtp.user");
-  const smtpFromEmail = await getSetting<string>("smtp.from_email");
-  const smtpFromName = await getSetting<string>("smtp.from_name");
-  const smtpSecure = await getSetting<string>("smtp.secure");
-  const smtpHasPassword = Boolean(await getSetting<string>("smtp.password"));
+  const smtp = isAdmin
+    ? {
+        host: await getSetting<string>("smtp.host"),
+        port: await getSetting<string>("smtp.port"),
+        user: await getSetting<string>("smtp.user"),
+        fromEmail: await getSetting<string>("smtp.from_email"),
+        fromName: await getSetting<string>("smtp.from_name"),
+        secure: await getSetting<string>("smtp.secure"),
+        hasPassword: Boolean(await getSetting<string>("smtp.password")),
+      }
+    : null;
   const browserSettings = isAdmin ? await loadBrowserSettings() : null;
 
-  const apiKeyRows = await dbClient
-    .select()
-    .from(apiKeys)
-    .orderBy(descSql(apiKeys.createdAt))
-    .limit(50);
+  const apiKeyRows = isAdmin
+    ? await dbClient
+        .select()
+        .from(apiKeys)
+        .orderBy(descSql(apiKeys.createdAt))
+        .limit(50)
+    : null;
   // Each row carries the webhook's bearer token; the manager is a client
   // component, so only the owner gets the rows at all.
   const inboundWebhookRows = isAdmin
@@ -429,7 +438,7 @@ export default async function SettingsPage() {
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Mail className="size-4 text-cyan-300" />
             Email delivery
-            {smtpHost ? (
+            {!smtp ? null : smtp.host ? (
               <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                 <CheckCircle2 className="size-3" />
                 Configured
@@ -446,17 +455,11 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative p-5">
-          <SmtpForm
-            initial={{
-              host: smtpHost,
-              port: smtpPort,
-              user: smtpUser,
-              fromEmail: smtpFromEmail,
-              fromName: smtpFromName,
-              secure: smtpSecure,
-              hasPassword: smtpHasPassword,
-            }}
-          />
+          {smtp ? (
+            <SmtpForm initial={smtp} />
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("ownerOnlySmtp")}</p>
+          )}
         </div>
       </section>
 
@@ -474,7 +477,11 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative p-5">
-          <WebhookForm initialUrl={webhookUrl} />
+          {isAdmin ? (
+            <WebhookForm initialUrl={webhookUrl} />
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("ownerOnlyWebhook")}</p>
+          )}
           <div className="mt-5 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
             <div className="rounded-lg border border-white/5 bg-black/20 p-3">
               <div className="font-medium text-foreground">When triggered</div>
@@ -516,9 +523,7 @@ export default async function SettingsPage() {
           {browserSettings ? (
             <BrowserForm initial={browserSettings} />
           ) : (
-            <p className="text-xs text-muted-foreground">
-              Only the workspace owner can change the browser pool.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("ownerOnlyBrowser")}</p>
           )}
         </div>
       </section>
@@ -537,6 +542,7 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative p-5">
+          {apiKeyRows ? (
           <ApiKeyManager
             initial={apiKeyRows.map((k) => ({
               id: k.id,
@@ -548,6 +554,9 @@ export default async function SettingsPage() {
               revokedAt: k.revokedAt,
             }))}
           />
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("ownerOnlyApiKeys")}</p>
+          )}
         </div>
       </section>
 
@@ -569,7 +578,7 @@ export default async function SettingsPage() {
             <InboundWebhooksManager initial={inboundWebhookRows} />
           ) : (
             <p className="text-xs text-muted-foreground">
-              Only the workspace owner can manage inbound webhooks.
+              {t("ownerOnlyInboundWebhooks")}
             </p>
           )}
         </div>
@@ -595,29 +604,42 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative space-y-5 p-5">
-          <ConnectionModePicker
-            mode={connectionMode}
-            status={aiStatus}
-            mcp={mcpStatus}
-            origin={appOrigin}
-            installPath={process.cwd()}
-            platform={process.platform}
-            nodePath={process.execPath}
-            mcpToolCount={MCP_TOOL_LIST.length}
-            mcpToolNames={MCP_TOOL_LIST.map((t) => t.name)}
-          />
-          {/* Keys stay reachable in every mode: someone on a subscription
-              still wants a key for the overnight jobs, and hiding it would
-              make that look impossible rather than optional. */}
-          {connectionMode === "mcp" ? (
-            <details className="group rounded-xl border border-white/10 bg-white/[0.02]">
-              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium marker:content-none">
-                Also add an API key
-                <span className="ml-2 text-xs font-normal text-muted-foreground">
-                  optional — only needed for work that runs while you&apos;re away
-                </span>
-              </summary>
-              <div className="space-y-5 border-t border-white/5 p-4">
+          {isAdmin ? (
+            <>
+            <ConnectionModePicker
+              mode={connectionMode}
+              status={aiStatus}
+              mcp={mcpStatus}
+              origin={appOrigin}
+              installPath={process.cwd()}
+              platform={process.platform}
+              nodePath={process.execPath}
+              mcpToolCount={MCP_TOOL_LIST.length}
+              mcpToolNames={MCP_TOOL_LIST.map((t) => t.name)}
+            />
+            {/* Keys stay reachable in every mode: someone on a subscription
+                still wants a key for the overnight jobs, and hiding it would
+                make that look impossible rather than optional. */}
+            {connectionMode === "mcp" ? (
+              <details className="group rounded-xl border border-white/10 bg-white/[0.02]">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium marker:content-none">
+                  Also add an API key
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    optional — only needed for work that runs while you&apos;re away
+                  </span>
+                </summary>
+                <div className="space-y-5 border-t border-white/5 p-4">
+                  <ActiveProviderCard
+                    active={activeProvider}
+                    configured={configuredKeys}
+                    defaultModel={defaultModel}
+                  />
+                  <CreditSaverForm initial={creditSaverOn} />
+                  <ApiKeysSection configured={configuredKeys} ollamaUrl={ollamaUrl} />
+                </div>
+              </details>
+            ) : (
+              <>
                 <ActiveProviderCard
                   active={activeProvider}
                   configured={configuredKeys}
@@ -625,17 +647,19 @@ export default async function SettingsPage() {
                 />
                 <CreditSaverForm initial={creditSaverOn} />
                 <ApiKeysSection configured={configuredKeys} ollamaUrl={ollamaUrl} />
-              </div>
-            </details>
+              </>
+            )}
+            </>
           ) : (
             <>
-              <ActiveProviderCard
-                active={activeProvider}
-                configured={configuredKeys}
-                defaultModel={defaultModel}
-              />
-              <CreditSaverForm initial={creditSaverOn} />
-              <ApiKeysSection configured={configuredKeys} ollamaUrl={ollamaUrl} />
+              <p className="text-xs text-muted-foreground">{t("ownerOnlyAi")}</p>
+              {/* The default model stays with editors, as its action allows. */}
+              {activeProvider ? (
+                <DefaultModelForm
+                  provider={activeProvider as ActiveProvider}
+                  initial={defaultModel}
+                />
+              ) : null}
             </>
           )}
         </div>

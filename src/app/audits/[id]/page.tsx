@@ -307,11 +307,11 @@ export default async function AuditDetailPage({
       note={
         hasEngine
           ? pagesCrawled !== null
-            ? `Crawl of ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"}, scored against 373 technical rules in 20 weighted categories.`
-            : "Scored against 373 technical rules in 20 weighted categories."
+            ? t("sourceEngineCrawl", { count: pagesCrawled })
+            : t("sourceEngine")
           : pagesCrawled !== null
-            ? `Based on the ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} we crawled.`
-            : "This audit predates page-count tracking, so we can only show the pages that had findings — the crawl covered at least that many."
+            ? t("sourceCrawl", { count: pagesCrawled })
+            : t("sourceLegacy")
       }
     />
   );
@@ -320,25 +320,25 @@ export default async function AuditDetailPage({
     <>
       {scoreCap ? (
         <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-xs text-amber-100">
-          Score capped at {audit.score}/100 (uncapped {scoreCap.uncappedScore}
-          ): {scoreCap.reasons.join("; ")}
+          {t("scoreCapped", {
+            score: audit.score ?? 0,
+            uncapped: scoreCap.uncappedScore,
+            reasons: scoreCap.reasons.join("; "),
+          })}
         </div>
       ) : null}
       {waivedCaps.length > 0 ? (
         <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-xs text-cyan-100">
-          Staging caps waived: {waivedCaps.join("; ")}
+          {t("capsWaived", { caps: waivedCaps.join("; ") })}
         </div>
       ) : null}
 
       {cwv ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
-            Core Web Vitals
+            {t("cwvTitle")}
           </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Measured in a browser during the audit (lab data, not CrUX
-            field data).
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("cwvHint")}</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-5">
             {(
               [
@@ -386,11 +386,11 @@ export default async function AuditDetailPage({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`/audits/${auditId}/preview`}
-            alt={`Rendered preview of ${client.url}`}
+            alt={t("previewAlt", { url: client.url })}
             className="aspect-[16/10] w-full object-cover object-top"
           />
           <p className="border-t border-white/5 px-4 py-2 text-xs text-muted-foreground">
-            Landing page as rendered during the audit (Playwright).
+            {t("landingCaption")}
           </p>
         </section>
       ) : null;
@@ -456,7 +456,7 @@ export default async function AuditDetailPage({
       </div>
 
       {/* TASKS LINK */}
-      {issues.length > 0 && (
+      {listed.length > 0 && (
         <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-violet-500/10 via-card/40 to-amber-500/5 px-5 py-4 backdrop-blur-md">
           <div className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-amber-500/15 blur-3xl" />
           <div className="relative flex items-center justify-between">
@@ -816,7 +816,7 @@ export default async function AuditDetailPage({
             {
               id: "checks",
               label: tr("navChecks"),
-              count: issues.length,
+              count: listed.length,
               content: (
                 <>
                   <div>

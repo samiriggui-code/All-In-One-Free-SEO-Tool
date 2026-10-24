@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { RestoreForm } from "./restore-form";
 import { AutoBackupCard } from "./auto-backup-card";
 import { getSetting } from "@/lib/settings-store";
+import { requireSettingsPage } from "../access";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ function fmtBytes(b: number): string {
 }
 
 export default async function BackupPage() {
+  await requireSettingsPage("/settings/backup", { owner: true });
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbs = path.resolve(dbPath);
   const dbExists = existsSync(dbAbs);

@@ -189,7 +189,13 @@
     "counterAudits": "Audits",
     "counterTasks": "Tâches",
     "counterKeywords": "Mots-clés",
-    "databaseFile": "Fichier base de données"
+    "databaseFile": "Fichier base de données",
+    "ownerOnlySmtp": "Seul le propriétaire de l’espace peut configurer l’envoi des e-mails.",
+    "ownerOnlyWebhook": "Seul le propriétaire de l’espace peut configurer le webhook de notifications.",
+    "ownerOnlyBrowser": "Seul le propriétaire de l’espace peut modifier le pool de navigateurs.",
+    "ownerOnlyApiKeys": "Seul le propriétaire de l’espace peut gérer les clés d’API publiques.",
+    "ownerOnlyInboundWebhooks": "Seul le propriétaire de l’espace peut gérer les webhooks entrants.",
+    "ownerOnlyAi": "Seul le propriétaire de l’espace peut changer la connexion IA, le fournisseur et les clés."
   },
   "reports": {
     "title": "Rapports",
@@ -774,7 +780,15 @@
       "categoryScores": "Scores par catégorie",
       "categoryScoresHint": "20 catégories pondérées, 373 règles. Les plus faibles en premier.",
       "cwvTitle": "Core Web Vitals",
-      "cwvHint": "Mesurés dans un navigateur pendant l’audit (labo, pas CrUX terrain)."
+      "cwvHint": "Mesurés dans un navigateur pendant l’audit (labo, pas CrUX terrain).",
+      "sourceEngineCrawl": "Exploration de {count, plural, one {# page} other {# pages}}, notée sur 373 règles techniques réparties en 20 catégories pondérées.",
+      "sourceEngine": "Noté sur 373 règles techniques réparties en 20 catégories pondérées.",
+      "sourceCrawl": "D’après {count, plural, one {la # page explorée} other {les # pages explorées}}.",
+      "sourceLegacy": "Cet audit date d’avant le comptage des pages : seules les pages avec des constats sont connues, l’exploration en a couvert au moins autant.",
+      "scoreCapped": "Score plafonné à {score}/100 (sans plafond : {uncapped}) : {reasons}",
+      "capsWaived": "Plafonds levés pour la préproduction : {caps}",
+      "landingCaption": "Page d’accueil telle que rendue pendant l’audit (Playwright).",
+      "previewAlt": "Aperçu rendu de {url}"
     },
     "report": {
       "verdictPassed": "Audit réussi (seuil {threshold})",
@@ -807,10 +821,10 @@
       "critical": "Critique",
       "warning": "Avertissement",
       "categoryScores": "Scores par catégorie",
-      "passedCount": "{count} réussis",
-      "warningsCount": "{count} avertissements",
-      "failedCount": "{count} échecs",
-      "notMeasuredCount": "{count} non mesurés",
+      "passedCount": "{count, plural, one {# réussi} other {# réussis}}",
+      "warningsCount": "{count, plural, one {# avertissement} other {# avertissements}}",
+      "failedCount": "{count, plural, one {# échec} other {# échecs}}",
+      "notMeasuredCount": "{count, plural, one {# non mesuré} other {# non mesurés}}",
       "quiet": "{count, plural, one {# contrôle sans action requise} other {# contrôles sans action requise}}",
       "onPages": "{count, plural, one {Sur # page} other {Sur # pages}}",
       "howToFix": "Comment corriger",

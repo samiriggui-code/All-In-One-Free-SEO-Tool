@@ -10,8 +10,10 @@ import { microsToDisplay } from "@/lib/ai-cost";
 import { getSetting } from "@/lib/settings-store";
 import { CapForm } from "./cap-form";
 import { UsageCharts } from "./usage-charts";
+import { requireSettingsPage } from "../access";
 
 export default async function AiUsagePage() {
+  await requireSettingsPage("/settings/ai-usage");
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 30);
 

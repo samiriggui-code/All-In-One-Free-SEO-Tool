@@ -189,7 +189,13 @@
     "counterAudits": "Audits",
     "counterTasks": "Tasks",
     "counterKeywords": "Keywords",
-    "databaseFile": "Database file"
+    "databaseFile": "Database file",
+    "ownerOnlySmtp": "Only the workspace owner can configure email delivery.",
+    "ownerOnlyWebhook": "Only the workspace owner can configure the notification webhook.",
+    "ownerOnlyBrowser": "Only the workspace owner can change the browser pool.",
+    "ownerOnlyApiKeys": "Only the workspace owner can manage public API keys.",
+    "ownerOnlyInboundWebhooks": "Only the workspace owner can manage inbound webhooks.",
+    "ownerOnlyAi": "Only the workspace owner can change the AI connection, provider and keys."
   },
   "reports": {
     "title": "Reports",
@@ -774,7 +780,15 @@
       "categoryScores": "Category scores",
       "categoryScoresHint": "20 weighted categories, 373 rules. Lowest scores first.",
       "cwvTitle": "Core Web Vitals",
-      "cwvHint": "Measured in a browser during the audit (lab data, not CrUX field data)."
+      "cwvHint": "Measured in a browser during the audit (lab data, not CrUX field data).",
+      "sourceEngineCrawl": "Crawl of {count, plural, one {# page} other {# pages}}, scored against 373 technical rules in 20 weighted categories.",
+      "sourceEngine": "Scored against 373 technical rules in 20 weighted categories.",
+      "sourceCrawl": "Based on the {count, plural, one {# page} other {# pages}} we crawled.",
+      "sourceLegacy": "This audit predates page-count tracking, so we can only show the pages that had findings — the crawl covered at least that many.",
+      "scoreCapped": "Score capped at {score}/100 (uncapped {uncapped}): {reasons}",
+      "capsWaived": "Staging caps waived: {caps}",
+      "landingCaption": "Landing page as rendered during the audit (Playwright).",
+      "previewAlt": "Rendered preview of {url}"
     },
     "report": {
       "verdictPassed": "Audit passed (threshold {threshold})",
@@ -808,7 +822,7 @@
       "warning": "Warning",
       "categoryScores": "Category scores",
       "passedCount": "{count} passed",
-      "warningsCount": "{count} warnings",
+      "warningsCount": "{count, plural, one {# warning} other {# warnings}}",
       "failedCount": "{count} failed",
       "notMeasuredCount": "{count} not measured",
       "quiet": "{count, plural, one {# check that needs no action} other {# checks that need no action}}",

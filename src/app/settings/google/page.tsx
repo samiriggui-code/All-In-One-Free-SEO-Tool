@@ -25,6 +25,7 @@ import {
   clearGoogleCredentials,
   disconnectGoogleAccount,
 } from "./actions";
+import { requireSettingsPage } from "../access";
 
 type SearchParams = Promise<{ connected?: string; error?: string }>;
 
@@ -33,6 +34,7 @@ export default async function GoogleSettingsPage({
 }: {
   searchParams: SearchParams;
 }) {
+  await requireSettingsPage("/settings/google", { owner: true });
   const params = await searchParams;
   const status = await getGoogleConnectionStatus();
   const clientId = await getSetting<string>("google.client_id");
