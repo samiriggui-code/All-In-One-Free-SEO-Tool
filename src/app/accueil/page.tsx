@@ -23,21 +23,20 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { isLocale } from "@/i18n/config";
-import { accentColor, displayName, loadBrand, type Brand } from "@/lib/brand";
+import { accentColor, loadBrand, type Brand } from "@/lib/brand";
+import { PRODUCT_NAME, ProductLogo, ProductWordmark } from "@/components/brand/product-logo";
 import { LocaleToggle } from "./locale-toggle";
 
 /**
  * The public landing page: what a signed-out visitor sees at the root of
  * the instance, before the sign-in screen.
  *
- * It presents the agency (Settings → Branding: name, logo, colour,
- * tagline, contact details) rather than the product, the same rule as the
- * client portal and the sign-in frame. Middleware sends a signed-out `/`
+ * It carries the product's own name and logo (PRODUCT_NAME). The brand
+ * colour, tagline and contact details still come from Settings →
+ * Branding. Middleware sends a signed-out `/`
  * here and forwards `x-embed`, so the app shell is never rendered under
  * it and none of the agency's navigation reaches a stranger.
  */
-
-const IMAGE_DATA_URL = /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/i;
 
 async function brandOrNull(): Promise<Brand | null> {
   return loadBrand().catch(() => null);
@@ -45,7 +44,7 @@ async function brandOrNull(): Promise<Brand | null> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const [brand, t] = await Promise.all([brandOrNull(), getTranslations("landing")]);
-  const name = brand ? displayName(brand) : "SEO Tool";
+  const name = PRODUCT_NAME;
   return {
     title: t("metaTitle", { name }),
     description: brand?.tagline?.trim() || t("metaDescription"),
@@ -59,7 +58,7 @@ export default async function LandingPage() {
     getLocale(),
   ]);
   const locale = isLocale(rawLocale) ? rawLocale : "fr";
-  const name = brand ? displayName(brand) : "SEO Tool";
+  const name = PRODUCT_NAME;
   const accent = brand ? accentColor(brand) : "#7c3aed";
   const tagline = brand?.tagline?.trim() || null;
   const email = brand?.email?.trim() || null;
@@ -108,14 +107,23 @@ export default async function LandingPage() {
         />
 
         <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5 sm:px-8">
-          <BrandMark brand={brand} name={name} accent={accent} />
+          <Link href="/accueil" className="min-w-0 text-white">
+            <ProductLogo
+              name={name}
+              from={accent}
+              accent={`color-mix(in oklab, ${accent} 55%, white)`}
+              wordmarkClassName="text-[15px] sm:text-[17px]"
+            />
+          </Link>
           <nav className="hidden items-center gap-7 text-sm text-white/70 md:flex">
             <a href="#services" className="hover:text-white">{t("navServices")}</a>
             <a href="#methode" className="hover:text-white">{t("navMethod")}</a>
             <a href="#espace-client" className="hover:text-white">{t("navPortal")}</a>
           </nav>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <LocaleToggle current={locale} />
+            <div className="hidden sm:block">
+              <LocaleToggle current={locale} />
+            </div>
             <Link
               href="/login"
               className="whitespace-nowrap rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/90 sm:px-4"
@@ -340,7 +348,7 @@ export default async function LandingPage() {
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-slate-500 sm:px-8 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="font-semibold text-slate-900">{name}</p>
+            <ProductWordmark name={name} accent={accent} className="text-base text-slate-900" />
             <p className="mt-1">{tagline ?? t("footerTagline")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -364,6 +372,9 @@ export default async function LandingPage() {
             <span>
               © {year} {name}
             </span>
+            <div className="rounded-full bg-[#070912] sm:hidden">
+              <LocaleToggle current={locale} />
+            </div>
           </div>
         </div>
       </footer>
@@ -384,26 +395,6 @@ function readableOn(hex: string): string {
 }
 
 type T = Awaited<ReturnType<typeof getTranslations<"landing">>>;
-
-function BrandMark({ brand, name, accent }: { brand: Brand | null; name: string; accent: string }) {
-  const logo = brand?.logoDataUrl && IMAGE_DATA_URL.test(brand.logoDataUrl) ? brand.logoDataUrl : null;
-  return (
-    <Link href="/accueil" className="flex min-w-0 items-center gap-2.5">
-      {logo ? (
-        // eslint-disable-next-line @next/next/no-img-element -- data URL from Settings → Branding
-        <img src={logo} alt="" className="h-9 w-auto max-w-[140px] rounded-md bg-white/95 object-contain p-1" />
-      ) : (
-        <span
-          className="grid size-9 place-items-center rounded-lg text-sm font-bold"
-          style={{ background: accent, color: readableOn(accent) }}
-        >
-          {name.slice(0, 1).toUpperCase()}
-        </span>
-      )}
-      <span className="truncate text-base font-semibold tracking-tight">{name}</span>
-    </Link>
-  );
-}
 
 function SectionHeading({
   accent,
