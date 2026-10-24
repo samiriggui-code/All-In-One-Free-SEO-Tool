@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
+import { AUTH_THEME_KEY } from "./auth-theme-script";
 
 /**
  * Light / dark switch for the sign-in screens.
@@ -9,13 +10,9 @@ import { Moon, Sun } from "lucide-react";
  * The workspace theme lives in Settings and is changed by a server
  * action, which a signed-out visitor cannot call. So the choice here
  * stays in this browser: a class on <html> now, and a localStorage key
- * that AUTH_THEME_SCRIPT applies on the next visit, before first paint.
+ * that AUTH_THEME_SCRIPT (auth-theme-script.ts) applies on the next visit, before first paint.
  */
 
-export const AUTH_THEME_KEY = "rf-auth-theme";
-
-/** Inline, runs before paint: re-applies this browser's choice. */
-export const AUTH_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("${AUTH_THEME_KEY}");if(t==="dark"||t==="light"){document.documentElement.classList.toggle("dark",t==="dark");}}catch(e){}})();`;
 
 /** Watches the class on <html>, where every theme source ends up. */
 function subscribe(onChange: () => void) {

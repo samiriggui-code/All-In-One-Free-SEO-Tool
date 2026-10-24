@@ -4,7 +4,8 @@ import { isLocale } from "@/i18n/config";
 import { loadBrand } from "@/lib/brand";
 import { BRAND_GRADIENT, INK, PRODUCT_NAME, ProductLogo } from "@/components/brand/product-logo";
 import { LocaleToggle } from "@/components/locale-toggle";
-import { AUTH_THEME_SCRIPT, AuthThemeToggle } from "./auth-theme-toggle";
+import { AUTH_THEME_SCRIPT } from "./auth-theme-script";
+import { AuthThemeToggle } from "./auth-theme-toggle";
 
 /**
  * The frame every sign-in screen renders in: login, first-run owner
