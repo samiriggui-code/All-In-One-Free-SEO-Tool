@@ -27,6 +27,7 @@ import {
 import { PageHeader } from "@/components/shell/page-header";
 import { getSetting } from "@/lib/settings-store";
 import { configuredProviders, getActiveProvider } from "@/lib/api-keys";
+import { requireSettingsPage } from "../access";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ function fmtAgo(d: Date | null): string {
 }
 
 export default async function HealthPage() {
+  await requireSettingsPage("/settings/health");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbsolute = path.resolve(dbPath);
   const dbExists = existsSync(dbAbsolute);

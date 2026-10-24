@@ -262,6 +262,64 @@ export function canEdit(role: Role): boolean {
   return role !== "viewer";
 }
 
+export class AccessDeniedError extends Error {
+  constructor(message = "You have read-only access.") {
+    super(message);
+    this.name = "AccessDeniedError";
+  }
+}
+
+/**
+ * The signed-in user, or null on a solo/password install.
+ *
+ * Unlike `currentUser()`, a missing user on an accounts install is refused
+ * rather than read as "solo mode": middleware only checks the signature,
+ * so a session whose password changed or whose user was deactivated
+ * still reaches the page.
+ */
+async function actingUser(): Promise<User | null> {
+  const me = await currentUser();
+  if (!me && accountsEnabled()) throw new AccessDeniedError("Please sign in again.");
+  return me;
+}
+
+/** The non-throwing form of `requireEditor`, for controls every page shows. */
+export async function mayEdit(): Promise<boolean> {
+  try {
+    await requireEditor();
+    return true;
+  } catch (err) {
+    if (err instanceof AccessDeniedError) return false;
+    throw err;
+  }
+}
+
+/** Throws unless the caller may change things (everyone but viewers). */
+export async function requireEditor(): Promise<User | null> {
+  const me = await actingUser();
+  if (me && !canEdit(me.role)) throw new AccessDeniedError();
+  return me;
+}
+
+/** Throws unless the caller may change keys, integrations and the install itself. */
+export async function requireSettingsAdmin(): Promise<User | null> {
+  const me = await actingUser();
+  if (me && !canManageSettings(me.role)) {
+    throw new AccessDeniedError("Only the workspace owner can change this.");
+  }
+  return me;
+}
+
+/** Throws unless the caller may see this client (and change it, with `edit`). */
+export async function requireClientAccess(
+  clientId: number,
+  opts: { edit?: boolean } = {},
+): Promise<User | null> {
+  const me = opts.edit ? await requireEditor() : await actingUser();
+  if (!(await canSeeClient(me, clientId))) throw new AccessDeniedError("Not found.");
+  return me;
+}
+
 /**
  * The role a request acts with: the user's own, "owner" on a solo or
  * shared-password install (there is nobody else to be), and null when
@@ -276,7 +334,7 @@ export function effectiveRole(user: User | null): Role | null {
   return accountsEnabled() ? null : "owner";
 }
 
-export function mayEdit(user: User | null): boolean {
+export function userMayEdit(user: User | null): boolean {
   const role = effectiveRole(user);
   return role !== null && canEdit(role);
 }

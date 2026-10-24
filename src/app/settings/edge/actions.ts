@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { rotateEdgeToken } from "@/lib/edge-token";
 import { logActivity } from "@/lib/activity";
@@ -16,7 +16,7 @@ import { logActivity } from "@/lib/activity";
 export async function rotateEdgeTokenAction(): Promise<
   { ok: true; token: string } | { ok: false; error: string }
 > {
-  await assertOwner();
+  await requireSettingsAdmin();
   try {
     const token = await rotateEdgeToken();
     await logActivity({

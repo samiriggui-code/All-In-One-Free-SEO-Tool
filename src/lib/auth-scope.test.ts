@@ -5,7 +5,7 @@ import {
   accountsEnabled,
   canSeeClient,
   effectiveRole,
-  mayEdit,
+  userMayEdit,
   mayManageSettings,
   visibleClientIds,
 } from "./auth";
@@ -24,7 +24,7 @@ describe("null user", () => {
   it("is the owner of a solo install", async () => {
     expect(accountsEnabled()).toBe(false);
     expect(effectiveRole(null)).toBe("owner");
-    expect(mayEdit(null)).toBe(true);
+    expect(userMayEdit(null)).toBe(true);
     expect(mayManageSettings(null)).toBe(true);
     expect(await visibleClientIds(null)).toBeNull();
     expect(await canSeeClient(null, 1)).toBe(true);
@@ -42,7 +42,7 @@ describe("null user", () => {
 
     expect(accountsEnabled()).toBe(true);
     expect(effectiveRole(null)).toBeNull();
-    expect(mayEdit(null)).toBe(false);
+    expect(userMayEdit(null)).toBe(false);
     expect(mayManageSettings(null)).toBe(false);
     expect(await visibleClientIds(null)).toEqual([]);
     expect(await canSeeClient(null, 1)).toBe(false);

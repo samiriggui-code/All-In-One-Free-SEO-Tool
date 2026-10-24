@@ -27,8 +27,7 @@ import {
 import { Readable } from "node:stream";
 import path from "node:path";
 import Database from "better-sqlite3";
-import { guardAdminRequest } from "@/lib/admin-auth";
-import { currentUser, mayManageSettings } from "@/lib/auth";
+import { guardOwnerRequest } from "@/lib/admin-auth";
 import { dataDir } from "@/lib/data-dir";
 
 export const dynamic = "force-dynamic";
@@ -39,12 +38,7 @@ function dbPath(): string {
 }
 
 export async function GET(req: Request) {
-  // Middleware checks the role signed into the cookie; a since-demoted
-  // owner's cookie still carries "owner". Re-read the account.
-  if (!mayManageSettings(await currentUser())) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
-  }
-  const denied = guardAdminRequest(req);
+  const denied = await guardOwnerRequest(req);
   if (denied) return denied;
 
   const src = dbPath();

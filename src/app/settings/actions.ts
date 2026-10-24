@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireEditor, requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { deleteSetting, setSetting } from "@/lib/settings-store";
@@ -20,7 +20,7 @@ export async function saveWebhookUrl(
   _prev: WebhookActionResult | null,
   formData: FormData,
 ): Promise<WebhookActionResult> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const raw = String(formData.get("url") ?? "").trim();
 
   if (raw === "") {
@@ -47,7 +47,7 @@ export async function testWebhook(
   _prev: WebhookActionResult | null,
   formData: FormData,
 ): Promise<WebhookActionResult> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const raw = String(formData.get("url") ?? "").trim();
 
   const parsed = webhookSchema.safeParse(raw);
@@ -81,7 +81,7 @@ export async function testWebhook(
  * preset — the behaviour before this setting existed.
  */
 export async function saveDefaultModel(model: string): Promise<void> {
-  await assertOwner();
+  await requireEditor();
   const trimmed = String(model ?? "").trim().slice(0, 120);
   await setSetting("ai.default_model", trimmed);
   revalidatePath("/settings");

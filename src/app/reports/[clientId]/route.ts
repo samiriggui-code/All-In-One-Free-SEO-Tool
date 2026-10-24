@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentUser, mayEdit } from "@/lib/auth";
+import { currentUser, userMayEdit } from "@/lib/auth";
 import { mayAccessClient } from "@/lib/client-scope";
 import {
   generateReportPdf,
@@ -85,7 +85,7 @@ export async function GET(
   // Archive — fire-and-forget, never block the download on a DB error.
   // A read-only client viewer still gets the PDF, but a download is not
   // a write they are allowed to make, so it leaves no archive row.
-  if (mayEdit(await currentUser())) {
+  if (userMayEdit(await currentUser())) {
     const periodEnd = new Date();
     const periodStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     void db

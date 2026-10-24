@@ -32,7 +32,8 @@ export const RETURN_TO_HEADER = "x-return-to";
  * `?embed=1` hides the shell too, but it is a display switch any URL
  * can carry, so it must never stand in for this.
  */
-const PUBLIC_PAGES = ["/portal", "/embed/grader"];
+// /accueil is the public landing page signed-out visitors land on.
+const PUBLIC_PAGES = ["/portal", "/embed/grader", "/accueil"];
 
 export function isPublicPage(pathname: string): boolean {
   return PUBLIC_PAGES.some((p) => pathname === p || pathname.startsWith(p + "/"));

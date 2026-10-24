@@ -12,6 +12,7 @@ import {
   togglePreference,
 } from "./actions";
 import { DistillButton } from "./distill-button";
+import { requireSettingsPage } from "../access";
 
 const CONFIDENCE_TONE: Record<string, string> = {
   high: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
@@ -20,6 +21,7 @@ const CONFIDENCE_TONE: Record<string, string> = {
 };
 
 export default async function AiLearningPage() {
+  await requireSettingsPage("/settings/ai-learning");
   const [prefs, [{ value: feedbackCount }], allClients] = await Promise.all([
     db
       .select()

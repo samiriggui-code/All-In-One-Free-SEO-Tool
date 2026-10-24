@@ -8,7 +8,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
-import { guardAdminRequest } from "@/lib/admin-auth";
+import { guardClientRequest } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,8 +17,6 @@ export async function POST(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
-  const denied = guardAdminRequest(req);
-  if (denied) return denied;
   const { id: idRaw } = await ctx.params;
   const id = Number(idRaw);
   if (!Number.isFinite(id)) {
@@ -27,6 +25,8 @@ export async function POST(
       { status: 400 },
     );
   }
+  const denied = await guardClientRequest(req, id, { edit: true });
+  if (denied) return denied;
   await db
     .update(clients)
     .set({ brandingSkipped: true, updatedAt: new Date() })

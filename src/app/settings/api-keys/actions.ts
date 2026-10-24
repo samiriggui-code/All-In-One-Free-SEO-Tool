@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireSettingsAdmin } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -15,7 +15,7 @@ export async function createApiKey(
   _prev: CreateApiKeyState | null,
   formData: FormData,
 ): Promise<CreateApiKeyState> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const scope = String(formData.get("scope") ?? "read").trim();
 
@@ -43,7 +43,7 @@ export async function createApiKey(
 }
 
 export async function revokeApiKey(id: number): Promise<{ ok: boolean }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   await db
     .update(apiKeys)
     .set({ revokedAt: new Date() })

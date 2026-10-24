@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
@@ -29,7 +29,7 @@ export async function saveSmtpConfig(
   _prev: SaveSmtpResult | null,
   formData: FormData,
 ): Promise<SaveSmtpResult> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const parsed = schema.safeParse({
     host: formData.get("host"),
     port: formData.get("port"),
@@ -72,14 +72,14 @@ export async function testSmtpConnection(): Promise<{
   ok: boolean;
   error?: string;
 }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   return verifySmtp();
 }
 
 export async function sendTestEmail(
   to: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const r = await sendMail({
     to: [to],
     subject: "SEO Tool — SMTP test",
@@ -90,7 +90,7 @@ export async function sendTestEmail(
 }
 
 export async function clearSmtpConfig() {
-  await assertOwner();
+  await requireSettingsAdmin();
   await Promise.all([
     deleteSetting("smtp.host"),
     deleteSetting("smtp.port"),

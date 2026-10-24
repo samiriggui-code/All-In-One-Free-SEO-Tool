@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
@@ -24,7 +24,7 @@ export async function saveGoogleCredentials(
   _prev: SaveCredentialsResult | null,
   formData: FormData,
 ): Promise<SaveCredentialsResult> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const parsed = credentialsSchema.safeParse({
     clientId: formData.get("clientId"),
     clientSecret: formData.get("clientSecret"),
@@ -48,7 +48,7 @@ export async function saveGoogleCredentials(
 }
 
 export async function clearGoogleCredentials() {
-  await assertOwner();
+  await requireSettingsAdmin();
   await disconnectGoogle();
   await Promise.all([
     deleteSetting("google.client_id"),
@@ -63,7 +63,7 @@ export async function clearGoogleCredentials() {
 }
 
 export async function disconnectGoogleAccount() {
-  await assertOwner();
+  await requireSettingsAdmin();
   await disconnectGoogle();
   await logActivity({
     kind: "google.disconnected",
@@ -84,7 +84,7 @@ export async function saveServiceAccount(
   _prev: { ok: boolean; error?: string; email?: string } | null,
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string; email?: string }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const { saveServiceAccountKey } = await import("@/lib/google-service-account");
   const raw = String(formData.get("json") ?? "");
   const result = await saveServiceAccountKey(raw);
@@ -102,7 +102,7 @@ export async function saveServiceAccount(
 }
 
 export async function removeServiceAccount() {
-  await assertOwner();
+  await requireSettingsAdmin();
   const { clearServiceAccount } = await import("@/lib/google-service-account");
   await clearServiceAccount();
   await logActivity({
@@ -125,7 +125,7 @@ export async function testServiceAccount(): Promise<{
   ok: boolean;
   detail: string;
 }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const { serviceAccountAccessToken, serviceAccountEmail } = await import(
     "@/lib/google-service-account"
   );

@@ -1,6 +1,6 @@
 "use server";
 
-import { assertOwner } from "@/lib/auth";
+import { requireSettingsAdmin } from "@/lib/auth";
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { setSetting, getSetting } from "@/lib/settings-store";
@@ -78,6 +78,12 @@ function relativeTime(iso: string): string {
 const CONNECTED_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function getMcpStatus(): Promise<McpStatus> {
+  await requireSettingsAdmin();
+  return readMcpStatus();
+}
+
+/** Not an action: the tokens only leave through the guarded getMcpStatus. */
+async function readMcpStatus(): Promise<McpStatus> {
   const token = (await getSetting<string>("mcp.access_token")) || null;
   const readOnlyToken = (await getSetting<string>("mcp.readonly_token")) || null;
   const lastSeenAt = (await getSetting<string>("mcp.last_seen_at")) ?? null;
@@ -108,7 +114,7 @@ export async function getMcpStatus(): Promise<McpStatus> {
  * apply changes to live sites.
  */
 export async function generateMcpToken(): Promise<{ token: string }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const token = `seo_mcp_${randomBytes(32).toString("hex")}`;
   await setSetting("mcp.access_token", token);
   revalidatePath("/settings");
@@ -116,7 +122,7 @@ export async function generateMcpToken(): Promise<{ token: string }> {
 }
 
 export async function revokeMcpToken(): Promise<void> {
-  await assertOwner();
+  await requireSettingsAdmin();
   await setSetting("mcp.access_token", "");
   // Deliberately keeps last_seen_at: it is a record of what happened, and
   // clearing it would make a revoked connector look like it never existed.
@@ -131,7 +137,7 @@ export async function revokeMcpToken(): Promise<void> {
  * differently so the two are not mistaken for each other at a glance.
  */
 export async function generateMcpReadOnlyToken(): Promise<{ token: string }> {
-  await assertOwner();
+  await requireSettingsAdmin();
   const token = `seo_mcp_ro_${randomBytes(32).toString("hex")}`;
   await setSetting("mcp.readonly_token", token);
   revalidatePath("/settings");
@@ -139,7 +145,7 @@ export async function generateMcpReadOnlyToken(): Promise<{ token: string }> {
 }
 
 export async function revokeMcpReadOnlyToken(): Promise<void> {
-  await assertOwner();
+  await requireSettingsAdmin();
   await setSetting("mcp.readonly_token", "");
   revalidatePath("/settings");
 }
@@ -172,7 +178,7 @@ export async function getAiConnectionStatus(): Promise<{
 }> {
   const { ids } = await configuredProviders();
   const active = await getActiveProvider();
-  const mcp = await getMcpStatus();
+  const mcp = await readMcpStatus();
 
   const keyCount = ids.length;
   const apiOk = keyCount > 0 && Boolean(active);
