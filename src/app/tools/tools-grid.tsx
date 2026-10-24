@@ -42,6 +42,7 @@ import {
   Stethoscope,
   TrendingDown,
   Video,
+  PenLine,
   Pin,
   PinOff,
   Search as SearchIcon,
@@ -493,21 +494,12 @@ const tools = [
     accent: "rose",
   },
   {
-    // Writing moved out of this app. Five tools used to sit here —
-    // briefs, an expert-panel scorer, an AI-slop detector — and they
-    // competed badly against tools built only for that, while making
-    // this one harder to describe. BlogPilot is the same author, MIT,
-    // self-hosted, and does that job properly.
-    //
-    // A card rather than a silent deletion: someone who used those
-    // tools should find out where they went, not conclude the feature
-    // was quietly dropped.
-    href: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
-    external: true,
-    icon: FileText,
-    title: "Content writing → BlogPilot",
+    // BlogPilot's writing pipeline, ported into this app.
+    href: "/content",
+    icon: PenLine,
+    title: "Writing studio",
     description:
-      "Drafting, briefs, content scoring against the top 10, brand voice and CMS export live in BlogPilot — a separate free, self-hosted tool. This one does technical SEO and applies the fixes.",
+      "Keyword ideas, an AI outline you can edit, a full article in the client's voice, and a live score against Google's top 10 while you edit.",
     accent: "emerald",
   },
   {

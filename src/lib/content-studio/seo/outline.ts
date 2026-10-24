@@ -50,6 +50,8 @@ export async function generateOutline(input: {
   word_count_target?: number;
   client_style_profile?: unknown;
   serp_top10?: unknown;
+  /** Language the output should be written in (ISO code, e.g. "fr"). */
+  language?: string;
 }): Promise<Outline> {
   const providers = await contentProviders();
   if (providers.length === 0) {
