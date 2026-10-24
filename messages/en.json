@@ -1464,7 +1464,8 @@
       "audit": "Audit #{id}",
       "issues": "{count, plural, =0 {no issues} one {# issue} other {# issues}}"
     },
-    "footer": "Read-only client portal · Powered by {brand}",
+    "footer": "Read-only client portal · Powered by {brand} via SEO tool",
+    "footerDefault": "Read-only client portal · Powered by SEO tool",
     "quote": {
       "eyebrow": "Your quote",
       "sentOn": "Sent on {date}",

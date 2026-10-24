@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { CheckCircle2, Clock, FileText, Loader2, PackagePlus, Sparkles } from "lucide-react";
 import type { Severity } from "@/lib/proposal-scope";
 import { bySeverity, formatDuration, totals } from "@/lib/quote";
-import { cartLines, checkCart, initialCart, type Cart, type CartInput } from "@/lib/quote-cart";
+import { cartLines, checkCart, initialCart, withOffers, type Cart, type CartInput } from "@/lib/quote-cart";
 import type { OfferSnapshot } from "@/lib/service-offers";
 import { acceptQuote } from "./quote-actions";
 import { askPortalAssistant } from "./portal-chat";
@@ -82,14 +82,13 @@ export function QuoteShop({
   };
 
   const toggleOffer = (o: OfferSnapshot, on: boolean) =>
-    setCart((c) => ({
-      ...c,
-      offerIds: on ? [...c.offerIds, o.offerId] : c.offerIds.filter((id) => id !== o.offerId),
-    }));
+    setCart((c) =>
+      withOffers(input, c, on ? [...c.offerIds, o.offerId] : c.offerIds.filter((id) => id !== o.offerId)),
+    );
   const pickFormula = (o: OfferSnapshot) =>
     setCart((c) => {
       const formulaIds = new Set(input.offers.map((x) => x.offerId));
-      return { ...c, offerIds: [o.offerId, ...c.offerIds.filter((id) => !formulaIds.has(id))] };
+      return withOffers(input, c, [o.offerId, ...c.offerIds.filter((id) => !formulaIds.has(id))]);
     });
   const toggleSeverity = (s: Severity, on: boolean) =>
     setCart((c) => ({

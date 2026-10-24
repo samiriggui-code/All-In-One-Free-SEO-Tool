@@ -255,10 +255,22 @@ export async function generateInvoicePdf(
     .lineTo(RIGHT, tableTop + 12)
     .stroke();
 
+  // Lowest point content may reach, keeping room for the footer line.
+  const BOTTOM = doc.page.height - 60;
+  let y = tableTop + 18;
+  /** Starts a new page when the next block would run past the bottom. */
+  const room = (height: number) => {
+    if (y + height <= BOTTOM) return;
+    doc.addPage();
+    y = 40;
+  };
+
   // Line item row height: 16px (was 22). Comfortable but compact.
   doc.font("Helvetica").fillColor(ink).fontSize(10);
-  let y = tableTop + 18;
   for (const item of invoice.items) {
+    const rowHeight = Math.max(16, doc.heightOfString(item.description, { width: 290 }) + 4);
+    room(rowHeight);
+    doc.font("Helvetica").fillColor(ink).fontSize(10);
     doc.text(item.description, LEFT, y, { width: 290 });
     doc.text(String(item.quantity), TABLE_QTY_X, y, {
       width: 50,
@@ -274,8 +286,11 @@ export async function generateInvoicePdf(
     });
     // A long description wraps inside its column: the next row starts
     // below it, not on top of its second line.
-    y += Math.max(16, doc.heightOfString(item.description, { width: 290 }) + 4);
+    y += rowHeight;
   }
+
+  // Subtotal, tax and total stay together on one page.
+  room(70);
 
   doc
     .strokeColor(rule)
@@ -321,12 +336,15 @@ export async function generateInvoicePdf(
 
   // Notes — compact gap, not the 60px of before
   if (invoice.notes) {
+    y += 40;
+    doc.font("Helvetica").fontSize(10);
+    room(14 + doc.heightOfString(invoice.notes, { width: RIGHT - LEFT }));
     doc.font("Helvetica-Bold").fontSize(9).fillColor(mute);
-    doc.text(L.notes, LEFT, y + 40, { characterSpacing: 1.5 });
+    doc.text(L.notes, LEFT, y, { characterSpacing: 1.5 });
     doc.font("Helvetica").fillColor(ink).fontSize(10).text(
       invoice.notes,
       LEFT,
-      y + 54,
+      y + 14,
       { width: RIGHT - LEFT },
     );
   }
@@ -350,6 +368,9 @@ export async function generateInvoicePdf(
 
   // Footer — uses brand.footer_text when set (registration info,
   // tagline, address); falls back to a generic line otherwise.
+  // It sits inside the bottom margin, which pdfkit would otherwise
+  // answer with a page holding nothing but this line.
+  doc.page.margins.bottom = 0;
   doc
     .fillColor(mute)
     .font("Helvetica-Oblique")
