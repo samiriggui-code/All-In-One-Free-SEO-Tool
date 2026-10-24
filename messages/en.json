@@ -1366,5 +1366,124 @@
       "delete": "Delete",
       "cancel": "Cancel"
     }
+  },
+  "landing": {
+    "metaTitle": "{name} · Your complete SEO office",
+    "metaDescription": "Technical audits, writing, publishing, quotes and tracking: all of your site's SEO in one place.",
+    "navServices": "Services",
+    "navMethod": "Method",
+    "navPortal": "Client space",
+    "navSignIn": "Sign in",
+    "heroKicker": "All-in-one SEO office",
+    "heroTitleStart": "Your site's search visibility,",
+    "heroTitleAccent": "from audit to results.",
+    "heroBody": "Technical audits, writing, publishing, quotes and rank tracking: {name} brings all of an SEO agency's work together in one place, with a client space where every deliverable stays available.",
+    "heroPrimary": "Go to my space",
+    "heroSecondary": "See the services",
+    "heroTrust": "Your data stays on our own server.",
+    "preview": {
+      "label": "Site audit",
+      "done": "Done",
+      "score": "Score",
+      "bars": {
+        "technical": "Technical",
+        "content": "Content",
+        "performance": "Performance",
+        "ai": "AI visibility"
+      },
+      "issues": {
+        "critical": "critical",
+        "warning": "to fix",
+        "notice": "tips"
+      },
+      "planTitle": "Action plan ready",
+      "planBody": "Fixes ranked by priority",
+      "chip": "Report sent to the client"
+    },
+    "stats": {
+      "rules": {
+        "value": "373",
+        "label": "audit rules"
+      },
+      "tools": {
+        "value": "99",
+        "label": "SEO tools"
+      },
+      "languages": {
+        "value": "FR · EN",
+        "label": "bilingual reports"
+      },
+      "brand": {
+        "value": "100%",
+        "label": "in our colours"
+      }
+    },
+    "servicesEyebrow": "Services",
+    "servicesTitle": "Everything it takes to be found, in one place",
+    "servicesBody": "Every step of SEO is covered, from diagnosis to publishing, without juggling ten tools.",
+    "services": {
+      "audit": {
+        "title": "Full technical audit",
+        "body": "373 rules checked page by page: indexing, tags, internal links, speed, structured data and accessibility, with a clear report."
+      },
+      "rank": {
+        "title": "Rankings and keywords",
+        "body": "Google rank tracking, keyword research, competitor analysis and local SEO."
+      },
+      "content": {
+        "title": "Optimised writing",
+        "body": "Articles and pages written for your readers and for search engines: outline, search intent, content score and internal links."
+      },
+      "publish": {
+        "title": "Publishing",
+        "body": "Publish to WordPress, export for your CMS, social posts and newsletters, all from the same place."
+      },
+      "quote": {
+        "title": "Quotes and invoicing",
+        "body": "A priced quote built from the issues the audit found, then the invoice, with nothing typed twice."
+      },
+      "portal": {
+        "title": "Client space",
+        "body": "Your reports, quotes, articles and invoices online at any time, with an assistant that explains the results."
+      }
+    },
+    "methodEyebrow": "Method",
+    "methodTitle": "A simple method, in four steps",
+    "methodBody": "You always know where your site stands, what has been done and what comes next.",
+    "steps": {
+      "one": {
+        "title": "Audit",
+        "body": "We analyse your site in depth and measure your visibility, on Google and in AI assistants."
+      },
+      "two": {
+        "title": "Plan and quote",
+        "body": "Issues are ranked by severity. You get an action plan and a clear quote."
+      },
+      "three": {
+        "title": "Fixes and content",
+        "body": "We fix, write and publish the content that moves your site forward."
+      },
+      "four": {
+        "title": "Tracking and reports",
+        "body": "Rankings, traffic and audit score are tracked over time, with regular reports."
+      }
+    },
+    "portalEyebrow": "Client space",
+    "portalTitle": "A clear client space, without jargon",
+    "portalBody": "Every client gets their own secure space, with the progress of their SEO and all of their documents, without having to ask for them.",
+    "portalPoints": {
+      "reports": "Audit reports and rank tracking",
+      "quotes": "Quotes and invoices online",
+      "content": "Published articles and deliverables",
+      "assistant": "An assistant that answers your questions"
+    },
+    "aiTitle": "Visible on Google, and in AI answers",
+    "aiBody": "Your customers also ask ChatGPT, Perplexity or Gemini. We measure whether your site is cited there and optimise it so that it is.",
+    "ctaTitle": "Ready to see where your site stands?",
+    "ctaBody": "Sign in to follow your SEO, or write to us to start with an audit.",
+    "ctaPrimary": "Sign in",
+    "ctaContact": "Contact us",
+    "ctaMailSubject": "SEO audit request",
+    "footerTagline": "SEO audits, writing and tracking."
   }
 }
