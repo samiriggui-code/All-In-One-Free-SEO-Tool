@@ -41,6 +41,9 @@ export async function loadCorpus(keyword: string, lang: string, refresh = false)
   const job = gatherCorpus(keyword, lang)
     .then(({ pages, paaQuestions }) => {
       const ctx: CorpusContext = { pages, paaQuestions };
+      // A blocked or failed SERP fetch is not worth remembering: the next
+      // "analyse" click should try again rather than replay the failure.
+      if (!pages.some((p) => p.fetched)) return ctx;
       cache.delete(key);
       cache.set(key, { at: Date.now(), ctx });
       // Map keeps insertion order, so the first key is the oldest.

@@ -184,8 +184,9 @@ export function ArticleStudio({
   // Autosave and live rescore once the writer pauses.
   useEffect(() => {
     if (!dirty) return;
-    const id = setTimeout(() => {
-      if (editable) void save();
+    const id = setTimeout(async () => {
+      // Save first: the score is only kept for the draft as stored.
+      if (editable) await save();
       if (report) rescore(fieldsRef.current.draftMarkdown);
     }, IDLE_MS);
     return () => clearTimeout(id);
@@ -214,7 +215,8 @@ export function ArticleStudio({
     () => (preview ? markdownToHtml(fields.draftMarkdown) : ""),
     [preview, fields.draftMarkdown],
   );
-  const locked = !editable || busy !== null;
+  // Autosave runs while the writer types, so it must not lock the inputs.
+  const locked = !editable || (busy !== null && busy !== "save");
 
   return (
     <div className="space-y-6">

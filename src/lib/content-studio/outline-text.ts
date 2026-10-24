@@ -29,10 +29,12 @@ export function outlineToText(outline: Outline): string {
 /**
  * Apply edited text back onto an outline. Everything the textarea does
  * not show (intro hook, TL;DR, image ideas...) is kept from `base`; a
- * section that kept its heading keeps its notes too.
+ * section that kept its heading keeps its notes too, and an unchanged
+ * question keeps its target length.
  */
 export function textToOutline(text: string, base: Outline): Outline {
   const byHeading = new Map((base.h2s ?? []).map((h) => [h.heading, h]));
+  const byQuestion = new Map((base.faqs ?? []).map((f) => [f.q, f]));
   const h2s: Outline["h2s"] = [];
   const faqs: Outline["faqs"] = [];
   let inFaq = false;
@@ -46,7 +48,7 @@ export function textToOutline(text: string, base: Outline): Outline {
     }
     if (inFaq && line.startsWith("?")) {
       const q = line.replace(/^\?\s*/, "");
-      if (q) faqs.push({ q });
+      if (q) faqs.push({ ...(byQuestion.get(q) ?? {}), q });
       continue;
     }
     const h3 = /^###\s+(.+)$/.exec(line);

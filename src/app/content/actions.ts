@@ -343,9 +343,12 @@ export async function scoreArticle(input: {
     const report = scoreDraft(markdown, headings, ctx);
     // Only an editor's score is kept: a viewer looking at the page should
     // not change what the article list shows.
+    // The score is stored only for the draft that was scored: a slow
+    // request for older text must not overwrite a newer draft's score.
     if (
       !report.insufficient_data &&
       report.score !== post.contentScore &&
+      markdown === (post.draftMarkdown ?? "") &&
       (!me || canEdit(me.role))
     ) {
       await updatePost(clientId, postId, { contentScore: report.score });

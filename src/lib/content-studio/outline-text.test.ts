@@ -11,7 +11,7 @@ const base: Outline = {
     { heading: "Préparer le levain", h3s: ["Farine", "Eau"], notes: "Garder court", snippet_target: true },
     { heading: "La cuisson", h3s: [] },
   ],
-  faqs: [{ q: "Combien de temps ?" }],
+  faqs: [{ q: "Combien de temps ?", a_target_words: 50 }],
   conclusion_cta: "À vos fours.",
   internal_link_topics: [],
   image_suggestions: [],
@@ -38,6 +38,7 @@ describe("outline text round trip", () => {
     expect(edited.h2s[0].h3s).toEqual(["Four"]);
     expect(edited.h2s[1].notes).toBe("Garder court");
     expect(edited.faqs).toEqual([{ q: "Quelle farine ?" }]);
+    expect(textToOutline("## A\n## FAQ\n? Combien de temps ?", base).faqs).toEqual(base.faqs);
     expect(edited.intro_hook).toBe(base.intro_hook);
   });
 });
