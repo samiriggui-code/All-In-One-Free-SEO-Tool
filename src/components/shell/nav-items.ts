@@ -11,6 +11,7 @@
  * One definition, two renderers.
  */
 
+import { VIEWER_PAGES } from "@/lib/permissions";
 import {
   PenLine,
   Activity,
@@ -241,17 +242,9 @@ export const NAV_GROUPS: NavGroup[] = [
 /** Every nav item, flattened — used by the mobile drawer's filter. */
 export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
-const VIEWER_HREFS = new Set([
-  "/",
-  "/welcome",
-  "/clients",
-  "/audits",
-  "/tasks",
-  "/reports",
-  "/keywords",
-  "/morning",
-  "/digest",
-]);
+// Same list middleware enforces, so the nav never offers a page that
+// would bounce a viewer home.
+const VIEWER_HREFS = new Set<string>(VIEWER_PAGES);
 
 /**
  * Client viewers (role `viewer`) only see assigned clients in data queries;

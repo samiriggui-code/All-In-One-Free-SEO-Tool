@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { clients, type ClientSocialLinks } from "@/db/schema";
-import { canEdit, canSeeClient, currentUser } from "@/lib/auth";
+import { canSeeClient, currentUser, userMayEdit } from "@/lib/auth";
 import { clientUrlKey } from "@/lib/client-url-key";
 import { detectTechStack } from "@/lib/tech-detect";
 import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
@@ -561,7 +561,7 @@ export async function deleteClient(
   id: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const me = await currentUser();
-  if (me && !canEdit(me.role)) {
+  if (!userMayEdit(me)) {
     return { ok: false, error: "You have read-only access and cannot delete clients." };
   }
   if (me && !(await canSeeClient(me, id))) {

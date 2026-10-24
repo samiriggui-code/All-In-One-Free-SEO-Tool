@@ -149,9 +149,15 @@ export function Sidebar({
   uiMode = "guided",
   hasAiKey = false,
   userRole = null,
+  user = null,
+  authMode = "open",
 }: {
   unreadByHref?: Record<string, number>;
   userRole?: string | null;
+  /** Who is signed in, for the account block at the bottom of the rail. */
+  user?: { name: string | null; email: string } | null;
+  /** How this install authenticates; decides what the account block says. */
+  authMode?: "accounts" | "password" | "open";
   /**
    * Whether an AI key is configured. Decides if the amber "needs a key"
    * dot is worth showing — once a key exists nothing is blocked, so the
@@ -167,6 +173,30 @@ export function Sidebar({
   uiMode?: "guided" | "pro";
 } = {}) {
   const groups = navGroupsForRole(userRole);
+  const tAccount = useTranslations("nav.account");
+  // The account block used to say "Local user · Single-user mode" on
+  // every install, including agency installs with real accounts, which
+  // made a signed-in owner look like they had been dropped into a local
+  // session. It now names whoever is actually signed in.
+  const accountName = user
+    ? user.name || user.email
+    : authMode === "password"
+      ? tAccount("sharedName")
+      : tAccount("localName");
+  const accountDetail = user
+    ? userRole
+      ? tAccount(`roles.${userRole}`)
+      : user.email
+    : authMode === "password"
+      ? tAccount("sharedMode")
+      : tAccount("localMode");
+  const accountInitials =
+    accountName
+      .split(/[\s@.]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]!.toUpperCase())
+      .join("") || "SE";
   const pathname = usePathname();
   const t = useTranslations("nav");
   const tItems = useTranslations("nav.items");
@@ -515,16 +545,16 @@ export function Sidebar({
           }`}
         >
           <div className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 text-xs font-semibold text-white">
-            SE
+            {accountInitials}
           </div>
           {!collapsed && (
             <>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium leading-none text-sidebar-foreground">
-                  Local user
+                  {accountName}
                 </div>
                 <div className="mt-1 truncate text-xs text-sidebar-foreground/60">
-                  Single-user mode
+                  {accountDetail}
                 </div>
               </div>
               <ChevronRight className="size-4 text-sidebar-foreground/40" />

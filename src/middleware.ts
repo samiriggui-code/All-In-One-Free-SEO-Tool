@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "@/lib/secure-compare";
 import { SESSION_COOKIE, verifySession } from "@/lib/session-token";
+import { PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
+import { routeDecision } from "@/lib/permissions";
 
 /**
  * The auth gate. Three modes, in order of precedence:
@@ -137,6 +139,22 @@ const PUBLIC_PATHS = [
   "/embed/grader",
 ];
 
+/**
+ * Public pages whose own server actions strangers must reach: the
+ * grader widget and the client portal chat.
+ */
+const PUBLIC_ACTION_PATHS = ["/embed/grader", "/portal"];
+
+/**
+ * A server action is a POST with a `next-action` id to any page, and
+ * Next does not check that the action belongs to that page. Action ids
+ * are in the public JS bundles, so without this a signed-out visitor
+ * could POST any of the app's actions to /login.
+ */
+function isPublicActionPath(pathname: string): boolean {
+  return PUBLIC_ACTION_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     return true;
@@ -159,6 +177,11 @@ function isPublicPath(pathname: string): boolean {
  */
 function applyEmbedHeader(req: NextRequest): Headers {
   const requestHeaders = new Headers(req.headers);
+  // The root layout needs the path to decide between the app shell and
+  // the auth frame, and layouts are not given it. Overwritten, never
+  // trusted from the client.
+  requestHeaders.set(PATHNAME_HEADER, req.nextUrl.pathname);
+  requestHeaders.set(RETURN_TO_HEADER, req.nextUrl.pathname + req.nextUrl.search);
   if (req.nextUrl.searchParams.get("embed") === "1") {
     requestHeaders.set("x-embed", "1");
   }
@@ -194,7 +217,11 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   // Public paths first, before the mode lookup — /api/auth/mode is one
   // of them, and asking it whether we should gate it would recurse.
-  if (isPublicPath(pathname)) return passthrough();
+  if (isPublicPath(pathname)) {
+    if (!req.headers.has("next-action") || isPublicActionPath(pathname)) {
+      return passthrough();
+    }
+  }
 
   const required = process.env.APP_PASSWORD;
   const accountsEnabled = await accountsAreEnabled(req.nextUrl.origin);
@@ -212,8 +239,15 @@ export async function middleware(req: NextRequest) {
     const claims = secret
       ? await verifySession(req.cookies.get(SESSION_COOKIE)?.value, secret)
       : null;
-    if (claims) return passthrough();
-    return challenge(req, pathname, "/login");
+    if (!claims) return challenge(req, pathname, "/login");
+    // Role rules that need no database: owner-only admin areas, and a
+    // client viewer's read-only, short-list access. The role is signed
+    // into the token and the Node side rejects the token once the role
+    // changes, so it is current enough to gate on.
+    if (routeDecision(claims.role, pathname, req.method) === "deny") {
+      return forbid(req);
+    }
+    return passthrough();
   }
 
   const cookie = req.cookies.get(COOKIE_NAME);
@@ -238,6 +272,19 @@ function challenge(req: NextRequest, pathname: string, to: string) {
 
   return new NextResponse(JSON.stringify({ error: "unauthorized" }), {
     status: 401,
+    headers: { "content-type": "application/json" },
+  });
+}
+
+function forbid(req: NextRequest) {
+  const accept = req.headers.get("accept") ?? "";
+  const isPageLoad =
+    req.method === "GET" &&
+    accept.includes("text/html") &&
+    !req.headers.has("next-action");
+  if (isPageLoad) return NextResponse.redirect(new URL("/", req.url));
+  return new NextResponse(JSON.stringify({ error: "forbidden" }), {
+    status: 403,
     headers: { "content-type": "application/json" },
   });
 }

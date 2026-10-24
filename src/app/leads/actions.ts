@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, graderLeads } from "@/db/schema";
-import { currentUser, canEdit } from "@/lib/auth";
+import { currentUser, userMayEdit } from "@/lib/auth";
 
 export type LeadStatus = "new" | "contacted" | "won" | "lost" | "spam";
 
@@ -12,7 +12,7 @@ async function assertCanEdit(): Promise<string | null> {
   const me = await currentUser();
   // Solo installs have no user; a client-viewer shouldn't be triaging
   // the agency's sales pipeline.
-  if (me && !canEdit(me.role)) return "You have read-only access.";
+  if (!userMayEdit(me)) return "You have read-only access.";
   return null;
 }
 

@@ -3,7 +3,8 @@ import { audits, clients, tasks } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
-import { count, desc, eq, ne } from "drizzle-orm";
+import { and, count, desc, eq, inArray, ne, type AnyColumn } from "drizzle-orm";
+import { scopedClientIds } from "@/lib/client-scope";
 import {
   ArrowUpRight,
   Bot,
@@ -76,18 +77,31 @@ export default async function DashboardPage() {
     tickScheduler().catch(() => {});
   } catch {}
 
+  // Members and client viewers see their assigned clients only. The
+  // dashboard used to count, list and chart the whole agency for them,
+  // client names included, which for a client viewer meant seeing the
+  // agency's other customers.
+  const scope = await scopedClientIds();
+  const scoped = scope !== null;
+  const inScope = (column: AnyColumn) =>
+    scope === null
+      ? undefined
+      : inArray(column, scope.length > 0 ? scope : [-1]);
+
   const [{ value: clientCount }] = await db
     .select({ value: count() })
-    .from(clients);
+    .from(clients)
+    .where(inScope(clients.id));
 
   const [{ value: openTaskCount }] = await db
     .select({ value: count() })
     .from(tasks)
-    .where(ne(tasks.status, "done"));
+    .where(and(ne(tasks.status, "done"), inScope(tasks.clientId)));
 
   const [{ value: auditCount }] = await db
     .select({ value: count() })
-    .from(audits);
+    .from(audits)
+    .where(inScope(audits.clientId));
 
   const recentAudits = await db
     .select({
@@ -102,6 +116,7 @@ export default async function DashboardPage() {
     })
     .from(audits)
     .leftJoin(clients, eq(audits.clientId, clients.id))
+    .where(inScope(audits.clientId))
     .orderBy(desc(audits.createdAt))
     .limit(5);
 
@@ -114,7 +129,7 @@ export default async function DashboardPage() {
       createdAt: audits.createdAt,
     })
     .from(audits)
-    .where(eq(audits.status, "completed"))
+    .where(and(eq(audits.status, "completed"), inScope(audits.clientId)))
     .orderBy(desc(audits.createdAt))
     .limit(30);
 
@@ -128,11 +143,12 @@ export default async function DashboardPage() {
     })
     .from(tasks)
     .leftJoin(clients, eq(tasks.clientId, clients.id))
-    .where(eq(tasks.status, "todo"))
+    .where(and(eq(tasks.status, "todo"), inScope(tasks.clientId)))
     .orderBy(desc(tasks.createdAt))
     .limit(6);
 
-  const isFresh = clientCount === 0;
+  // "Fresh" means a new workspace, not a member with no assignments yet.
+  const isFresh = clientCount === 0 && !scoped;
   const greeting = greetingForHour(new Date().getHours());
 
   // First-run gate. A genuinely fresh workspace lands on /welcome where
@@ -333,9 +349,11 @@ export default async function DashboardPage() {
           rest of the agent's work reaches the site at all. Renders
           nothing once answered, and nothing at all before the first
           client exists. */}
-      <Suspense fallback={null}>
-        <AutonomyPrompt />
-      </Suspense>
+      {!scoped && (
+        <Suspense fallback={null}>
+          <AutonomyPrompt />
+        </Suspense>
+      )}
 
       {/* GET STARTED — two-column on fresh state (checklist + features),
           single column once user has clients (checklist auto-hides when done). */}
@@ -348,7 +366,7 @@ export default async function DashboardPage() {
           </div>
           <FeatureHighlights t={t} />
         </div>
-      ) : (
+      ) : scoped ? null : (
         <Suspense fallback={null}>
           <OnboardingChecklistPanel />
         </Suspense>
@@ -361,20 +379,24 @@ export default async function DashboardPage() {
         </Suspense>
       )}
 
-      {/* AGENCY WEEK IN REVIEW — aggregate activity across all clients */}
-      {!isFresh && (
+      {/* AGENCY-WIDE PANELS — activity, traffic and quick wins across
+          every client. Owners and managers only: they are not scoped,
+          and a member or client viewer must not see other clients. */}
+      {!isFresh && !scoped && (
         <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
           <AgencyWeekInReview />
         </Suspense>
       )}
-
-      {/* REAL GOOGLE DATA — only renders if any client has Google linked */}
-      <Suspense fallback={<DashboardPanelSkeleton lines={5} />}>
-        <PortfolioTrafficPanel />
-      </Suspense>
-      <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
-        <PortfolioQuickWinsPanel />
-      </Suspense>
+      {!scoped && (
+        <>
+          <Suspense fallback={<DashboardPanelSkeleton lines={5} />}>
+            <PortfolioTrafficPanel />
+          </Suspense>
+          <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
+            <PortfolioQuickWinsPanel />
+          </Suspense>
+        </>
+      )}
 
       {/* PRIORITY TASKS + RECENT AUDITS — returning users only.
           (Fresh state skips this; the onboarding checklist + bento are enough.) */}

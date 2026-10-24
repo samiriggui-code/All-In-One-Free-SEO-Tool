@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { Users2 } from "lucide-react";
 import { db } from "@/db/client";
@@ -38,12 +37,13 @@ export default async function TeamPage() {
             <li>· Removing someone removes their access, not everyone&apos;s</li>
           </ul>
           <p className="mt-4 text-sm">
-            <Link
+            {/* Plain link: /register renders outside the app shell. */}
+            <a
               href="/register"
               className="font-medium underline underline-offset-4"
             >
               Set up accounts
-            </Link>{" "}
+            </a>{" "}
             <span className="text-muted-foreground">
               — you&apos;ll become the owner and can invite the rest of your team.
             </span>

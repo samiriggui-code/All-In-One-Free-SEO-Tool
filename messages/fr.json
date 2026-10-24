@@ -83,6 +83,18 @@
       "docs": "Docs",
       "learn": "Apprendre",
       "knowledge": "Centre de connaissances"
+    },
+    "account": {
+      "localName": "Utilisateur local",
+      "localMode": "Mode mono-utilisateur",
+      "sharedName": "Accès partagé",
+      "sharedMode": "Mot de passe commun",
+      "roles": {
+        "owner": "Propriétaire",
+        "manager": "Manager",
+        "member": "Membre",
+        "viewer": "Client (lecture seule)"
+      }
     }
   },
   "dashboard": {
@@ -190,6 +202,12 @@
     "counterTasks": "Tâches",
     "counterKeywords": "Mots-clés",
     "databaseFile": "Fichier base de données",
+    "member": {
+      "title": "Paramètres",
+      "description": "Les réglages de l’espace de travail sont gérés par son propriétaire.",
+      "yourRole": "Votre rôle : {role}",
+      "ownerOnly": "Les clés d’API, intégrations Google, e-mails, sauvegardes, jetons et la gestion de l’équipe sont réservés au propriétaire. Demandez-lui si un réglage doit changer."
+    },
     "ownerOnlySmtp": "Seul le propriétaire de l’espace peut configurer l’envoi des e-mails.",
     "ownerOnlyWebhook": "Seul le propriétaire de l’espace peut configurer le webhook de notifications.",
     "ownerOnlyBrowser": "Seul le propriétaire de l’espace peut modifier le pool de navigateurs.",
@@ -593,7 +611,51 @@
     "loginFailed": "Échec de la connexion",
     "badCredentials": "E-mail ou mot de passe incorrect.",
     "noAccount": "Pas de compte ?",
-    "register": "Créer un compte"
+    "register": "Créer un compte",
+    "welcomeBack": "Bon retour",
+    "noAccountHint": "Pas encore de compte ? Demandez au propriétaire de l’instance de vous envoyer un lien d’invitation.",
+    "teamHint": "Vous travaillez en équipe ?",
+    "setUpAccounts": "Créez des comptes pour que chacun se connecte avec son identité.",
+    "yourName": "Votre nom",
+    "namePlaceholder": "Camille Martin",
+    "passwordHint": "Au moins 10 caractères. Une courte phrase facile à retenir vaut mieux qu’un mot de passe court et compliqué.",
+    "creating": "Création du compte…",
+    "createFailed": "Impossible de créer le compte.",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "errorEmail": "Cette adresse e-mail ne semble pas valide.",
+    "errorExists": "Un compte existe déjà avec cette adresse e-mail.",
+    "errorClosed": "Cette instance a déjà des comptes. Demandez un lien d’invitation au propriétaire.",
+    "errorTooLong": "Le mot de passe dépasse 200 caractères.",
+    "setupHeading": "Configurer votre équipe",
+    "setupSubheading": "Vous serez le propriétaire. Les autres membres rejoignent sur invitation.",
+    "setupCta": "Créer le compte propriétaire",
+    "inviteHeading": "Rejoindre en tant que {role}",
+    "inviteCta": "Créer mon compte",
+    "inviteExpiredTitle": "Cette invitation a expiré",
+    "inviteExpiredBody": "Un lien d’invitation est valable sept jours et ne sert qu’une fois. Demandez-en un nouveau à la personne qui vous l’a envoyé.",
+    "goToSignIn": "Aller à la connexion",
+    "roles": {
+      "owner": "Propriétaire",
+      "manager": "Manager",
+      "member": "Membre",
+      "viewer": "Client (lecture seule)"
+    },
+    "roleDescriptions": {
+      "owner": "Contrôle total : tous les clients, l’équipe, les intégrations et les réglages.",
+      "manager": "Tous les clients et tout le travail, sans gérer l’équipe ni les clés d’intégration.",
+      "member": "Uniquement les clients qui lui sont assignés. Fait le travail, pas l’administration.",
+      "viewer": "Lecture seule sur les clients assignés. Pour un contact client qui suit l’avancement."
+    },
+    "shell": {
+      "tagline": "Votre bureau SEO : audit, rédaction et diffusion au même endroit.",
+      "headline": "Pilotez le SEO de vos clients, de l’audit à la publication.",
+      "auditTitle": "Audit technique complet",
+      "auditBody": "Plus de 370 règles, scores SEO et GEO, et un plan d’action priorisé.",
+      "writeTitle": "Rédaction assistée",
+      "writeBody": "Briefs, articles et optimisation de contenu guidés par vos données.",
+      "publishTitle": "Diffusion",
+      "publishBody": "Publication WordPress, réseaux sociaux et newsletters depuis un seul outil."
+    }
   },
   "onboarding": {
     "backToClient": "Retour au client",
