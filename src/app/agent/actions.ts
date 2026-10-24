@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
 
 import { eq } from "drizzle-orm";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
@@ -14,6 +15,7 @@ import {
 
 export async function runAgent(clientId: number): Promise<AgentRunResult> {
   await requireSignedIn();
+  await requireClientAccess(clientId, { edit: true });
   const result = await runSeoAgent(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   return result;
@@ -23,6 +25,7 @@ export async function runAgentExecute(
   clientId: number,
 ): Promise<AgentRunReport> {
   await requireSignedIn();
+  await requireClientAccess(clientId, { edit: true });
   const report = await runAgentActions(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   safeRevalidatePath(`/clients/${clientId}`);
@@ -38,6 +41,7 @@ export async function applySuggestion(suggestionId: number) {
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -55,6 +59,7 @@ export async function dismissSuggestion(suggestionId: number) {
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -72,6 +77,7 @@ export async function reopenSuggestion(suggestionId: number) {
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -93,6 +99,7 @@ export async function suggestionToTask(suggestionId: number) {
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   const titleByType: Record<string, string> = {
     title_rewrite: "Update page title",

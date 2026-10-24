@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { guardedFetch } from "@/lib/url-guard";
 
 import {
   suggestCanonicalFix,
@@ -120,8 +121,8 @@ async function fetchPageContext(rawUrl: string): Promise<FixContext> {
   const t = setTimeout(() => controller.abort(), 10_000);
 
   try {
-    const res = await fetch(url, {
-      redirect: "follow",
+    // guardedFetch refuses private and loopback hosts on every redirect hop.
+    const res = await guardedFetch(url, {
       signal: controller.signal,
       headers: {
         "user-agent": USER_AGENT,

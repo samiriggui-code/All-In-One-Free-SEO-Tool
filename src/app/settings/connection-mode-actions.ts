@@ -1,6 +1,6 @@
 "use server";
 
-import { requireSignedIn } from "@/lib/action-guard";
+import { isSignedIn, requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
 import { randomBytes } from "node:crypto";
@@ -23,8 +23,9 @@ import type { ConnectionMode } from "@/lib/tool-capabilities";
  * Derived from what is actually there, it cannot disagree with reality.
  */
 export async function getConnectionMode(): Promise<ConnectionMode> {
-  // No sign-in check: the root layout and the shell read this on
-  // every page, the login page included.
+  // The root layout and the shell read this on every page, the login
+  // page included, so a signed-out caller gets "none" instead of an error.
+  if (!(await isSignedIn())) return "none";
   const { getAiAvailability } = await import("@/lib/ai-availability");
   const ai = await getAiAvailability().catch(() => null);
   if (!ai) return "none";
@@ -185,8 +186,12 @@ export async function getAiConnectionStatus(): Promise<{
   api: AiConnectionStatus;
   mcp: AiConnectionStatus;
 }> {
-  // No sign-in check: the root layout and the shell read this on
-  // every page, the login page included.
+  // Read on every page, the login page included: a signed-out caller
+  // gets "not connected" instead of an error.
+  if (!(await isSignedIn())) {
+    const off = { ok: false, label: "Not connected", detail: "" };
+    return { api: off, mcp: off };
+  }
   const { ids } = await configuredProviders();
   const active = await getActiveProvider();
   const mcp = await readMcpStatus();

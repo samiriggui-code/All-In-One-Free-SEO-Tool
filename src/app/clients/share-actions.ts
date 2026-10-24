@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
 
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -21,6 +22,7 @@ function generateToken(): string {
 export async function generateShareToken(clientId: number): Promise<void> {
   await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
+  await requireClientAccess(clientId, { edit: true });
   let attempts = 0;
   while (attempts < 5) {
     const token = generateToken();
@@ -40,6 +42,7 @@ export async function generateShareToken(clientId: number): Promise<void> {
 export async function revokeShareToken(clientId: number): Promise<void> {
   await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
+  await requireClientAccess(clientId, { edit: true });
   await db
     .update(clients)
     .set({ shareToken: null, updatedAt: new Date() })
@@ -63,6 +66,7 @@ export async function emailPortalLink(input: {
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
     return { ok: false, error: "Invalid client" };
   }
+  await requireClientAccess(input.clientId, { edit: true });
   const [client] = await db
     .select()
     .from(clients)

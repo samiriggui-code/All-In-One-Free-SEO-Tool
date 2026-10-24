@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { canSeeClient, currentUser } from "@/lib/auth";
 
 import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -124,6 +125,9 @@ export async function askTheTool(input: {
 
   let context = "";
   if (input.clientId) {
+    if (!(await canSeeClient(await currentUser(), input.clientId))) {
+      return { ok: false, error: "No such client." };
+    }
     const c = await buildClientContext(input.clientId);
     if (c) context = c;
   }

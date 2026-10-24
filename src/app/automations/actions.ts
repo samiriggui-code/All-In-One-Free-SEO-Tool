@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { guardedFetch } from "@/lib/url-guard";
 
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -132,7 +133,8 @@ export async function testWebhook(url: string): Promise<
   try {
     const c = new AbortController();
     const t = setTimeout(() => c.abort(), 8_000);
-    const res = await fetch(url, {
+    // guardedFetch refuses private and loopback hosts on every redirect hop.
+    const res = await guardedFetch(url, {
       method: "POST",
       signal: c.signal,
       headers: { "content-type": "application/json" },

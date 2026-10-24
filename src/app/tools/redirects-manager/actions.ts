@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { requireEditor } from "@/lib/auth";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -9,6 +10,7 @@ import { redirectRules, notFoundLog } from "@/db/schema";
 
 export async function addRule(formData: FormData) {
   await requireSignedIn();
+  await requireEditor();
   const sourcePath = String(formData.get("sourcePath") ?? "").trim();
   const targetUrl = String(formData.get("targetUrl") ?? "").trim();
   const statusCode = Number(formData.get("statusCode") ?? 301);
@@ -33,12 +35,14 @@ export async function addRule(formData: FormData) {
 
 export async function deleteRule(id: number) {
   await requireSignedIn();
+  await requireEditor();
   await db.delete(redirectRules).where(eq(redirectRules.id, id));
   revalidatePath("/tools/redirects-manager");
 }
 
 export async function record404(formData: FormData) {
   await requireSignedIn();
+  await requireEditor();
   const sourcePath = String(formData.get("sourcePath") ?? "").trim();
   if (!sourcePath) return { ok: false as const };
   const [existing] = await db
@@ -62,6 +66,7 @@ export async function record404(formData: FormData) {
 
 export async function resolve404(formData: FormData) {
   await requireSignedIn();
+  await requireEditor();
   const id = Number(formData.get("id"));
   const targetUrl = String(formData.get("targetUrl") ?? "").trim();
   if (!Number.isFinite(id) || !targetUrl) return { ok: false as const };
@@ -87,6 +92,7 @@ export async function resolve404(formData: FormData) {
 
 export async function deleteNotFound(id: number) {
   await requireSignedIn();
+  await requireEditor();
   await db.delete(notFoundLog).where(eq(notFoundLog.id, id));
   revalidatePath("/tools/redirects-manager");
 }
