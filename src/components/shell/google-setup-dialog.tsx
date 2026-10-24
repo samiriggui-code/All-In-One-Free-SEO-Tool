@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   ArrowLeft,
@@ -46,6 +47,7 @@ export function GoogleSetupDialog({
   hasSecret: boolean;
   onConnected?: (email: string | null) => void;
 }) {
+  const tg = useTranslations("googleSetup");
   const [status, setStatus] = useState<Status>(initialStatus);
 
   function deriveStep(
@@ -89,12 +91,12 @@ export function GoogleSetupDialog({
         setStep("done");
         onConnected?.(email);
       } else {
-        setOauthError(data.error ?? "Unknown error");
+        setOauthError(data.error ?? tg("unknownError"));
       }
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [open, onConnected]);
+  }, [open, onConnected, tg]);
 
   function startOAuth() {
     setOauthError(null);
@@ -125,13 +127,13 @@ export function GoogleSetupDialog({
       size="lg"
       title={
         status.credentialsFromEnv && step !== "done"
-          ? "Sign in with Google"
-          : "Connect Google"
+          ? tg("titleSignIn")
+          : tg("titleConnect")
       }
       description={
         status.credentialsFromEnv && step !== "done"
-          ? "One click. Read-only access to Search Console + Analytics. Skippable — the rest of the app works without it."
-          : "One-time setup. Same connection serves every client. Skippable — the rest of the app works without it."
+          ? tg("descSignIn")
+          : tg("descSetup")
       }
     >
       {step === "intro" && (
@@ -184,48 +186,29 @@ export function GoogleSetupDialog({
 }
 
 function IntroStep({ onNext }: { onNext: () => void }) {
+  const t = useTranslations("googleSetup");
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Bullet>
-          <strong className="text-foreground">Real keyword positions</strong>{" "}
-          from Google itself — not scraped.
-        </Bullet>
-        <Bullet>
-          <strong className="text-foreground">Quick-wins finder</strong> —
-          keywords at positions 4-15.
-        </Bullet>
-        <Bullet>
-          <strong className="text-foreground">Real organic traffic</strong> in
-          PDF reports.
-        </Bullet>
-        <Bullet>
-          <strong className="text-foreground">Free forever</strong> — 25k GSC
-          + 50k GA4 queries/day.
-        </Bullet>
+        {(["bullet1", "bullet2", "bullet3", "bullet4"] as const).map((k) => (
+          <Bullet key={k}>
+            {t.rich(k, { b: (c) => <strong className="text-foreground">{c}</strong> })}
+          </Bullet>
+        ))}
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm">
-        <p className="font-medium">How it works</p>
+        <p className="font-medium">{t("howItWorks")}</p>
         <ol className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-          <li>
-            <strong>1.</strong> One-time: create an OAuth app in Google Cloud
-            (~3 min, free). You&apos;ll paste a Client ID + Secret here.
-          </li>
-          <li>
-            <strong>2.</strong> One-time: log in with the Google account that
-            has access to your GSC properties.
-          </li>
-          <li>
-            <strong>3.</strong> Per client: pick the GSC property + GA4
-            property from a dropdown.
-          </li>
+          <li>{t.rich("how1", { b: (c) => <strong>{c}</strong> })}</li>
+          <li>{t.rich("how2", { b: (c) => <strong>{c}</strong> })}</li>
+          <li>{t.rich("how3", { b: (c) => <strong>{c}</strong> })}</li>
         </ol>
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
         <Button onClick={onNext}>
-          Start setup
+          {t("startSetup")}
           <ExternalLink className="size-3.5" />
         </Button>
       </div>
@@ -246,6 +229,7 @@ function CredentialsStep({
   onSaved: () => void;
   onBack: () => void;
 }) {
+  const t = useTranslations("googleSetup");
   const [pending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
@@ -278,17 +262,16 @@ function CredentialsStep({
     <div className="space-y-5">
       {/* Quick-link strip — open Google Cloud in new tab */}
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm">
-        <p className="mb-2 font-medium">Steps in Google Cloud Console</p>
+        <p className="mb-2 font-medium">{t("cloudSteps")}</p>
         <ol className="space-y-1.5 text-xs text-muted-foreground">
           <li>
-            <strong>1.</strong>{" "}
-            <ExtA href="https://console.cloud.google.com/projectcreate">
-              Create a project
-            </ExtA>{" "}
-            (any name)
+            {t.rich("step1", {
+              b: (c) => <strong>{c}</strong>,
+              a: (c) => <ExtA href="https://console.cloud.google.com/projectcreate">{c}</ExtA>,
+            })}
           </li>
           <li>
-            <strong>2.</strong> Enable APIs:{" "}
+            {t.rich("step2", { b: (c) => <strong>{c}</strong> })}{" "}
             <ExtA href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com">
               Search Console
             </ExtA>{" "}
@@ -302,18 +285,16 @@ function CredentialsStep({
             </ExtA>
           </li>
           <li>
-            <strong>3.</strong>{" "}
-            <ExtA href="https://console.cloud.google.com/apis/credentials/consent">
-              Configure OAuth consent screen
-            </ExtA>{" "}
-            (External, add yourself as Test User)
+            {t.rich("step3", {
+              b: (c) => <strong>{c}</strong>,
+              a: (c) => <ExtA href="https://console.cloud.google.com/apis/credentials/consent">{c}</ExtA>,
+            })}
           </li>
           <li>
-            <strong>4.</strong>{" "}
-            <ExtA href="https://console.cloud.google.com/apis/credentials">
-              Create OAuth Client ID
-            </ExtA>{" "}
-            (Web application). Paste this redirect URI:
+            {t.rich("step4", {
+              b: (c) => <strong>{c}</strong>,
+              a: (c) => <ExtA href="https://console.cloud.google.com/apis/credentials">{c}</ExtA>,
+            })}
           </li>
         </ol>
 
@@ -325,14 +306,14 @@ function CredentialsStep({
             className="inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground hover:bg-white/10 hover:text-foreground"
           >
             <Copy className="size-3" />
-            {copied ? "copied" : "copy"}
+            {copied ? t("copied") : t("copy")}
           </button>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="dlg-clientId">Client ID</Label>
+          <Label htmlFor="dlg-clientId">{t("clientId")}</Label>
           <Input
             id="dlg-clientId"
             name="clientId"
@@ -345,12 +326,12 @@ function CredentialsStep({
           )}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="dlg-clientSecret">Client Secret</Label>
+          <Label htmlFor="dlg-clientSecret">{t("clientSecret")}</Label>
           <Input
             id="dlg-clientSecret"
             name="clientSecret"
             type="password"
-            placeholder={hasSecret ? "•••••••••••••••• (saved)" : "GOCSPX-…"}
+            placeholder={hasSecret ? t("secretSaved") : "GOCSPX-…"}
             aria-invalid={Boolean(errors.clientSecret)}
           />
           {errors.clientSecret && (
@@ -361,10 +342,10 @@ function CredentialsStep({
         <div className="flex items-center justify-between gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={onBack}>
             <ArrowLeft className="size-3.5" />
-            Back
+            {t("back")}
           </Button>
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving…" : "Save credentials"}
+            {pending ? t("saving") : t("saveCredentials")}
           </Button>
         </div>
       </form>
@@ -385,30 +366,16 @@ function ConnectStep({
   waiting: boolean;
   hideVerificationWarning: boolean;
 }) {
+  const t = useTranslations("googleSetup");
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        {hideVerificationWarning ? (
-          <>
-            Click below. A new window opens for Google to ask which account
-            you want to use and to grant <strong>read-only</strong> access to
-            Search Console + Analytics.
-          </>
-        ) : (
-          <>
-            Click <strong>Connect Google</strong>. A new window opens for you
-            to sign in. Pick the Google account that has access to your Search
-            Console + Analytics properties. Grant read access — done.
-          </>
-        )}
+        {t.rich(hideVerificationWarning ? "connectEnv" : "connectOwn", { b: (c) => <strong>{c}</strong> })}
       </p>
 
       {!hideVerificationWarning && (
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-200">
-          <strong>Heads up:</strong> Google shows a &ldquo;this app
-          isn&apos;t verified&rdquo; warning while your project is in test
-          mode. Click <strong>Advanced → Go to [your project]</strong>. This
-          is normal for personal/local apps.
+          {t.rich("headsUp", { b: (c) => <strong>{c}</strong> })}
         </div>
       )}
 
@@ -423,7 +390,7 @@ function ConnectStep({
         {onBack ? (
           <Button type="button" variant="ghost" onClick={onBack}>
             <ArrowLeft className="size-3.5" />
-            Back
+            {t("back")}
           </Button>
         ) : (
           <span />
@@ -432,12 +399,12 @@ function ConnectStep({
           {waiting ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Waiting for Google…
+              {t("waiting")}
             </>
           ) : (
             <>
               <Sparkles className="size-4" />
-              Sign in with Google
+              {t("signIn")}
             </>
           )}
         </Button>
@@ -455,12 +422,13 @@ function DoneStep({
   onDisconnect: () => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("googleSetup");
   return (
     <div className="space-y-4">
       <div className="flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-3 text-sm text-emerald-200">
         <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
         <div className="flex-1">
-          <div className="font-medium">Connected</div>
+          <div className="font-medium">{t("connected")}</div>
           {email && (
             <div className="text-xs text-emerald-300/80">{email}</div>
           )}
@@ -468,19 +436,15 @@ function DoneStep({
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Now go to any client&apos;s detail page and pick the matching{" "}
-        <strong>Search Console property</strong> and{" "}
-        <strong>GA4 property</strong> from the dropdowns. The same Google
-        login covers every client — you just pick the right property each
-        time.
+        {t.rich("doneText", { b: (c) => <strong>{c}</strong> })}
       </p>
 
       <div className="flex items-center justify-between gap-2 pt-2">
         <Button type="button" variant="ghost" onClick={onDisconnect}>
           <XCircle className="size-3.5" />
-          Disconnect
+          {t("disconnect")}
         </Button>
-        <Button onClick={onClose}>Done</Button>
+        <Button onClick={onClose}>{t("done")}</Button>
       </div>
     </div>
   );

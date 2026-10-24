@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -461,15 +462,16 @@ export type QuickAddResult =
  */
 export async function quickAddClient(rawUrl: string): Promise<QuickAddResult> {
   await requireSignedIn();
+  const t = await getTranslations("serverMessages.quickAdd");
   const url = rawUrl?.trim();
-  if (!url) return { ok: false, error: "URL is required" };
+  if (!url) return { ok: false, error: t("urlRequired") };
   const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
   const existingQuick = findClientByUrlKey(normalized);
   if (existingQuick) {
     return {
       ok: false,
-      error: `This site is already in your workspace as “${existingQuick.name}” (client #${existingQuick.id}).`,
+      error: t("alreadyExists", { name: existingQuick.name, id: existingQuick.id }),
       existingClientId: existingQuick.id,
     };
   }
@@ -483,8 +485,7 @@ export async function quickAddClient(rawUrl: string): Promise<QuickAddResult> {
   if (!meta || !meta.reachable) {
     return {
       ok: false,
-      error:
-        "Couldn't reach that URL. Check it loads in a browser, then try again.",
+      error: t("unreachable"),
     };
   }
 
