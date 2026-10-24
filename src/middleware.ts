@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "@/lib/secure-compare";
 import { SESSION_COOKIE, verifySession } from "@/lib/session-token";
+import { PATHNAME_HEADER } from "@/lib/auth-routes";
 
 /**
  * The auth gate. Three modes, in order of precedence:
@@ -159,6 +160,10 @@ function isPublicPath(pathname: string): boolean {
  */
 function applyEmbedHeader(req: NextRequest): Headers {
   const requestHeaders = new Headers(req.headers);
+  // The root layout needs the path to decide between the app shell and
+  // the auth frame, and layouts are not given it. Overwritten, never
+  // trusted from the client.
+  requestHeaders.set(PATHNAME_HEADER, req.nextUrl.pathname);
   if (req.nextUrl.searchParams.get("embed") === "1") {
     requestHeaders.set("x-embed", "1");
   }

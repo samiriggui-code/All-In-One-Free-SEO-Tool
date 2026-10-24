@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { accountsEnabled } from "@/lib/auth";
 import { AccountForm } from "./account-form";
 
@@ -9,14 +10,15 @@ import { AccountForm } from "./account-form";
  */
 export const dynamic = "force-dynamic";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
   if (accountsEnabled()) redirect("/login");
+  const t = await getTranslations("auth");
 
   return (
     <AccountForm
-      heading="Set up your team"
-      subheading="You'll be the owner. Everyone else joins by invitation."
-      cta="Create owner account"
+      heading={t("setupHeading")}
+      subheading={t("setupSubheading")}
+      cta={t("setupCta")}
     />
   );
 }

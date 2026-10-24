@@ -109,7 +109,7 @@ export function MobileNav({
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative ml-auto flex h-full w-72 max-w-[85vw] flex-col overflow-hidden bg-card shadow-2xl ring-1 ring-border">
+          <aside className="relative mr-auto flex h-full w-72 max-w-[85vw] flex-col overflow-hidden bg-card shadow-2xl ring-1 ring-border">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <span className="text-sm font-semibold">{t("navigate")}</span>
               <button

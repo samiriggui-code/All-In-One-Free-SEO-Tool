@@ -13,7 +13,9 @@
  * cannot be forgotten by whoever writes the next page under it.
  *
  * On a solo install both are no-ops: `currentUser()` returns null, the
- * scope is "everything", and nothing changes. Owners and managers get
+ * scope is "everything", and nothing changes. With accounts on, a null
+ * user (signed out, or a session revoked since it was issued) gets an
+ * empty scope instead. Owners and managers get
  * the same treatment by role. Only members and viewers pay the cost of
  * the filter, which is also the only case where the extra table lookup
  * is doing any work.
@@ -32,8 +34,9 @@ import { currentUser, seesAllClients, visibleClientIds } from "./auth";
  */
 export const scopedClientIds = cache(async (): Promise<number[] | null> => {
   const me = await currentUser();
-  if (!me) return null;
-  if (seesAllClients(me.role)) return null;
+  if (me && seesAllClients(me.role)) return null;
+  // visibleClientIds(null) is "everything" only on a solo install; with
+  // accounts on, a missing user sees no client at all.
   return visibleClientIds(me);
 });
 

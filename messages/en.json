@@ -83,6 +83,18 @@
       "docs": "Docs",
       "learn": "Learn",
       "knowledge": "Knowledge hub"
+    },
+    "account": {
+      "localName": "Local user",
+      "localMode": "Single-user mode",
+      "sharedName": "Shared access",
+      "sharedMode": "Shared password",
+      "roles": {
+        "owner": "Owner",
+        "manager": "Manager",
+        "member": "Member",
+        "viewer": "Client viewer"
+      }
     }
   },
   "dashboard": {
@@ -585,7 +597,51 @@
     "loginFailed": "Login failed",
     "badCredentials": "Email or password is incorrect.",
     "noAccount": "No account?",
-    "register": "Register"
+    "register": "Register",
+    "welcomeBack": "Welcome back",
+    "noAccountHint": "No account yet? Ask the owner of this instance to send you an invite link.",
+    "teamHint": "Working with a team?",
+    "setUpAccounts": "Set up accounts so everyone signs in as themselves.",
+    "yourName": "Your name",
+    "namePlaceholder": "Priya Sharma",
+    "passwordHint": "At least 10 characters. A short phrase you'll remember beats a short jumble you won't.",
+    "creating": "Creating your account…",
+    "createFailed": "Could not create the account.",
+    "haveAccount": "Already have an account?",
+    "errorEmail": "That doesn't look like an email address.",
+    "errorExists": "An account with that email already exists.",
+    "errorClosed": "This instance already has accounts. Ask the owner for an invite link.",
+    "errorTooLong": "That password is longer than 200 characters.",
+    "setupHeading": "Set up your team",
+    "setupSubheading": "You'll be the owner. Everyone else joins by invitation.",
+    "setupCta": "Create owner account",
+    "inviteHeading": "Join as {role}",
+    "inviteCta": "Create my account",
+    "inviteExpiredTitle": "This invite has expired",
+    "inviteExpiredBody": "Invite links last seven days, and each one can only be used once. Ask whoever sent it to generate a new one.",
+    "goToSignIn": "Go to sign in",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "member": "Member",
+      "viewer": "Client viewer"
+    },
+    "roleDescriptions": {
+      "owner": "Full control — all clients, team management, integrations, billing settings.",
+      "manager": "All clients and all work, but can't add or remove people or change integration keys.",
+      "member": "Only the clients they're assigned to. Can do the work, not the admin.",
+      "viewer": "Read-only on assigned clients. For a client contact who wants to watch progress."
+    },
+    "shell": {
+      "tagline": "Your SEO office: audits, writing and publishing in one place.",
+      "headline": "Run your clients' SEO, from audit to publication.",
+      "auditTitle": "Full technical audit",
+      "auditBody": "370+ rules, SEO and GEO scores, and a prioritised action plan.",
+      "writeTitle": "Assisted writing",
+      "writeBody": "Briefs, articles and content optimisation driven by your data.",
+      "publishTitle": "Publishing",
+      "publishBody": "WordPress, social and newsletter publishing from one tool."
+    }
   },
   "onboarding": {
     "backToClient": "Back to client",

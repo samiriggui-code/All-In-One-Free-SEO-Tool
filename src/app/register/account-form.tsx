@@ -1,11 +1,25 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { AlertCircle, Loader2, UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthCard } from "@/components/auth/auth-card";
+
+/**
+ * Server messages the form knows how to say in the user's language. The
+ * API answers in English (it is also called by scripts); anything not
+ * listed here is shown as-is rather than hidden.
+ */
+const KNOWN_ERRORS: Record<string, string> = {
+  "That doesn't look like an email address.": "errorEmail",
+  "An account with that email already exists.": "errorExists",
+  "This instance already has accounts. Ask the owner for an invite link.":
+    "errorClosed",
+  "That's longer than 200 characters.": "errorTooLong",
+};
 
 /**
  * Shared by /register (first user, becomes owner) and /invite/[token]
@@ -26,7 +40,7 @@ export function AccountForm({
   lockedEmail?: string;
   cta: string;
 }) {
-  const router = useRouter();
+  const t = useTranslations("auth");
   const [name, setName] = useState("");
   const [email, setEmail] = useState(lockedEmail ?? "");
   const [password, setPassword] = useState("");
@@ -46,94 +60,93 @@ export function AccountForm({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data?.error ?? "Could not create the account.");
+        const raw: string | undefined = data?.error;
+        const key = raw ? KNOWN_ERRORS[raw] : undefined;
+        setError(key ? t(key) : (raw ?? t("createFailed")));
         return;
       }
-      router.push("/");
-      router.refresh();
+      // Full load: the layout has to swap the auth frame for the app.
+      window.location.assign("/");
     });
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="glass-apple-strong w-full max-w-sm rounded-2xl p-6">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-violet-500/15 ring-1 ring-violet-400/30">
-            <UserPlus className="size-5 text-violet-300" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold">{heading}</h1>
-            <p className="text-xs text-muted-foreground">{subheading}</p>
-          </div>
+    <AuthCard
+      icon={<UserPlus className="size-5" />}
+      title={heading}
+      subtitle={subheading}
+    >
+      <form onSubmit={submit} className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="name">{t("yourName")}</Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+            placeholder={t("namePlaceholder")}
+            autoComplete="name"
+          />
         </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Your name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoFocus
-              placeholder="Priya Sharma"
-              autoComplete="name"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={Boolean(lockedEmail)}
-              autoComplete="username"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="pwd">Password</Label>
-            <Input
-              id="pwd"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-            />
-            <p
-              className={
-                tooShort
-                  ? "text-[11px] text-amber-400"
-                  : "text-[11px] text-muted-foreground"
-              }
-            >
-              At least 10 characters. A short phrase you&apos;ll remember beats a
-              short jumble you won&apos;t.
-            </p>
-          </div>
-          {error && (
-            <div className="flex items-start gap-2 rounded-md bg-rose-500/10 px-3 py-2 text-xs text-rose-300 ring-1 ring-rose-500/30">
-              <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-          <Button
-            type="submit"
-            disabled={pending || !email || password.length < 10}
-            className="w-full"
+        <div className="space-y-1.5">
+          <Label htmlFor="email">{t("email")}</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={Boolean(lockedEmail)}
+            autoComplete="username"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="pwd">{t("password")}</Label>
+          <Input
+            id="pwd"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+          />
+          <p
+            className={
+              tooShort
+                ? "text-[11px] text-amber-500 dark:text-amber-400"
+                : "text-[11px] text-muted-foreground"
+            }
           >
-            {pending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Creating your account…
-              </>
-            ) : (
-              cta
-            )}
-          </Button>
-        </form>
-      </div>
-    </div>
+            {t("passwordHint")}
+          </p>
+        </div>
+        {error && (
+          <div className="flex items-start gap-2 rounded-md bg-rose-500/10 px-3 py-2 text-xs text-rose-600 ring-1 ring-rose-500/30 dark:text-rose-300">
+            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+        <Button
+          type="submit"
+          disabled={pending || !email || password.length < 10}
+          className="w-full"
+        >
+          {pending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              {t("creating")}
+            </>
+          ) : (
+            cta
+          )}
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          {t("haveAccount")}{" "}
+          <a href="/login" className="underline underline-offset-2">
+            {t("signIn")}
+          </a>
+        </p>
+      </form>
+    </AuthCard>
   );
 }

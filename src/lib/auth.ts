@@ -258,6 +258,30 @@ export function canEdit(role: Role): boolean {
 }
 
 /**
+ * The role a request acts with: the user's own, "owner" on a solo or
+ * shared-password install (there is nobody else to be), and null when
+ * accounts are on but nobody valid is signed in.
+ *
+ * Checks written as `me && !canEdit(me.role)` let a null user through,
+ * which was right before accounts existed and wrong after: a revoked
+ * session also comes back as null. Use these helpers instead.
+ */
+export function effectiveRole(user: User | null): Role | null {
+  if (user) return user.role;
+  return accountsEnabled() ? null : "owner";
+}
+
+export function mayEdit(user: User | null): boolean {
+  const role = effectiveRole(user);
+  return role !== null && canEdit(role);
+}
+
+export function mayManageSettings(user: User | null): boolean {
+  const role = effectiveRole(user);
+  return role !== null && canManageSettings(role);
+}
+
+/**
  * The client ids a user may see, or `null` meaning "no restriction".
  *
  * Returning null rather than "every id" is deliberate: callers can then
@@ -267,7 +291,12 @@ export function canEdit(role: Role): boolean {
 export async function visibleClientIds(
   user: User | null,
 ): Promise<number[] | null> {
-  if (!user) return null; // solo mode — everything is visible
+  // No user is only "everything" on a solo install. With accounts on,
+  // null means signed out or a stale session (deleted user, password
+  // changed, deactivated) — and that must see nothing, not the whole
+  // agency. Treating both the same was how a revoked session kept full
+  // access as a "Local user".
+  if (!user) return accountsEnabled() ? [] : null;
   if (seesAllClients(user.role)) return null;
   const rows = db
     .select({ clientId: clientMembers.clientId })
@@ -281,7 +310,7 @@ export async function canSeeClient(
   user: User | null,
   clientId: number,
 ): Promise<boolean> {
-  if (!user) return true;
+  if (!user) return !accountsEnabled();
   if (seesAllClients(user.role)) return true;
   const row = db
     .select({ clientId: clientMembers.clientId })

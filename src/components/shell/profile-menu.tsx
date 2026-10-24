@@ -177,14 +177,15 @@ export function ProfileMenu() {
                 Admin links appear after you sign in. Use the form below.
               </p>
             ) : (
-              <Link
+              // A plain link on purpose: the sign-in page has its own frame,
+              // and a client-side navigation would keep the app shell.
+              <a
                 href="/login"
-                onClick={() => setOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
               >
                 <Settings className="size-3.5 text-muted-foreground" />
                 Sign in
-              </Link>
+              </a>
             )}
             <Link
               href="/seo-chat/capabilities"

@@ -15,12 +15,12 @@ import {
   proposals,
   tasks,
 } from "@/db/schema";
-import { canEdit, canSeeClient, currentUser } from "@/lib/auth";
+import { canSeeClient, currentUser, mayEdit } from "@/lib/auth";
 import { deriveScope, unmappedFindingTypes } from "@/lib/proposal-scope";
 
 async function assertCanEdit(): Promise<string | null> {
   const me = await currentUser();
-  if (me && !canEdit(me.role)) return "You have read-only access.";
+  if (!mayEdit(me)) return "You have read-only access.";
   return null;
 }
 
