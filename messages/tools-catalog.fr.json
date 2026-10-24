@@ -1,370 +1,370 @@
 {
   "health-check": {
-    "title": "Audit SEO complet ⭐",
-    "description": "Une URL → audit + robots + hreflang + sécurité + Coue Web Vitals + image audit + redirection chain in en parallèle. Enregistrer des instantanés to compare avant / après."
+    "title": "Bilan SEO complet ⭐",
+    "description": "Une URL → audit, robots, hreflang, sécurité, Core Web Vitals, images et chaîne de redirections, analysés en parallèle. Enregistrez des instantanés pour comparer avant / après."
   },
   "browser-agent": {
-    "title": "Agent navigateur (objectif)",
-    "description": "En langage clair goal + a starting URL. Chrome headless reads le page, decides le suivant step, et narrates each move avec a screenshot. Replaces 'I need an API fou que site' avec browser automation."
+    "title": "Agent navigateur (par objectif)",
+    "description": "Décrivez un objectif en langage courant et donnez une URL de départ. Un Chrome headless lit la page, choisit l’étape suivante et commente chaque action avec une capture d’écran. Plus besoin d’API : le navigateur s’en charge."
   },
   "trending": {
-    "title": "Idées de contenu tendance",
-    "description": "Mines Google Trends rising queries, autocomplete a-z expansion, Autres questions posées, recherches associées, Reddit threads. IA synlesises 10-15 publish-ready ideas."
+    "title": "Idées de contenus tendance",
+    "description": "Exploite les requêtes en hausse de Google Trends, l’autocomplétion de a à z, les « Autres questions posées », les recherches associées et les fils Reddit. L’IA en tire 10 à 15 idées prêtes à publier."
   },
   "traffic-drop": {
-    "title": "Pourquoi mon trafic a chuté?",
-    "description": "Pulls dernier 28 vs prev 28 jours depuis GSC. Diffs queries + pages, cross-references curated Google algouithm-update timeline, IA positions le most likely cause."
+    "title": "Pourquoi mon trafic a-t-il chuté ?",
+    "description": "Compare les 28 derniers jours aux 28 précédents dans la GSC, requêtes et pages, croise avec l’historique des mises à jour de l’algorithme Google, puis l’IA classe les causes les plus probables."
   },
   "serp-volatility": {
-    "title": "SERP volatilité tracker",
-    "description": "Day-over-jour position shifts across every tracked mot-clé. Volatility scoue spikes during mises à jour d’algouithme — pause big contenu moves quand stoumy."
+    "title": "Volatilité des SERP",
+    "description": "Variations de position jour après jour sur tous les mots-clés suivis. Le score de volatilité grimpe pendant les mises à jour d’algorithme : attendez le calme avant les gros chantiers de contenu."
   },
   "ads-funnel": {
-    "title": "Ad Funnel Architect ⭐",
-    "description": "Multi-platfoum paid-ads strategy generatou. Pick Meta, Google Search/Display/Shopping, LinkedIn, TikTok, ou VousTube — get launch-ready copy variants, image-generation prompts, mot-clé bundles, funnel map, budget split, et tracking setup. Wouks on just IA."
+    "title": "Architecte de funnel publicitaire ⭐",
+    "description": "Stratégie de publicité payante multiplateforme : Meta, Google Search / Display / Shopping, LinkedIn, TikTok ou YouTube. Variantes d’annonces prêtes à lancer, prompts d’images, groupes de mots-clés, schéma du funnel, répartition du budget et plan de tracking. Fonctionne avec l’IA seule."
   },
   "cannibalization": {
     "title": "Cannibalisation de mots-clés",
-    "description": "Trouve queries où 2+ of votre pages compete in le SERP — Google can't pick a winner, both suffer. GSC-powered, severity-positioned, suggests qui page to keep."
+    "description": "Repère les requêtes sur lesquelles au moins deux de vos pages se concurrencent dans la SERP : Google ne sait pas laquelle choisir et les deux en pâtissent. Basé sur la GSC, classé par gravité, avec la page à conserver."
   },
   "ai-schema": {
-    "title": "IA schema generatou (depuis URL)",
-    "description": "Coller any URL — IA fetches, classifies contenu type, emits valid JSON-LD grounded in actual on-page contenu. Won't invent fields que aren't lere."
+    "title": "Générateur de schema IA (depuis une URL)",
+    "description": "Collez une URL : l’IA récupère la page, identifie le type de contenu et produit un JSON-LD valide, fondé sur le contenu réel. Aucun champ inventé."
   },
   "outreach-personalize": {
-    "title": "Outreach personalizer",
-    "description": "Coller prospect URL + votre generic template. IA mines leir site fou recent posts et topical signals, rewrites votre opener avec a specific reference. 2% → 15% reply rates."
+    "title": "Personnalisation d’outreach",
+    "description": "Collez l’URL du prospect et votre modèle de message. L’IA analyse son site (articles récents, sujets de prédilection) et réécrit votre accroche avec une référence précise. De 2 % à 15 % de taux de réponse."
   },
   "cluster": {
-    "title": "Topic cluster builder",
-    "description": "Head topic → mine PAA + autocomplete + Reddit → IA assembles 1 pillar + 15-20 spokes avec slugs, intent, foumat, et an interlinking map. Le 1-jour strategy plan, in 60 secondes."
+    "title": "Cocon sémantique",
+    "description": "Un sujet principal → exploration des « Autres questions posées », de l’autocomplétion et de Reddit → l’IA construit une page pilier et 15 à 20 pages satellites avec slugs, intention, format et plan de maillage. Une journée de stratégie en 60 secondes."
   },
   "programmatic-seo": {
-    "title": "Programmatic SEO toolkit",
-    "description": "CSV + four templates → 100s-1000s of leting pages avec sitemap + interlinking. Ideal fou city × service combos et SaaS comparison pages."
+    "title": "Boîte à outils SEO programmatique",
+    "description": "Un CSV et quatre modèles → des centaines, voire des milliers de landing pages, avec sitemap et maillage interne. Idéal pour les combinaisons ville × service et les pages de comparatif SaaS."
   },
   "og-image": {
-    "title": "OG image generatou",
-    "description": "1200×630 PNG cover image depuis a title + bret. 4 templates rendered in headless Chrome. No paid IA image API."
+    "title": "Générateur d’images OG",
+    "description": "Image de partage PNG 1200×630 à partir d’un titre et de votre marque. 4 modèles rendus dans un Chrome headless, sans API d’image IA payante."
   },
   "serp-features": {
-    "title": "SERP feature tracker (IAO + FS + PAA)",
-    "description": "Capture SERP snapshots over time — IA Overview citations, featured snippets, PAA questions. Surfaces snippet-takeover oppoutunities."
+    "title": "Suivi des fonctionnalités SERP (AIO, FS, PAA)",
+    "description": "Capturez des instantanés de SERP dans le temps : citations dans les AI Overviews, featured snippets, questions PAA. Fait ressortir les snippets à récupérer."
   },
   "branded-split": {
-    "title": "Breted vs non-breted GSC split",
-    "description": "28-jour clicks split avec delta vs priou 28 jours, separately fou breted et non-breted queries. Different drops, different fixes."
+    "title": "GSC : marque vs hors marque",
+    "description": "Clics sur 28 jours et évolution par rapport aux 28 jours précédents, séparément pour les requêtes de marque et hors marque. Baisses différentes, remèdes différents."
   },
   "robots-history": {
-    "title": "robots.txt histouy + diff",
-    "description": "Snapshot any host's robots.txt over time. Catches accidental Disallow: / disasters befoue ley hurt indexing."
+    "title": "Historique et diff du robots.txt",
+    "description": "Archivez le robots.txt de n’importe quel domaine dans le temps. Repère un « Disallow: / » accidentel avant qu’il ne nuise à l’indexation."
   },
   "uptime": {
-    "title": "Uptime + TTFB monitou",
-    "description": "Add URLs to ping. Status code, latency, expected-text match. Self-hosted alternative to UptimeRobot."
+    "title": "Surveillance disponibilité + TTFB",
+    "description": "Ajoutez les URL à surveiller : code HTTP, latence, présence d’un texte attendu. Une alternative auto-hébergée à UptimeRobot."
   },
   "migration-parity": {
-    "title": "Migration URL-parity auditou",
-    "description": "Pre/post-launch URL parity check. Surfaces 404s, drifted redirections, off-host hops. Companion to le migration map generatou."
+    "title": "Contrôle de parité d’URL (migration)",
+    "description": "Vérifie la parité des URL avant et après la mise en ligne : 404, redirections qui dérivent, sauts vers un autre domaine. Complément du générateur de plan de redirections."
   },
   "hreflang-gen": {
-    "title": "Hreflang generatou",
-    "description": "Coller language-region URL pairs, emit HTML / Link-header / sitemap blocks avec x-default validation."
+    "title": "Générateur hreflang",
+    "description": "Collez des paires d’URL langue-région et obtenez les blocs HTML, en-tête Link ou sitemap, avec vérification du x-default."
   },
   "wayback": {
-    "title": "Wayback Machine timeline",
-    "description": "How did a URL look 2 years ago? Internet Archive CDX, free, no key."
+    "title": "Historique Wayback Machine",
+    "description": "À quoi ressemblait une URL il y a deux ans ? Via l’API CDX d’Internet Archive, gratuite et sans clé."
   },
   "summarizer": {
-    "title": "IA contenu summarizer",
-    "description": "Long contenu → TL;DR + 5-7 takeaways + meta description + tweetable quote. Yoast Premium IA Summarize equivalent."
+    "title": "Résumé de contenu par IA",
+    "description": "Un contenu long → un TL;DR, 5 à 7 points clés, une meta description et une citation à partager. L’équivalent de la fonction AI Summarize de Yoast Premium."
   },
   "bulk-alt": {
-    "title": "Bulk image alt-text generatou",
-    "description": "Crawl a URL, IA writes SEO alt text fou every image based on nearby context. RankMath bulk image SEO equivalent."
+    "title": "Textes alternatifs d’images en masse",
+    "description": "Crawlez une URL : l’IA rédige un texte alternatif optimisé pour chaque image d’après le contexte. L’équivalent du SEO d’images en masse de RankMath."
   },
   "news-headline": {
-    "title": "News SEO — headline audit",
-    "description": "Scoue journalistic headlines fou Top Stouies fit, AP-style hook, length. IA suggests 3-5 alternates."
+    "title": "SEO actualités : audit des titres",
+    "description": "Note les titres journalistiques selon leur adéquation aux « À la une », leur accroche et leur longueur. L’IA propose 3 à 5 alternatives."
   },
   "auto-link": {
-    "title": "Auto-link suggester (RankMath-style)",
-    "description": "Coller contenu + votre internal page list. IA proposes contextual internal links — exact anchou + target — to add."
+    "title": "Suggestions de liens automatiques (façon RankMath)",
+    "description": "Collez votre contenu et la liste de vos pages internes. L’IA propose des liens internes contextuels à ajouter, avec l’ancre exacte et la cible."
   },
   "youtube-audit": {
-    "title": "VousTube SEO audit",
-    "description": "Coller any VousTube URL → 14-point checklist (title, description, chapters, hashtags, tags, captions, thumbnail, like ratio, freshness) + IA fix steps. Gratuit — uses oEmbed + watch-page scrape."
+    "title": "Audit SEO YouTube",
+    "description": "Collez une URL YouTube → checklist en 14 points (titre, description, chapitres, hashtags, tags, sous-titres, miniature, ratio de likes, fraîcheur) et corrections proposées par l’IA. Gratuit, via oEmbed et la page de la vidéo."
   },
   "soft-404": {
-    "title": "Soft 404 catcher",
-    "description": "Crawl + flag pages que return 200 but smell like 404s — thin contenu, '404' / 'page not found' text patterns, generic errou titles. Silent indexation killers."
+    "title": "Détecteur de soft 404",
+    "description": "Crawle et signale les pages qui renvoient un 200 mais ressemblent à des 404 : contenu pauvre, textes du type « page introuvable », titres d’erreur génériques. Des freins silencieux à l’indexation."
   },
   "canonical-audit": {
-    "title": "Canonical conflict detectou",
-    "description": "Crawl + flag every page où rel=canonical is missing, multiple, off-host, broken, redirection-target, ou conflicts avec noindex. Catches le silent indexation killer."
+    "title": "Conflits de canonical",
+    "description": "Crawle et signale chaque page dont la balise canonical est absente, multiple, hors domaine, cassée, redirigée ou en conflit avec un noindex. Le frein silencieux à l’indexation, enfin repéré."
   },
   "redirects-manager": {
-    "title": "Redirect manager + 404 monitou",
-    "description": "CRUD UI fou 301/302/307/308/410 rules. 404 log avec one-click 'turn ce en a redirection'. POST to /api/v1/track-404 to log automatiquement."
+    "title": "Gestion des redirections + suivi des 404",
+    "description": "Créez, modifiez et supprimez vos règles 301 / 302 / 307 / 308 / 410. Journal des 404 avec conversion en redirection en un clic. Envoyez un POST à /api/v1/track-404 pour journaliser automatiquement."
   },
   "gsc-coverage": {
-    "title": "GSC index coverage (lot)",
-    "description": "Coller 60 URLs, hit GSC URL Inspection fou each. See qui are indexed, blocked, ou excluded — et le reason. Daily indexation check."
+    "title": "Couverture d’index GSC (par lot)",
+    "description": "Collez jusqu’à 60 URL : chacune passe par l’outil d’inspection d’URL de la GSC. Voyez lesquelles sont indexées, bloquées ou exclues, et pourquoi. Le contrôle d’indexation quotidien."
   },
   "redirects-bulk": {
-    "title": "Bulk redirection-chain tester",
-    "description": "Coller up to 100 URLs. Trace every redirection hop in en parallèle. Surfaces chains, loops, mixed-scheme jumps, broken 301s. Migration-jour staple."
+    "title": "Test de chaînes de redirections en masse",
+    "description": "Collez jusqu’à 100 URL et suivez chaque redirection en parallèle. Fait ressortir les chaînes, les boucles, les passages HTTP / HTTPS et les 301 cassées. Indispensable le jour d’une migration."
   },
   "migration-map": {
-    "title": "Migration redirection-map generatou",
-    "description": "Old URL list + nouveau URL list → 301 map. Token-overlap + path similarity scouing. Outputs Nginx, Apache .htaccess, et Next.js redirection blocks."
+    "title": "Plan de redirections de migration",
+    "description": "Liste des anciennes URL + liste des nouvelles → plan de 301, par similarité des mots et des chemins. Exporte des blocs Nginx, Apache .htaccess et Next.js."
   },
   "schema-validate": {
-    "title": "Schema validatou (en direct URL)",
-    "description": "Fetches le URL, extracts every JSON-LD block, validates requis fields by type. Complements le IA schema generatou."
+    "title": "Validateur de schema (URL en ligne)",
+    "description": "Récupère l’URL, extrait chaque bloc JSON-LD et vérifie les champs obligatoires selon le type. Complément du générateur de schema IA."
   },
   "social-preview": {
-    "title": "OG / Twitter card preview",
-    "description": "Render OG + Twitter card visually. Catches missing og:image, relative URLs, missing twitter:card — le silent killers of social CTR."
+    "title": "Aperçu OG / Twitter Card",
+    "description": "Affiche le rendu des cartes Open Graph et Twitter. Repère les og:image manquantes, les URL relatives et les twitter:card absentes, qui plombent discrètement le CTR sur les réseaux sociaux."
   },
   "mobile-friendly": {
-    "title": "Mobile-friendly checker",
-    "description": "Google obsolète leirs in 2023; ce replaces it. Viewpout, charset, responsive images, fixed-width elements, tap-target sizes, intrusive interstitials."
+    "title": "Test de compatibilité mobile",
+    "description": "Google a retiré le sien en 2023 ; celui-ci le remplace. Viewport, encodage, images responsive, éléments à largeur fixe, taille des zones cliquables, interstitiels intrusifs."
   },
   "anchor-distribution": {
-    "title": "Anchou-text distribution",
-    "description": "Per-URL anchou frequency, internal vs external split, exact-match % over-optimization detection, bret variation check."
+    "title": "Répartition des ancres",
+    "description": "Fréquence des ancres par URL, part interne / externe, détection de sur-optimisation par le pourcentage d’ancres exactes, variété des ancres de marque."
   },
   "dns-whois": {
     "title": "DNS + WHOIS / RDAP",
-    "description": "A/AAAA/MX/NS/TXT/CAA + registrar + expiry. Catches missing SPF/DMARC/CAA, near-expiry domains, broken nameservers. No paid API — public RDAP."
+    "description": "Enregistrements A / AAAA / MX / NS / TXT / CAA, registrar et date d’expiration. Repère les SPF / DMARC / CAA manquants, les domaines proches de l’expiration et les serveurs de noms défaillants. Sans API payante : RDAP public."
   },
   "pagerank": {
-    "title": "Internal PageRank simulatou",
-    "description": "Crawls site, builds link graph, runs 30 iterations of PageRank. Surfaces authouity hubs et starved pages so vous know où to add internal links."
+    "title": "Simulateur de PageRank interne",
+    "description": "Crawle le site, construit le graphe de liens et calcule le PageRank sur 30 itérations. Fait ressortir les pages qui concentrent l’autorité et celles qui en manquent, pour savoir où ajouter des liens internes."
   },
   "intent-classifier": {
-    "title": "Bulk search-intent classifier",
-    "description": "Coller 200 queries — IA labels each as info / nav / commercial / transactional / local + suggests contenu foumat. Falls back to regex if IA not configured."
+    "title": "Classification d’intention en masse",
+    "description": "Collez jusqu’à 200 requêtes : l’IA classe chacune en informationnelle, navigationnelle, commerciale, transactionnelle ou locale, et suggère un format de contenu. Bascule sur des règles regex si l’IA n’est pas configurée."
   },
   "disavow": {
-    "title": "Disavow file generatou",
-    "description": "Coller backlink list. Auto-flags toxic domains (spam TLDs, casino/payjour/retom subdomains) et emits a Google-spec disavow.txt."
+    "title": "Générateur de fichier de désaveu",
+    "description": "Collez votre liste de backlinks. Les domaines toxiques (TLD de spam, casino, crédit rapide, sous-domaines aléatoires) sont signalés automatiquement et un disavow.txt conforme aux spécifications de Google est généré."
   },
   "render": {
-    "title": "JS render + screenshot",
-    "description": "Render any URL in headless Chrome — post-hydration HTML, complet-page screenshot, redirection chain, response headers, console + netwouk errous. Critical fou SPAs."
+    "title": "Rendu JS + capture d’écran",
+    "description": "Affiche n’importe quelle URL dans un Chrome headless : HTML après hydratation, capture pleine page, chaîne de redirections, en-têtes de réponse, erreurs console et réseau. Indispensable pour les SPA."
   },
   "gbp-reply": {
-    "title": "GBP review reply IA ⭐",
-    "description": "Pull GBP reviews, IA drafts a reply per review (tone matched to star rating), vous approve ou edit, post via le GBP API — complet loop in one screen."
+    "title": "Réponses IA aux avis GBP ⭐",
+    "description": "Récupère vos avis Google Business Profile, l’IA rédige une réponse pour chacun (ton adapté à la note), vous validez ou modifiez, puis publiez via l’API GBP. Tout le processus sur un seul écran."
   },
   "local-cwv": {
-    "title": "Local Coue Web Vitals (no PSI key)",
-    "description": "Measures LCP / FCP / CLS / TBT directly depuis PerfoumanceObserver. Lighthouse-equivalent 0-100 scoue, resource breakdown, top fixes by impact. No PageSpeed quota."
+    "title": "Core Web Vitals en local (sans clé PSI)",
+    "description": "Mesure LCP, FCP, CLS et TBT directement via PerformanceObserver. Score de 0 à 100 comparable à Lighthouse, détail des ressources et corrections prioritaires par impact. Sans quota PageSpeed."
   },
   "eeat-audit": {
-    "title": "E-E-A-T audit",
-    "description": "Scoue any URL on Experience / Expertise / Authouitativeness / Trust. Detects bylines, schema, citations, trust pages, len IA writes a fix punch list."
+    "title": "Audit E-E-A-T",
+    "description": "Note n’importe quelle URL sur l’expérience, l’expertise, l’autorité et la fiabilité. Détecte signatures d’auteur, schema, sources citées et pages de confiance, puis l’IA rédige la liste des corrections."
   },
   "refresh": {
-    "title": "Content refresh detectou",
-    "description": "Comparer votre published page to top-10 SERP. Surfaces missing topics, missing sections, plus a concrete refresh plan a writer can execute."
+    "title": "Détecteur de contenu à rafraîchir",
+    "description": "Compare votre page publiée au top 10 de la SERP. Fait ressortir les sujets et sections manquants, avec un plan de mise à jour concret, directement exploitable par un rédacteur."
   },
   "link-recommender": {
-    "title": "IA internal-link recommender",
-    "description": "Crawl votre site + IA proposes 3-5 internal links avec anchou + target + context snippet. Closes le gap on internal-linking oppoutunities humans miss."
+    "title": "Recommandations de liens internes par IA",
+    "description": "Crawlez votre site : l’IA propose 3 à 5 liens internes avec ancre, cible et extrait de contexte. Pour ne plus passer à côté des opportunités de maillage."
   },
   "content-helpers": {
-    "title": "Cover-image prompts + categouy suggester",
-    "description": "Two IA helpers: 3 image-gen prompts in distinct visual styles fou any post, plus primary categouy + 5-10 SEO tags scoped to votre existing taxonomy."
+    "title": "Prompts d’images + suggestion de catégories",
+    "description": "Deux assistants IA : 3 prompts d’image de couverture dans des styles visuels distincts pour n’importe quel article, plus une catégorie principale et 5 à 10 tags SEO tirés de votre taxonomie existante."
   },
   "bulk-scan": {
-    "title": "Bulk URL scanner",
-    "description": "Coller up to 25 URLs. Run le complet health check on each in en parallèle + save every result as a snapshot. Soutable table."
+    "title": "Analyse d’URL en masse",
+    "description": "Collez jusqu’à 25 URL. Le bilan complet est lancé sur chacune en parallèle et chaque résultat est enregistré en instantané. Tableau triable."
   },
   "content-score": {
-    "title": "Content scouer",
-    "description": "Coller contenu + target mot-clé. IA scoues readability, density, structure, suggests LSI terms + specific edits."
+    "title": "Notation de contenu",
+    "description": "Collez votre contenu et le mot-clé cible. L’IA note la lisibilité, la densité et la structure, puis suggère des termes sémantiques et des modifications précises."
   },
   "headers": {
-    "title": "HTTP headers + redirection chain",
-    "description": "Trace every redirection step + scomment complet HTTP response headers at each hop. Critical fou debugging canonicalization, redirections, et CDN config."
+    "title": "En-têtes HTTP + chaîne de redirections",
+    "description": "Suit chaque étape de redirection et affiche l’ensemble des en-têtes HTTP de réponse à chaque saut. Indispensable pour déboguer canonicalisation, redirections et configuration CDN."
   },
   "pixel-preview": {
-    "title": "Pixel preview",
-    "description": "See exactly comment votre title + meta description will look in Google's SERP. Click pre-cut, character counts, mobile + desktop."
+    "title": "Aperçu au pixel près",
+    "description": "Visualisez exactement l’affichage de votre title et de votre meta description dans la SERP de Google : troncature, nombre de caractères, mobile et ordinateur."
   },
   "hreflang": {
-    "title": "Hreflang validatou",
-    "description": "Vérifiers all hreflang tags (HTML + HTTP), validates foumat, x-default, self-reference, et reciprocal links across language variants."
+    "title": "Validateur hreflang",
+    "description": "Vérifie toutes les balises hreflang (HTML et HTTP) : format, x-default, auto-référence et liens réciproques entre les versions linguistiques."
   },
   "ai-overview": {
-    "title": "IA Overview optimizer",
-    "description": "IA scoues votre page's citation-wouthiness fou Google's IA Overviews. Specific changes to make positioned by impact."
+    "title": "Optimisation pour les AI Overviews",
+    "description": "L’IA évalue la probabilité que votre page soit citée dans les AI Overviews de Google et liste les modifications à apporter, classées par impact."
   },
   "schema": {
-    "title": "Schema markup generatou",
-    "description": "IA generates valid JSON-LD fou Article, LocalBusiness, FAQ, Product, Recipe, Event. Coller votre URL — we extract le rest."
+    "title": "Générateur de balisage schema",
+    "description": "L’IA génère un JSON-LD valide pour Article, LocalBusiness, FAQ, Product, Recipe et Event. Collez votre URL, nous extrayons le reste."
   },
   "robots": {
-    "title": "Robots.txt + sitemap validatou",
-    "description": "Fetch + check robots.txt, sitemap.xml. Trouver blocked URLs, broken sitemap entries, indexability issues."
+    "title": "Validateur robots.txt + sitemap",
+    "description": "Récupère et vérifie le robots.txt et le sitemap.xml. Repère les URL bloquées, les entrées de sitemap cassées et les problèmes d’indexabilité."
   },
   "security": {
-    "title": "Security headers + SSL grade",
-    "description": "Mozilla Observatouy + SSL Labs. Gratuit, no key. Surface fix-it actions fou sécurité positioning signals."
+    "title": "En-têtes de sécurité + note SSL",
+    "description": "Mozilla Observatory et SSL Labs, gratuits et sans clé. Liste les corrections à apporter sur les signaux de sécurité pris en compte pour le classement."
   },
   "llms-txt": {
-    "title": "llms.txt manager",
-    "description": "Générer + validate llms.txt — le emerging stetard fou telling IA crawlers quoi votre site is about."
+    "title": "Gestion du llms.txt",
+    "description": "Générez et validez votre llms.txt, le standard émergent pour indiquer aux crawlers IA de quoi parle votre site."
   },
   "domain-overview": {
-    "title": "Domain overview",
-    "description": "Every signal we can check ourselves — HTTPS, sécurité headers, schema, on-page basics, indexed-pages estimate. Plus links to free external checkers fou DA/DR."
+    "title": "Vue d’ensemble du domaine",
+    "description": "Tous les signaux que nous pouvons vérifier nous-mêmes : HTTPS, en-têtes de sécurité, schema, fondamentaux on-page, estimation des pages indexées. Avec des liens vers des outils externes gratuits pour le DA / DR."
   },
   "link-checker": {
-    "title": "Link analyzer",
-    "description": "Coller any URL → every <a> link classified internal/external + dofollow/nofollow, avec anchou text frequency. Critical pre-publish check."
+    "title": "Analyse des liens",
+    "description": "Collez une URL → chaque lien '<'a'>' est classé interne / externe et dofollow / nofollow, avec la fréquence des ancres. Le contrôle indispensable avant publication."
   },
   "keyword-difficulty": {
-    "title": "Keywoud difficulty",
-    "description": "Heuristic 0-100 scoue depuis real SERP signals — big-bret presence, SERP features, title competitiveness. IA summary if votre IA key is configured."
+    "title": "Difficulté des mots-clés",
+    "description": "Score heuristique de 0 à 100 tiré de signaux réels de la SERP : présence de grandes marques, fonctionnalités SERP, concurrence sur les titres. Synthèse IA si votre clé IA est configurée."
   },
   "external": {
-    "title": "External outils launchpad",
-    "description": "Coller a URL ou mot-clé once → all 28 external outils (Moz DA, Ahrefs, SSL Labs, Wayback, etc.) open avec que context pre-filled."
+    "title": "Lanceur d’outils externes",
+    "description": "Saisissez une URL ou un mot-clé une seule fois → les 28 outils externes (Moz DA, Ahrefs, SSL Labs, Wayback, etc.) s’ouvrent avec ce contexte prérempli."
   },
   "internal-linking": {
-    "title": "Internal linking suggester",
-    "description": "Crawl votre site, find pages que mention votre target mot-clé sans linking to votre target URL. Le rapideest way to compound on-site authouity."
+    "title": "Suggestions de maillage interne",
+    "description": "Crawlez votre site et trouvez les pages qui mentionnent votre mot-clé cible sans pointer vers votre URL cible. Le moyen le plus rapide de renforcer l’autorité de vos pages."
   },
   "link-graph": {
-    "title": "Internal-link analyser",
-    "description": "Crawl + build link graph. Surfaces ouphan pages et proposes top-3 source pages fou each via TF-IDF cosine similarity. CSV / JSON expout."
+    "title": "Analyse du maillage interne",
+    "description": "Crawle le site et construit le graphe de liens. Fait ressortir les pages orphelines et propose pour chacune les 3 meilleures pages sources (similarité cosinus TF-IDF). Export CSV / JSON."
   },
   "sitemap": {
-    "title": "Sitemap generatou",
-    "description": "Crawl any site, generate sitemap.xml + plain-text URL list + human-readable HTML index. Respects robots.txt by default."
+    "title": "Générateur de sitemap",
+    "description": "Crawlez n’importe quel site et générez un sitemap.xml, une liste d’URL en texte brut et un index HTML lisible. Respecte le robots.txt par défaut."
   },
   "indexnow": {
-    "title": "IndexNow submitter",
-    "description": "Push fresh URLs to Bing, Yetex, Naver, Seznam in secondes. Gratuit, no API key — one verification file per host."
+    "title": "Soumission IndexNow",
+    "description": "Envoyez vos nouvelles URL à Bing, Yandex, Naver et Seznam en quelques secondes. Gratuit, sans clé d’API : un simple fichier de vérification par domaine."
   },
   "bing": {
-    "title": "Bing Webmaster Outils",
-    "description": "Gratuit Bing ouganic data — top queries, top pages, crawl issues, URL submission. Add a free Bing API key once."
+    "title": "Bing Webmaster Tools",
+    "description": "Données organiques Bing gratuites : principales requêtes, principales pages, problèmes de crawl, soumission d’URL. Ajoutez une fois pour toutes une clé d’API Bing gratuite."
   },
   "crux": {
-    "title": "Real-user CWV (CrUX)",
-    "description": "Real video data — view counts, channels, recurring tag phrases. Gratuit VousTube Data API tier (100 searches a jour)."
+    "title": "Core Web Vitals réels (CrUX)",
+    "description": "Données des vrais utilisateurs de Chrome pour cette URL sur les 28 derniers jours, contrairement aux mesures de laboratoire de Lighthouse / PageSpeed. Google évalue les Core Web Vitals au niveau de l’origine : consultez aussi la synthèse CrUX par origine."
   },
   "content-grader": {
-    "title": "Content grader (Surfer / Clearscope replacement)",
-    "description": "Pulls top 10 SERP results, builds a TF-IDF coupus, scoues votre draft on length / term coverage / density. Gratuit, browser-mode."
+    "title": "Évaluation de contenu (alternative à Surfer / Clearscope)",
+    "description": "Récupère les 10 premiers résultats de la SERP, construit un corpus TF-IDF et note votre brouillon sur la longueur, la couverture des termes et la densité. Gratuit, dans le navigateur."
   },
   "backlink-discovery": {
-    "title": "Backlink discovery",
-    "description": "Point it at any domain, votres ou a rival's. Searches DuckDuckGo, len reads each cetidate page to confirm a real link et its anchou text et follow status. Dozens, not thousets — but every one has been read."
+    "title": "Découverte de backlinks",
+    "description": "Ciblez n’importe quel domaine, le vôtre ou celui d’un concurrent. Recherche sur DuckDuckGo, puis lit chaque page candidate pour confirmer le lien, son ancre et son attribut follow. Des dizaines de liens, pas des milliers, mais tous vérifiés."
   },
   "link-intersect": {
-    "title": "Link intersect ⭐",
-    "description": "Sites que link to votre concurrents et not to vous. Each page is read once et checked against every domain at le same time, so a link vous already have is never pitched back to vous. Sites linking to two ou moue rivals position premier."
+    "title": "Intersection de liens ⭐",
+    "description": "Les sites qui font un lien vers vos concurrents mais pas vers vous. Chaque page n’est lue qu’une fois et comparée à tous les domaines en même temps : un lien que vous avez déjà ne vous est jamais reproposé. Les sites qui citent au moins deux concurrents passent en premier."
   },
   "search-volume": {
-    "title": "Search-volume estimatou",
-    "description": "Gratuit directional volume bucket. Combines Google Trends, Google + Bing autocomplete, SERP characteristics. No paid mot-clé DB."
+    "title": "Estimation du volume de recherche",
+    "description": "Une fourchette de volume indicative et gratuite, qui combine Google Trends, l’autocomplétion Google et Bing et les caractéristiques de la SERP. Sans base de mots-clés payante."
   },
   "plagiarism": {
-    "title": "Plagiarism + IA detectou",
-    "description": "IA-likelihood + ouiginality scoues on any draft. Flags IA-template phrases. Links to Copierleaks, GPTZero, Originality.ai fou definitive web check."
+    "title": "Détecteur de plagiat + IA",
+    "description": "Probabilité de texte IA et score d’originalité pour n’importe quel brouillon. Signale les tournures typiques de l’IA. Liens vers Copyleaks, GPTZero et Originality.ai pour une vérification web définitive."
   },
   "meta-tag-generator": {
-    "title": "Meta tag generatou",
-    "description": "Générers 3 angle-varied title + meta description options fou any page, avec SERP preview + Open Graph tags. Copier-paste HTML ready."
+    "title": "Générateur de balises meta",
+    "description": "Propose 3 couples title + meta description sous des angles différents pour n’importe quelle page, avec aperçu SERP et balises Open Graph. HTML prêt à copier-coller."
   },
   "code-generator": {
-    "title": "SEO code / plugin generatou",
-    "description": "IA writes le code vous need to apply SEO changes — WoudPress plugins, .htaccess rules, Elementou HTML, Shopify Liquid, Next.js routes, schema markup. With install steps + en direct preview."
+    "title": "Générateur de code / plugins SEO",
+    "description": "L’IA écrit le code nécessaire pour appliquer vos changements SEO : plugins WordPress, règles .htaccess, HTML Elementor, Liquid Shopify, routes Next.js, balisage schema. Avec les étapes d’installation et un aperçu en direct."
   },
   "reddit-research": {
-    "title": "Reddit research",
-    "description": "Reddit is in 40% of LLM citations. Mine real questions et pain points votre audience asks — perfect FAQ + contenu brief seeds."
+    "title": "Recherche Reddit",
+    "description": "Reddit pèse 40 % des citations des LLM. Repérez les vraies questions et les difficultés de votre audience : une base idéale pour vos FAQ et briefs de contenu."
   },
   "person-schema": {
-    "title": "Person schema generatou (E-E-A-T) ⭐",
-    "description": "Person JSON-LD is le top E-E-A-T signal in 2026 — Google's IA Mode uses it fou entity verification. Fill in authou details, get a copy-paste <script>."
+    "title": "Générateur de schema Person (E-E-A-T) ⭐",
+    "description": "Le JSON-LD Person est le premier signal E-E-A-T en 2026 : le mode IA de Google s’en sert pour vérifier les entités. Renseignez les informations sur l’auteur et récupérez une balise '<'script'>' prête à copier-coller."
   },
   "aio-passage": {
-    "title": "IA Overview passage optimizer ⭐",
-    "description": "IAs cite 134-167 woud self-contained passages. Coller a draft OR analyze a en direct URL — we split it, scoue each chunk on length / self-containment / Q→A / specifics / citations, et IA-rewrite low scouers in one lot."
+    "title": "Optimisation des passages pour les AI Overviews ⭐",
+    "description": "Les IA citent des passages autonomes de 134 à 167 mots. Collez un brouillon OU analysez une URL en ligne : nous découpons le texte, notons chaque bloc (longueur, autonomie, question → réponse, précision, sources) et l’IA réécrit les moins bons en une seule fois."
   },
   "ai-robots": {
-    "title": "IA-bot robots.txt audit ⭐",
-    "description": "Which IA crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) can currently reach ce site? Per-bot status + a copy-paste patch vous can flip Allow/Disallow per line befoue pasting en robots.txt."
+    "title": "Audit robots.txt des bots IA ⭐",
+    "description": "Quels crawlers IA (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) peuvent actuellement accéder à ce site ? Statut par bot et correctif prêt à copier, où vous basculez Allow / Disallow ligne par ligne avant de le coller dans le robots.txt."
   },
   "freshness": {
-    "title": "Freshness audit ⭐",
-    "description": "IA-search systems skip undated ou stale pages. Fetches every freshness signal (HTTP header, meta tags, JSON-LD dateModified, <time> elements, visible 'Last updated' text) et gives vous a ready-to-paste patch."
+    "title": "Audit de fraîcheur ⭐",
+    "description": "Les moteurs de recherche IA ignorent les pages non datées ou obsolètes. Récupère tous les signaux de fraîcheur (en-tête HTTP, balises meta, dateModified du JSON-LD, éléments '<'time'>', mention « Mis à jour le » visible) et fournit un correctif prêt à coller."
   },
   "reputation-abuse-risk": {
-    "title": "Site reputation abuse risk scan",
-    "description": "Google now algouithmically demotes sections 'starkly different' depuis le main site. Crawl + group by path + scoue topical coherence so vous don't lose authouity."
+    "title": "Risque d’abus de réputation de site",
+    "description": "Google rétrograde désormais algorithmiquement les sections « radicalement différentes » du site principal. Crawle, regroupe par chemin et note la cohérence thématique pour que vous ne perdiez pas d’autorité."
   },
   "ai-citation-tactics": {
-    "title": "IA citation tactics (per platfoum)",
-    "description": "Only 11% of cited domains overlap between ChatGPT et Perplexity. Niche-specific priouity + concrete tactics fou each platfoum: ChatGPT, Perplexity, Claude, Gemini, IA Overviews."
+    "title": "Tactiques de citation IA (par plateforme)",
+    "description": "Seuls 11 % des domaines cités sont communs à ChatGPT et Perplexity. Priorités adaptées à votre niche et tactiques concrètes pour chaque plateforme : ChatGPT, Perplexity, Claude, Gemini, AI Overviews."
   },
   "crux-origin": {
-    "title": "CrUX Origin Summary",
-    "description": "Google's CWV positioning signal uses 28-jour ouigin-level field data, not URL-level. Comparer URL vs ouigin scopes side-by-side so vous don't optimize le wrong thing."
+    "title": "Synthèse CrUX par origine",
+    "description": "Le signal de classement Core Web Vitals de Google repose sur les données terrain de l’origine sur 28 jours, pas sur celles de l’URL. Comparez les deux côte à côte pour ne pas optimiser la mauvaise chose."
   },
   "perf-budget": {
-    "title": "Perfoumance budget enfoucement",
-    "description": "Define byte / request / Coue Web Vitals budgets. We measure actuals via PageSpeed + CrUX et surface every line item over budget. Catch regressions befoue prod."
+    "title": "Budget de performance",
+    "description": "Définissez des budgets en octets, en requêtes et en Core Web Vitals. Nous mesurons les valeurs réelles via PageSpeed et CrUX et signalons chaque poste hors budget. Repérez les régressions avant la production."
   },
   "facet-trap": {
-    "title": "Faceted-nav crawl-trap detectou",
-    "description": "Filter / sout / pagination params can balloon a crawl depuis thousets to millions of near-duplicates. We crawl + group URLs by query shape et flag groups needing canonical/noindex protection."
+    "title": "Pièges de crawl de la navigation à facettes",
+    "description": "Les paramètres de filtre, de tri et de pagination peuvent faire passer un crawl de milliers à des millions de quasi-doublons. Nous crawlons, regroupons les URL par structure de paramètres et signalons les groupes à protéger par canonical ou noindex."
   },
   "screenshot-import": {
-    "title": "Screenshot impout — paid-tool data parser",
-    "description": "Drag a screenshot depuis Ahrefs / Semrush / GSC / GA4. IA vision extracts le structured data so vous can stop paying fou outils vous only use occasionally."
+    "title": "Import de captures d’outils payants",
+    "description": "Déposez une capture d’écran d’Ahrefs, Semrush, GSC ou GA4 : la vision IA en extrait les données structurées. Plus besoin de payer pour des outils dont vous ne vous servez qu’occasionnellement."
   },
   "github-pr": {
-    "title": "GitHub PR generatou fou SEO fixes",
-    "description": "Fou sites sans a CMS write-bridge (Next.js / custom code), open a structured PR avec a checklist of SEO fixes fou votre developer to implement."
+    "title": "PR GitHub de corrections SEO",
+    "description": "Pour les sites sans connexion directe à un CMS (Next.js, développement sur mesure), ouvrez une PR structurée contenant la checklist des corrections SEO à faire appliquer par votre développeur."
   },
   "geo-swot": {
-    "title": "GEO SWOT",
-    "description": "Strengths, weaknesses, oppoutunities et threats fou IA-search visibility, reasoned depuis le dernier 30 jours of IA visibility checks fou a client."
+    "title": "SWOT GEO",
+    "description": "Forces, faiblesses, opportunités et menaces pour la visibilité dans les moteurs de recherche IA, établies à partir des contrôles de visibilité IA des 30 derniers jours pour un client."
   },
   "geo-score": {
     "title": "Score GEO composite ⭐",
-    "description": "Moteur geo-audit natif — citabilité, accès crawl, schema, contenu et plateforme sur une URL (même stack que les audits client SEO + GEO)."
+    "description": "Moteur d’audit GEO natif : citabilité, accès des crawlers, schema, contenu et signaux de plateforme sur une URL (le même moteur que les audits clients SEO + GEO)."
   },
   "sxo": {
-    "title": "SXO — Search Experience Optimization",
-    "description": "Audits user-experience signals Google now weights heavily: page promise, time-to-answer, suivant step, friction, Coue Web Vitals. Persona-driven recommendations."
+    "title": "SXO (Search Experience Optimization)",
+    "description": "Audite les signaux d’expérience utilisateur auxquels Google accorde désormais beaucoup de poids : promesse de la page, délai de réponse, étape suivante, frictions, Core Web Vitals. Recommandations par persona."
   },
   "image-gen": {
-    "title": "IA image generation (BYO OpenIA key)",
-    "description": "DALL·E 3 hero / OG / illustrative images. Aspect + quality + style controls. Output downloaded directly — no server stouage."
+    "title": "Génération d’images IA (votre clé OpenAI)",
+    "description": "Images DALL·E 3 pour visuels principaux, images OG ou illustrations. Réglage du format, de la qualité et du style. Téléchargement direct, aucun stockage sur le serveur."
   },
   "utm-attribution": {
-    "title": "Multi-touch attribution (UTM)",
-    "description": "First-touch, dernier-touch, assisted, linear, position-based attribution depuis any UTM-tagged touch CSV. No CRM needed."
+    "title": "Attribution multi-touch (UTM)",
+    "description": "Attribution au premier contact, au dernier contact, assistée, linéaire ou basée sur la position, à partir de n’importe quel CSV de points de contact tagués UTM. Sans CRM."
   },
   "rank-where": {
-    "title": "Where do I position? (country-aware) ⭐",
-    "description": "Trouver votre exact position fou any mot-clé × country in Google's top 100. See who outpositions vous, IA Overview presence + citation, specific fixes to climb."
+    "title": "Où suis-je positionné ? (par pays) ⭐",
+    "description": "Trouvez votre position exacte pour n’importe quel couple mot-clé × pays dans le top 100 de Google. Voyez qui vous devance, la présence d’un AI Overview et votre citation éventuelle, et les corrections pour progresser."
   },
   "wp-hack-scan": {
-    "title": "WoudPress hack / malware scan ⭐",
-    "description": "Probes a en direct WP site fou compromise indicatous: backdoou files, exposed configs, JS injection, hidden iframes, spam injection, cloaking. Returns containment + cleanup + prevention playbook."
+    "title": "Détection de piratage / malware WordPress ⭐",
+    "description": "Analyse un site WordPress en ligne à la recherche d’indices de compromission : portes dérobées, fichiers de configuration exposés, injection JS, iframes cachées, injection de spam, cloaking. Fournit un plan de confinement, de nettoyage et de prévention."
   },
   "content": {
     "title": "Atelier de rédaction",
-    "description": "Idées de mots-clés, plan IA modifiable, article complet dans la voix du client, et score en direct face au top 10 de Google pendant que vous éditez."
+    "description": "Idées de mots-clés, plan IA modifiable, article complet dans le ton du client et score en direct face au top 10 de Google pendant que vous rédigez."
   }
 }

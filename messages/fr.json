@@ -1115,7 +1115,7 @@
       "titleShort": "Outils",
       "descriptionShort": "Plus de 100 utilitaires SEO. Épinglez vos outils du quotidien en haut.",
       "searchPlaceholder": "Rechercher un outil…",
-      "filterPlaceholder": "Filtrer les outils… (⌘/Ctrl+K = recherche globale)",
+      "filterPlaceholder": "Filtrer les outils… (Cmd / Ctrl + K pour la recherche globale)",
       "matchOne": "{count} résultat",
       "matchMany": "{count} résultats",
       "clearSearch": "Effacer la recherche",
@@ -1129,27 +1129,27 @@
     "categories": {
       "win": {
         "label": "Gagner le contrat",
-        "description": "Évaluer un site vite et prouver qu’il y a un problème à corriger."
+        "description": "Évaluer un site rapidement et prouver qu’il y a un problème qui mérite d’être corrigé."
       },
       "fix": {
-        "label": "Trouver ce qui casse",
-        "description": "Diagnostic : quoi et où, quand quelque chose ne va pas."
+        "label": "Trouver ce qui ne va pas",
+        "description": "Diagnostic : quelque chose cloche, il faut savoir quoi et où."
       },
       "improve": {
         "label": "Améliorer une page",
-        "description": "Mieux sur une page — contenu, meta, schema, liens."
+        "description": "Améliorer une page précise : contenu, balises meta, schema, liens."
       },
       "track": {
-        "label": "Suivre & rapporter",
-        "description": "Mesurer et transformer en livrable client."
+        "label": "Suivre et rendre compte",
+        "description": "Mesurer ce qui se passe et en faire un livrable à envoyer au client."
       },
       "ai": {
         "label": "Être cité par l’IA",
-        "description": "ChatGPT, Perplexity, AI Overviews — et contrôler les bots."
+        "description": "Être cité dans ChatGPT, Perplexity et les AI Overviews, et choisir quels bots peuvent vous lire."
       },
       "occasional": {
         "label": "Occasionnel",
-        "description": "Migrations, générateurs et jobs spécialisés."
+        "description": "Migrations, générateurs et tâches spécialisées. Utiles le moment venu, superflus le reste du temps."
       }
     }
   },
