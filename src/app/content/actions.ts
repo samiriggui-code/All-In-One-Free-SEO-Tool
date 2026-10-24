@@ -12,6 +12,7 @@ import {
   deletePost,
   getPost,
   getStyleProfile,
+  listPosts,
   saveKeywordResearch,
   updatePost,
 } from "@/lib/content-studio/store";
@@ -25,6 +26,9 @@ import { cachedCorpus, loadCorpus } from "@/lib/content-studio/corpus-cache";
 import { outlineToText, textToOutline } from "@/lib/content-studio/outline-text";
 import { repurposeSocial } from "@/lib/content-studio/seo/social";
 import { generateNewsletter } from "@/lib/content-studio/seo/newsletter";
+import { buildPaaTree, type PaaNode } from "@/lib/content-studio/seo/paa-tree";
+import { scoreTopicAuthority, type TopicAuthorityResult } from "@/lib/content-studio/seo/topic-authority";
+import { refreshPost } from "@/lib/content-studio/seo/refresher";
 import { articleSlug, buildArticleSchema, toExportPost } from "@/lib/content-studio/article-export";
 import { markdownToHtml } from "@/lib/content-studio/exports/common";
 import type { ContentPost } from "@/lib/content-studio/store";
@@ -49,6 +53,7 @@ export type ContentError =
   | "noOutline"
   | "noDraft"
   | "noWordPress"
+  | "fetchFailed"
   | "failed";
 type Fail = { ok: false; error: ContentError };
 
@@ -558,4 +563,90 @@ export async function markArticlePublished(input: {
   revalidatePath(postPath(clientId, postId));
   revalidatePath(`/content/c/${clientId}`);
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Tools: question tree, topic coverage, refreshing an existing page
+// ---------------------------------------------------------------------------
+
+const seedInput = z.object({
+  clientId: z.coerce.number().int().positive(),
+  seed: z.string().trim().min(2).max(120),
+});
+
+export type QuestionTreeState = { ok: true; tree: PaaNode } | Fail;
+
+/** People-also-ask, followed a few levels down, in the client's language. */
+export async function exploreQuestions(input: { clientId: number; seed: string }): Promise<QuestionTreeState> {
+  const parsed = seedInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, seed } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const client = await clientInfo(clientId);
+  if (!client) return { ok: false, error: "notFound" };
+  try {
+    return { ok: true, tree: await buildPaaTree(seed, { lang: client.language, maxDepth: 2, totalQuestionsCap: 30 }) };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
+}
+
+export type TopicCoverageState = { ok: true; result: TopicAuthorityResult } | Fail;
+
+/**
+ * How much of a topic the client's articles cover, using the matching
+ * Wikipedia article's sections and links as the list of sub-topics.
+ */
+export async function measureTopicCoverage(input: { clientId: number; seed: string }): Promise<TopicCoverageState> {
+  const parsed = seedInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, seed } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const client = await clientInfo(clientId);
+  if (!client) return { ok: false, error: "notFound" };
+  const posts = await listPosts(clientId);
+  const text = posts.map((p) => `${p.title ?? ""}\n${p.primaryKeyword ?? ""}\n${p.draftMarkdown ?? ""}`).join("\n\n");
+  try {
+    return { ok: true, result: await scoreTopicAuthority(seed, text, client.language) };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
+}
+
+/**
+ * Fetch a page that is already live, have it rewritten to be current, and
+ * save the result as a new article to review. The live page is untouched.
+ */
+export async function refreshFromUrl(_prev: CreateState, formData: FormData): Promise<CreateState> {
+  const parsed = z
+    .object({ clientId: z.coerce.number().int().positive(), url: z.httpUrl().max(500) })
+    .safeParse({ clientId: formData.get("clientId"), url: formData.get("url") });
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, url } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const client = await clientInfo(clientId);
+  if (!client) return { ok: false, error: "notFound" };
+
+  let refreshed: Awaited<ReturnType<typeof refreshPost>>;
+  try {
+    refreshed = await refreshPost(url, client.language);
+  } catch {
+    return { ok: false, error: "fetchFailed" };
+  }
+  const title = refreshed.original_title.slice(0, 200);
+  const post = await createPost(clientId, {
+    status: "draft",
+    title,
+    primaryKeyword: title.slice(0, 120),
+    intent: classifyIntentByRules(title).intent,
+    draftMarkdown: refreshed.refreshed_markdown,
+    metaTitle: refreshed.meta_title || null,
+    metaDescription: refreshed.meta_description || null,
+    publishedUrl: url,
+  });
+  revalidatePath(`/content/c/${clientId}`);
+  redirect(postPath(clientId, post.id));
 }

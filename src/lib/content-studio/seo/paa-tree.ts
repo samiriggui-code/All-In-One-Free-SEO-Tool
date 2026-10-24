@@ -13,12 +13,14 @@ export interface PaaTreeOptions {
   maxDepth?: number;       // default 3
   maxChildrenPerNode?: number; // default 4
   totalQuestionsCap?: number;  // hard cap on total nodes
+  lang?: string;               // language of the questions, default "en"
 }
 
 const DEFAULTS: Required<PaaTreeOptions> = {
   maxDepth: 3,
   maxChildrenPerNode: 4,
-  totalQuestionsCap: 40
+  totalQuestionsCap: 40,
+  lang: "en"
 };
 
 export async function buildPaaTree(seed: string, options: PaaTreeOptions = {}): Promise<PaaNode> {
@@ -34,7 +36,7 @@ export async function buildPaaTree(seed: string, options: PaaTreeOptions = {}): 
     const cleaned = question.replace(/\?$/, "").trim();
     let sub: string[] = [];
     try {
-      sub = await peopleAlsoAsk(cleaned);
+      sub = await peopleAlsoAsk(cleaned, 8, opts.lang);
     } catch {
       return node;
     }

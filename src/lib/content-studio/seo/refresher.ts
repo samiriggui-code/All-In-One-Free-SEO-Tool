@@ -67,7 +67,7 @@ function fallbackRefresh(extracted: ExtractedPost, sourceUrl: string): RefreshRe
   };
 }
 
-export async function refreshPost(sourceUrl: string): Promise<RefreshResult> {
+export async function refreshPost(sourceUrl: string, language = "en"): Promise<RefreshResult> {
   const fetched = await fetchHtmlSmart(sourceUrl);
   const extracted = extractPostFromHtml(fetched.html);
   if (!extracted.title || extracted.markdown.length < 200) {
@@ -86,7 +86,8 @@ export async function refreshPost(sourceUrl: string): Promise<RefreshResult> {
         original_title: extracted.title,
         original_markdown: extracted.markdown,
         published_date: extracted.publishedDate ?? null,
-        current_year: new Date().getFullYear()
+        current_year: new Date().getFullYear(),
+        language
       },
       providers,
       jsonMode: true,

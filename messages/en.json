@@ -902,7 +902,8 @@
       "noOutline": "You need an outline with at least one section first.",
       "failed": "That didn't work. Try again in a moment.",
       "noDraft": "You need a written, saved article first.",
-      "noWordPress": "This client's site is not connected to WordPress."
+      "noWordPress": "This client's site is not connected to WordPress.",
+      "fetchFailed": "Could not fetch that page. Check the address and that it holds an article."
     },
     "new": {
       "title": "New article",
@@ -1008,6 +1009,59 @@
       "wordpress": "WordPress",
       "ghost": "Ghost",
       "webflow": "Webflow"
+    },
+    "tools": {
+      "toolLabel": "Content tools",
+      "back": "Back to articles",
+      "title": "Content tools · {name}",
+      "description": "Find what to write, measure how well a topic is covered, refresh an existing page and build the site's llms.txt.",
+      "linkTitle": "Content tools",
+      "linkHint": "Question tree, topic coverage, refresh a page, llms.txt.",
+      "newArticle": "Write about it",
+      "running": "Running…",
+      "questions": {
+        "title": "Question tree",
+        "hint": "The questions people ask around a topic, two levels deep. Each one can become an article or a FAQ entry.",
+        "seed": "Topic",
+        "placeholder": "e.g. sourdough bread",
+        "run": "Explore",
+        "found": "{count, plural, =0 {No questions found for this topic.} one {# question found.} other {# questions found.}}"
+      },
+      "coverage": {
+        "title": "Topic coverage",
+        "hint": "Compares this client's articles with the sub-topics of the topic's Wikipedia article, to see what is missing before going after head terms.",
+        "seed": "Topic or niche",
+        "placeholder": "e.g. bakery",
+        "run": "Measure",
+        "noData": "No Wikipedia article found for this topic. Try a broader term.",
+        "source": "Reference Wikipedia article",
+        "summary": "{covered} of {total} sub-topics covered.",
+        "missing": "Missing sub-topics",
+        "covered": "Already covered (mentions)",
+        "tier": {
+          "strong": "strong coverage",
+          "moderate": "moderate coverage",
+          "surface": "surface coverage",
+          "no_data": "no data"
+        }
+      },
+      "refresh": {
+        "title": "Refresh an existing page",
+        "hint": "Fetches an article that is already live, brings it up to date (dates, facts, structure) and saves it as a new draft to review. The live page is not changed.",
+        "url": "Page address",
+        "run": "Refresh",
+        "running": "Fetching and rewriting…"
+      },
+      "llms": {
+        "title": "llms.txt",
+        "hint": "{count, plural, =0 {The file that introduces the site to AI assistants (ChatGPT, Claude, Perplexity). No published articles yet, so only the home page is listed.} one {The file that introduces the site to AI assistants (ChatGPT, Claude, Perplexity), with # published article.} other {The file that introduces the site to AI assistants (ChatGPT, Claude, Perplexity), with # published articles.}}",
+        "description": "The site in one or two sentences",
+        "descriptionPlaceholder": "e.g. Artisan bakery in Lyon: sourdough bread, pastries and workshops.",
+        "sectionSite": "Site",
+        "sectionArticles": "Articles",
+        "download": "Download llms.txt",
+        "where": "Put it at the root of the site, e.g. https://example.com/llms.txt."
+      }
     }
   }
 }
