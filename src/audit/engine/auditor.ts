@@ -9,6 +9,7 @@ import type {
   CoreWebVitals,
   CrawledPage,
   DiscoverySource,
+  PageSnapshot,
   PlaywrightFetchResult,
   RuleResult,
   SiteContext,
@@ -42,6 +43,11 @@ export function markSitemapDiscoverySources(site: SiteContext, sitemap: SitemapF
     }
     sources.add("sitemap");
   }
+}
+/** The start page's previews: the first crawled page that parsed. */
+function startSnapshot(pages: CrawledPage[]): PageSnapshot | undefined {
+  const start = pages.find((p) => !p.error && p.context?.$);
+  return start ? buildPageSnapshot(start.context) : undefined;
 }
 type ResolvedAuditorOptions = Required<Omit<AuditorOptions, "browserFetcher" | "signal">> &
   Pick<AuditorOptions, "browserFetcher" | "signal">;
@@ -333,7 +339,9 @@ export class Auditor {
       this.categoriesToAudit,
       timestamp,
       crawledPages.length,
-      void 0,
+      // SEOmator leaves the snapshot out of crawls; SEO Tool shows the
+      // start page's previews on every audit, so keep the first page's.
+      startSnapshot(crawledPages),
       this.runOptions(true, maxPages, concurrency),
       { pages: crawledPages.map((p) => p.url), detail: "per-page" }
     );

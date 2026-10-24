@@ -38,6 +38,8 @@ import { setStatusForType } from "../issue-actions";
 import { SeomatorAuditProgressLive } from "@/components/audits/seomator-audit-progress";
 import { SeomatorGeoPanel } from "@/components/audits/seomator-geo-panel";
 import { GeoAuditPanel } from "@/components/audits/geo-audit-panel";
+import { EngineReportView } from "@/components/audits/engine-report";
+import { buildEngineReport, isEngineReport } from "@/lib/engine-report";
 
 // Map audit issue-types to the glossary term key.
 const issueTypeToTerm: Record<string, string> = {
@@ -118,6 +120,7 @@ export default async function AuditDetailPage({
   if (!Number.isFinite(auditId)) notFound();
 
   const t = await getTranslations("audits.detail");
+  const tr = await getTranslations("audits.report");
 
   // `stalledSeconds` is computed by SQLite rather than with Date.now()
   // in the component. Two reasons: React 19's purity rule correctly
@@ -175,7 +178,20 @@ export default async function AuditDetailPage({
   const issues = allIssues.filter((i) => i.status === "new");
   const closedCount = allIssues.length - issues.length;
 
-  const sorted = [...issues].sort(
+  // The engine's full per-rule report, drawn like SEOmator's. When it is
+  // there, its findings are shown by rule and category, and the list
+  // further down keeps only SEO Tool's own checks.
+  const report =
+    (audit.kind === "seomator" || audit.rawReport != null) &&
+    audit.status === "completed" &&
+    isEngineReport(audit.rawReport)
+      ? buildEngineReport(audit.rawReport)
+      : null;
+  const listed = report
+    ? issues.filter((i) => !i.type.startsWith("seomator:"))
+    : issues;
+
+  const sorted = [...listed].sort(
     (a, b) =>
       severityOrder[a.severity as keyof typeof severityOrder] -
       severityOrder[b.severity as keyof typeof severityOrder],
@@ -254,7 +270,12 @@ export default async function AuditDetailPage({
   // crawl (with a mode), and the separate SEOmator audits from before.
   const hasEngine = audit.kind === "seomator" || audit.rawReport != null;
   const tracksProgress = audit.kind === "seomator" || audit.mode != null;
-  const cwv = hasEngine ? extractCwv(audit.rawReport) : null;
+  const cwvRaw = hasEngine ? extractCwv(audit.rawReport) : null;
+  // A quick audit takes no browser readings; an all-dashes panel says nothing.
+  const cwv =
+    cwvRaw && [cwvRaw.lcp, cwvRaw.cls, cwvRaw.inp, cwvRaw.ttfb, cwvRaw.fcp].some((v) => v != null)
+      ? cwvRaw
+      : null;
   const scoreCap = hasEngine ? extractScoreCap(audit.rawReport) : null;
   const waivedCaps = hasEngine ? extractWaivedCaps(audit.rawReport) : [];
   const verdict =
@@ -278,6 +299,87 @@ export default async function AuditDetailPage({
     hasEngine &&
     audit.status === "completed" &&
     Boolean(audit.previewScreenshotPath);
+
+  const sourceBadge = (
+    <DataSourceBadge
+      source="crawl"
+      asOf={audit.completedAt}
+      note={
+        hasEngine
+          ? pagesCrawled !== null
+            ? `Crawl of ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"}, scored against 373 technical rules in 20 weighted categories.`
+            : "Scored against 373 technical rules in 20 weighted categories."
+          : pagesCrawled !== null
+            ? `Based on the ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} we crawled.`
+            : "This audit predates page-count tracking, so we can only show the pages that had findings — the crawl covered at least that many."
+      }
+    />
+  );
+
+  const measured = (
+    <>
+      {scoreCap ? (
+        <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-xs text-amber-100">
+          Score capped at {audit.score}/100 (uncapped {scoreCap.uncappedScore}
+          ): {scoreCap.reasons.join("; ")}
+        </div>
+      ) : null}
+      {waivedCaps.length > 0 ? (
+        <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-xs text-cyan-100">
+          Staging caps waived: {waivedCaps.join("; ")}
+        </div>
+      ) : null}
+
+      {cwv ? (
+        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
+          <h2 className="text-sm font-semibold tracking-tight">
+            Core Web Vitals
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Measured in a browser during the audit (lab data, not CrUX
+            field data).
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-5">
+            {(
+              [
+                ["LCP", cwv.lcp, "cwv-lcp", (v: number) => `${(v / 1000).toFixed(2)}s`],
+                ["CLS", cwv.cls, "cwv-cls", (v: number) => v.toFixed(3)],
+                ["INP", cwv.inp, "cwv-inp", (v: number) => `${Math.round(v)}ms`],
+                ["TTFB", cwv.ttfb, "cwv-ttfb", (v: number) => `${Math.round(v)}ms`],
+                ["FCP", cwv.fcp, "cwv-fcp", (v: number) => `${(v / 1000).toFixed(2)}s`],
+              ] as const
+            ).map(([label, value, ruleId, fmt]) => {
+              const status = cwv.statuses[ruleId] ?? "not-measured";
+              const tone =
+                status === "pass"
+                  ? "text-emerald-300"
+                  : status === "fail"
+                    ? "text-rose-300"
+                    : status === "warn"
+                      ? "text-amber-300"
+                      : "text-muted-foreground";
+              return (
+                <div
+                  key={label}
+                  className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"
+                >
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    {label}
+                  </div>
+                  <div className={`mt-1 text-lg font-semibold tabular-nums ${tone}`}>
+                    {value == null ? "—" : fmt(value)}
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground">
+                    {status}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+    </>
+  );
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -369,47 +471,37 @@ export default async function AuditDetailPage({
             </div>
           </div>
 
-          <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
-            <div className="origin-center scale-90 sm:scale-100">
-              <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
+          {!report ? (
+            <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
+              <div className="origin-center scale-90 sm:scale-100">
+                <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
+              </div>
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Health score
+                </div>
+                <div className="text-sm font-medium">
+                  {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
+                  {pagesCrawled !== null
+                    ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
+                    : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {audit.status === "completed"
+                    ? verdict
+                      ? `${verdict.grade} · ${verdict.label}`
+                      : "Out of 100"
+                    : audit.status}
+                </div>
+                {/* The number most likely to end up in front of a client,
+                    and the one whose basis is least obvious. It describes
+                    what our crawler saw on the pages it reached — not
+                    what Google has indexed, and not every page on the
+                    site. */}
+                {sourceBadge}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Health score
-              </div>
-              <div className="text-sm font-medium">
-                {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
-                {pagesCrawled !== null
-                  ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
-                  : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {audit.status === "completed"
-                  ? verdict
-                    ? `${verdict.grade} · ${verdict.label}`
-                    : "Out of 100"
-                  : audit.status}
-              </div>
-              {/* The number most likely to end up in front of a client,
-                  and the one whose basis is least obvious. It describes
-                  what our crawler saw on the pages it reached — not
-                  what Google has indexed, and not every page on the
-                  site. */}
-              <DataSourceBadge
-                source="crawl"
-                asOf={audit.completedAt}
-                note={
-                  hasEngine
-                    ? pagesCrawled !== null
-                      ? `Crawl of ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"}, scored against 373 technical rules in 20 weighted categories.`
-                      : "Scored against 373 technical rules in 20 weighted categories."
-                    : pagesCrawled !== null
-                      ? `Based on the ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} we crawled.`
-                      : "This audit predates page-count tracking, so we can only show the pages that had findings — the crawl covered at least that many."
-                }
-              />
-            </div>
-          </div>
+          ) : null}
         </div>
       </section>
 
@@ -427,68 +519,21 @@ export default async function AuditDetailPage({
         </section>
       ) : null}
 
-      {scoreCap ? (
-        <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-xs text-amber-100">
-          Score capped at {audit.score}/100 (uncapped {scoreCap.uncappedScore}
-          ): {scoreCap.reasons.join("; ")}
-        </div>
-      ) : null}
-      {waivedCaps.length > 0 ? (
-        <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-xs text-cyan-100">
-          Staging caps waived: {waivedCaps.join("; ")}
-        </div>
-      ) : null}
-
-      {cwv ? (
-        <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
-          <h2 className="text-sm font-semibold tracking-tight">
-            Core Web Vitals
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Measured in a browser during the audit (lab data, not CrUX
-            field data).
-          </p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-5">
-            {(
-              [
-                ["LCP", cwv.lcp, "cwv-lcp", (v: number) => `${(v / 1000).toFixed(2)}s`],
-                ["CLS", cwv.cls, "cwv-cls", (v: number) => v.toFixed(3)],
-                ["INP", cwv.inp, "cwv-inp", (v: number) => `${Math.round(v)}ms`],
-                ["TTFB", cwv.ttfb, "cwv-ttfb", (v: number) => `${Math.round(v)}ms`],
-                ["FCP", cwv.fcp, "cwv-fcp", (v: number) => `${(v / 1000).toFixed(2)}s`],
-              ] as const
-            ).map(([label, value, ruleId, fmt]) => {
-              const status = cwv.statuses[ruleId] ?? "not-measured";
-              const tone =
-                status === "pass"
-                  ? "text-emerald-300"
-                  : status === "fail"
-                    ? "text-rose-300"
-                    : status === "warn"
-                      ? "text-amber-300"
-                      : "text-muted-foreground";
-              return (
-                <div
-                  key={label}
-                  className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"
-                >
-                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                    {label}
-                  </div>
-                  <div className={`mt-1 text-lg font-semibold tabular-nums ${tone}`}>
-                    {value == null ? "—" : fmt(value)}
-                  </div>
-                  <div className="mt-0.5 text-[10px] text-muted-foreground">
-                    {status}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+      {report ? (
+        <EngineReportView
+          report={report}
+          auditId={auditId}
+          activeTypes={new Set(issues.map((i) => i.type))}
+          pagesCrawled={pagesCrawled}
+          issuesCount={audit.issuesCount}
+          badge={sourceBadge}
+          afterSnapshot={measured}
+        />
       ) : null}
 
-      {hasEngine && audit.status === "completed" ? (
+      {!report ? measured : null}
+
+      {!report && hasEngine && audit.status === "completed" ? (
         <SeomatorGeoPanel
           categoryScores={audit.categoryScores}
           geoIssues={geoIssues}
@@ -503,7 +548,7 @@ export default async function AuditDetailPage({
         />
       ) : null}
 
-      {hasEngine && audit.categoryScores ? (
+      {report ? null : hasEngine && audit.categoryScores ? (
         <section className="rounded-2xl border border-white/5 bg-card/40 px-5 py-4 backdrop-blur-md">
           <h2 className="text-sm font-semibold tracking-tight">
             Category scores
@@ -562,6 +607,13 @@ export default async function AuditDetailPage({
           below.
         </div>
       )}
+
+      {report && sorted.length > 0 ? (
+        <div className="pt-2">
+          <h2 className="text-lg font-semibold tracking-tight">{tr("seoToolChecks")}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">{tr("seoToolChecksHint")}</p>
+        </div>
+      ) : null}
 
       {/* SEVERITY STATS */}
       <div className="grid gap-3 sm:grid-cols-4">
@@ -824,7 +876,7 @@ export default async function AuditDetailPage({
         );
       })}
 
-      {issues.length === 0 && audit.status === "completed" && (
+      {issues.length === 0 && !report && audit.status === "completed" && (
         <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-6 py-12 text-center backdrop-blur-md">
           <div className="pointer-events-none absolute left-1/2 top-1/2 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/15 blur-3xl" />
           <div className="relative mx-auto flex max-w-md flex-col items-center gap-3">
