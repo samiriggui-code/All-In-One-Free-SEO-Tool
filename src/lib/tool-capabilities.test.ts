@@ -146,9 +146,8 @@ describe("tool capabilities", () => {
     // gets a tag, which is impossible to notice by looking at the UI.
     const { NAV_GROUPS } = await import("@/components/shell/nav-items");
     const missing = NAV_GROUPS.flatMap((g) => g.items)
-      // An external entry is a link off this app entirely — content
-      // writing now lives in BlogPilot — so there is no route of ours
-      // for it to resolve to, and expecting one would be a false alarm.
+      // An external entry is a link off this app entirely, so there is
+      // no route of ours for it to resolve to.
       .filter((i) => !i.external)
       .map((i) => i.href)
       .filter((href) => capabilityOf(href) === null);

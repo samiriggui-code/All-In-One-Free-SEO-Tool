@@ -1,0 +1,73 @@
+import { contentProviders, execute } from "../ai";
+import { parseJsonResponse } from "../json";
+import { metaSchema } from "./schemas";
+
+export interface MetaResult {
+  metaTitle: string;
+  metaDescription: string;
+  warnings: string[];
+}
+
+function fallbackMeta(title: string, keyword: string, intent: string): MetaResult {
+  const warnings: string[] = [];
+  let mt = title.length <= 60 ? title : title.slice(0, 57).trim() + "...";
+  if (mt.toLowerCase().indexOf(keyword.toLowerCase()) < 0) {
+    mt = `${keyword}: ${mt}`.slice(0, 60);
+  }
+  if (mt.length > 60) warnings.push(`metaTitle is ${mt.length} chars, over 60 limit`);
+
+  const ctas: Record<string, string> = {
+    informational: "Learn how it works",
+    commercial: "Compare the top picks",
+    transactional: "Get started today",
+    navigational: ""
+  };
+  let md = `${title} — ${ctas[intent] ?? "Learn more"}.`;
+  if (md.length > 160) md = md.slice(0, 157).trim() + "...";
+  if (md.length < 120) md = `${title} — ${ctas[intent] ?? "Learn more"} about ${keyword} and key takeaways.`;
+  if (md.length > 160) md = md.slice(0, 157).trim() + "...";
+  if (md.toLowerCase().indexOf(keyword.toLowerCase()) < 0) {
+    md = `${keyword}: ${md}`.slice(0, 160);
+  }
+  if (md.length > 160) warnings.push(`metaDescription is ${md.length} chars, over 160 limit`);
+
+  return { metaTitle: mt, metaDescription: md, warnings };
+}
+
+export async function generateMeta(input: {
+  title: string;
+  primary_keyword: string;
+  intent: string;
+  intro: string;
+  brand?: string;
+  /** Language the output should be written in (ISO code, e.g. "fr"). */
+  language?: string;
+}): Promise<MetaResult> {
+  const providers = await contentProviders();
+  if (providers.length === 0) return fallbackMeta(input.title, input.primary_keyword, input.intent);
+
+  try {
+    const resp = await execute({
+      methodologies: ["meta-title-rules", "meta-description-rules"],
+      task: "Generate metaTitle and metaDescription as one combined JSON object.",
+      input,
+      providers,
+      jsonMode: true,
+      jsonSchema: metaSchema,
+      temperature: 0.4
+    });
+    const parsed = parseJsonResponse<{ metaTitle?: string; metaDescription?: string; warnings?: string[] }>(
+      resp.text
+    );
+    if (!parsed?.metaTitle || !parsed.metaDescription) {
+      return fallbackMeta(input.title, input.primary_keyword, input.intent);
+    }
+    return {
+      metaTitle: parsed.metaTitle,
+      metaDescription: parsed.metaDescription,
+      warnings: parsed.warnings ?? []
+    };
+  } catch {
+    return fallbackMeta(input.title, input.primary_keyword, input.intent);
+  }
+}

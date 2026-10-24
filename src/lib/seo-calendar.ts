@@ -262,7 +262,7 @@ export function generateCalendar(input: CalendarInput): CalendarTask[] {
       category: "content",
       priority: "high",
       estimatedMinutes: 60,
-      toolPath: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
+      toolPath: `/content/c/${input.clientId}`,
     });
   });
   if (wins.length === 0) {
@@ -275,7 +275,7 @@ export function generateCalendar(input: CalendarInput): CalendarTask[] {
       category: "content",
       priority: "medium",
       estimatedMinutes: 180,
-      toolPath: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
+      toolPath: `/content/c/${input.clientId}`,
     });
   }
 
@@ -300,7 +300,7 @@ export function generateCalendar(input: CalendarInput): CalendarTask[] {
     category: "content",
     priority: "medium",
     estimatedMinutes: 45,
-    toolPath: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
+    toolPath: `/content/c/${input.clientId}`,
   });
 
   push(cal, {
@@ -312,7 +312,7 @@ export function generateCalendar(input: CalendarInput): CalendarTask[] {
     category: "content",
     priority: "high",
     estimatedMinutes: 30,
-    toolPath: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
+    toolPath: `/content/c/${input.clientId}`,
   });
 
   // ============== Week 3: GBP + Local + AI visibility ==============
@@ -391,7 +391,7 @@ export function generateCalendar(input: CalendarInput): CalendarTask[] {
     category: "ai_visibility",
     priority: "medium",
     estimatedMinutes: 60,
-    toolPath: "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio",
+    toolPath: `/content/c/${input.clientId}`,
   });
 
   push(cal, {

@@ -59,11 +59,7 @@ export const SURFACES: Surface[] = [
     label: "Content and blog",
     detail:
       "Planning, briefing and refreshing articles so the site answers what people actually search for.",
-    // No groups: writing moved out of this app into BlogPilot. The
-    // surface stays because it is still a real part of an engagement —
-    // a client is told whether content is in scope regardless of which
-    // tool does it — but there is nothing here for it to order.
-    groups: [],
+    groups: ["Content + writing"],
   },
   {
     id: "local",

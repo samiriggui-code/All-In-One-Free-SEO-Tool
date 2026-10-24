@@ -3,7 +3,7 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 226 routes · 99 need AI · 70 use a browser.
+// 230 routes · 103 need AI · 73 use a browser.
 // 92 are /tools/* · 33 need AI · 92 carry copy.
 
 export const TOOL_CAPABILITIES = [
@@ -57,8 +57,12 @@ export const TOOL_CAPABILITIES = [
   { route: "/competitors/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/competitors/playbook", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/connect", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/content", needsAI: true, aiUsage: "partial", usesBrowser: true, title: "Writing studio", description: "Keyword ideas, an AI outline you can edit, a full article in the client's voice, and a live score against Google's top 10 while you edit." },
   { route: "/content-gap", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/content-gap/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },
+  { route: "/content/c/[clientId]", needsAI: true, aiUsage: "partial", usesBrowser: true },
+  { route: "/content/c/[clientId]/p/[postId]", needsAI: true, aiUsage: "partial", usesBrowser: false },
+  { route: "/content/c/[clientId]/tools", needsAI: true, aiUsage: "partial", usesBrowser: true },
   { route: "/csv-import", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/cwv", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/cwv/archive", needsAI: false, aiUsage: "none", usesBrowser: false },

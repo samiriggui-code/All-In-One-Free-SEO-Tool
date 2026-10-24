@@ -131,12 +131,9 @@ export function isRetired(href: string): boolean {
  * the daily loop", not "special".
  */
 const EXPLICIT: Record<string, ToolCategoryId> = {
-  // Not one of our routes — content writing moved to BlogPilot, and the
-  // card that says so needs to sit where the writing tools used to be
-  // rather than falling through to "occasional", which is collapsed by
-  // default and is where a signpost is least likely to be read.
-  "https://github.com/IamRamgarhia/BlogPilot-Open-Source-AI-SEO-Content-Studio":
-    "improve",
+  // Writing sits with the other "improve the site" tools rather than in
+  // "occasional", which is collapsed by default.
+  "/content": "improve",
   // --- Win the work -------------------------------------------------
   "/tools/health-check": "win",
   "/tools/domain-overview": "win",

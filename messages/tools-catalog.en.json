@@ -362,5 +362,9 @@
   "wp-hack-scan": {
     "title": "WordPress hack / malware scan ⭐",
     "description": "Probes a live WP site for compromise indicators: backdoor files, exposed configs, JS injection, hidden iframes, spam injection, cloaking. Returns containment + cleanup + prevention playbook."
+  },
+  "content": {
+    "title": "Writing studio",
+    "description": "Keyword ideas, an AI outline you can edit, a full article in the client's voice, and a live score against Google's top 10 while you edit."
   }
 }

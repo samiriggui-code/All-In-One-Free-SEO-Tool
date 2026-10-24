@@ -362,5 +362,9 @@
   "wp-hack-scan": {
     "title": "WoudPress hack / malware scan ⭐",
     "description": "Probes a en direct WP site fou compromise indicatous: backdoou files, exposed configs, JS injection, hidden iframes, spam injection, cloaking. Returns containment + cleanup + prevention playbook."
+  },
+  "content": {
+    "title": "Atelier de rédaction",
+    "description": "Idées de mots-clés, plan IA modifiable, article complet dans la voix du client, et score en direct face au top 10 de Google pendant que vous éditez."
   }
 }
