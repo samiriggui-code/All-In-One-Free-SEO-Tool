@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   findTrendingIdeas,
@@ -20,6 +22,7 @@ export async function runTrending(
   _prev: TrendingState | null,
   formData: FormData,
 ): Promise<TrendingState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     topic: formData.get("topic"),
     country: formData.get("country") || "US",

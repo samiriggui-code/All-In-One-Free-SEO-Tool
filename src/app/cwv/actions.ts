@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -20,6 +22,7 @@ export async function runCwvScan(opts: {
   url: string;
   strategy: "mobile" | "desktop";
 }): Promise<RunCwvResult> {
+  await requireSignedIn();
   const url = opts.url.trim();
   if (!url) return { ok: false, error: "URL is required" };
   const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;
@@ -69,6 +72,7 @@ export async function runCwvScan(opts: {
 }
 
 export async function deleteCwvReport(id: number, clientId: number) {
+  await requireSignedIn();
   await db.delete(cwvReports).where(eq(cwvReports.id, id));
   revalidatePath(`/cwv/c/${clientId}`);
 }

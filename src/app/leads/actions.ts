@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -20,6 +22,7 @@ export async function setLeadStatus(
   id: number,
   status: LeadStatus,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
 
@@ -38,6 +41,7 @@ export async function setLeadNotes(
   id: number,
   notes: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
 
@@ -59,6 +63,7 @@ export async function setLeadNotes(
 export async function convertLeadToClient(
   id: number,
 ): Promise<{ ok: boolean; clientId?: number; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
 
@@ -98,6 +103,7 @@ export async function convertLeadToClient(
 export async function deleteLead(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
   await db.delete(graderLeads).where(eq(graderLeads.id, id));

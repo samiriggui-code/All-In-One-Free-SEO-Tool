@@ -345,6 +345,41 @@ export const DOC_GUIDES: DocGuide[] = [
     related: ["/reports", "/reports/batch"],
   },
   {
+    slug: "team",
+    title: "Give your team their own logins",
+    summary: "One account each, the right role, and only the clients they work on.",
+    minutes: 5,
+    group: "running",
+    steps: [
+      {
+        do: "Open Settings → Team and click Set up accounts.",
+        then: "You create the first account and become the owner. From then on everyone signs in on the login page.",
+      },
+      {
+        do: "Under Invite someone, enter their email, pick a role and click Create link.",
+        then: "The link works once and expires in seven days. Nothing is emailed: send it yourself.",
+      },
+      {
+        do: "Pick the role by what they should touch.",
+        then: "Manager: every client and all the work. Member: only the clients assigned to them. Client viewer: read-only, for a client contact. The team, integration keys and backups stay with the owner.",
+      },
+      {
+        do: "For a member or a client viewer, click their client count, tick the clients they may see, then Save access.",
+        then: "The dashboard, tasks, reports and keywords are filtered to those clients.",
+      },
+      {
+        do: "To remove someone, click Deactivate.",
+        then: "They are signed out at once. Their history stays.",
+      },
+      {
+        do: "To leave, open the profile menu and click Sign out.",
+        then: "You land back on the login page.",
+      },
+    ],
+    related: ["/settings/team"],
+    note: "Changing someone's role or deactivating them signs them out straight away, so a removed person cannot keep working from an open tab.",
+  },
+  {
     slug: "update-backup",
     title: "Update, back up, move machines",
     summary: "All three from the control panel. No terminal.",
@@ -371,7 +406,7 @@ export const DOC_GUIDES: DocGuide[] = [
         then: "The database sits in a Docker volume, so the rebuild keeps it.",
       },
     ],
-    note: "Your data never leaves the machine. There is no account, and no server to sync with.",
+    note: "Your data never leaves the machine or server you run it on. There is no cloud account and nothing to sync with.",
   },
 ];
 

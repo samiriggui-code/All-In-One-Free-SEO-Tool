@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { toolReadiness, type ToolNeed } from "@/lib/tool-readiness";
 
 /**
@@ -48,17 +49,18 @@ export function ToolDot({
  * click, not add one.
  */
 export function ToolDotLegend({ className = "" }: { className?: string }) {
+  const t = useTranslations("shell.toolDot");
   return (
     <p
       className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground ${className}`}
     >
       <span className="inline-flex items-center gap-1.5">
         <span className="inline-block size-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/25" />
-        Ready
+        {t("ready")}
       </span>
       <span className="inline-flex items-center gap-1.5">
         <span className="inline-block size-2 rounded-full bg-amber-500 ring-2 ring-amber-500/30" />
-        Needs setup
+        {t("needsSetup")}
       </span>
     </p>
   );

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireEditor } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -44,6 +46,7 @@ export async function saveBrand(
   formData: FormData,
 ): Promise<BrandActionResult> {
   await requireEditor();
+  await requireSignedIn();
   const raw = {
     name: formData.get("name") ?? "",
     color: formData.get("color") ?? "",
@@ -105,6 +108,7 @@ export async function saveBrand(
 
 export async function clearLogo(): Promise<void> {
   await requireEditor();
+  await requireSignedIn();
   await deleteSetting("brand.logo_data_url");
   revalidatePath("/settings");
 }

@@ -1,5 +1,8 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+import { canSeeClient, currentUser } from "@/lib/auth";
+
 import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
@@ -111,6 +114,7 @@ export async function askTheTool(input: {
   modelChoice?: { provider?: string; model?: string };
   conversationId?: number | null;
 }): Promise<AskResult> {
+  await requireSignedIn();
   const question = input.question.trim();
   if (!question) {
     return { ok: false, error: "Type a question first." };
@@ -121,6 +125,9 @@ export async function askTheTool(input: {
 
   let context = "";
   if (input.clientId) {
+    if (!(await canSeeClient(await currentUser(), input.clientId))) {
+      return { ok: false, error: "No such client." };
+    }
     const c = await buildClientContext(input.clientId);
     if (c) context = c;
   }

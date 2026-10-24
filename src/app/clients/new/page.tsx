@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { NewClientForm } from "./new-client-form";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
@@ -11,6 +12,7 @@ export default async function NewClientPage({
   searchParams: Promise<{ url?: string; name?: string }>;
 }) {
   const { url, name } = await searchParams;
+  const t = await getTranslations("clientForm");
   const googleStatus = await getGoogleConnectionStatus();
   const googleClientId = await getSetting<string>("google.client_id");
   const googleClientSecret = await getSetting<string>("google.client_secret");
@@ -23,11 +25,11 @@ export default async function NewClientPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title="Add a client"
-        description="Just the basics for now — we'll detect the tech stack and generate niche-specific tasks automatically."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Plus}
         accent="violet"
-        crumbs={[{ label: "Clients", href: "/clients" }, { label: "New" }]}
+        crumbs={[{ label: t("crumbClients"), href: "/clients" }, { label: t("crumbNew") }]}
       />
 
       <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">

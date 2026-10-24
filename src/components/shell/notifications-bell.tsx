@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useStoredState } from "@/components/use-stored-state";
 import {
   Bell,
@@ -31,6 +32,7 @@ function parseLastSeen(raw: string): number {
 }
 
 export function NotificationsBell() {
+  const t = useTranslations("shell.notifications");
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -142,7 +144,7 @@ export function NotificationsBell() {
       <button
         type="button"
         onClick={handleOpen}
-        aria-label="Notifications"
+        aria-label={t("title")}
         className="relative flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground"
       >
         <Bell className="size-4" />
@@ -156,9 +158,9 @@ export function NotificationsBell() {
         <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-white/10 bg-card/95 shadow-2xl shadow-violet-500/10 backdrop-blur-xl">
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <div>
-              <div className="text-sm font-semibold">Notifications</div>
+              <div className="text-sm font-semibold">{t("title")}</div>
               <div className="text-[11px] text-muted-foreground">
-                Recent activity from your data
+                {t("subtitle")}
               </div>
             </div>
             {loading && (
@@ -168,7 +170,7 @@ export function NotificationsBell() {
           <div className="max-h-96 overflow-y-auto">
             {items === null && loading ? (
               <div className="px-4 py-10 text-center text-xs text-muted-foreground">
-                Loading…
+                {t("loading")}
               </div>
             ) : items === null || items.length === 0 ? (
               <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
@@ -176,11 +178,9 @@ export function NotificationsBell() {
                   <Inbox className="size-5 text-violet-300" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">All caught up</p>
+                  <p className="text-sm font-medium">{t("emptyTitle")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Alerts appear here when audits surface critical issues,
-                    pages change, ranks drop, or the daily agent finishes
-                    a run.
+                    {t("emptyBody")}
                   </p>
                 </div>
                 <Link
@@ -188,7 +188,7 @@ export function NotificationsBell() {
                   onClick={() => setOpen(false)}
                   className="mt-1 inline-flex h-7 items-center gap-1 rounded-md bg-violet-500/15 px-3 text-[11px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25"
                 >
-                  Add a client to start tracking →
+                  {t("addClient")}
                 </Link>
               </div>
             ) : (
@@ -232,14 +232,14 @@ export function NotificationsBell() {
           {items && items.length > 0 && (
             <div className="flex items-center justify-between border-t border-white/5 px-4 py-2">
               <span className="text-[10px] text-muted-foreground">
-                {items.length} item{items.length === 1 ? "" : "s"}
+                {t("count", { count: items.length })}
               </span>
               <button
                 type="button"
                 onClick={markAllRead}
                 className="text-[10px] text-muted-foreground hover:text-foreground hover:underline"
               >
-                Mark all read
+                {t("markAllRead")}
               </button>
             </div>
           )}

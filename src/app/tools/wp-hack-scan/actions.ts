@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   scanWordPressHack,
   type HackScanReport,
@@ -16,6 +18,7 @@ export async function runWpHackScan(
   _prev: WpHackState,
   formData: FormData,
 ): Promise<WpHackState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { ok: false, error: "Enter your site URL." };
   try {

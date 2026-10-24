@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { traceMany, type RedirectChain } from "@/lib/redirect-tracer";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { clientIdFrom } from "@/lib/client-id-field";
@@ -84,6 +86,7 @@ export async function runBulk(
   _prev: BulkState | null,
   formData: FormData,
 ): Promise<BulkState> {
+  await requireSignedIn();
   const raw = String(formData.get("urls") ?? "").trim();
   if (!raw) return { ok: false, error: "Paste at least one URL." };
 

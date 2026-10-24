@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { setSetting, deleteSetting } from "@/lib/settings-store";
@@ -14,6 +16,7 @@ import {
 import { saveToolRun } from "@/lib/tool-runs";
 
 export async function saveBingKey(formData: FormData): Promise<void> {
+  await requireSignedIn();
   const key = String(formData.get("key") ?? "").trim();
   if (!key) return;
   await setSetting("bing.api_key", key);
@@ -21,6 +24,7 @@ export async function saveBingKey(formData: FormData): Promise<void> {
 }
 
 export async function clearBingKey(): Promise<void> {
+  await requireSignedIn();
   await deleteSetting("bing.api_key");
   revalidatePath("/tools/bing");
 }
@@ -58,6 +62,7 @@ export async function fetchBingInsights(
   _prev: BingInsightsState | null,
   formData: FormData,
 ): Promise<BingInsightsState> {
+  await requireSignedIn();
   const parsed = insightsSchema.safeParse({
     siteUrl: formData.get("siteUrl"),
   });
@@ -122,6 +127,7 @@ export async function submitBingUrls(
   _prev: BingSubmitState | null,
   formData: FormData,
 ): Promise<BingSubmitState> {
+  await requireSignedIn();
   const parsed = submitSchema.safeParse({
     siteUrl: formData.get("siteUrl"),
     urls: formData.get("urls"),
@@ -147,6 +153,7 @@ export async function submitBingUrls(
 export async function fetchBingSites(): Promise<
   { ok: true; sites: Array<{ url: string; verified: boolean }> } | { ok: false; error: string }
 > {
+  await requireSignedIn();
   try {
     const sites = await listBingSites();
     return {

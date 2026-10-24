@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -113,6 +115,7 @@ export async function parseAndStoreLog(input: {
   sourceName?: string;
   clientId?: number | null;
 }): Promise<ParseResult> {
+  await requireSignedIn();
   if (!input.text || input.text.length === 0) {
     return { ok: false, error: "Empty file" };
   }
@@ -218,6 +221,7 @@ export async function parseAndStoreLog(input: {
 }
 
 export async function listUploads(opts?: { limit?: number }) {
+  await requireSignedIn();
   return db
     .select({
       id: botLogUploads.id,
@@ -237,6 +241,7 @@ export async function listUploads(opts?: { limit?: number }) {
 }
 
 export async function deleteUpload(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(botLogUploads).where(eq(botLogUploads.id, id));
   revalidatePath("/bot-logs");

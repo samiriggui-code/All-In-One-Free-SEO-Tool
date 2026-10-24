@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   Globe,
   Loader2,
@@ -23,13 +24,13 @@ import {
 } from "../actions";
 
 const niches = [
-  { value: "", label: "Skip for now" },
-  { value: "local", label: "Local — physical storefront / service area" },
-  { value: "ecommerce", label: "E-commerce — selling products online" },
-  { value: "saas", label: "SaaS / B2B" },
-  { value: "blog", label: "Blog / Content site" },
-  { value: "services", label: "Professional services" },
-];
+  { value: "", label: "nicheSkip" },
+  { value: "local", label: "nicheLocal" },
+  { value: "ecommerce", label: "nicheEcommerce" },
+  { value: "saas", label: "nicheSaas" },
+  { value: "blog", label: "nicheBlog" },
+  { value: "services", label: "nicheServices" },
+] as const;
 
 type FormState = {
   name: string;
@@ -94,6 +95,7 @@ export function NewClientForm({
   googleHasSecret?: boolean;
   googleRedirectUri?: string;
 } = {}) {
+  const t = useTranslations("clientForm");
   const isEdit = mode === "update";
   const [state, formAction, pending] = useActionState<
     CreateClientResult | UpdateClientResult | null,
@@ -137,7 +139,7 @@ export function NewClientForm({
   function autoFill() {
     const url = fields.url.trim();
     if (!url) {
-      setFetchMessage({ tone: "error", text: "Enter a URL first." });
+      setFetchMessage({ tone: "error", text: t("enterUrlFirst") });
       return;
     }
     setFetchMessage(null);
@@ -168,21 +170,21 @@ export function NewClientForm({
         tiktok: prev.tiktok || social.tiktok || "",
       }));
       const filled = [
-        m.name && "name",
-        m.logoUrl && "logo",
-        m.description && "description",
-        m.address && "address",
-        m.phone && "phone",
-        m.email && "email",
-        m.gbpUrl && "Google Business",
-        Object.keys(social).length > 0 && "social links",
+        m.name && t("filledName"),
+        m.logoUrl && t("filledLogo"),
+        m.description && t("filledDescription"),
+        m.address && t("filledAddress"),
+        m.phone && t("filledPhone"),
+        m.email && t("filledEmail"),
+        m.gbpUrl && t("filledGbp"),
+        Object.keys(social).length > 0 && t("filledSocial"),
       ].filter(Boolean) as string[];
       setFetchMessage({
         tone: "success",
         text:
           filled.length > 0
-            ? `Found ${filled.join(", ")}. Edit anything before saving.`
-            : "Site loaded but we couldn't extract metadata. Fill the rest manually.",
+            ? t("found", { list: filled.join(", ") })
+            : t("nothingFound"),
       });
     });
   }
@@ -194,7 +196,7 @@ export function NewClientForm({
       )}
       {/* Website + auto-fill */}
       <div className="space-y-1.5">
-        <Label htmlFor="url">Website URL</Label>
+        <Label htmlFor="url">{t("websiteUrl")}</Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Globe className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -215,24 +217,23 @@ export function NewClientForm({
             variant="outline"
             onClick={autoFill}
             disabled={fetchPending || !fields.url.trim()}
-            title="Fetch logo, name, address, social links from the website"
+            title={t("autoFillTitle")}
           >
             {fetchPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Fetching…
+                {t("fetching")}
               </>
             ) : (
               <>
                 <Wand2 className="size-4" />
-                Auto-fill
+                {t("autoFill")}
               </>
             )}
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          We&apos;ll add https:// for you. Click <strong>Auto-fill</strong> to pull
-          the logo, name, address, and social links straight from the site.
+          {t.rich("urlHelp", { b: (c) => <strong>{c}</strong> })}
         </p>
         {errors.url && (
           <p className="text-xs text-destructive">{errors.url}</p>
@@ -260,7 +261,7 @@ export function NewClientForm({
         <LogoPreview src={fields.logoUrl} />
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Client name</Label>
+            <Label htmlFor="name">{t("clientName")}</Label>
             <Input
               id="name"
               name="name"
@@ -275,7 +276,7 @@ export function NewClientForm({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="niche">Niche</Label>
+            <Label htmlFor="niche">{t("niche")}</Label>
             <select
               id="niche"
               name="niche"
@@ -284,12 +285,12 @@ export function NewClientForm({
             >
               {niches.map((n) => (
                 <option key={n.value} value={n.value}>
-                  {n.label}
+                  {t(n.label)}
                 </option>
               ))}
             </select>
             <p className="text-xs text-muted-foreground">
-              Drives the auto-generated task list. You can change this later.
+              {t("nicheHelp")}
             </p>
           </div>
         </div>
@@ -297,7 +298,7 @@ export function NewClientForm({
 
       {/* Description */}
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t("description")}</Label>
         <textarea
           id="description"
           name="description"
@@ -312,24 +313,24 @@ export function NewClientForm({
       <input type="hidden" name="logoUrl" value={fields.logoUrl} />
 
       {/* Contact + GBP */}
-      <Section title="Contact & Google Business">
+      <Section title={t("contactSection")}>
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="Address"
+            label={t("address")}
             name="address"
             value={fields.address}
             onChange={(v) => update("address", v)}
-            placeholder="123 Main St, Springfield, IL"
+            placeholder={t("addressPlaceholder")}
           />
           <Field
-            label="Phone"
+            label={t("phone")}
             name="phone"
             value={fields.phone}
             onChange={(v) => update("phone", v)}
             placeholder="+1 555 555 1234"
           />
           <Field
-            label="Contact email"
+            label={t("contactEmail")}
             name="email"
             type="email"
             value={fields.email}
@@ -337,20 +338,20 @@ export function NewClientForm({
             placeholder="hello@acme.com"
           />
           <Field
-            label="Google Business profile"
+            label={t("gbp")}
             name="gbpUrl"
             value={fields.gbpUrl}
             onChange={(v) => update("gbpUrl", v)}
-            placeholder="maps.google.com/… or business name"
-            hint="Paste the share link from Google Maps."
+            placeholder={t("gbpPlaceholder")}
+            hint={t("gbpHint")}
           />
         </div>
       </Section>
 
       {/* Social links */}
       <Section
-        title="Social links"
-        subtitle="Auto-filled from the homepage when present. Edit anything that's wrong."
+        title={t("socialSection")}
+        subtitle={t("socialSubtitle")}
       >
         <div className="grid gap-4 md:grid-cols-2">
           <Field
@@ -401,14 +402,14 @@ export function NewClientForm({
       {/* Google integration — opens inline popup, skippable; hidden in edit mode */}
       {!isEdit && (
       <Section
-        title="Connect Google data (optional)"
-        subtitle="Skippable. After saving, you'll pick the Search Console + GA4 property for this client from a dropdown. The Google account you connect here serves every client — you don't have to do this twice."
+        title={t("googleSection")}
+        subtitle={t("googleSubtitle")}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Bullet>Real keyword positions, clicks, impressions from Google itself.</Bullet>
-          <Bullet>Quick-wins finder — keywords at positions 4-15, one tweak from page 1.</Bullet>
-          <Bullet>Real organic traffic charts in PDF reports.</Bullet>
-          <Bullet>Free forever — 25,000 GSC queries/day, 50,000 GA4/day.</Bullet>
+          <Bullet>{t("bullet1")}</Bullet>
+          <Bullet>{t("bullet2")}</Bullet>
+          <Bullet>{t("bullet3")}</Bullet>
+          <Bullet>{t("bullet4")}</Bullet>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <Button
@@ -419,13 +420,15 @@ export function NewClientForm({
           >
             <Plug className="size-3.5" />
             {googleConnected
-              ? `Connected${googleEmail ? ` (${googleEmail})` : ""}`
-              : "Connect Google"}
+              ? googleEmail
+                ? t("googleConnectedAs", { email: googleEmail })
+                : t("googleConnected")
+              : t("connectGoogle")}
           </Button>
           {googleConnected && (
             <span className="inline-flex items-center gap-1 text-xs text-emerald-300">
               <CheckCircle2 className="size-3.5" />
-              Pick the property on this client&apos;s detail page after saving.
+              {t("pickProperty")}
             </span>
           )}
         </div>
@@ -451,17 +454,17 @@ export function NewClientForm({
         <Button type="submit" disabled={pending}>
           {pending
             ? isEdit
-              ? "Saving…"
-              : "Adding…"
+              ? t("saving")
+              : t("adding")
             : isEdit
-              ? "Save changes"
-              : "Add client"}
+              ? t("saveChanges")
+              : t("addClient")}
         </Button>
         <Link
           href={isEdit && clientId ? `/clients/${clientId}` : "/clients"}
           className="text-sm text-muted-foreground hover:underline"
         >
-          Cancel
+          {t("cancel")}
         </Link>
       </div>
     </form>
@@ -535,10 +538,11 @@ function Field({
 }
 
 function LogoPreview({ src }: { src: string }) {
+  const t = useTranslations("clientForm");
   if (!src) {
     return (
       <div className="flex size-20 items-center justify-center rounded-xl border border-dashed border-white/10 text-[10px] uppercase tracking-wider text-muted-foreground/50">
-        Logo
+        {t("logo")}
       </div>
     );
   }
@@ -547,7 +551,7 @@ function LogoPreview({ src }: { src: string }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
-        alt="Site logo preview"
+        alt={t("logoAlt")}
         className="max-h-full max-w-full object-contain"
         onError={(e) => {
           (e.currentTarget as HTMLImageElement).style.display = "none";

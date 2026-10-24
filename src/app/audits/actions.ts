@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { redirect } from "next/navigation";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { and, desc, eq, inArray, like, ne } from "drizzle-orm";
@@ -84,6 +86,7 @@ export async function runAuditForClient(
   clientId: number,
   input?: FormData | AuditMode,
 ) {
+  await requireSignedIn();
   const requested = input instanceof FormData ? input.get("mode") : input;
   const mode: AuditMode = isAuditMode(requested) ? requested : "quick";
   const [client] = await db

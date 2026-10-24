@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { measureCwv, type CwvResult } from "@/lib/local-cwv";
 import { measureCwvPsi } from "@/lib/local-cwv-psi";
@@ -32,6 +34,7 @@ export async function runLocalCwv(
   _prev: LocalCwvState | null,
   formData: FormData,
 ): Promise<LocalCwvState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     device: formData.get("device") || "mobile",

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -24,6 +26,7 @@ export type RunGbpResult =
 export async function runGbpScrape(
   clientId: number,
 ): Promise<RunGbpResult> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -91,6 +94,7 @@ export async function generateReviewReply(opts: {
   reviewRating: number | null;
   reviewText: string;
 }): Promise<GenerateReplyResult> {
+  await requireSignedIn();
   if (!opts.reviewText.trim()) {
     return { ok: false, error: "Review text is empty" };
   }
@@ -138,6 +142,7 @@ export async function loadGbpForClient(
   clientId: number,
   selectedLocation?: string,
 ): Promise<GbpApiState> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -198,6 +203,7 @@ export async function postGbpReply(opts: {
   reviewName: string;
   comment: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   if (!opts.comment.trim()) return { ok: false, error: "Reply is empty" };
   return await replyToGbpReview({
     reviewName: opts.reviewName,
@@ -232,6 +238,7 @@ export async function composeGbpPost(opts: {
   topic: string;
   ctaUrl?: string;
 }): Promise<ComposePostResult> {
+  await requireSignedIn();
   if (!opts.topic.trim())
     return { ok: false, error: "Topic / angle is required" };
 
@@ -296,6 +303,7 @@ export async function generateGbpPostIdeas(opts: {
   businessType?: string | null;
   description?: string | null;
 }): Promise<IdeasResult> {
+  await requireSignedIn();
   const userPrompt = [
     `Business: ${opts.clientName}`,
     opts.businessType ? `Business type: ${opts.businessType}` : "",
@@ -367,6 +375,7 @@ export async function pingGbpLocation(opts: {
   clientId: number;
   locationName: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   try {
     const loc = await fetchGbpLocationSummary({
       locationName: opts.locationName,

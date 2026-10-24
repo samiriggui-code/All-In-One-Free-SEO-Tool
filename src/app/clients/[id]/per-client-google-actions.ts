@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -9,6 +11,7 @@ import { logActivity } from "@/lib/activity";
 export async function disconnectPerClientGoogle(
   clientId: number,
 ): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   await db
     .update(clients)

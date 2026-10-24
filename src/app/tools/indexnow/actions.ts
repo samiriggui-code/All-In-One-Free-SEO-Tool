@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   getOrCreateIndexNowKey,
@@ -27,6 +29,7 @@ export async function submitIndexNow(
   _prev: SubmitState | null,
   formData: FormData,
 ): Promise<SubmitState> {
+  await requireSignedIn();
   const parsed = submitSchema.safeParse({
     host: formData.get("host"),
     urls: formData.get("urls"),
@@ -89,6 +92,7 @@ export async function verifyIndexNowKeyFile(
   _prev: { ok: boolean; error?: string } | null,
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const host = String(formData.get("host") ?? "").trim();
   if (!host) return { ok: false, error: "Host required" };
   const key = await getOrCreateIndexNowKey();

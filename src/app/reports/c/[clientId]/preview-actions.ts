@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq, desc, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { audits, auditIssues, clients, tasks } from "@/db/schema";
@@ -39,6 +41,7 @@ export type ExecPreviewResult =
 export async function previewExecSummary(
   clientId: number,
 ): Promise<ExecPreviewResult> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: "Invalid client" };
 

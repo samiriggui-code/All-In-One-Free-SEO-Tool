@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { runHealthCheck } from "@/app/tools/health-check/actions";
 import { saveSnapshot } from "@/lib/snapshots";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -44,6 +46,7 @@ export async function runBulkScan(opts: {
   urls: string;
   saveSnapshots?: boolean;
 }): Promise<BulkScanResult> {
+  await requireSignedIn();
   const startedAt = new Date();
   const urls = parseUrls(opts.urls);
   // Server-side enforcement: the UI says "max 25" but a determined caller

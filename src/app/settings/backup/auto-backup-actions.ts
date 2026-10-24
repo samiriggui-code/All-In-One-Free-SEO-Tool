@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { setSetting } from "@/lib/settings-store";
@@ -11,6 +13,7 @@ import { setSetting } from "@/lib/settings-store";
  */
 export async function saveAutoBackupSettings(formData: FormData) {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const enabled = formData.get("enabled") === "on";
   const cadenceRaw = Number(formData.get("cadence_hours"));
   const retentionRaw = Number(formData.get("retention"));

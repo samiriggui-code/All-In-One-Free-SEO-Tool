@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { auditFreshness, type FreshnessAudit } from "@/lib/freshness-check";
 import { recordToolRun } from "@/lib/tool-findings";
 import { freshnessFindings } from "@/lib/tool-finding-builders";
@@ -8,6 +10,7 @@ export async function runFreshnessAudit(
   url: string,
   sitemapUrl?: string,
 ): Promise<FreshnessAudit> {
+  await requireSignedIn();
   const trimmed = url.trim();
   if (!trimmed) return { ok: false, url: "", error: "Enter a URL first." };
   const result = await auditFreshness(trimmed, {

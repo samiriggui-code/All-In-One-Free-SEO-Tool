@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * @ai-partial
  *
@@ -59,6 +61,7 @@ export async function generateLlmsTxt(opts: {
   url: string;
   hint?: string;
 }): Promise<GenerateLlmsResult> {
+  await requireSignedIn();
   if (!opts.url?.trim()) return { ok: false, error: "URL is required" };
 
   const meta = await fetchSiteMetadata(opts.url).catch(() => null);
@@ -116,6 +119,7 @@ export async function generateLlmsTxt(opts: {
 export async function validateLlmsTxt(
   rawUrl: string,
 ): Promise<ValidateLlmsResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
   const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
   let origin: string;

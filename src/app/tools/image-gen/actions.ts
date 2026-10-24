@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { generateImage, type ImageGenInput } from "@/lib/image-gen";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -18,6 +20,7 @@ export async function runImageGen(
   _prev: GenState,
   formData: FormData,
 ): Promise<GenState> {
+  await requireSignedIn();
   const prompt = String(formData.get("prompt") ?? "").trim();
   const aspect = (String(formData.get("aspect") ?? "landscape") as
     | "square"

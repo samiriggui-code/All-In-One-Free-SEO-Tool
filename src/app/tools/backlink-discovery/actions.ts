@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   discoverBacklinks,
@@ -22,6 +24,7 @@ export async function runBacklinkDiscovery(
   _prev: DiscoveryState | null,
   formData: FormData,
 ): Promise<DiscoveryState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     targetDomain: formData.get("targetDomain"),
     skipVerify: formData.get("skipVerify"),

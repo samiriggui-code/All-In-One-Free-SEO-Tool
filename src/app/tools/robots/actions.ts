@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardedFetch, SsrfBlockedError } from "@/lib/url-guard";
 
@@ -89,6 +91,7 @@ export async function checkRobots(
    */
   allowPrivate = false,
 ): Promise<RobotsResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
   const url = normalize(rawUrl.trim());
 

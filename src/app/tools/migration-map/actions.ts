@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { redirectRules } from "@/db/schema";
@@ -39,6 +41,7 @@ export async function importToRedirectRules(
   _prev: ImportState | null,
   formData: FormData,
 ): Promise<ImportState> {
+  await requireSignedIn();
   const oldRaw = String(formData.get("oldUrls") ?? "");
   const newRaw = String(formData.get("newUrls") ?? "");
   const olds = splitList(oldRaw);
@@ -84,6 +87,7 @@ export async function runMapping(
   _prev: MigrationState | null,
   formData: FormData,
 ): Promise<MigrationState> {
+  await requireSignedIn();
   const oldRaw = String(formData.get("oldUrls") ?? "");
   const newRaw = String(formData.get("newUrls") ?? "");
   const olds = splitList(oldRaw);

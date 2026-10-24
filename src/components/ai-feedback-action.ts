@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { logFeedback, type AiFeature } from "@/lib/ai-learn";
 
 export async function logAiFeedbackAction(opts: {
@@ -10,6 +12,7 @@ export async function logAiFeedbackAction(opts: {
   correctedOutput?: string;
   note?: string;
 }): Promise<{ ok: boolean }> {
+  await requireSignedIn();
   const r = await logFeedback({
     feature: opts.feature,
     clientId: opts.clientId ?? undefined,

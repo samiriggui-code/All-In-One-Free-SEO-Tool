@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { asc, eq } from "drizzle-orm";
 import { getLocale } from "next-intl/server";
@@ -36,6 +38,7 @@ const offerSchema = z.object({
 export type OfferInput = z.input<typeof offerSchema>;
 
 export async function saveOffer(input: OfferInput): Promise<OfferActionResult> {
+  await requireSignedIn();
   if (await denied()) return { ok: false, error: "readOnly" };
   const parsed = offerSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
@@ -58,6 +61,7 @@ export async function saveOffer(input: OfferInput): Promise<OfferActionResult> {
 }
 
 export async function deleteOffer(id: number): Promise<OfferActionResult> {
+  await requireSignedIn();
   if (await denied()) return { ok: false, error: "readOnly" };
   if (!Number.isInteger(id)) return { ok: false, error: "invalid" };
   // Proposals keep their own copy of the service, so deleting it here
@@ -70,6 +74,7 @@ export async function deleteOffer(id: number): Promise<OfferActionResult> {
 
 /** Fill an empty catalogue with the starter services, in the app's language. */
 export async function loadStarterOffers(): Promise<OfferActionResult> {
+  await requireSignedIn();
   if (await denied()) return { ok: false, error: "readOnly" };
   const existing = await db
     .select({ id: serviceOffers.id })
@@ -106,6 +111,7 @@ const ratesSchema = z.object({
  * Existing proposals keep the values they were written with.
  */
 export async function saveQuoteRates(input: z.input<typeof ratesSchema>): Promise<OfferActionResult> {
+  await requireSignedIn();
   if (await denied()) return { ok: false, error: "readOnly" };
   const parsed = ratesSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };

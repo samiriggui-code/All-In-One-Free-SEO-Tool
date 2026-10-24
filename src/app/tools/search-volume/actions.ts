@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   estimateBulk,
@@ -20,6 +22,7 @@ export async function estimateVolumes(
   _prev: EstimateState | null,
   formData: FormData,
 ): Promise<EstimateState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     queries: formData.get("queries"),
     country: formData.get("country") || "US",

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -27,6 +29,7 @@ export async function createTitleTest(
   _prev: CreateTitleTestResult | null,
   formData: FormData,
 ): Promise<CreateTitleTestResult> {
+  await requireSignedIn();
   const parsed = createSchema.safeParse({
     clientId: formData.get("clientId"),
     pageUrl: formData.get("pageUrl"),
@@ -78,6 +81,7 @@ export async function createTitleTest(
 }
 
 export async function cancelTitleTest(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db
     .update(titleTests)
@@ -87,6 +91,7 @@ export async function cancelTitleTest(id: number): Promise<void> {
 }
 
 export async function deleteTitleTest(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(titleTests).where(eq(titleTests.id, id));
   revalidatePath("/title-tests");

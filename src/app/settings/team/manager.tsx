@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { Check, Copy, Link2, Loader2, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,28 +15,16 @@ import {
   setClientAccess,
 } from "./actions";
 
-const ROLES: { value: Role; label: string; blurb: string }[] = [
-  {
-    value: "owner",
-    label: "Owner",
-    blurb: "Everything, including the team and integration keys.",
-  },
-  {
-    value: "manager",
-    label: "Manager",
-    blurb: "All clients and all work. Can't change the team or API keys.",
-  },
-  {
-    value: "member",
-    label: "Member",
-    blurb: "Only assigned clients. Does the work, not the admin.",
-  },
-  {
-    value: "viewer",
-    label: "Client viewer",
-    blurb: "Read-only on assigned clients. For a client contact.",
-  },
-];
+const ROLES: Role[] = ["owner", "manager", "member", "viewer"];
+
+/** Role names and blurbs, shared with the sign-up pages. */
+function useRoleText() {
+  const t = useTranslations("auth");
+  return {
+    label: (r: Role) => t(`roles.${r}`),
+    blurb: (r: Role) => t(`roleDescriptions.${r}`),
+  };
+}
 
 type UserRow = {
   id: number;
@@ -59,6 +48,7 @@ export function TeamManager({
   assignments: { userId: number; clientId: number }[];
   invites: { id: number; email: string; role: Role; expiresInDays: number }[];
 }) {
+  const t = useTranslations("settingsTeam");
   const isOwner = me?.role === "owner";
   const [error, setError] = useState<string | null>(null);
 
@@ -74,7 +64,7 @@ export function TeamManager({
 
       {invites.length > 0 && isOwner && (
         <section className="glass-apple rounded-xl p-4">
-          <h2 className="text-sm font-medium">Waiting to be accepted</h2>
+          <h2 className="text-sm font-medium">{t("waiting")}</h2>
           <ul className="mt-3 space-y-2">
             {invites.map((i) => (
               <InviteRow key={i.id} invite={i} onError={setError} />
@@ -84,7 +74,7 @@ export function TeamManager({
       )}
 
       <section className="glass-apple rounded-xl p-4">
-        <h2 className="text-sm font-medium">People</h2>
+        <h2 className="text-sm font-medium">{t("people")}</h2>
         <ul className="mt-3 divide-y divide-white/5">
           {users.map((u) => (
             <PersonRow
@@ -110,34 +100,36 @@ function InviteCard({ onError }: { onError: (e: string | null) => void }) {
   const [role, setRole] = useState<Role>("member");
   const [link, setLink] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const t = useTranslations("settingsTeam");
+  const roleText = useRoleText();
 
   return (
     <section className="glass-apple rounded-xl p-4">
       <h2 className="flex items-center gap-2 text-sm font-medium">
-        <UserPlus className="size-4" /> Invite someone
+        <UserPlus className="size-4" /> {t("inviteTitle")}
       </h2>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <div className="min-w-56 flex-1 space-y-1.5">
-          <Label htmlFor="invite-email">Their email</Label>
+          <Label htmlFor="invite-email">{t("inviteEmail")}</Label>
           <Input
             id="invite-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="rahul@agency.com"
+            placeholder={t("inviteEmailPlaceholder")}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="invite-role">Role</Label>
+          <Label htmlFor="invite-role">{t("inviteRole")}</Label>
           <select
             id="invite-role"
             value={role}
             onChange={(e) => setRole(e.target.value as Role)}
             className="h-9 rounded-md border border-white/10 bg-white/5 px-2 text-sm"
           >
-            {ROLES.filter((r) => r.value !== "owner").map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+            {ROLES.filter((r) => r !== "owner").map((r) => (
+              <option key={r} value={r}>
+                {roleText.label(r)}
               </option>
             ))}
           </select>
@@ -158,11 +150,11 @@ function InviteCard({ onError }: { onError: (e: string | null) => void }) {
             })
           }
         >
-          {pending ? <Loader2 className="size-4 animate-spin" /> : "Create link"}
+          {pending ? <Loader2 className="size-4 animate-spin" /> : t("createLink")}
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        {ROLES.find((r) => r.value === role)?.blurb}
+        {roleText.blurb(role)}
       </p>
 
       {link && <CopyableLink path={link} />}
@@ -178,14 +170,14 @@ function InviteCard({ onError }: { onError: (e: string | null) => void }) {
  */
 function CopyableLink({ path }: { path: string }) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("settingsTeam");
   const full =
     typeof window === "undefined" ? path : `${window.location.origin}${path}`;
 
   return (
     <div className="mt-3 rounded-md bg-emerald-500/10 p-3 ring-1 ring-emerald-500/25">
       <p className="flex items-center gap-2 text-xs font-medium text-emerald-300">
-        <Link2 className="size-3.5" /> Send them this link — it works once and
-        expires in seven days.
+        <Link2 className="size-3.5" /> {t("linkHint")}
       </p>
       <div className="mt-2 flex items-center gap-2">
         <code className="min-w-0 flex-1 truncate rounded bg-black/20 px-2 py-1.5 text-xs">
@@ -201,7 +193,7 @@ function CopyableLink({ path }: { path: string }) {
           }}
         >
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? t("copied") : t("copy")}
         </Button>
       </div>
     </div>
@@ -216,6 +208,8 @@ function InviteRow({
   onError: (e: string | null) => void;
 }) {
   const [pending, start] = useTransition();
+  const t = useTranslations("settingsTeam");
+  const roleText = useRoleText();
   // Computed on the server and passed in: reading the clock during
   // render makes the component non-idempotent, and this one is rendered
   // on the server first, so it would also hydrate against a different
@@ -227,8 +221,7 @@ function InviteRow({
       <span className="min-w-0 truncate">
         {invite.email}{" "}
         <span className="text-muted-foreground">
-          · {ROLES.find((r) => r.value === invite.role)?.label} · expires in{" "}
-          {days} day{days === 1 ? "" : "s"}
+          · {roleText.label(invite.role)} · {t("expiresIn", { days })}
         </span>
       </span>
       <Button
@@ -242,7 +235,7 @@ function InviteRow({
           })
         }
       >
-        <Trash2 className="size-3.5" /> Cancel
+        <Trash2 className="size-3.5" /> {t("cancel")}
       </Button>
     </li>
   );
@@ -266,6 +259,9 @@ function PersonRow({
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<number[]>(assigned);
+  const t = useTranslations("settingsTeam");
+  const format = useFormatter();
+  const roleText = useRoleText();
   const scoped = user.role === "member" || user.role === "viewer";
 
   return (
@@ -274,18 +270,18 @@ function PersonRow({
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">
             {user.name || user.email}
-            {isMe && <span className="text-muted-foreground"> (you)</span>}
+            {isMe && <span className="text-muted-foreground"> {t("you")}</span>}
             {!user.active && (
               <span className="ml-2 rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                deactivated
+                {t("deactivated")}
               </span>
             )}
           </p>
           <p className="truncate text-xs text-muted-foreground">
             {user.email}
             {user.lastLoginAt
-              ? ` · last signed in ${new Date(user.lastLoginAt).toLocaleDateString()}`
-              : " · never signed in"}
+              ? ` · ${t("lastSignedIn", { date: format.dateTime(new Date(user.lastLoginAt), { dateStyle: "short" }) })}`
+              : ` · ${t("neverSignedIn")}`}
           </p>
         </div>
 
@@ -304,20 +300,20 @@ function PersonRow({
               className="h-8 rounded-md border border-white/10 bg-white/5 px-2 text-xs"
             >
               {ROLES.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {r.label}
+                <option key={r} value={r}>
+                  {roleText.label(r)}
                 </option>
               ))}
             </select>
           ) : (
             <span className="text-xs text-muted-foreground">
-              {ROLES.find((r) => r.value === user.role)?.label}
+              {roleText.label(user.role)}
             </span>
           )}
 
           {canManage && scoped && (
             <Button size="sm" variant="ghost" onClick={() => setOpen((o) => !o)}>
-              {assigned.length} client{assigned.length === 1 ? "" : "s"}
+              {t("clientCount", { count: assigned.length })}
             </Button>
           )}
 
@@ -334,7 +330,7 @@ function PersonRow({
                 })
               }
             >
-              {user.active ? "Deactivate" : "Reactivate"}
+              {user.active ? t("deactivate") : t("reactivate")}
             </Button>
           )}
         </div>
@@ -343,14 +339,12 @@ function PersonRow({
       {open && scoped && (
         <div className="mt-3 rounded-md bg-white/5 p-3">
           <p className="text-xs text-muted-foreground">
-            {user.name || user.email} sees only the clients ticked here.
-            Everything else in the app is filtered to match — dashboard,
-            tasks, reports, keywords.
+            {t("accessHint", { name: user.name || user.email })}
           </p>
           <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
             {clients.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                No clients yet — add one first.
+                {t("noClients")}
               </p>
             )}
             {clients.map((c) => (
@@ -383,7 +377,7 @@ function PersonRow({
               })
             }
           >
-            {pending ? <Loader2 className="size-4 animate-spin" /> : "Save access"}
+            {pending ? <Loader2 className="size-4 animate-spin" /> : t("saveAccess")}
           </Button>
         </div>
       )}

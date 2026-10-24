@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * @ai-partial
  *
@@ -25,6 +27,7 @@ export async function runCoverage(
   _prev: CoverageState | null,
   formData: FormData,
 ): Promise<CoverageState> {
+  await requireSignedIn();
   const site = String(formData.get("site") ?? "").trim();
   const urlsRaw = String(formData.get("urls") ?? "").trim();
   if (!site) return { ok: false, error: "Pick a GSC property." };
@@ -115,6 +118,7 @@ export async function analyzeFixesForCoverage(
   _prev: FixPlanState,
   formData: FormData,
 ): Promise<FixPlanState> {
+  await requireSignedIn();
   const rowsRaw = String(formData.get("rows") ?? "");
   let rows: UrlInspection[] = [];
   try {

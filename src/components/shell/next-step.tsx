@@ -12,6 +12,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { count, eq, gte } from "drizzle-orm";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import {
   clients,
@@ -26,11 +27,12 @@ import { NextStepDismissButton } from "./next-step-dismiss";
 
 const DISMISS_COOKIE_PREFIX = "next-step-dismissed-";
 
+/** `id` doubles as the message key under shell.nextStep. */
 type Step = {
-  id: string;
+  id: "ai" | "client" | "google" | "audit" | "keywords" | "report" | "tasks" | "morning";
   href: string;
-  label: string;
-  detail: string;
+  /** For labels that need a number ("3 open tasks"). */
+  count?: number;
   primary?: boolean;
 };
 
@@ -71,8 +73,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "ai",
       href: "/settings#ai",
-      label: "Connect an AI provider",
-      detail: "Free Gemini or Groq — takes 2 min",
       primary: true,
     });
     if (s) return s;
@@ -86,8 +86,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "client",
       href: "/clients/new",
-      label: "Add your first client",
-      detail: "Their site URL is all you need to start",
       primary: true,
     });
     if (s) return s;
@@ -103,8 +101,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "google",
       href: "/settings/google",
-      label: "Connect Google (GSC + GA4)",
-      detail: "Real keyword + traffic data, one-time setup",
     });
     if (s) return s;
   }
@@ -117,8 +113,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "audit",
       href: "/audits",
-      label: "Run your first audit",
-      detail: "Site-wide scan, ~2 minutes",
       primary: true,
     });
     if (s) return s;
@@ -132,8 +126,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "keywords",
       href: "/keywords",
-      label: "Track your first keyword",
-      detail: "Daily rank checks, free via browser mode",
     });
     if (s) return s;
   }
@@ -146,8 +138,6 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "report",
       href: "/reports",
-      label: "Generate your first report",
-      detail: "PDF, white-labeled, AI summary",
     });
     if (s) return s;
   }
@@ -166,8 +156,7 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "tasks",
       href: "/tasks",
-      label: `${openTasks?.value} open task${openTasks?.value === 1 ? "" : "s"}`,
-      detail: "Pick one to work on",
+      count: openTasks?.value ?? 0,
     });
     if (s) return s;
   }
@@ -177,8 +166,6 @@ async function pickNextStep(): Promise<Step | null> {
   return await maybe({
     id: "morning",
     href: "/morning",
-    label: "Daily briefing",
-    detail: "Today's priorities across all clients",
   });
 }
 
@@ -190,10 +177,13 @@ export async function NextStep() {
     step = null;
   }
   if (!step) return null;
+  const t = await getTranslations("shell.nextStep");
+  const label = t(`${step.id}.label`, { count: step.count ?? 0 });
+  const detail = t(`${step.id}.detail`);
 
   return (
     <div
-      className={`hidden items-center gap-1 rounded-md border pr-1 text-[12px] transition-colors md:inline-flex ${
+      className={`hidden max-w-full items-center gap-1 rounded-md border pr-1 text-[12px] transition-colors md:inline-flex ${
         step.primary
           ? "border-primary/40 bg-primary/10 text-foreground"
           : "border-border bg-card text-muted-foreground"
@@ -201,21 +191,21 @@ export async function NextStep() {
     >
       <Link
         href={step.href}
-        title={step.detail}
-        className={`flex items-center gap-2 px-2.5 py-1 transition-colors ${
+        title={detail}
+        className={`flex min-w-0 items-center gap-2 px-2.5 py-1 transition-colors ${
           step.primary
             ? "hover:bg-primary/20 hover:text-foreground"
             : "hover:bg-accent hover:text-foreground"
         }`}
       >
         <Sparkles
-          className={`size-3 ${step.primary ? "text-primary" : "text-muted-foreground"}`}
+          className={`size-3 shrink-0 ${step.primary ? "text-primary" : "text-muted-foreground"}`}
         />
-        <span className="font-medium">{step.label}</span>
-        <span className="hidden text-muted-foreground lg:inline">
-          — {step.detail}
+        <span className="truncate font-medium">{label}</span>
+        <span className="hidden truncate text-muted-foreground xl:inline">
+          — {detail}
         </span>
-        <ArrowRight className="size-3 opacity-60" />
+        <ArrowRight className="size-3 shrink-0 opacity-60" />
       </Link>
       <NextStepDismissButton stepId={step.id} />
     </div>

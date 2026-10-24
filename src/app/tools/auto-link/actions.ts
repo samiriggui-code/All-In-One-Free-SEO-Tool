@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   suggestAutoLinks,
   type AutoLinkSuggestion,
@@ -35,6 +37,7 @@ export async function runAutoLink(
   _prev: AutoLinkState | null,
   formData: FormData,
 ): Promise<AutoLinkState> {
+  await requireSignedIn();
   const content = String(formData.get("content") ?? "").trim();
   const pagesRaw = String(formData.get("pages") ?? "").trim();
   if (!content) return { ok: false, error: "Paste content." };

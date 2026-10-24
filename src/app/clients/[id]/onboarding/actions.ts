@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { isSurfaceId } from "@/lib/engagement-surfaces";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -39,6 +41,7 @@ export async function saveBrandStep(
   _prev: SaveBrandResult | null,
   formData: FormData,
 ): Promise<SaveBrandResult> {
+  await requireSignedIn();
   const parsed = brandSchema.safeParse({
     clientId: formData.get("clientId"),
     description: formData.get("description") ?? undefined,
@@ -83,6 +86,7 @@ export async function saveTargetingStep(
   _prev: SaveBrandResult | null,
   formData: FormData,
 ): Promise<SaveBrandResult> {
+  await requireSignedIn();
   const parsed = targetingSchema.safeParse({
     clientId: formData.get("clientId"),
     country: formData.get("country"),
@@ -129,6 +133,7 @@ export async function saveSurfacesStep(
   _prev: SaveBrandResult | null,
   formData: FormData,
 ): Promise<SaveBrandResult> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: "Invalid client." };
@@ -169,6 +174,7 @@ export async function runKeywordDiscovery(
   _prev: DiscoverState | null,
   formData: FormData,
 ): Promise<DiscoverState> {
+  await requireSignedIn();
   const id = Number(formData.get("clientId"));
   if (!Number.isFinite(id) || id <= 0)
     return { ok: false, error: "Invalid client" };
@@ -236,6 +242,7 @@ export async function acceptDiscoveredKeywords(
   _prev: SaveBrandResult | null,
   formData: FormData,
 ): Promise<SaveBrandResult> {
+  await requireSignedIn();
   const parsed = acceptKeywordsSchema.safeParse({
     clientId: formData.get("clientId"),
     selected: formData.get("selected"),
@@ -307,6 +314,7 @@ export type GenerateCalendarResult =
 export async function generateMonthlyCalendar(
   clientId: number,
 ): Promise<GenerateCalendarResult> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: "Invalid client" };
 
@@ -486,6 +494,7 @@ export async function generateMonthlyCalendar(
 }
 
 export async function skipOnboarding(clientId: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   await db
     .update(clients)
@@ -503,6 +512,7 @@ export async function skipOnboarding(clientId: number): Promise<void> {
 export async function getLearnedRulesForClient(
   clientId: number,
 ): Promise<{ rule: string; confidence: string; feature: string }[]> {
+  await requireSignedIn();
   const { aiPreferences } = await import("@/db/schema");
   const { and, isNull, or, eq: drizzleEq, desc: drizzleDesc } = await import("drizzle-orm");
   // Scoped to workspace-wide rules (client_id IS NULL) plus this
@@ -555,6 +565,7 @@ export type AuditProgress = {
 export async function getAuditProgress(
   clientId: number,
 ): Promise<AuditProgress> {
+  await requireSignedIn();
   const [row] = await db
     .select({
       id: audits.id,

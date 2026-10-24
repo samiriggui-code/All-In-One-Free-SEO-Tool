@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { renderAndCapture, type RenderResult } from "@/lib/render-capture";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -28,6 +30,7 @@ export async function runRender(
   _prev: RenderState | null,
   formData: FormData,
 ): Promise<RenderState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     device: formData.get("device") || "desktop",

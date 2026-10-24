@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -33,6 +35,7 @@ export async function addMonitoredPage(
   _prev: AddMonitorResult | null,
   formData: FormData,
 ): Promise<AddMonitorResult> {
+  await requireSignedIn();
   const parsed = addSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -62,6 +65,7 @@ export async function addMonitoredPage(
 }
 
 export async function deleteMonitoredPage(monitoredPageId: number) {
+  await requireSignedIn();
   await db
     .delete(monitoredPages)
     .where(eq(monitoredPages.id, monitoredPageId));
@@ -72,6 +76,7 @@ export async function setMonitorStatus(
   monitoredPageId: number,
   status: "active" | "paused",
 ) {
+  await requireSignedIn();
   await db
     .update(monitoredPages)
     .set({ status, updatedAt: new Date() })
@@ -213,10 +218,12 @@ async function checkPageChangesInternal(
 }
 
 export async function checkPageChanges(monitoredPageId: number) {
+  await requireSignedIn();
   await checkPageChangesInternal(monitoredPageId);
 }
 
 export async function checkAllMonitoredPages() {
+  await requireSignedIn();
   const pages = await db
     .select({ id: monitoredPages.id })
     .from(monitoredPages)

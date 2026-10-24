@@ -175,6 +175,7 @@ export function Sidebar({
 } = {}) {
   const groups = navGroupsForRole(userRole);
   const tAccount = useTranslations("nav.account");
+  const tShell = useTranslations("shell.sidebar");
   // The account block used to say "Local user · Single-user mode" on
   // every install, including agency installs with real accounts, which
   // made a signed-in owner look like they had been dropped into a local
@@ -503,7 +504,7 @@ export function Sidebar({
                           {unread[href] && unread[href] > 0 ? (
                             collapsed ? (
                               <span
-                                aria-label={`${unread[href]} new`}
+                                aria-label={tShell("newCount", { count: unread[href] })}
                                 className="absolute right-1 top-1 z-10 size-1.5 rounded-full bg-rose-500"
                               />
                             ) : (
@@ -538,7 +539,7 @@ export function Sidebar({
         {/* User block */}
         <Link
           href="/settings"
-          title={collapsed ? "Account · Settings" : undefined}
+          title={collapsed ? tShell("accountSettings") : undefined}
           className={`flex items-center gap-2 transition-colors hover:bg-sidebar-accent ${
             collapsed ? "h-12 justify-center" : "h-14 px-3"
           }`}
@@ -575,8 +576,8 @@ export function Sidebar({
               className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               title={
                 uiMode === "guided"
-                  ? "Reveal every tool in the sidebar"
-                  : "Hide advanced tools — keep the essentials only"
+                  ? tShell("revealAllTitle")
+                  : tShell("guidedTitle")
               }
             >
               <span className="inline-flex items-center gap-2">
@@ -585,10 +586,10 @@ export function Sidebar({
                 ) : (
                   <PanelLeftClose className="size-3.5" />
                 )}
-                <span>{uiMode === "guided" ? "Show all tools" : "Guided mode"}</span>
+                <span>{uiMode === "guided" ? t("showAllTools") : t("guidedMode")}</span>
               </span>
               <span className="rounded bg-sidebar-accent/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/80">
-                {uiMode === "guided" ? "Pro" : "Easy"}
+                {uiMode === "guided" ? tShell("pro") : tShell("easy")}
               </span>
             </button>
           </form>
@@ -600,7 +601,7 @@ export function Sidebar({
           }`}
         >
           <span className="size-1.5 rounded-full bg-emerald-400" />
-          {!collapsed && <span>Local · everything on this machine</span>}
+          {!collapsed && <span>{tShell("selfHosted")}</span>}
         </div>
       </div>
     </aside>

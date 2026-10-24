@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -105,6 +107,7 @@ function parseHttpLinkHeader(linkHeader: string | null): {
 }
 
 export async function checkHreflang(rawUrl: string): Promise<HreflangResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
   const url = normalize(rawUrl.trim());
 

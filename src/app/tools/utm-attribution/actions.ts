@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 
 export type UtmTouch = {
@@ -139,6 +141,7 @@ export async function runAttribution(
   _prev: AttrState,
   formData: FormData,
 ): Promise<AttrState> {
+  await requireSignedIn();
   const raw = String(formData.get("touches") ?? "").trim();
   if (!raw) return { ok: false, error: "Paste touch data first." };
   const { touches, conversions } = parsePastedTouches(raw);

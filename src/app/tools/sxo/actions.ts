@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAI } from "@/lib/ai-call";
 import { scanCwv } from "@/lib/pagespeed";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -163,6 +165,7 @@ export async function runSxoAudit(
   _prev: SxoState,
   formData: FormData,
 ): Promise<SxoState> {
+  await requireSignedIn();
   const urlRaw = String(formData.get("url") ?? "").trim();
   if (!urlRaw) return { ok: false, error: "URL required." };
   let url: string;

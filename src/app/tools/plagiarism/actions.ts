@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAI } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -22,6 +24,7 @@ export type PlagiarismResult = PlagiarismCheck | { ok: false; error: string };
 export async function checkPlagiarism(input: {
   content: string;
 }): Promise<PlagiarismResult> {
+  await requireSignedIn();
   const text = input.content.trim();
   if (!text) return { ok: false, error: "Paste content to analyze" };
   if (text.length < 100) {

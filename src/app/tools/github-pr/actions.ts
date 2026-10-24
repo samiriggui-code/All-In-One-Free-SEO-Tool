@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   openSeoFixesPr,
   type SeoFixSuggestion,
@@ -15,6 +17,7 @@ export async function runOpenPr(
   _prev: PrState,
   formData: FormData,
 ): Promise<PrState> {
+  await requireSignedIn();
   const owner = String(formData.get("owner") ?? "").trim();
   const repo = String(formData.get("repo") ?? "").trim();
   const token = String(formData.get("token") ?? "").trim();

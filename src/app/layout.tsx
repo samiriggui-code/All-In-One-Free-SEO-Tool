@@ -18,7 +18,7 @@ import { QuickAddClientProvider } from "@/components/shell/quick-add-client-dial
 import { ShortcutsHelpHotkey } from "@/components/shell/shortcuts-help-hotkey";
 import { getUnreadCounts } from "@/lib/unread-counts";
 import { redirect } from "next/navigation";
-import { accountsEnabled, currentUser } from "@/lib/auth";
+import { accountsEnabled, currentUser, effectiveRole } from "@/lib/auth";
 import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
@@ -206,7 +206,9 @@ export default async function RootLayout({
                     </div>
                   </div>
                   <AIAssistant />
-                  <PowerWidget />
+                  {/* Restart / stop are owner-only routes; nobody else
+                      gets a button that can only fail. */}
+                  {effectiveRole(me) === "owner" && <PowerWidget />}
                   <FirstRunPrompt />
                 </>
               )}

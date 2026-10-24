@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAIVision, type VisionMessage } from "@/lib/ai-vision";
 import {
   findSkill,
@@ -114,6 +116,7 @@ export async function seoChat(
   modelChoice?: { provider?: string; model?: string },
   conversationId?: number | null,
 ): Promise<SeoChatResearchResult> {
+  await requireSignedIn();
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return { ok: false, error: "No question to answer." };
   }

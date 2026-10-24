@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   extractSocialPreviews,
@@ -24,6 +26,7 @@ export async function runSocial(
   _prev: SocialState | null,
   formData: FormData,
 ): Promise<SocialState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({ url: formData.get("url") });
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };

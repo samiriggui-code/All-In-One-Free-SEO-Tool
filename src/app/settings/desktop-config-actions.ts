@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import fs from "node:fs";
 import path from "node:path";
@@ -97,6 +99,7 @@ function resolveConfigPath(): string {
 
 export async function installDesktopConfig(): Promise<InstallResult> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   try {
     const root = process.cwd();
 

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -31,6 +33,7 @@ export async function generateGuestPost(
   _prev: GenerateState,
   formData: FormData,
 ): Promise<GenerateState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const siteId = String(formData.get("siteId") ?? "");
   const topic = String(formData.get("topic") ?? "").trim();
@@ -111,6 +114,7 @@ export async function updateDraftMarkdown(
   draftId: number,
   formData: FormData,
 ) {
+  await requireSignedIn();
   const md = String(formData.get("markdown") ?? "");
   const [d] = await db
     .select({ clientId: guestPostDrafts.clientId, siteId: guestPostDrafts.siteId, targetKeyword: guestPostDrafts.targetKeyword })
@@ -134,6 +138,7 @@ export async function setDraftStatus(
   status: "draft" | "pitched" | "accepted" | "published" | "rejected",
   liveUrl?: string,
 ) {
+  await requireSignedIn();
   const [d] = await db
     .select({ clientId: guestPostDrafts.clientId })
     .from(guestPostDrafts)
@@ -160,6 +165,7 @@ export async function setDraftStatus(
 }
 
 export async function setDraftLiveUrl(draftId: number, formData: FormData) {
+  await requireSignedIn();
   const url = String(formData.get("liveUrl") ?? "").trim();
   const [d] = await db
     .select({ clientId: guestPostDrafts.clientId })
@@ -180,6 +186,7 @@ export async function setDraftLiveUrl(draftId: number, formData: FormData) {
 }
 
 export async function deleteDraft(draftId: number) {
+  await requireSignedIn();
   const [d] = await db
     .select({ clientId: guestPostDrafts.clientId })
     .from(guestPostDrafts)
@@ -191,6 +198,7 @@ export async function deleteDraft(draftId: number) {
 }
 
 export async function listDraftsForClient(clientId: number) {
+  await requireSignedIn();
   return db
     .select()
     .from(guestPostDrafts)
@@ -215,6 +223,7 @@ export async function suggestGuestPostTitles(
   _prev: SuggestTitlesState,
   formData: FormData,
 ): Promise<SuggestTitlesState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const siteId = String(formData.get("siteId") ?? "");
   const targetKeyword = String(formData.get("targetKeyword") ?? "").trim();

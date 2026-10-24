@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   fetchImagesFromUrl,
   generateBulkAlt,
@@ -15,6 +17,7 @@ export async function runBulkAlt(
   _prev: AltState | null,
   formData: FormData,
 ): Promise<AltState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { ok: false, error: "URL required." };
   const fullUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;

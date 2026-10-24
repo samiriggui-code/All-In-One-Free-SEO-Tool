@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -25,6 +27,7 @@ export async function findLinkProspects(
   _prev: ProspectSearchResult | null,
   formData: FormData,
 ): Promise<ProspectSearchResult> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     topic: formData.get("topic"),
@@ -67,6 +70,7 @@ export async function findLinkProspects(
  * directory grows organically as users prospect).
  */
 export async function trackProspect(formData: FormData): Promise<void> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   const clientId = Number(formData.get("clientId"));
   const strategy = String(formData.get("strategy") ?? "resource_pages");
