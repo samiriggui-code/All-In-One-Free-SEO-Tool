@@ -63,6 +63,13 @@ describe("CMS exporters", () => {
     expect(JSON.parse(value)).toEqual({ "@type": "Article", headline: 'Say "hi"' });
   });
 
+  it("Hugo schema cannot close the script tag it is printed into", () => {
+    const md = buildHugoMarkdown({ ...sample, schemaJsonLd: '{"headline":"a </script><script>x"}' });
+    const line = md.split("\n").find((l) => l.startsWith("schema = "))!;
+    expect(line).not.toContain("<");
+    expect(JSON.parse(JSON.parse(line.slice("schema = ".length)))).toEqual({ headline: "a </script><script>x" });
+  });
+
   it("Ghost links each clustered post to its tag", () => {
     const json = JSON.parse(buildGhostJson([sample, { ...sample, id: "p2", slug: "other", cluster: undefined }]));
     expect(json.data.posts_tags).toEqual([{ post_id: json.data.posts[0].id, tag_id: json.data.tags[0].id }]);

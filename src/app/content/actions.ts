@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
-import { canEdit, canSeeClient, currentUser } from "@/lib/auth";
+import { accountsEnabled, canEdit, canSeeClient, currentUser } from "@/lib/auth";
 import {
   createPost,
   deletePost,
@@ -60,6 +60,9 @@ const ids = z.object({
 /** Can the current user change this client's articles? */
 async function guard(clientId: number): Promise<ContentError | null> {
   const me = await currentUser();
+  // Null is also what a revoked session gives once accounts exist; only a
+  // solo install (no accounts) may act without a user.
+  if (!me && accountsEnabled()) return "notFound";
   if (me && !canEdit(me.role)) return "readOnly";
   if (!(await canSeeClient(me, clientId))) return "notFound";
   return null;
@@ -518,11 +521,14 @@ export async function publishToWordPress(input: {
   // no published URL until someone publishes it (here or in WP admin).
   const status: ContentPost["status"] = mode === "publish" ? "published" : post.status;
   if (mode === "publish") {
-    await updatePost(ctx.clientId, ctx.postId, {
+    const row = await updatePost(ctx.clientId, ctx.postId, {
       status,
       publishedUrl: created.url || null,
       publishDate: new Date(),
     });
+    // Deleted here while WordPress was publishing: the post is live but has
+    // nothing to attach to. Say so rather than report a clean success.
+    if (!row) return { ok: false, error: "notFound" };
   }
   await logActivity({
     kind: "task.completed",
@@ -542,7 +548,7 @@ export async function markArticlePublished(input: {
   postId: number;
   url: string;
 }): Promise<{ ok: true } | Fail> {
-  const parsed = ids.extend({ url: z.url().max(500) }).safeParse(input);
+  const parsed = ids.extend({ url: z.httpUrl().max(500) }).safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, postId, url } = parsed.data;
   const denied = await guard(clientId);

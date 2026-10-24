@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
-import { canSeeClient, currentUser } from "@/lib/auth";
+import { accountsEnabled, canSeeClient, currentUser } from "@/lib/auth";
 import { getPost, listPosts } from "@/lib/content-studio/store";
 import { toExportPost, type ClientForExport } from "@/lib/content-studio/article-export";
 import { buildWordPressWXR } from "@/lib/content-studio/exports/wordpress-xml";
@@ -35,13 +35,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ clie
   const format = req.nextUrl.searchParams.get("format") as Format | null;
   const postIdRaw = req.nextUrl.searchParams.get("postId");
   const postId = postIdRaw ? Number(postIdRaw) : null;
-  if (!Number.isInteger(clientId) || !format || !(format in FORMATS)) {
+  if (!Number.isInteger(clientId) || !format || !Object.hasOwn(FORMATS, format)) {
     return new NextResponse("Bad request", { status: 400 });
   }
   if (postId !== null && !Number.isInteger(postId)) return new NextResponse("Bad request", { status: 400 });
   if (FORMATS[format].single && postId === null) return new NextResponse("postId required", { status: 400 });
 
-  if (!(await canSeeClient(await currentUser(), clientId))) return new NextResponse("Not found", { status: 404 });
+  // currentUser() is also null for a revoked session, which canSeeClient
+  // would read as a solo install with no restriction.
+  const user = await currentUser();
+  if (!user && accountsEnabled()) return new NextResponse("Unauthorized", { status: 401 });
+  if (!(await canSeeClient(user, clientId))) return new NextResponse("Not found", { status: 404 });
   const [client] = await db
     .select({ name: clients.name, url: clients.url })
     .from(clients)

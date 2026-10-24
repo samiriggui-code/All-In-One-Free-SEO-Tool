@@ -68,6 +68,14 @@ export function extractFaqs(markdown: string): FaqItem[] {
 export function buildArticleSchema(a: ArticleForExport, client: ClientForExport): string {
   const title = a.title || a.primaryKeyword || "";
   const faqs = extractFaqs(a.draftMarkdown ?? "");
+  // A client URL saved without its scheme ("example.com") cannot be
+  // resolved into the article's URL; ship no schema rather than fail the
+  // whole export or publish.
+  try {
+    new URL(client.url);
+  } catch {
+    return "";
+  }
   return combineSchemas(
     articleSchema({
       title,
@@ -91,7 +99,8 @@ export function toExportPost(a: ArticleForExport, client: ClientForExport): Expo
     metaDescription: a.metaDescription ?? "",
     primaryKeyword: a.primaryKeyword ?? "",
     draftMarkdown: a.draftMarkdown ?? "",
-    schemaJsonLd: a.schemaJsonLd ?? buildArticleSchema(a, client),
+    // Rebuilt every time: a stored copy goes stale as soon as the draft changes.
+    schemaJsonLd: buildArticleSchema(a, client),
     publishDateISO: a.publishDate?.toISOString(),
     brandName: client.name,
     siteUrl: client.url,

@@ -193,6 +193,13 @@ export function Distribution({
               <a
                 key={e.format}
                 href={exportHref(e.format)}
+                onClick={async (event) => {
+                  // The route reads the saved draft: flush pending edits first.
+                  event.preventDefault();
+                  const href = event.currentTarget.href;
+                  await beforeRun();
+                  window.location.assign(href);
+                }}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs hover:bg-white/5"
               >
                 <Download className="size-3" />

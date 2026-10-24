@@ -17,7 +17,8 @@ function schemaParam(jsonLd: string): string {
   } catch {
     // Not valid JSON: keep it as typed, on one line.
   }
-  return tomlEscape(compact);
+  // "<" as \u003c keeps a "</script>" inside a value from ending the block.
+  return tomlEscape(compact.replace(/</g, "\\u003c"));
 }
 
 export const HUGO_SCHEMA_SNIPPET =

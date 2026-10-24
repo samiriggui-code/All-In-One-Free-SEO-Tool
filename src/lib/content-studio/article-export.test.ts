@@ -31,6 +31,15 @@ describe("article export helpers", () => {
     expect(graph[0].mainEntityOfPage["@id"]).toBe("https://boulangerie.fr/blog/pain-au-levain-la-methode");
   });
 
+  it("skips schema rather than throwing when the client URL has no scheme", () => {
+    expect(buildArticleSchema(article, { ...client, url: "boulangerie.fr" })).toBe("");
+  });
+
+  it("rebuilds schema instead of exporting a stale stored copy", () => {
+    const exp = toExportPost({ ...article, schemaJsonLd: '{"@type":"Old"}' }, client);
+    expect(exp.schemaJsonLd).toBe(buildArticleSchema(article, client));
+  });
+
   it("fills export fields and falls back to the title for the SEO title", () => {
     const p = toExportPost(article, client);
     expect(p.metaTitle).toBe(article.title);
