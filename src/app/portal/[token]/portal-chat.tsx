@@ -2,23 +2,40 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { portalChat, type PortalChatMessage } from "./chat-actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
-const SUGGESTIONS = [
-  "How are we doing this month?",
-  "What's been completed lately?",
-  "Which keywords are improving?",
-  "What's still in progress?",
-];
+const ASK_EVENT = "portal-chat:ask";
 
-export function PortalChat({ token }: { token: string }) {
+/**
+ * Open the assistant and ask it something, from anywhere on the page.
+ *
+ * The quote's "what does this bring me?" buttons use it, so the answer
+ * lands in the same conversation the client can carry on.
+ */
+export function askPortalAssistant(question: string) {
+  window.dispatchEvent(new CustomEvent<string>(ASK_EVENT, { detail: question }));
+}
+
+export function PortalChat({ token, hasQuote = false }: { token: string; hasQuote?: boolean }) {
+  const t = useTranslations("portal.chat");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<PortalChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const scrollRef = useRef<HTMLDivElement>(null);
+  // The listener is registered once; it reads the latest send from here.
+  const sendRef = useRef<(text: string) => void>(() => {});
+
+  const suggestions = [
+    ...(hasQuote ? [t("suggestions.quote")] : []),
+    t("suggestions.month"),
+    t("suggestions.done"),
+    t("suggestions.keywords"),
+    t("suggestions.progress"),
+  ];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,6 +62,19 @@ export function PortalChat({ token }: { token: string }) {
       }
     });
   };
+  useEffect(() => {
+    sendRef.current = send;
+  });
+
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const question = (e as CustomEvent<string>).detail;
+      setOpen(true);
+      sendRef.current(question);
+    };
+    window.addEventListener(ASK_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_EVENT, onAsk);
+  }, []);
 
   return (
     <>
@@ -55,7 +85,7 @@ export function PortalChat({ token }: { token: string }) {
           className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-violet-500/40 ring-1 ring-inset ring-white/30 hover:brightness-110"
         >
           <MessageCircle className="size-4" />
-          Ask about progress
+          {t("open")}
         </button>
       )}
 
@@ -67,9 +97,9 @@ export function PortalChat({ token }: { token: string }) {
                 <Bot className="size-4" />
               </div>
               <div>
-                <div className="text-sm font-semibold">SEO assistant</div>
+                <div className="text-sm font-semibold">{t("title")}</div>
                 <div className="text-[10px] text-muted-foreground">
-                  Read-only · your site only
+                  {t("subtitle")}
                 </div>
               </div>
             </div>
@@ -77,7 +107,7 @@ export function PortalChat({ token }: { token: string }) {
               type="button"
               onClick={() => setOpen(false)}
               className="text-muted-foreground hover:text-foreground"
-              aria-label="Close"
+              aria-label={t("close")}
             >
               <X className="size-4" />
             </button>
@@ -90,11 +120,10 @@ export function PortalChat({ token }: { token: string }) {
             {messages.length === 0 && (
               <div className="space-y-3">
                 <div className="rounded-xl bg-white/[0.03] p-3 text-muted-foreground ring-1 ring-inset ring-white/5">
-                  Hi! I can summarize what we&apos;ve been doing on your site —
-                  scores, keywords, recent fixes. Try one:
+                  {t("welcome")}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {SUGGESTIONS.map((s) => (
+                  {suggestions.map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -126,7 +155,7 @@ export function PortalChat({ token }: { token: string }) {
             {pending && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="size-3 animate-spin" />
-                Thinking…
+                {t("thinking")}
               </div>
             )}
 
@@ -147,7 +176,7 @@ export function PortalChat({ token }: { token: string }) {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about your progress…"
+              placeholder={t("placeholder")}
               disabled={pending}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:opacity-50"
             />
@@ -155,7 +184,7 @@ export function PortalChat({ token }: { token: string }) {
               type="submit"
               disabled={pending || !input.trim()}
               className="inline-flex h-9 items-center justify-center rounded-md bg-violet-500/20 px-3 text-violet-200 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/30 disabled:opacity-40"
-              aria-label="Send"
+              aria-label={t("send")}
             >
               {pending ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -166,7 +195,7 @@ export function PortalChat({ token }: { token: string }) {
           </form>
           <div className="border-t border-white/5 bg-white/[0.02] px-4 py-1.5 text-center text-[9px] text-muted-foreground">
             <Sparkles className="mr-1 inline size-2.5" />
-            AI-generated · accuracy not guaranteed
+            {t("aiNote")}
           </div>
         </div>
       )}

@@ -64,6 +64,12 @@ export function ProfileMenu() {
   // with accounts. A solo or shared-password install has nobody to sign
   // in as, and there the menu is the way into Settings.
   const signedOut = status?.mode === "accounts" && !me;
+  // Workspace administration is the owner's (see lib/permissions.ts);
+  // without accounts there is nobody else, so the menu shows it all.
+  // Until the status has loaded (or if it fails) nobody is assumed to
+  // be the owner.
+  const isOwner = status !== null && !signedOut && (!me || me.role === "owner");
+  const isViewer = me?.role === "viewer";
   const initial = (me?.name || me?.email || "P").trim().charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -113,7 +119,7 @@ export function ProfileMenu() {
             </p>
           </div>
           <div className="flex flex-col py-1">
-            {!signedOut ? (
+            {isOwner ? (
               <>
                 <Link
                   href="/settings/team"
@@ -172,19 +178,29 @@ export function ProfileMenu() {
                   Backup &amp; restore
                 </Link>
               </>
-            ) : onLoginScreen ? (
-              <p className="px-3 py-2 text-[11px] text-muted-foreground">
-                Admin links appear after you sign in. Use the form below.
-              </p>
-            ) : (
+            ) : me && !isViewer ? (
               <Link
-                href="/login"
+                href="/settings"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
               >
                 <Settings className="size-3.5 text-muted-foreground" />
-                Sign in
+                Settings
               </Link>
+            ) : me ? null : onLoginScreen ? (
+              <p className="px-3 py-2 text-[11px] text-muted-foreground">
+                Admin links appear after you sign in. Use the form below.
+              </p>
+            ) : (
+              // A plain link on purpose: the sign-in page has its own frame,
+              // and a client-side navigation would keep the app shell.
+              <a
+                href="/login"
+                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+              >
+                <Settings className="size-3.5 text-muted-foreground" />
+                Sign in
+              </a>
             )}
             <Link
               href="/seo-chat/capabilities"

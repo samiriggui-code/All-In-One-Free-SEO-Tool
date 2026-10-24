@@ -16,17 +16,28 @@
  *
  * The tradeoff of stateless sessions is that you cannot revoke an
  * individual token before it expires. We accept that and mitigate it:
- * the token embeds a `pw` fingerprint of the user's password hash and
- * their active flag, so deactivating someone or changing their password
- * invalidates every session they have — which are the two revocations
- * that actually matter for an agency. Sessions are 14 days, not 30, for
+ * the token embeds a `pw` fingerprint of the user's password hash, their
+ * active flag and their role, so deactivating someone, changing their
+ * password or changing their role invalidates every session they have —
+ * the revocations that actually matter for an agency. Sessions are 14 days, not 30, for
  * the same reason.
  *
  * Everything here uses WebCrypto only. No node:crypto, no imports that
  * would pull the Node runtime into the edge bundle.
  */
 
-const VERSION = "v1";
+// v2 adds the role, so middleware can apply role rules without a
+// database. v1 tokens are refused: everyone signs in once after the
+// upgrade, which is the price of the gate knowing who it is talking to.
+const VERSION = "v2";
+
+/** Kept in sync with the `users.role` enum; edge code cannot import the schema. */
+export const SESSION_ROLES = ["owner", "manager", "member", "viewer"] as const;
+export type SessionRole = (typeof SESSION_ROLES)[number];
+
+function isSessionRole(value: string): value is SessionRole {
+  return (SESSION_ROLES as readonly string[]).includes(value);
+}
 /** 14 days. Short enough that a stolen laptop stops mattering fairly soon. */
 export const SESSION_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 export const SESSION_COOKIE = "stb_session";
@@ -35,8 +46,14 @@ export type SessionClaims = {
   userId: number;
   /** Epoch ms. */
   expiresAt: number;
-  /** Fingerprint of password hash + active flag — see file header. */
+  /** Fingerprint of password hash + active flag + role — see file header. */
   fingerprint: string;
+  /**
+   * The role at signing time. Safe to trust at the edge only because a
+   * role change also changes the fingerprint, which the Node side checks
+   * on every request: a demoted user's old token stops working.
+   */
+  role: SessionRole;
 };
 
 function b64url(bytes: Uint8Array): string {
@@ -70,8 +87,11 @@ async function hmac(secret: string, message: string): Promise<string> {
 export async function userFingerprint(
   passwordHash: string,
   active: boolean,
+  role: string,
 ): Promise<string> {
-  const data = new TextEncoder().encode(`${passwordHash}|${active ? 1 : 0}`);
+  const data = new TextEncoder().encode(
+    `${passwordHash}|${active ? 1 : 0}|${role}`,
+  );
   const digest = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(digest))
     .slice(0, 8)
@@ -83,7 +103,7 @@ export async function signSession(
   claims: SessionClaims,
   secret: string,
 ): Promise<string> {
-  const payload = `${VERSION}.${claims.userId}.${claims.expiresAt}.${claims.fingerprint}`;
+  const payload = `${VERSION}.${claims.userId}.${claims.expiresAt}.${claims.fingerprint}.${claims.role}`;
   return `${payload}.${await hmac(secret, payload)}`;
 }
 
@@ -102,11 +122,12 @@ export async function verifySession(
 ): Promise<SessionClaims | null> {
   if (!token) return null;
   const parts = token.split(".");
-  if (parts.length !== 5) return null;
-  const [version, rawId, rawExp, fingerprint, sig] = parts;
+  if (parts.length !== 6) return null;
+  const [version, rawId, rawExp, fingerprint, role, sig] = parts;
   if (version !== VERSION) return null;
+  if (!isSessionRole(role)) return null;
 
-  const payload = `${version}.${rawId}.${rawExp}.${fingerprint}`;
+  const payload = `${version}.${rawId}.${rawExp}.${fingerprint}.${role}`;
   const expected = await hmac(secret, payload);
   // Constant-time-ish: same-length compare with no early exit. Both
   // values are fixed-length base64url of a SHA-256, so a length
@@ -121,5 +142,5 @@ export async function verifySession(
   if (!Number.isInteger(userId) || userId <= 0) return null;
   if (!Number.isFinite(expiresAt) || expiresAt <= now) return null;
 
-  return { userId, expiresAt, fingerprint };
+  return { userId, expiresAt, fingerprint, role };
 }

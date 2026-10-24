@@ -132,7 +132,12 @@ export async function issueSession(user: User): Promise<void> {
     {
       userId: user.id,
       expiresAt: Date.now() + SESSION_TTL_MS,
-      fingerprint: await userFingerprint(user.passwordHash, user.active),
+      fingerprint: await userFingerprint(
+        user.passwordHash,
+        user.active,
+        user.role,
+      ),
+      role: user.role,
     },
     ensureSessionSecret(),
   );
@@ -190,11 +195,11 @@ export async function currentUser(): Promise<User | null> {
   const user = db.select().from(users).where(eq(users.id, claims.userId)).get();
   if (!user || !user.active) return null;
 
-  // Password changed or account deactivated since this token was signed
+  // Password, role or active flag changed since this token was signed
   // → the token is stale. This is the revocation path stateless sessions
   // would otherwise lack.
-  const fp = await userFingerprint(user.passwordHash, user.active);
-  if (fp !== claims.fingerprint) return null;
+  const fp = await userFingerprint(user.passwordHash, user.active, user.role);
+  if (fp !== claims.fingerprint || claims.role !== user.role) return null;
 
   return user;
 }
@@ -316,6 +321,44 @@ export async function requireClientAccess(
 }
 
 /**
+ * The role a request acts with: the user's own, "owner" on a solo or
+ * shared-password install (there is nobody else to be), and null when
+ * accounts are on but nobody valid is signed in.
+ *
+ * Checks written as `me && !canEdit(me.role)` let a null user through,
+ * which was right before accounts existed and wrong after: a revoked
+ * session also comes back as null. Use these helpers instead.
+ */
+export function effectiveRole(user: User | null): Role | null {
+  if (user) return user.role;
+  return accountsEnabled() ? null : "owner";
+}
+
+export function userMayEdit(user: User | null): boolean {
+  const role = effectiveRole(user);
+  return role !== null && canEdit(role);
+}
+
+export function mayManageSettings(user: User | null): boolean {
+  const role = effectiveRole(user);
+  return role !== null && canManageSettings(role);
+}
+
+/**
+ * Guard for server actions that change workspace-wide configuration:
+ * integration keys, SMTP, Google credentials, API and MCP tokens,
+ * backups, branding. Owner only (or a solo install).
+ *
+ * Server actions are reachable by id from any page, so a check on the
+ * page path is not enough; the action itself has to refuse.
+ */
+export async function assertOwner(): Promise<void> {
+  if (!mayManageSettings(await currentUser())) {
+    throw new Error("Only the workspace owner can change this setting.");
+  }
+}
+
+/**
  * The client ids a user may see, or `null` meaning "no restriction".
  *
  * Returning null rather than "every id" is deliberate: callers can then
@@ -325,7 +368,12 @@ export async function requireClientAccess(
 export async function visibleClientIds(
   user: User | null,
 ): Promise<number[] | null> {
-  if (!user) return null; // solo mode — everything is visible
+  // No user is only "everything" on a solo install. With accounts on,
+  // null means signed out or a stale session (deleted user, password
+  // changed, deactivated) — and that must see nothing, not the whole
+  // agency. Treating both the same was how a revoked session kept full
+  // access as a "Local user".
+  if (!user) return accountsEnabled() ? [] : null;
   if (seesAllClients(user.role)) return null;
   const rows = db
     .select({ clientId: clientMembers.clientId })
@@ -339,7 +387,7 @@ export async function canSeeClient(
   user: User | null,
   clientId: number,
 ): Promise<boolean> {
-  if (!user) return true;
+  if (!user) return !accountsEnabled();
   if (seesAllClients(user.role)) return true;
   const row = db
     .select({ clientId: clientMembers.clientId })

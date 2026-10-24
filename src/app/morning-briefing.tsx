@@ -7,7 +7,8 @@ import {
   pageChanges,
   tasks,
 } from "@/db/schema";
-import { and, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
+import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import {
   AlertTriangle,
   ArrowRight,
@@ -16,6 +17,7 @@ import {
   Sparkles,
   TrendingDown,
 } from "lucide-react";
+import { scopedClientIds } from "@/lib/client-scope";
 
 type BriefItem = {
   kind: "page-change" | "audit-issue" | "stale-task" | "decay";
@@ -54,6 +56,12 @@ async function gatherBriefing(): Promise<BriefItem[]> {
 
   const items: BriefItem[] = [];
 
+  // A member or client viewer only hears about their own clients. Filter
+  // in each query, before its limit, or other clients' rows use it up.
+  const scope = await scopedClientIds();
+  const inScope = (col: AnySQLiteColumn) =>
+    scope === null ? undefined : inArray(col, scope.length ? scope : [-1]);
+
   // Recent page changes (last 24h)
   const changes = await db
     .select({
@@ -73,7 +81,7 @@ async function gatherBriefing(): Promise<BriefItem[]> {
       eq(pageChanges.monitoredPageId, monitoredPages.id),
     )
     .leftJoin(clients, eq(monitoredPages.clientId, clients.id))
-    .where(gte(pageChanges.detectedAt, dayAgo))
+    .where(and(gte(pageChanges.detectedAt, dayAgo), inScope(monitoredPages.clientId)))
     .orderBy(desc(pageChanges.detectedAt))
     .limit(10);
 
@@ -108,6 +116,7 @@ async function gatherBriefing(): Promise<BriefItem[]> {
       and(
         eq(audits.status, "completed"),
         gte(audits.completedAt, dayAgo),
+        inScope(audits.clientId),
       ),
     )
     .orderBy(desc(audits.completedAt))
@@ -146,7 +155,7 @@ async function gatherBriefing(): Promise<BriefItem[]> {
     })
     .from(tasks)
     .leftJoin(clients, eq(tasks.clientId, clients.id))
-    .where(and(eq(tasks.status, "todo"), lt(tasks.createdAt, weekAgo)))
+    .where(and(eq(tasks.status, "todo"), lt(tasks.createdAt, weekAgo), inScope(tasks.clientId)))
     .orderBy(
       sql`CASE ${tasks.priority} WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END`,
       desc(tasks.createdAt),
@@ -172,6 +181,7 @@ async function gatherBriefing(): Promise<BriefItem[]> {
   }
 
   return items
+    .filter((it) => scope === null || (it.client !== null && scope.includes(it.client.id)))
     .sort((a, b) => b.detectedAt.getTime() - a.detectedAt.getTime())
     .slice(0, 8);
 }

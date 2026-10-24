@@ -1,13 +1,13 @@
 "use client";
 
 import { Suspense, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, Loader2, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AuthCard } from "@/components/auth/auth-card";
 import { safeInternalPath } from "@/lib/safe-internal-path";
 
 export function LoginForm({ mode }: { mode: "accounts" | "password" }) {
@@ -19,7 +19,6 @@ export function LoginForm({ mode }: { mode: "accounts" | "password" }) {
 }
 
 function LoginInner({ mode }: { mode: "accounts" | "password" }) {
-  const router = useRouter();
   const search = useSearchParams();
   const t = useTranslations("auth");
   const next = safeInternalPath(search.get("next"));
@@ -49,26 +48,18 @@ function LoginInner({ mode }: { mode: "accounts" | "password" }) {
         );
         return;
       }
-      router.push(next);
-      router.refresh();
+      // A full load, not router.push: the root layout swaps the auth
+      // frame for the app shell, and layouts survive client navigation.
+      window.location.assign(next);
     });
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="glass-apple-strong w-full max-w-sm rounded-2xl p-6">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-violet-500/15 ring-1 ring-violet-400/30">
-            <Lock className="size-5 text-violet-300" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold">{t("appName")}</h1>
-            <p className="text-xs text-muted-foreground">
-              {accounts ? t("signInAccount") : t("signInPassword")}
-            </p>
-          </div>
-        </div>
-
+    <AuthCard
+      icon={<Lock className="size-5" />}
+      title={t("welcomeBack")}
+      subtitle={accounts ? t("signInAccount") : t("signInPassword")}
+    >
         <form onSubmit={submit} className="space-y-4">
           {accounts && (
             <div className="space-y-1.5">
@@ -117,21 +108,16 @@ function LoginInner({ mode }: { mode: "accounts" | "password" }) {
             )}
           </Button>
           {accounts ? (
-            <p className="text-[11px] text-muted-foreground">
-              No account yet? Ask the owner of this instance to send you an
-              invite link.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("noAccountHint")}</p>
           ) : (
-            <p className="text-[11px] text-muted-foreground">
-              Working with a team?{" "}
-              <Link href="/register" className="underline underline-offset-2">
-                Set up accounts
-              </Link>{" "}
-              so everyone signs in as themselves.
+            <p className="text-xs text-muted-foreground">
+              {t("teamHint")}{" "}
+              <a href="/register" className="underline underline-offset-2">
+                {t("setUpAccounts")}
+              </a>
             </p>
           )}
         </form>
-      </div>
-    </div>
+    </AuthCard>
   );
 }

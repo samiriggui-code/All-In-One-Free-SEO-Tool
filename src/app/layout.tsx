@@ -17,7 +17,10 @@ import { ClientErrorCapture } from "@/components/shell/client-error-capture";
 import { QuickAddClientProvider } from "@/components/shell/quick-add-client-dialog";
 import { ShortcutsHelpHotkey } from "@/components/shell/shortcuts-help-hotkey";
 import { getUnreadCounts } from "@/lib/unread-counts";
-import { currentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { accountsEnabled, currentUser } from "@/lib/auth";
+import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
 import "./globals.css";
@@ -83,7 +86,24 @@ export default async function RootLayout({
   // sidebar, no top-bar, no floating widgets — so the per-client tool
   // drawer's iframe shows ONLY the tool content. No client script, no
   // flash, no late hydration.
-  const isEmbed = (await headers()).get("x-embed") === "1";
+  const requestHeaders = await headers();
+  const isEmbed = requestHeaders.get("x-embed") === "1";
+  const pathname = requestHeaders.get(PATHNAME_HEADER) ?? "";
+  const onAuthPage = isAuthPage(pathname);
+
+  // Middleware only proves the session cookie is authentic. Whether its
+  // user still exists, is still active and has not changed password is
+  // only knowable here, and `currentUser()` answers null when any of
+  // that fails. That null used to fall through to "solo install": the
+  // shell rendered as "Local user" with every tool and every client.
+  // With accounts on, null means signed out, so go and sign in.
+  // Not `isEmbed`: `?embed=1` only hides the shell, and any page accepts
+  // it, so it would let a revoked session read any page shell-less.
+  if (accountsEnabled() && !me && !onAuthPage && !isPublicPage(pathname)) {
+    const returnTo = requestHeaders.get(RETURN_TO_HEADER) ?? pathname;
+    const next = returnTo && returnTo !== "/" ? `?next=${encodeURIComponent(returnTo)}` : "";
+    redirect(`/login${next}`);
+  }
 
   // Theme. `dark` used to be hardcoded here, which made the whole app
   // dark-only with no toggle and no way to follow the OS preference —
@@ -128,11 +148,22 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="h-screen overflow-hidden bg-background text-foreground">
+      <body
+        className={
+          onAuthPage
+            ? "min-h-dvh bg-background text-foreground"
+            : "h-screen overflow-hidden bg-background text-foreground"
+        }
+      >
         <IntlProvider locale={locale} messages={messages} timeZone={timeZone}>
           <ConfirmDialogProvider>
             <QuickAddClientProvider>
-              {isEmbed ? (
+              {onAuthPage ? (
+                // Sign-in screens get their own branded frame. Nothing
+                // of the app (sidebar, top bar, assistant) is rendered
+                // for someone who has not signed in yet.
+                <AuthShell>{children}</AuthShell>
+              ) : isEmbed ? (
                 // Minimal embedded shell — just the page content. The
                 // host (drawer) owns the chrome.
                 <main className="h-full overflow-y-auto p-4 md:p-6">
@@ -146,6 +177,14 @@ export default async function RootLayout({
                       uiMode={uiMode}
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
+                      user={me ? { name: me.name, email: me.email } : null}
+                      authMode={
+                        accountsEnabled()
+                          ? "accounts"
+                          : process.env.APP_PASSWORD
+                            ? "password"
+                            : "open"
+                      }
                     />
                     <div className="flex h-full min-w-0 flex-1 flex-col">
                       <TopBar

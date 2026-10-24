@@ -10,7 +10,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { agentActions } from "@/db/schema";
 import {
-  canManageSettings,
+  mayManageSettings,
   canSeeClient,
   currentUser,
   visibleClientIds,
@@ -57,7 +57,7 @@ export async function saveAgentSettings(
   // Autonomy is a workspace-wide setting that decides whether anything
   // writes to live sites, so it is owner-or-solo territory.
   const me = await currentUser();
-  if (me && !canManageSettings(me.role)) {
+  if (!mayManageSettings(me)) {
     throw new Error("Only the owner can change what the agent may do.");
   }
   const next = await setAgentSettings(patch);

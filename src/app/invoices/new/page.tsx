@@ -1,4 +1,5 @@
 import { Receipt } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
@@ -16,15 +17,16 @@ export default async function NewInvoicePage() {
     .orderBy(clients.name);
 
   const defaultInvoiceNumber = await getNextInvoiceNumber();
+  const t = await getTranslations("invoices");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="New invoice"
-        description="Build a quick invoice for any client. Add line items, tax, and notes — then download as PDF."
+        title={t("form.title")}
+        description={t("form.description")}
         icon={Receipt}
         accent="amber"
-        crumbs={[{ label: "Invoices", href: "/invoices" }, { label: "New" }]}
+        crumbs={[{ label: t("title"), href: "/invoices" }, { label: t("form.crumb") }]}
       />
       <NewInvoiceForm
         clients={allClients}
