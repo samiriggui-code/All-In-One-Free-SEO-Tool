@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Sparkles, Zap } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getPortfolioQuickWins } from "@/lib/dashboard-data";
 
 export async function PortfolioQuickWinsPanel() {
   const wins = await getPortfolioQuickWins({ limit: 8 });
   if (wins.length === 0) return null;
+  const t = await getTranslations("dashboard.quickWins");
 
   return (
     <section className="glass-apple animate-page-enter relative overflow-hidden rounded-2xl">
@@ -13,11 +15,10 @@ export async function PortfolioQuickWinsPanel() {
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Zap className="size-4 text-amber-300" />
-            Quick wins across all clients
+            {t("title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Highest-impression keywords sitting at positions 4-15. One tweak
-            from page 1.
+            {t("subtitle")}
           </p>
         </div>
       </header>
@@ -39,8 +40,7 @@ export async function PortfolioQuickWinsPanel() {
                 </Link>
                 <span>·</span>
                 <span>
-                  {w.impressions.toLocaleString()} impr · {w.clicks.toLocaleString()}{" "}
-                  clicks
+                  {t("stats", { impressions: w.impressions, clicks: w.clicks })}
                 </span>
               </div>
             </div>
@@ -48,7 +48,7 @@ export async function PortfolioQuickWinsPanel() {
               <div className="font-mono text-base font-semibold text-amber-300 tabular-nums">
                 #{w.position.toFixed(1)}
               </div>
-              <div className="text-[11px] text-muted-foreground">current</div>
+              <div className="text-[11px] text-muted-foreground">{t("current")}</div>
             </div>
           </li>
         ))}

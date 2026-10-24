@@ -13,6 +13,7 @@ import {
   Heart,
   Users2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { REPO_URL } from "@/lib/repo";
 
 type AuthStatus = {
@@ -21,12 +22,6 @@ type AuthStatus = {
   user: { id: number; name: string | null; email: string; role: string } | null;
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  owner: "Owner",
-  manager: "Manager",
-  member: "Member",
-  viewer: "Client viewer",
-};
 
 /**
  * Profile dropdown — replaces the previous static "P" avatar that did
@@ -35,6 +30,8 @@ const ROLE_LABEL: Record<string, string> = {
  */
 export function ProfileMenu() {
   const pathname = usePathname();
+  const t = useTranslations("shell.profile");
+  const tRoles = useTranslations("auth.roles");
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<AuthStatus | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -93,7 +90,7 @@ export function ProfileMenu() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Profile menu"
+        aria-label={t("menu")}
         className="relative size-8 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 grid place-items-center text-xs font-semibold text-white shadow-lg shadow-violet-500/40 ring-1 ring-inset ring-white/30 transition-transform hover:scale-105"
       >
         <span className="relative">{initial}</span>
@@ -104,18 +101,18 @@ export function ProfileMenu() {
         <div className="absolute right-0 top-10 z-50 w-60 overflow-hidden rounded-xl border border-white/10 bg-card/95 shadow-2xl shadow-violet-500/10 backdrop-blur-xl">
           <div className="border-b border-white/[0.06] px-4 py-3">
             <p className="truncate text-xs font-semibold">
-              {me?.name || me?.email || "SEO Tool"}
+              {me?.name || me?.email || t("appName")}
             </p>
             <p className="truncate text-[10px] text-muted-foreground">
               {me
-                ? `${me.email} · ${ROLE_LABEL[me.role] ?? me.role}`
+                ? `${me.email} · ${tRoles.has(me.role) ? tRoles(me.role) : me.role}`
                 : status?.mode === "accounts"
                   ? onLoginScreen
-                    ? "Sign in below"
-                    : "Not signed in"
+                    ? t("signInBelow")
+                    : t("notSignedIn")
                   : status?.mode === "password"
-                    ? "Shared password"
-                    : "Local · single-user"}
+                    ? t("sharedPassword")
+                    : t("localSingleUser")}
             </p>
           </div>
           <div className="flex flex-col py-1">
@@ -127,7 +124,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Users2 className="size-3.5 text-muted-foreground" />
-                  {me ? "Team" : "Set up team accounts"}
+                  {me ? t("team") : t("setUpTeam")}
                 </Link>
                 <Link
                   href="/settings"
@@ -135,7 +132,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Settings className="size-3.5 text-muted-foreground" />
-                  Settings
+                  {t("settings")}
                 </Link>
                 <Link
                   href="/settings#ai"
@@ -143,7 +140,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Settings className="size-3.5 text-muted-foreground" />
-                  AI provider keys
+                  {t("aiKeys")}
                 </Link>
                 <Link
                   href="/settings#update"
@@ -151,7 +148,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <RefreshCw className="size-3.5 text-muted-foreground" />
-                  Check for updates
+                  {t("updates")}
                 </Link>
                 <Link
                   href="/settings/health"
@@ -159,7 +156,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Settings className="size-3.5 text-muted-foreground" />
-                  System health
+                  {t("health")}
                 </Link>
                 <Link
                   href="/settings/errors"
@@ -167,7 +164,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Settings className="size-3.5 text-muted-foreground" />
-                  Error log
+                  {t("errors")}
                 </Link>
                 <Link
                   href="/settings/backup"
@@ -175,7 +172,7 @@ export function ProfileMenu() {
                   className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
                 >
                   <Settings className="size-3.5 text-muted-foreground" />
-                  Backup &amp; restore
+                  {t("backup")}
                 </Link>
               </>
             ) : me && !isViewer ? (
@@ -185,11 +182,11 @@ export function ProfileMenu() {
                 className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
               >
                 <Settings className="size-3.5 text-muted-foreground" />
-                Settings
+                {t("settings")}
               </Link>
             ) : me ? null : onLoginScreen ? (
               <p className="px-3 py-2 text-[11px] text-muted-foreground">
-                Admin links appear after you sign in. Use the form below.
+                {t("adminAfterSignIn")}
               </p>
             ) : (
               // A plain link on purpose: the sign-in page has its own frame,
@@ -199,7 +196,7 @@ export function ProfileMenu() {
                 className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
               >
                 <Settings className="size-3.5 text-muted-foreground" />
-                Sign in
+                {t("signIn")}
               </a>
             )}
             <Link
@@ -208,7 +205,7 @@ export function ProfileMenu() {
               className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
             >
               <HelpCircle className="size-3.5 text-muted-foreground" />
-              What the AI chat can do
+              {t("chatCapabilities")}
             </Link>
             <Link
               href="/automations/overview"
@@ -216,7 +213,7 @@ export function ProfileMenu() {
               className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
             >
               <Info className="size-3.5 text-muted-foreground" />
-              What&apos;s automated
+              {t("automated")}
             </Link>
             <div className="my-1 border-t border-white/[0.06]" />
             <Link
@@ -225,7 +222,7 @@ export function ProfileMenu() {
               className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
             >
               <Heart className="size-3.5 text-rose-300" />
-              About &amp; support the developer
+              {t("about")}
             </Link>
             <a
               href={REPO_URL}
@@ -234,7 +231,7 @@ export function ProfileMenu() {
               className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
             >
               <ExternalLink className="size-3.5 text-muted-foreground" />
-              GitHub repo
+              {t("repo")}
             </a>
             {authEnabled && (
               <button
@@ -243,7 +240,7 @@ export function ProfileMenu() {
                 className="flex items-center gap-2 px-3 py-2 text-xs text-rose-300 hover:bg-rose-500/10"
               >
                 <LogOut className="size-3.5" />
-                {me ? "Sign out" : "Sign out (clears password cookie)"}
+                {me ? t("signOut") : t("signOutPassword")}
               </button>
             )}
           </div>

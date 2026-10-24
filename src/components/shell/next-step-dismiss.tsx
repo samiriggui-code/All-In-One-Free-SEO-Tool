@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { dismissNextStep } from "./next-step-action";
 
 /**
@@ -13,6 +14,7 @@ import { dismissNextStep } from "./next-step-action";
  */
 export function NextStepDismissButton({ stepId }: { stepId: string }) {
   const [pending, start] = useTransition();
+  const t = useTranslations("shell.nextStep");
   return (
     <button
       type="button"
@@ -22,8 +24,8 @@ export function NextStepDismissButton({ stepId }: { stepId: string }) {
         })
       }
       disabled={pending}
-      title="Hide this suggestion"
-      aria-label="Hide this suggestion"
+      title={t("hide")}
+      aria-label={t("hide")}
       className="grid size-5 place-items-center rounded text-muted-foreground/70 transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
     >
       {pending ? (

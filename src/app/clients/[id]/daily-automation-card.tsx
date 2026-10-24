@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { and, eq } from "drizzle-orm";
 import { Calendar, Inbox, Sparkles } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { dailySchedules, publishQueue } from "@/db/schema";
 
@@ -53,6 +54,8 @@ export async function DailyAutomationCard({
   const lastPublished = publishedRows[0]?.publishedAt ?? null;
 
   const empty = totalSchedules === 0;
+  const t = await getTranslations("clientPage.dailyAutomation");
+  const locale = await getLocale();
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-cyan-500/[0.06] to-violet-500/[0.04] backdrop-blur-md">
@@ -63,17 +66,20 @@ export async function DailyAutomationCard({
             <Sparkles className="size-5" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold">Daily automation</h2>
+            <h2 className="text-base font-semibold">{t("title")}</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {empty
-                ? "No schedules yet. Set up auto-generation of blog posts, GBP posts, social copy, or daily checklists for this client."
-                : `${activeSchedules}/${totalSchedules} schedule${totalSchedules === 1 ? "" : "s"} active${
-                    pendingCount > 0
-                      ? ` · ${pendingCount} item${pendingCount === 1 ? "" : "s"} waiting for review`
-                      : ""
+                ? t("empty")
+                : `${t("active", { active: activeSchedules, total: totalSchedules })}${
+                    pendingCount > 0 ? t("pending", { count: pendingCount }) : ""
                   }${
                     lastPublished
-                      ? ` · last published ${new Date(lastPublished).toLocaleString().slice(0, 16)}`
+                      ? t("lastPublished", {
+                          date: new Date(lastPublished).toLocaleString(locale, {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          }),
+                        })
                       : ""
                   }.`}
             </p>
@@ -86,7 +92,7 @@ export async function DailyAutomationCard({
               className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/15 px-3 py-2 text-xs font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/25"
             >
               <Inbox className="size-3.5" />
-              Review {pendingCount}
+              {t("review", { count: pendingCount })}
             </Link>
           )}
           <Link
@@ -94,7 +100,7 @@ export async function DailyAutomationCard({
             className="inline-flex items-center gap-1.5 rounded-md bg-cyan-500/15 px-3 py-2 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25"
           >
             <Calendar className="size-3.5" />
-            {empty ? "Set up automation" : "Manage schedules"}
+            {empty ? t("setUp") : t("manage")}
           </Link>
         </div>
       </div>

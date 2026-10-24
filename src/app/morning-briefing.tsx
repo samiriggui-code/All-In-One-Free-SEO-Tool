@@ -17,6 +17,7 @@ import {
   Sparkles,
   TrendingDown,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { scopedClientIds } from "@/lib/client-scope";
 
 type BriefItem = {
@@ -42,14 +43,9 @@ const kindIcon: Record<BriefItem["kind"], typeof Clock> = {
   decay: TrendingDown,
 };
 
-const kindLabel: Record<BriefItem["kind"], string> = {
-  "page-change": "Page change",
-  "audit-issue": "Audit",
-  "stale-task": "Stale task",
-  decay: "Decay",
-};
+type T = Awaited<ReturnType<typeof getTranslations<"dashboard.briefing">>>;
 
-async function gatherBriefing(): Promise<BriefItem[]> {
+async function gatherBriefing(t: T): Promise<BriefItem[]> {
   const now = new Date();
   const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -92,7 +88,7 @@ async function gatherBriefing(): Promise<BriefItem[]> {
         c.clientId && c.clientName
           ? { id: c.clientId, name: c.clientName }
           : null,
-      title: `${c.field} changed on ${c.label || new URL(c.url).pathname}`,
+      title: t("pageChanged", { field: c.field, page: c.label || new URL(c.url).pathname }),
       detail: `${truncate(c.oldValue, 40)} → ${truncate(c.newValue, 40)}`,
       href: c.clientId ? `/monitor/c/${c.clientId}` : `/monitor`,
       detectedAt: c.detectedAt,
@@ -131,11 +127,11 @@ async function gatherBriefing(): Promise<BriefItem[]> {
         a.clientId && a.clientName
           ? { id: a.clientId, name: a.clientName }
           : null,
-      title: `Audit found ${a.issuesCount} issues`,
+      title: t("auditFound", { count: a.issuesCount }),
       detail:
         a.score !== null
-          ? `Score ${a.score}/100 · ${a.clientName ?? "unknown"}`
-          : `${a.clientName ?? "unknown"}`,
+          ? t("auditDetail", { score: a.score, client: a.clientName ?? t("unknown") })
+          : `${a.clientName ?? t("unknown")}`,
       href: `/audits/${a.id}`,
       detectedAt: a.completedAt,
       severity:
@@ -162,21 +158,21 @@ async function gatherBriefing(): Promise<BriefItem[]> {
     )
     .limit(5);
 
-  for (const t of staleTasks) {
+  for (const task of staleTasks) {
     const ageDays = Math.floor(
-      (now.getTime() - t.createdAt.getTime()) / (24 * 60 * 60 * 1000),
+      (now.getTime() - task.createdAt.getTime()) / (24 * 60 * 60 * 1000),
     );
     items.push({
       kind: "stale-task",
       client:
-        t.clientId && t.clientName
-          ? { id: t.clientId, name: t.clientName }
+        task.clientId && task.clientName
+          ? { id: task.clientId, name: task.clientName }
           : null,
-      title: t.title,
-      detail: `Created ${ageDays}d ago · ${t.priority} priority`,
+      title: task.title,
+      detail: t("staleDetail", { days: ageDays, priority: t(`priority.${task.priority}`) }),
       href: `/tasks`,
-      detectedAt: t.createdAt,
-      severity: t.priority === "high" ? "high" : "medium",
+      detectedAt: task.createdAt,
+      severity: task.priority === "high" ? "high" : "medium",
     });
   }
 
@@ -187,12 +183,13 @@ async function gatherBriefing(): Promise<BriefItem[]> {
 }
 
 function truncate(s: string | null, n: number): string {
-  if (!s) return "(empty)";
+  if (!s) return "∅";
   return s.length > n ? s.slice(0, n) + "…" : s;
 }
 
 export async function MorningBriefing() {
-  const items = await gatherBriefing();
+  const t = await getTranslations("dashboard.briefing");
+  const items = await gatherBriefing(t);
 
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -202,21 +199,20 @@ export async function MorningBriefing() {
             <Sparkles className="size-4 text-amber-300" />
           </div>
           <div>
-            <h2 className="text-base font-semibold">Today&apos;s briefing</h2>
+            <h2 className="text-base font-semibold">{t("title")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              What changed in the last 24h across your portfolio.
+              {t("subtitle")}
             </p>
           </div>
         </div>
         <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-          {items.length} signal{items.length === 1 ? "" : "s"}
+          {t("signals", { count: items.length })}
         </span>
       </header>
 
       {items.length === 0 ? (
         <div className="px-5 py-10 text-center text-sm text-muted-foreground">
-          All quiet. No new page changes, audit issues, or stale tasks. Your
-          mornings should look like this.
+          {t("empty")}
         </div>
       ) : (
         <ul className="divide-y divide-white/[0.04]">
@@ -236,7 +232,7 @@ export async function MorningBriefing() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground ring-1 ring-inset ring-white/10">
-                        {kindLabel[it.kind]}
+                        {t(`kind.${it.kind}`)}
                       </span>
                       {it.client && (
                         <span className="truncate text-[11px] font-medium text-muted-foreground">

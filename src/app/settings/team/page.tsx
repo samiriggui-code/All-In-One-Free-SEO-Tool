@@ -6,12 +6,15 @@ import { db } from "@/db/client";
 import { clientMembers, clients, users } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { accountsEnabled, canManageTeam } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 import { pendingInvites } from "@/lib/invites";
 import { TeamManager } from "./manager";
 import { requireSettingsPage } from "../access";
 
 export default async function TeamPage() {
   const me = await requireSettingsPage("/settings/team");
+  const t = await getTranslations("settingsTeam");
+  const crumbs = [{ href: "/settings", label: t("crumbSettings") }, { label: t("title") }];
 
   // Accounts are opt-in, so this page has a job to do before there is a
   // team: explain what turning them on gets you, and offer the switch.
@@ -19,22 +22,20 @@ export default async function TeamPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Team"
-          description="Give everyone their own login instead of sharing one password."
+          title={t("title")}
+          description={t("soloDescription")}
           icon={Users2}
-          crumbs={[{ href: "/settings", label: "Settings" }, { label: "Team" }]}
+          crumbs={crumbs}
         />
         <div className="glass-apple rounded-xl p-6">
           <p className="text-sm text-muted-foreground">
-            This instance is in single-password mode. That&apos;s fine for one
-            person — but if more than one of you uses it, accounts are worth
-            the two minutes:
+            {t("soloIntro")}
           </p>
           <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-            <li>· Each person signs in as themselves, with their own password</li>
-            <li>· Assign clients so people only see the ones they work on</li>
-            <li>· Task and activity history says who actually did the work</li>
-            <li>· Removing someone removes their access, not everyone&apos;s</li>
+            <li>· {t("soloPoint1")}</li>
+            <li>· {t("soloPoint2")}</li>
+            <li>· {t("soloPoint3")}</li>
+            <li>· {t("soloPoint4")}</li>
           </ul>
           <p className="mt-4 text-sm">
             {/* Plain link: /register renders outside the app shell. */}
@@ -42,10 +43,10 @@ export default async function TeamPage() {
               href="/register"
               className="font-medium underline underline-offset-4"
             >
-              Set up accounts
+              {t("soloCta")}
             </a>{" "}
             <span className="text-muted-foreground">
-              — you&apos;ll become the owner and can invite the rest of your team.
+              — {t("soloCtaHint")}
             </span>
           </p>
         </div>
@@ -65,14 +66,14 @@ export default async function TeamPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Team"
+        title={t("title")}
         description={
           canManageTeam(me?.role ?? "member")
-            ? "Invite people, set what they can see, and hand over ownership."
-            : "Who's on this instance and what they can see."
+            ? t("ownerDescription")
+            : t("memberDescription")
         }
         icon={Users2}
-        crumbs={[{ href: "/settings", label: "Settings" }, { label: "Team" }]}
+        crumbs={crumbs}
       />
       <TeamManager
         me={me ? { id: me.id, role: me.role } : null}

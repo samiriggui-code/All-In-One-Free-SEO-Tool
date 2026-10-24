@@ -1,5 +1,6 @@
 import { TrendingDown, TrendingUp, Activity } from "lucide-react";
 import { getGa4OrganicTraffic } from "@/lib/google-data";
+import { getLocale, getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
 export async function OrganicTrafficPanel({
@@ -8,6 +9,8 @@ export async function OrganicTrafficPanel({
   propertyId: string;
 }) {
   const rows = await getGa4OrganicTraffic({ propertyId, days: 28 });
+  const t = await getTranslations("clientPage.organicTraffic");
+  const locale = await getLocale();
 
   const totals = rows.reduce(
     (acc, r) => ({
@@ -32,35 +35,39 @@ export async function OrganicTrafficPanel({
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Activity className="size-4 text-cyan-300" />
-            Organic traffic (last 28 days)
+            {t("title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Real GA4 data — only Organic Search sessions, not paid or social.
+            {t("subtitle")}
           </p>
         </div>
       </header>
 
       {rows.length === 0 ? (
         <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-          No GA4 data yet for this period.
+          {t("empty")}
         </div>
       ) : (
         <div className="relative space-y-4 p-5">
           <div className="grid gap-4 sm:grid-cols-3">
             <Metric
-              label="Sessions"
+              label={t("sessions")}
               value={totals.sessions}
               delta={delta}
+              deltaLabel={delta === null ? undefined : t("vsPrior", { delta: `${delta > 0 ? "+" : ""}${delta}` })}
+              locale={locale}
               accent="cyan"
             />
             <Metric
-              label="Users"
+              label={t("users")}
               value={totals.users}
+              locale={locale}
               accent="violet"
             />
             <Metric
-              label="Pageviews"
+              label={t("pageviews")}
               value={totals.pageviews}
+              locale={locale}
               accent="emerald"
             />
           </div>
@@ -75,11 +82,15 @@ function Metric({
   label,
   value,
   delta,
+  deltaLabel,
   accent,
+  locale,
 }: {
   label: string;
   value: number;
   delta?: number | null;
+  deltaLabel?: string;
+  locale: string;
   accent: "cyan" | "violet" | "emerald";
 }) {
   const accentText = {
@@ -94,7 +105,7 @@ function Metric({
         {label}
       </div>
       <div className={cn("mt-1 text-3xl font-semibold tabular-nums", accentText)}>
-        {value.toLocaleString()}
+        {value.toLocaleString(locale)}
       </div>
       {typeof delta === "number" && (
         <div
@@ -111,8 +122,7 @@ function Metric({
           ) : delta < 0 ? (
             <TrendingDown className="size-3" />
           ) : null}
-          {delta > 0 ? "+" : ""}
-          {delta}% vs prior period
+          {deltaLabel}
         </div>
       )}
     </div>
