@@ -126,7 +126,7 @@ export async function testWebhook(url: string): Promise<
     return { ok: false, error: "Webhook URL must start with http(s)://" };
   }
   const payload = {
-    text: "🔔 Test alert from your SEO tool — webhook is wired correctly.",
+    text: "🔔 Test alert from rank_forge — webhook is wired correctly.",
     event: "test",
     triggeredAt: new Date().toISOString(),
   };
