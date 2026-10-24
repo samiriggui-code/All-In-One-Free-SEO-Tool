@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
-import { PenLine } from "lucide-react";
+import { Download, PenLine } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -68,9 +68,26 @@ export default async function ClientContentPage({
       )}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">
-          {t("listTitle", { count: posts.length })}
-        </h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="mr-auto text-sm font-semibold text-foreground">
+            {t("listTitle", { count: posts.length })}
+          </h2>
+          {posts.some((p) => p.draftMarkdown?.trim()) && (
+            <>
+              <span className="text-xs text-muted-foreground">{t("exportAll")}</span>
+              {(["wordpress", "ghost", "webflow"] as const).map((f) => (
+                <a
+                  key={f}
+                  href={`/content/c/${client.id}/export?format=${f}`}
+                  className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-xs hover:bg-white/5"
+                >
+                  <Download className="size-3" />
+                  {t(`exportFormats.${f}`)}
+                </a>
+              ))}
+            </>
+          )}
+        </div>
         {posts.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-white/10 p-6 text-sm text-muted-foreground">
             {t("listEmpty")}

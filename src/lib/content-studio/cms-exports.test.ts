@@ -54,6 +54,15 @@ describe("CMS exporters", () => {
     expect(md).toContain("# Title");
   });
 
+  it("Hugo carries the schema in front matter, not as raw HTML Hugo would drop", () => {
+    const md = buildHugoMarkdown({ ...sample, schemaJsonLd: '{\n  "@type": "Article",\n  "headline": "Say \\"hi\\""\n}' });
+    expect(md).not.toContain("<script");
+    const line = md.split("\n").find((l) => l.startsWith("schema = "))!;
+    // TOML basic string → the original JSON, compacted.
+    const value = JSON.parse(line.slice("schema = ".length));
+    expect(JSON.parse(value)).toEqual({ "@type": "Article", headline: 'Say "hi"' });
+  });
+
   it("Ghost links each clustered post to its tag", () => {
     const json = JSON.parse(buildGhostJson([sample, { ...sample, id: "p2", slug: "other", cluster: undefined }]));
     expect(json.data.posts_tags).toEqual([{ post_id: json.data.posts[0].id, tag_id: json.data.tags[0].id }]);

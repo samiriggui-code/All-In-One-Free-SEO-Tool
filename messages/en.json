@@ -900,7 +900,9 @@
       "notFound": "This article or client could not be found.",
       "invalid": "Check the fields: something is empty or too long.",
       "noOutline": "You need an outline with at least one section first.",
-      "failed": "That didn't work. Try again in a moment."
+      "failed": "That didn't work. Try again in a moment.",
+      "noDraft": "You need a written, saved article first.",
+      "noWordPress": "This client's site is not connected to WordPress."
     },
     "new": {
       "title": "New article",
@@ -970,6 +972,42 @@
       "refresh": "Re-analyse the top 10",
       "analysing": "Analysing (10-30 s)…",
       "note": "The top 10 is read once and kept for an hour. The score is a guide, not a ranking guarantee."
+    },
+    "distribution": {
+      "title": "Distribution",
+      "hint": "Publish the article, export it to a CMS, and prepare its Schema markup, social posts and newsletter.",
+      "needsDraft": "Write the article first: distribution works from the saved text.",
+      "publishTitle": "Publishing",
+      "publishedAt": "Live at:",
+      "wpDraft": "Send as a WordPress draft",
+      "wpPublish": "Publish on WordPress",
+      "confirmPublish": "Publish this article live on the client's WordPress site now?",
+      "wpDraftDone": "Draft created in WordPress.",
+      "open": "Open",
+      "wpMissing": "This client's site is not connected to WordPress.",
+      "wpConnect": "Connect it from the client page",
+      "wpFailed": "WordPress refused: {detail}",
+      "manualPlaceholder": "https://… (URL where the article is live)",
+      "markPublished": "Mark as published",
+      "exportTitle": "Export",
+      "hugoHint": "Hugo: the Schema is in the front matter (\"schema\"). Add this line once to the article template to print it:",
+      "schemaTitle": "Schema markup (JSON-LD)",
+      "schemaHint": "Article, plus FAQPage when the article has question headings. It is sent with the WordPress post and included in the exports.",
+      "socialTitle": "Social posts",
+      "socialHint": "An X thread, a LinkedIn post, Instagram, Pinterest and a WhatsApp message, drawn from the article.",
+      "newsletterTitle": "Newsletter",
+      "newsletterHint": "A short and a long excerpt to announce the article by email.",
+      "short": "Short",
+      "long": "Long",
+      "generate": "Generate",
+      "regenerate": "Regenerate",
+      "copy": "Copy"
+    },
+    "exportAll": "Export all:",
+    "exportFormats": {
+      "wordpress": "WordPress",
+      "ghost": "Ghost",
+      "webflow": "Webflow"
     }
   }
 }

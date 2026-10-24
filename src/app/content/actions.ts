@@ -23,7 +23,14 @@ import { research } from "@/lib/content-studio/seo/research";
 import { scoreDraft, type ContentScoreReport } from "@/lib/content-studio/seo/content-score";
 import { cachedCorpus, loadCorpus } from "@/lib/content-studio/corpus-cache";
 import { outlineToText, textToOutline } from "@/lib/content-studio/outline-text";
-import type { KeywordSuggestion, Outline } from "@/lib/content-studio/types";
+import { repurposeSocial } from "@/lib/content-studio/seo/social";
+import { generateNewsletter } from "@/lib/content-studio/seo/newsletter";
+import { articleSlug, buildArticleSchema, toExportPost } from "@/lib/content-studio/article-export";
+import { markdownToHtml } from "@/lib/content-studio/exports/common";
+import type { ContentPost } from "@/lib/content-studio/store";
+import { createWpPost, getClientWpCreds, setPostSeo } from "@/lib/wp-bridge";
+import { logActivity } from "@/lib/activity";
+import type { KeywordSuggestion, NewsletterPack, Outline, SocialPack } from "@/lib/content-studio/types";
 
 /**
  * Server actions behind the writing studio (/content).
@@ -35,7 +42,14 @@ import type { KeywordSuggestion, Outline } from "@/lib/content-studio/types";
  * @ai-partial — keyword ideas and the top-10 score never touch a model;
  * without a key the outline and article come back as skeletons.
  */
-export type ContentError = "readOnly" | "notFound" | "invalid" | "noOutline" | "failed";
+export type ContentError =
+  | "readOnly"
+  | "notFound"
+  | "invalid"
+  | "noOutline"
+  | "noDraft"
+  | "noWordPress"
+  | "failed";
 type Fail = { ok: false; error: ContentError };
 
 const ids = z.object({
@@ -357,4 +371,185 @@ export async function scoreArticle(input: {
   } catch {
     return { ok: false, error: "failed" };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Distribution: schema, social posts, newsletter, WordPress
+// ---------------------------------------------------------------------------
+
+type Loaded = {
+  clientId: number;
+  postId: number;
+  post: ContentPost;
+  client: NonNullable<Awaited<ReturnType<typeof clientInfo>>>;
+};
+
+async function loadForDistribution(input: { clientId: number; postId: number }): Promise<Loaded | { error: ContentError }> {
+  const parsed = ids.safeParse(input);
+  if (!parsed.success) return { error: "invalid" };
+  const { clientId, postId } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { error: denied };
+  const [post, client] = await Promise.all([getPost(clientId, postId), clientInfo(clientId)]);
+  if (!post || !client) return { error: "notFound" };
+  if (!post.draftMarkdown?.trim()) return { error: "noDraft" };
+  return { clientId, postId, post, client };
+}
+
+/** First paragraph of the draft, for the generators' "intro" input. */
+function introOf(markdown: string): string {
+  const para = markdown
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .find((p) => p && !p.startsWith("#") && !p.startsWith("- "));
+  return (para ?? markdown).slice(0, 800);
+}
+
+/** Where the article lives, or will: the published URL, else a guess from the slug. */
+function articleUrl(post: ContentPost, client: { url: string }): string {
+  if (post.publishedUrl) return post.publishedUrl;
+  try {
+    return new URL(`/blog/${articleSlug(post)}`, client.url).toString();
+  } catch {
+    return client.url;
+  }
+}
+
+export type SchemaState = { ok: true; schemaJsonLd: string } | Fail;
+
+export async function buildSchemaForArticle(input: { clientId: number; postId: number }): Promise<SchemaState> {
+  const ctx = await loadForDistribution(input);
+  if ("error" in ctx) return { ok: false, error: ctx.error };
+  const schemaJsonLd = buildArticleSchema({ ...ctx.post, schemaJsonLd: null }, ctx.client);
+  await updatePost(ctx.clientId, ctx.postId, { schemaJsonLd });
+  return { ok: true, schemaJsonLd };
+}
+
+export type SocialState = { ok: true; social: SocialPack } | Fail;
+
+export async function generateSocialPosts(input: { clientId: number; postId: number }): Promise<SocialState> {
+  const ctx = await loadForDistribution(input);
+  if ("error" in ctx) return { ok: false, error: ctx.error };
+  const { post, client } = ctx;
+  try {
+    const social = await repurposeSocial({
+      title: post.title ?? post.primaryKeyword ?? "",
+      primary_keyword: post.primaryKeyword ?? "",
+      intro: introOf(post.draftMarkdown ?? ""),
+      tldr_bullets: post.outline?.tldr_bullets ?? [],
+      conclusion_cta: post.outline?.conclusion_cta ?? "",
+      url: articleUrl(post, client),
+      brand_voice: (await getStyleProfile(ctx.clientId)) ?? undefined,
+      language: client.language,
+    });
+    await updatePost(ctx.clientId, ctx.postId, { social });
+    return { ok: true, social };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
+}
+
+export type NewsletterState = { ok: true; newsletter: NewsletterPack } | Fail;
+
+export async function generateNewsletterExcerpt(input: { clientId: number; postId: number }): Promise<NewsletterState> {
+  const ctx = await loadForDistribution(input);
+  if ("error" in ctx) return { ok: false, error: ctx.error };
+  const { post, client } = ctx;
+  try {
+    const newsletter = await generateNewsletter({
+      title: post.title ?? post.primaryKeyword ?? "",
+      primary_keyword: post.primaryKeyword ?? "",
+      intro: introOf(post.draftMarkdown ?? ""),
+      url: articleUrl(post, client),
+      language: client.language,
+    });
+    await updatePost(ctx.clientId, ctx.postId, { newsletter });
+    return { ok: true, newsletter };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
+}
+
+export type PublishState =
+  | { ok: true; url: string; status: ContentPost["status"] }
+  | Fail
+  | { ok: false; error: "wordpress"; detail: string };
+
+/**
+ * Send the article to the client's WordPress through the bridge plugin.
+ *
+ * `draft` lands it in WP admin for a last look, which is the default the
+ * daily-automation publisher uses too; `publish` puts it live. The SEO
+ * title goes in a second call because the plugin's create route has no
+ * field for it; that call failing leaves a post whose only fault is the
+ * title tag, so it does not undo the first.
+ */
+export async function publishToWordPress(input: {
+  clientId: number;
+  postId: number;
+  mode: "draft" | "publish";
+}): Promise<PublishState> {
+  const ctx = await loadForDistribution(input);
+  if ("error" in ctx) return { ok: false, error: ctx.error };
+  const mode = input.mode === "publish" ? "publish" : "draft";
+  const creds = await getClientWpCreds(ctx.clientId);
+  if (!creds) return { ok: false, error: "noWordPress" };
+
+  const { post, client } = ctx;
+  const exp = toExportPost(post, client);
+  let schema: unknown = null;
+  try {
+    schema = JSON.parse(exp.schemaJsonLd);
+  } catch {
+    // Hand-edited into something that is not JSON: publish without it.
+  }
+  const created = await createWpPost(creds, {
+    title: exp.title,
+    content: markdownToHtml(exp.draftMarkdown),
+    excerpt: exp.metaDescription,
+    metaDescription: exp.metaDescription,
+    schemaJsonLd: schema,
+    status: mode,
+  });
+  if (!created.ok) return { ok: false, error: "wordpress", detail: created.error };
+  if (post.metaTitle) await setPostSeo(creds, created.id, { title: post.metaTitle }).catch(() => null);
+
+  // A WordPress draft is not live yet: the article keeps its status and
+  // no published URL until someone publishes it (here or in WP admin).
+  const status: ContentPost["status"] = mode === "publish" ? "published" : post.status;
+  if (mode === "publish") {
+    await updatePost(ctx.clientId, ctx.postId, {
+      status,
+      publishedUrl: created.url || null,
+      publishDate: new Date(),
+    });
+  }
+  await logActivity({
+    kind: "task.completed",
+    message: `${mode === "publish" ? "Published" : "Sent as a WordPress draft"}: ${exp.title}`,
+    level: "success",
+    clientId: ctx.clientId,
+    entityType: "content_post",
+    entityId: ctx.postId,
+  });
+  revalidatePath(postPath(ctx.clientId, ctx.postId));
+  return { ok: true, url: created.url, status };
+}
+
+/** For sites the bridge cannot reach (Hugo, Ghost, Webflow...): record where it went live. */
+export async function markArticlePublished(input: {
+  clientId: number;
+  postId: number;
+  url: string;
+}): Promise<{ ok: true } | Fail> {
+  const parsed = ids.extend({ url: z.url().max(500) }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, postId, url } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const row = await updatePost(clientId, postId, { status: "published", publishedUrl: url, publishDate: new Date() });
+  if (!row) return { ok: false, error: "notFound" };
+  revalidatePath(postPath(clientId, postId));
+  revalidatePath(`/content/c/${clientId}`);
+  return { ok: true };
 }

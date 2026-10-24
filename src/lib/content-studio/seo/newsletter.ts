@@ -30,6 +30,8 @@ export async function generateNewsletter(input: {
   primary_keyword: string;
   intro: string;
   url: string;
+  /** Language the output should be written in (ISO code, e.g. "fr"). */
+  language?: string;
 }): Promise<NewsletterPack> {
   const providers = await contentProviders();
   if (providers.length === 0) return fallback(input.title, input.primary_keyword, input.url);
