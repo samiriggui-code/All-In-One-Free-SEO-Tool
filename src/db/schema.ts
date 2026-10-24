@@ -443,6 +443,8 @@ export const invoices = sqliteTable("invoices", {
   currency: text("currency").notNull().default("USD"),
   taxRate: integer("tax_rate").notNull().default(0), // basis points (0–10000)
   notes: text("notes"),
+  /** The accepted proposal this invoice bills, when it was made from one. */
+  proposalId: integer("proposal_id").unique(),
   ...timestamps,
 });
 
@@ -2407,10 +2409,10 @@ export const proposals = sqliteTable("proposals", {
   title: text("title").notNull(),
   intro: text("intro"),
   scopeJson: text("scope_json", { mode: "json" }).$type<
-    { label: string; detail: string; findings: number }[]
+    import("../lib/proposal-scope").ScopeLine[]
   >(),
   pricingJson: text("pricing_json", { mode: "json" }).$type<
-    { label: string; detail: string; amount: number }[]
+    import("../lib/quote").PriceLine[]
   >(),
   currency: text("currency").notNull().default("USD"),
   terms: text("terms"),
@@ -2464,6 +2466,23 @@ export const proposals = sqliteTable("proposals", {
   }),
   basedOnScore: integer("based_on_score"),
   basedOnAt: integer("based_on_at", { mode: "timestamp" }),
+  /**
+   * The catalogue services this quote sells, copied in when picked.
+   *
+   * Frozen like the rest of the document: editing a service's price or
+   * deliverables in the catalogue next month must not rewrite a quote
+   * the client already has.
+   */
+  offersJson: text("offers_json", { mode: "json" }).$type<
+    import("../lib/service-offers").OfferSnapshot[] | null
+  >(),
+  /**
+   * How the quote is priced: the hourly rate and which audit severities
+   * the fixes cover. Frozen with the document for the same reason.
+   */
+  quoteJson: text("quote_json", { mode: "json" }).$type<
+    import("../lib/quote").QuoteSettings | null
+  >(),
   status: text("status", {
     enum: ["draft", "sent", "accepted", "declined"],
   })
@@ -2478,6 +2497,37 @@ export const proposals = sqliteTable("proposals", {
     .default(sql`(unixepoch())`),
 });
 export type Proposal = typeof proposals.$inferSelect;
+
+/**
+ * The agency's catalogue of services: what each one contains, how long
+ * it takes, roughly how much work it is, and what it costs.
+ *
+ * Picked into a proposal to turn it into a quote the client can read:
+ * the deliverables, the duration and the price come from here, so the
+ * same service is described the same way to every prospect.
+ */
+export const serviceOffers = sqliteTable("service_offers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  /** one_off: delivered once. monthly: billed and delivered every month. */
+  kind: text("kind", { enum: ["one_off", "monthly"] }).notNull().default("one_off"),
+  /** flat: the price below. hourly: audit findings × minutes per fix × hourly rate. */
+  billing: text("billing", { enum: ["flat", "hourly"] }).notNull().default("flat"),
+  /** Who it is for and what it achieves, in a sentence or two. */
+  summary: text("summary"),
+  deliverables: text("deliverables", { mode: "json" }).$type<string[]>().notNull(),
+  /** Hours of work: in total for one_off, per month for monthly. */
+  estimatedHours: integer("estimated_hours").notNull().default(0),
+  /** Delivery time in days for one_off; minimum commitment in months for monthly. */
+  duration: integer("duration").notNull().default(0),
+  /** Whole currency units, excluding tax. Per month for monthly. */
+  price: integer("price").notNull().default(0),
+  currency: text("currency").notNull().default("EUR"),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  position: integer("position").notNull().default(0),
+  ...timestamps,
+});
+export type ServiceOffer = typeof serviceOffers.$inferSelect;
 
 /**
  * What we know about a client's business, kept between runs.

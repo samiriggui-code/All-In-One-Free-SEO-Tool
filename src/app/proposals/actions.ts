@@ -3,25 +3,42 @@
 import { revalidatePath } from "next/cache";
 import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { classifyIntent } from "@/lib/keyword-research";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
+import { z } from "zod";
 import { db } from "@/db/client";
 import {
   auditIssues,
   audits,
   clients,
   graderLeads,
+  invoices,
   keywordRankings,
   keywords,
   proposals,
   tasks,
 } from "@/db/schema";
-import { canEdit, canSeeClient, currentUser } from "@/lib/auth";
-import { deriveScope, unmappedFindingTypes } from "@/lib/proposal-scope";
+import { accountsEnabled, canEdit, canSeeClient, currentUser } from "@/lib/auth";
+import { SEVERITIES, deriveScope, unmappedFindingTypes } from "@/lib/proposal-scope";
+import { DEFAULT_HOURLY_RATE, DEFAULT_QUOTE, type QuoteSettings } from "@/lib/quote";
+import { getSetting } from "@/lib/settings-store";
 
 async function assertCanEdit(): Promise<string | null> {
   const me = await currentUser();
+  // A signed-out caller on a workspace with accounts is not the local
+  // single user: it must not be allowed to write.
+  if (!me && accountsEnabled()) return "You have read-only access.";
   if (me && !canEdit(me.role)) return "You have read-only access.";
   return null;
+}
+
+/** The locale documents are written in. Falls back to French, the default. */
+async function docLocale(): Promise<string> {
+  try {
+    return await getLocale();
+  } catch {
+    return "fr";
+  }
 }
 
 export type CreateResult =
@@ -136,8 +153,16 @@ export async function buildProposal(input: {
     return { ok: false, error: "Pick a client or a lead." };
   }
 
-  const scope = deriveScope(findings);
+  const locale = await docLocale();
+  const scope = deriveScope(findings, {
+    locale,
+    minutes: await getSetting<Record<string, number>>("quote.minutes"),
+  });
   const unmapped = unmappedFindingTypes(findings);
+  const quote: QuoteSettings = {
+    ...DEFAULT_QUOTE,
+    hourlyRate: (await getSetting<number>("quote.hourly_rate")) ?? DEFAULT_HOURLY_RATE,
+  };
 
   const [row] = await db
     .insert(proposals)
@@ -147,10 +172,14 @@ export async function buildProposal(input: {
       prospectName,
       prospectUrl,
       prospectEmail,
-      title: `SEO proposal — ${prospectName}`,
+      title: locale === "fr" ? `Proposition SEO — ${prospectName}` : `SEO proposal — ${prospectName}`,
       intro: null,
       scopeJson: scope,
       pricingJson: [],
+      offersJson: [],
+      quoteJson: quote,
+      // The catalogue and the hourly rate are in euros whatever the UI language.
+      currency: "EUR",
       auditId,
       basedOnScore: score,
       basedOnAt,
@@ -160,20 +189,75 @@ export async function buildProposal(input: {
   return { ok: true, id: row.id, unmapped };
 }
 
+const severitySchema = z.enum(["critical", "high", "medium", "low"]);
+
+const patchSchema = z.object({
+  title: z.string().trim().max(200).optional(),
+  intro: z.string().max(5000).optional(),
+  terms: z.string().max(5000).optional(),
+  currency: z.string().trim().min(3).max(3).optional(),
+  scope: z
+    .array(
+      z.object({
+        label: z.string().max(200),
+        detail: z.string().max(1000),
+        findings: z.number().int().min(0),
+        key: z.string().max(40).optional(),
+        minutesEach: z.number().int().min(0).max(4800).optional(),
+        bySeverity: z.partialRecord(severitySchema, z.number().int().min(0)).optional(),
+      }),
+    )
+    .max(50)
+    .optional(),
+  pricing: z
+    .array(
+      z.object({
+        label: z.string().max(200),
+        detail: z.string().max(500),
+        amount: z.number().min(0).max(10_000_000),
+        recurring: z.boolean().optional(),
+        offerId: z.number().int().optional(),
+      }),
+    )
+    .max(50)
+    .optional(),
+  offers: z
+    .array(
+      z.object({
+        offerId: z.number().int(),
+        name: z.string().max(200),
+        kind: z.enum(["one_off", "monthly"]),
+        billing: z.enum(["flat", "hourly"]),
+        summary: z.string().max(1000),
+        deliverables: z.array(z.string().max(300)).max(30),
+        estimatedHours: z.number().int().min(0).max(10_000),
+        duration: z.number().int().min(0).max(1000),
+        price: z.number().min(0).max(10_000_000),
+      }),
+    )
+    .max(20)
+    .optional(),
+  quote: z
+    .object({
+      hourlyRate: z.number().min(0).max(10_000),
+      severities: z.array(severitySchema).max(SEVERITIES.length),
+      alternatives: z.boolean().optional(),
+    })
+    .optional(),
+  status: z.enum(["draft", "sent", "accepted", "declined"]).optional(),
+});
+
+export type ProposalPatch = z.input<typeof patchSchema>;
+
 export async function updateProposal(
   id: number,
-  patch: {
-    title?: string;
-    intro?: string;
-    terms?: string;
-    currency?: string;
-    scope?: { label: string; detail: string; findings: number }[];
-    pricing?: { label: string; detail: string; amount: number }[];
-    status?: "draft" | "sent" | "accepted" | "declined";
-  },
+  rawPatch: ProposalPatch,
 ): Promise<{ ok: boolean; error?: string }> {
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
+  const parsed = patchSchema.safeParse(rawPatch);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+  const { offers, quote, ...patch } = parsed.data;
 
   const [existing] = await db
     .select({ clientId: proposals.clientId })
@@ -194,6 +278,8 @@ export async function updateProposal(
       ...patch,
       ...(patch.scope ? { scopeJson: patch.scope } : {}),
       ...(patch.pricing ? { pricingJson: patch.pricing } : {}),
+      ...(offers ? { offersJson: offers } : {}),
+      ...(quote ? { quoteJson: quote } : {}),
       ...(patch.status === "sent" ? { sentAt: new Date() } : {}),
       updatedAt: new Date(),
     })
@@ -225,9 +311,101 @@ export async function deleteProposal(
 ): Promise<{ ok: boolean; error?: string }> {
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
+  const [existing] = await db
+    .select({ clientId: proposals.clientId })
+    .from(proposals)
+    .where(eq(proposals.id, id))
+    .limit(1);
+  if (!existing) return { ok: false, error: "No such proposal." };
+  if (existing.clientId && !(await canSeeClient(await currentUser(), existing.clientId))) {
+    return { ok: false, error: "No such proposal." };
+  }
   await db.delete(proposals).where(eq(proposals.id, id));
   revalidatePath("/proposals");
   return { ok: true };
+}
+
+// =============== Invoice from an accepted proposal ===============
+
+export type InvoiceFromProposalResult =
+  | { ok: true; invoiceId: number }
+  | { ok: false; error: "readOnly" | "notFound" | "notAccepted" | "noClient" | "noPricing" | "alternatives" };
+
+/**
+ * Bill an accepted proposal: one invoice line per price line.
+ *
+ * One-off lines are billed in full. Monthly lines are billed for the
+ * first month, which is what is due at signature; the following months
+ * are invoiced as they come. If an invoice was already made from this
+ * proposal it is returned rather than duplicated.
+ */
+export async function createInvoiceFromProposal(
+  proposalId: number,
+): Promise<InvoiceFromProposalResult> {
+  if (await assertCanEdit()) return { ok: false, error: "readOnly" };
+  if (!Number.isInteger(proposalId)) return { ok: false, error: "notFound" };
+
+  const [p] = await db.select().from(proposals).where(eq(proposals.id, proposalId)).limit(1);
+  if (!p) return { ok: false, error: "notFound" };
+  if (p.clientId && !(await canSeeClient(await currentUser(), p.clientId))) {
+    return { ok: false, error: "notFound" };
+  }
+  if (p.status !== "accepted") return { ok: false, error: "notAccepted" };
+  // Invoices belong to a client. A proposal made from a lead has none
+  // until the lead is added as a client.
+  if (!p.clientId) return { ok: false, error: "noClient" };
+
+  const [already] = await db
+    .select({ id: invoices.id })
+    .from(invoices)
+    .where(eq(invoices.proposalId, p.id))
+    .limit(1);
+  if (already) return { ok: true, invoiceId: already.id };
+
+  // Options to choose from: the client took only one of them, and adding
+  // up every line would bill services nobody ordered.
+  if (p.quoteJson?.alternatives && (p.offersJson?.length ?? 0) > 1) {
+    return { ok: false, error: "alternatives" };
+  }
+
+  const fr = (await docLocale()) === "fr";
+  const items = (p.pricingJson ?? [])
+    .filter((l) => l.label.trim() && Number(l.amount) > 0)
+    .map((l) => ({
+      description: (l.recurring ? `${l.label} — ${fr ? "mois 1" : "month 1"}` : l.label).slice(0, 200),
+      quantity: 1,
+      rate: Number(l.amount),
+    }));
+  if (items.length === 0) return { ok: false, error: "noPricing" };
+
+  const [{ value }] = await db.select({ value: count() }).from(invoices);
+  const year = new Date().getFullYear();
+  const [row] = await db
+    .insert(invoices)
+    .values({
+      clientId: p.clientId,
+      proposalId: p.id,
+      invoiceNumber: `${fr ? "FAC" : "INV"}-${year}-${String(value + 1).padStart(4, "0")}`,
+      status: "draft",
+      items,
+      currency: p.currency,
+      notes: p.title,
+    })
+    // Two clicks racing: the unique index lets only one invoice through.
+    .onConflictDoNothing({ target: invoices.proposalId })
+    .returning({ id: invoices.id });
+  if (!row) {
+    const [existing] = await db
+      .select({ id: invoices.id })
+      .from(invoices)
+      .where(eq(invoices.proposalId, p.id))
+      .limit(1);
+    return existing ? { ok: true, invoiceId: existing.id } : { ok: false, error: "notFound" };
+  }
+
+  revalidatePath("/invoices");
+  revalidatePath("/proposals");
+  return { ok: true, invoiceId: row.id };
 }
 
 // =============== Client kickoff / approval document ===============

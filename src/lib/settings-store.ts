@@ -16,6 +16,9 @@ export type SettingKey =
    * the pages that render them, not in this union.
    */
   | `narrative.${string}`
+  /** Quotes: the hourly rate (whole currency units) and the minutes per fix type. */
+  | "quote.hourly_rate"
+  | "quote.minutes"
   | "webhook.url"
   | "webhook.notify_on_audit_complete"
   | "webhook.notify_on_score_drop"
