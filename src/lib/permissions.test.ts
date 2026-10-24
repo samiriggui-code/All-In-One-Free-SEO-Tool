@@ -39,4 +39,12 @@ describe("routeDecision", () => {
     expect(routeDecision("viewer", "/agent", "GET")).toBe("deny");
     expect(routeDecision("viewer", "/settings", "GET")).toBe("deny");
   });
+
+  it("gives a client viewer only the API reads that check the client", () => {
+    expect(routeDecision("viewer", "/api/audits/7/progress", "GET")).toBe("allow");
+    expect(routeDecision("viewer", "/api/report-archives/2/pdf", "GET")).toBe("allow");
+    expect(routeDecision("viewer", "/api/auth/status", "GET")).toBe("allow");
+    expect(routeDecision("viewer", "/api/tool-runs/actions", "GET")).toBe("deny");
+    expect(routeDecision("viewer", "/api/v2/anything", "GET")).toBe("deny");
+  });
 });

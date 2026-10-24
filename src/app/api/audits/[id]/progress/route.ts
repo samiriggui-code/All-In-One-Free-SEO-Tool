@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { audits } from "@/db/schema";
+import { mayAccessClient } from "@/lib/client-scope";
 import type { SeomatorAuditProgress } from "@/lib/seomator-audit-progress";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +24,14 @@ export async function GET(
       progressJson: audits.progressJson,
       previewScreenshotPath: audits.previewScreenshotPath,
       score: audits.score,
+      clientId: audits.clientId,
     })
     .from(audits)
     .where(eq(audits.id, auditId))
     .limit(1);
 
-  if (!row) {
+  // 404, not 403, so a member cannot probe which audit ids exist.
+  if (!row || !(await mayAccessClient(row.clientId))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

@@ -50,6 +50,18 @@ export const VIEWER_PAGES = [
   "/keywords",
 ] as const;
 
+/**
+ * API reads a viewer's pages make. Each of these checks the client
+ * behind the row it returns; most other API routes do not, so they are
+ * closed to viewers rather than trusted to scope themselves.
+ */
+export const VIEWER_API_PREFIXES = [
+  "/api/auth",
+  "/api/health-ping",
+  "/api/audits",
+  "/api/report-archives",
+] as const;
+
 /** Requests a viewer may still make that are not plain reads. */
 const VIEWER_WRITE_ALLOWED = ["/api/auth/logout"] as const;
 
@@ -92,9 +104,9 @@ export function routeDecision(
         ? "allow"
         : "deny";
     }
-    // API reads are scoped by client on the Node side; pages are not
-    // all scoped, so viewers get the allow-list.
-    if (pathname.startsWith("/api/")) return "allow";
+    if (pathname.startsWith("/api/")) {
+      return VIEWER_API_PREFIXES.some((p) => under(pathname, p)) ? "allow" : "deny";
+    }
     return isViewerPage(pathname) ? "allow" : "deny";
   }
 

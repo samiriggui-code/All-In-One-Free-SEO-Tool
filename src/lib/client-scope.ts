@@ -73,6 +73,17 @@ export async function assertClientAccess(clientId: number): Promise<void> {
   if (!ids.includes(clientId)) notFound();
 }
 
+/**
+ * The same check for route handlers, which answer with a response
+ * rather than a thrown notFound(). A row with no client is visible only
+ * to someone who sees every client.
+ */
+export async function mayAccessClient(clientId: number | null): Promise<boolean> {
+  const ids = await scopedClientIds();
+  if (ids === null) return true;
+  return clientId !== null && ids.includes(clientId);
+}
+
 /** Parses the `clientId` route param and asserts access in one step. */
 export async function assertClientParam(raw: string | undefined): Promise<void> {
   const id = Number(raw);

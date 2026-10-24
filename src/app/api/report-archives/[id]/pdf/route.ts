@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { reportArchives } from "@/db/schema";
 import { guardAdminRequest } from "@/lib/admin-auth";
+import { mayAccessClient } from "@/lib/client-scope";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -27,7 +28,7 @@ export async function GET(
     .from(reportArchives)
     .where(eq(reportArchives.id, id))
     .limit(1);
-  if (!row || !row.pdfBase64)
+  if (!row || !row.pdfBase64 || !(await mayAccessClient(row.clientId)))
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const buf = Buffer.from(row.pdfBase64, "base64");

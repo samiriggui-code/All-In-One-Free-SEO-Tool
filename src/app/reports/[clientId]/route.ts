@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { mayAccessClient } from "@/lib/client-scope";
 import {
   generateReportPdf,
   type ReportTemplate,
@@ -32,6 +33,9 @@ export async function GET(
   const id = Number(clientId);
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: "Invalid client id" }, { status: 400 });
+  }
+  if (!(await mayAccessClient(id))) {
+    return NextResponse.json({ error: "Client not found" }, { status: 404 });
   }
 
   const url = new URL(request.url);
