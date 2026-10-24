@@ -654,7 +654,9 @@
       "writeTitle": "Rédaction assistée",
       "writeBody": "Briefs, articles et optimisation de contenu guidés par vos données.",
       "publishTitle": "Diffusion",
-      "publishBody": "Publication WordPress, réseaux sociaux et newsletters depuis un seul outil."
+      "publishBody": "Publication WordPress, réseaux sociaux et newsletters depuis un seul outil.",
+      "themeLight": "Passer en mode clair",
+      "themeDark": "Passer en mode sombre"
     }
   },
   "onboarding": {

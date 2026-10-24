@@ -57,18 +57,21 @@ export function ProductWordmark({
   tone = "dark",
 }: {
   className?: string;
-  /** The background it sits on. */
-  tone?: "dark" | "light";
+  /** The background it sits on; "auto" follows the light / dark theme. */
+  tone?: "dark" | "light" | "auto";
 }) {
   const [first, second] = PRODUCT_NAME.split("_");
-  const dim = tone === "dark" ? "rgba(255,255,255,.38)" : "rgba(11,13,20,.35)";
+  const dimClass =
+    tone === "dark" ? "text-white/40" : tone === "light" ? "text-[#0b0d14]/35" : "text-muted-foreground/70";
+  const nameClass =
+    tone === "dark" ? "text-white" : tone === "light" ? "text-[#0b0d14]" : "text-foreground";
   return (
     <span
       className={cn("whitespace-nowrap font-mono leading-none tracking-[-0.04em]", className)}
       aria-label={PRODUCT_NAME}
     >
-      <span style={{ color: dim }}>&lt;</span>
-      <span className="font-medium" style={{ color: tone === "dark" ? "#fff" : INK }}>
+      <span className={dimClass}>&lt;</span>
+      <span className={cn("font-medium", nameClass)}>
         {first}
       </span>
       <span className="font-bold" style={{ color: BRAND_GRADIENT[1] }}>
@@ -82,7 +85,7 @@ export function ProductWordmark({
       >
         {second}
       </span>
-      <span style={{ color: dim }}>/&gt;</span>
+      <span className={dimClass}>/&gt;</span>
     </span>
   );
 }
@@ -93,7 +96,7 @@ export function ProductLogo({
   wordmarkClassName,
 }: {
   className?: string;
-  tone?: "dark" | "light";
+  tone?: "dark" | "light" | "auto";
   wordmarkClassName?: string;
 }) {
   return (

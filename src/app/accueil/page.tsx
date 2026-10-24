@@ -25,7 +25,7 @@ import {
 import { isLocale } from "@/i18n/config";
 import { loadBrand, type Brand } from "@/lib/brand";
 import { BRAND_GRADIENT, PRODUCT_NAME, ProductLogo, ProductWordmark } from "@/components/brand/product-logo";
-import { LocaleToggle } from "./locale-toggle";
+import { LocaleToggle } from "@/components/locale-toggle";
 
 /**
  * The public landing page: what a signed-out visitor sees at the root of

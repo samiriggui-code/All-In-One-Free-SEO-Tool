@@ -127,7 +127,7 @@ export function displayName(brand: Brand): string {
 }
 
 /** A validated hex colour, or the product default. */
-export function accentColor(brand: Brand, fallback = "#7c3aed"): string {
+export function accentColor(brand: Brand, fallback = "#0b7fae"): string {
   return brand.color && /^#[0-9a-f]{6}$/i.test(brand.color)
     ? brand.color
     : fallback;

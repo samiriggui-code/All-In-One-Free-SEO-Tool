@@ -14,7 +14,7 @@ export async function runOgImage(
   const title = String(formData.get("title") ?? "").trim();
   const subtitle = String(formData.get("subtitle") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();
-  const brandColor = String(formData.get("brandColor") ?? "#7c3aed").trim();
+  const brandColor = String(formData.get("brandColor") ?? "#0b7fae").trim();
   const template = String(formData.get("template") ?? "gradient") as OgTemplate;
   const imageUrl = String(formData.get("imageUrl") ?? "").trim() || undefined;
 

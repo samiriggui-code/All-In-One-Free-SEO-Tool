@@ -108,7 +108,7 @@ describe("accentColor", () => {
     // These end up interpolated straight into a style attribute and a
     // PDF fill. A malformed value silently breaks the whole gradient.
     for (const bad of ["red", "#fff", "#12345", "rgb(1,2,3)", "", "#gggggg"]) {
-      expect(accentColor({ ...empty, color: bad }), bad).toBe("#7c3aed");
+      expect(accentColor({ ...empty, color: bad }), bad).toBe("#0b7fae");
     }
   });
 

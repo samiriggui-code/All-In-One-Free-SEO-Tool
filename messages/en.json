@@ -654,7 +654,9 @@
       "writeTitle": "Assisted writing",
       "writeBody": "Briefs, articles and content optimisation driven by your data.",
       "publishTitle": "Publishing",
-      "publishBody": "WordPress, social and newsletter publishing from one tool."
+      "publishBody": "WordPress, social and newsletter publishing from one tool.",
+      "themeLight": "Switch to light mode",
+      "themeDark": "Switch to dark mode"
     }
   },
   "onboarding": {
