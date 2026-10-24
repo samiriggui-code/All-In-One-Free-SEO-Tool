@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Plus, X, AlertCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +27,9 @@ export function NewInvoiceForm({
   defaultInvoiceNumber: string;
 }) {
   const t = useTranslations("invoices.form");
+  const locale = useLocale();
+  const amount = (n: number) =>
+    new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   const [lines, setLines] = useState<Line[]>([
     { description: t("defaultLine"), quantity: "1", rate: "" },
   ]);
@@ -209,10 +212,10 @@ export function NewInvoiceForm({
           />
         </div>
         <div className="rounded-xl border border-white/5 bg-black/20 p-4 text-sm">
-          <Row label={t("subtotal")} value={subtotal.toFixed(2)} />
-          <Row label={t("tax", { percent: taxPercent })} value={tax.toFixed(2)} />
+          <Row label={t("subtotal")} value={amount(subtotal)} />
+          <Row label={t("tax", { percent: taxPercent })} value={amount(tax)} />
           <div className="my-2 h-px bg-white/10" />
-          <Row label={t("total")} value={total.toFixed(2)} bold />
+          <Row label={t("total")} value={amount(total)} bold />
         </div>
       </div>
 

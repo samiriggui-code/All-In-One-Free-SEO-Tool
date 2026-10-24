@@ -50,6 +50,56 @@ const LANGUAGE: Record<string, string> = { fr: "French", en: "English" };
 
 const MAX_CONTEXT_CHARS = 9_000;
 
+/**
+ * The quote the client has open, for the assistant to explain.
+ *
+ * Kept apart from the rest of the context and put first, so a long
+ * keyword list can never push it past the cut-off.
+ */
+async function loadQuoteContext(clientId: number): Promise<string> {
+  const quote = await openQuoteFor(clientId);
+  if (!quote) return "";
+  const input = await cartInputFor(quote);
+  const cur = quote.currency;
+  const text = {
+    perMonth: "per month",
+    hoursAt: (hours: number, rate: number) => `${hours} h × ${rate} ${cur}`,
+  };
+  const base = initialCart(input);
+  const lines: string[] = [];
+  lines.push(`# Quote waiting for the client's answer: "${quote.title}" (amounts in ${cur}, excluding tax)`);
+  lines.push(`- Covers the fixes of severities: ${input.quote.severities.join(", ") || "none"}`);
+  if (input.quote.alternatives) lines.push(`- The services are alternatives: the client picks one.`);
+  for (const o of input.offers) {
+    // Each service priced as if picked, so alternatives all have a price.
+    const line = cartLines(input, { ...base, offerIds: [o.offerId] }, text).find((l) => l.offerId === o.offerId);
+    lines.push(`\n## Service in the quote: ${o.name} (${o.kind === "monthly" ? "monthly" : "one-off"})`);
+    if (line) lines.push(`- Price: ${line.amount} ${cur}${line.recurring ? " per month" : ""}`);
+    if (o.summary) lines.push(`- What it brings: ${o.summary}`);
+    for (const d of o.deliverables) lines.push(`- Deliverable: ${d}`);
+    if (o.duration > 0) lines.push(o.kind === "monthly" ? `- Minimum ${o.duration} months` : `- Delivered in ${o.duration} days`);
+  }
+  const priced = cartLines(input, base, text);
+  for (const l of priced.filter((x) => x.offerId === undefined)) {
+    lines.push(`- Other line: ${l.label}: ${l.amount} ${cur}`);
+  }
+  if (!input.quote.alternatives) {
+    const sum = totals(priced);
+    lines.push(`- Total as sent: ${sum.once} ${cur} once${sum.monthly ? `, then ${sum.monthly} ${cur} per month` : ""}`);
+  }
+  if (input.addons.length > 0) {
+    lines.push(`\n# Optional services the client can add`);
+    for (const o of input.addons) {
+      const price =
+        o.billing === "hourly"
+          ? "priced on time from the audit"
+          : `${o.price} ${cur}${o.kind === "monthly" ? " per month" : ""}`;
+      lines.push(`- ${o.name}: ${price}. ${o.summary}`);
+    }
+  }
+  return lines.join("\n");
+}
+
 async function loadClientContext(clientId: number): Promise<string> {
   const lines: string[] = [];
 
@@ -178,39 +228,6 @@ async function loadClientContext(clientId: number): Promise<string> {
     }
   }
 
-  const quote = await openQuoteFor(clientId);
-  if (quote) {
-    const input = await cartInputFor(quote);
-    const priced = cartLines(input, initialCart(input), {
-      perMonth: "per month",
-      hoursAt: (hours, rate) => `${hours} h × ${rate} €`,
-    });
-    const sum = totals(priced);
-    lines.push(`\n# Quote waiting for the client's answer: "${quote.title}"`);
-    lines.push(`- Covers the fixes of severities: ${input.quote.severities.join(", ") || "none"}`);
-    if (input.quote.alternatives) lines.push(`- The services are alternatives: the client picks one.`);
-    for (const o of input.offers) {
-      const line = priced.find((l) => l.offerId === o.offerId);
-      lines.push(`\n## Service in the quote: ${o.name} (${o.kind === "monthly" ? "monthly" : "one-off"})`);
-      if (line) lines.push(`- Price: ${line.amount} €${line.recurring ? " per month" : ""}`);
-      if (o.summary) lines.push(`- What it brings: ${o.summary}`);
-      for (const d of o.deliverables) lines.push(`- Deliverable: ${d}`);
-      if (o.duration > 0) lines.push(o.kind === "monthly" ? `- Minimum ${o.duration} months` : `- Delivered in ${o.duration} days`);
-    }
-    for (const l of priced.filter((x) => x.offerId === undefined)) {
-      lines.push(`- Other line: ${l.label}: ${l.amount} €`);
-    }
-    lines.push(`- Total as sent: ${sum.once} € once${sum.monthly ? `, then ${sum.monthly} € per month` : ""}`);
-    if (input.addons.length > 0) {
-      lines.push(`\n# Optional services the client can add`);
-      for (const o of input.addons) {
-        lines.push(
-          `- ${o.name}: ${o.billing === "hourly" ? "priced on time from the audit" : `${o.price} €${o.kind === "monthly" ? " per month" : ""}`}. ${o.summary}`,
-        );
-      }
-    }
-  }
-
   return lines.join("\n");
 }
 
@@ -239,7 +256,10 @@ export async function portalChat(
     return { ok: false, error: t("session") };
   }
 
-  const context = await loadClientContext(client.id);
+  const [quoteContext, context] = await Promise.all([
+    loadQuoteContext(client.id),
+    loadClientContext(client.id),
+  ]);
 
   const transcript = history
     .map((m) => (m.role === "user" ? `Client: ${m.content}` : `Assistant: ${m.content}`))
@@ -247,7 +267,8 @@ export async function portalChat(
 
   const userPrompt = [
     `<client_context>`,
-    context.slice(0, MAX_CONTEXT_CHARS),
+    // The quote first, then whatever of the progress data still fits.
+    [quoteContext, context].filter(Boolean).join("\n\n").slice(0, MAX_CONTEXT_CHARS),
     `</client_context>`,
     "",
     `Conversation so far:`,

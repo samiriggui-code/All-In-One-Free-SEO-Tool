@@ -2,7 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { clients, proposals } from "@/db/schema";
@@ -13,6 +13,11 @@ import { cartInputFor } from "./quote-data";
 export type AcceptQuoteResult =
   | { ok: true }
   | { ok: false; error: "notFound" | "answered" | "offers" | "choice" | "severities" | "invalid" };
+
+const argsSchema = z.object({
+  token: z.string().min(16).max(200),
+  proposalId: z.number().int().positive(),
+});
 
 const cartSchema = z.object({
   offerIds: z.array(z.number().int()).max(40),
@@ -34,7 +39,9 @@ export async function acceptQuote(
   proposalId: number,
   rawCart: unknown,
 ): Promise<AcceptQuoteResult> {
-  if (!token || token.length < 16) return { ok: false, error: "notFound" };
+  // Server actions take whatever the browser sends: check the types
+  // before any of it reaches a query.
+  if (!argsSchema.safeParse({ token, proposalId }).success) return { ok: false, error: "invalid" };
   const parsed = cartSchema.safeParse(rawCart);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const cart = parsed.data;
@@ -59,9 +66,10 @@ export async function acceptQuote(
   if (problem) return { ok: false, error: problem };
 
   const t = await getTranslations("proposals");
+  const money = moneyIn(p.currency, await getLocale());
   const pricing = cartLines(input, cart, {
     perMonth: t("perMonth"),
-    hoursAt: (hours, rate) => t("hoursAt", { hours, rate: `${rate} €` }),
+    hoursAt: (hours, rate) => t("hoursAt", { hours, rate: money(rate) }),
   });
 
   // Conditional on still being "sent": two clicks, or the agency
@@ -95,8 +103,8 @@ export async function acceptQuote(
       body: p.title,
       level: "success",
       fields: [
-        { label: tp("notifyOnce"), value: `${sum.once} €` },
-        ...(sum.monthly > 0 ? [{ label: tp("notifyMonthly"), value: `${sum.monthly} €` }] : []),
+        { label: tp("notifyOnce"), value: money(sum.once) },
+        ...(sum.monthly > 0 ? [{ label: tp("notifyMonthly"), value: money(sum.monthly) }] : []),
       ],
     });
   } catch {
@@ -106,4 +114,15 @@ export async function acceptQuote(
   revalidatePath(`/portal/${token}`);
   revalidatePath("/proposals");
   return { ok: true };
+}
+
+/** Whole amounts in the proposal's own currency, as the page shows them. */
+function moneyIn(currency: string, locale: string) {
+  return (n: number) => {
+    try {
+      return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
+    } catch {
+      return `${n} ${currency}`;
+    }
+  };
 }

@@ -18,10 +18,15 @@ const SEVERITY_TONE: Record<Severity, string> = {
   low: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 ring-cyan-500/30",
 };
 
-function useMoney() {
+function useMoney(currency: string) {
   const locale = useLocale();
-  return (n: number) =>
-    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+  return (n: number) => {
+    try {
+      return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
+    } catch {
+      return `${n} ${currency}`;
+    }
+  };
 }
 
 /**
@@ -34,6 +39,7 @@ export function QuoteShop({
   title,
   intro,
   sentAt,
+  currency,
   input,
 }: {
   token: string;
@@ -41,11 +47,12 @@ export function QuoteShop({
   title: string;
   intro: string | null;
   sentAt: string | null;
+  currency: string;
   input: CartInput;
 }) {
   const t = useTranslations("portal.quote");
   const tp = useTranslations("proposals");
-  const money = useMoney();
+  const money = useMoney(currency);
   const router = useRouter();
   const [cart, setCart] = useState<Cart>(() => initialCart(input));
   const [pending, start] = useTransition();
@@ -93,12 +100,13 @@ export function QuoteShop({
   const priceOf = (o: OfferSnapshot) => {
     const line = lines.find((l) => l.offerId === o.offerId);
     if (line) return line.amount;
-    if (o.billing === "hourly") {
-      return cartLines(input, { ...cart, offerIds: [...cart.offerIds, o.offerId] }, priceText).find(
+    // Priced as if picked, so the card shows the agency's own line (an
+    // adjusted price, hours from the audit) and not the catalogue price.
+    return (
+      cartLines(input, { ...cart, offerIds: [...cart.offerIds, o.offerId] }, priceText).find(
         (l) => l.offerId === o.offerId,
-      )?.amount ?? 0;
-    }
-    return o.price;
+      )?.amount ?? o.price
+    );
   };
 
   const explain = (o: OfferSnapshot) =>
@@ -109,10 +117,10 @@ export function QuoteShop({
     start(async () => {
       setError(null);
       const r = await acceptQuote(token, proposalId, cart);
-      if (r.ok) {
-        setAccepted(true);
-        router.refresh();
-      } else setError(t(`errors.${r.error}`));
+      // No refresh here: the accepted quote leaves the page, and the
+      // thank-you would go with it. The client reloads when ready.
+      if (r.ok) setAccepted(true);
+      else setError(t(`errors.${r.error}`));
     });
   };
 
@@ -124,6 +132,13 @@ export function QuoteShop({
           {t("acceptedTitle")}
         </div>
         <p className="mt-2 text-muted-foreground">{t("acceptedBody")}</p>
+        <button
+          type="button"
+          onClick={() => router.refresh()}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10"
+        >
+          {t("seeDeliverables")}
+        </button>
       </section>
     );
   }
@@ -205,6 +220,7 @@ export function QuoteShop({
             {input.offers.map((o) => (
               <OfferCard
                 key={o.offerId}
+                currency={currency}
                 offer={o}
                 price={priceOf(o)}
                 chosen={cart.offerIds.includes(o.offerId)}
@@ -241,6 +257,7 @@ export function QuoteShop({
             {input.addons.map((o) => (
               <OfferCard
                 key={o.offerId}
+                currency={currency}
                 offer={o}
                 price={priceOf(o)}
                 chosen={cart.offerIds.includes(o.offerId)}
@@ -308,7 +325,9 @@ function OfferCard({
   chosen,
   control,
   onExplain,
+  currency,
 }: {
+  currency: string;
   offer: OfferSnapshot;
   price: number;
   chosen: boolean;
@@ -316,7 +335,7 @@ function OfferCard({
   onExplain: () => void;
 }) {
   const t = useTranslations("portal.quote");
-  const money = useMoney();
+  const money = useMoney(currency);
   return (
     <article
       className={`flex flex-col gap-3 rounded-2xl border p-4 transition ${

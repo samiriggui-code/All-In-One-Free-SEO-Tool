@@ -266,6 +266,7 @@ export default async function PortalPage({
             title={quote.title}
             intro={quote.intro}
             sentAt={quote.sentAt ? day(quote.sentAt) : null}
+            currency={quote.currency}
             input={quoteInput}
           />
         )}

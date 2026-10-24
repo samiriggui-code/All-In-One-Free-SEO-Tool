@@ -60,6 +60,9 @@ describe("quote cart", () => {
     expect(checkCart(i, { ...cart, severities: ["critical"] })).toBe("severities");
     expect(checkCart(i, { ...cart, offerIds: [999] })).toBe("offers");
     expect(checkCart(i, { ...cart, offerIds: [audit.offerId, audit.offerId] })).toBe("offers");
+    // Dropping a quoted service for a cheaper add-on is not a choice the page offers.
+    expect(checkCart(i, { ...cart, offerIds: [monthly.offerId] })).toBe("offers");
+    expect(checkCart(i, { ...cart, offerIds: [fixes.offerId] })).toBe("offers");
   });
 
   it("asks for exactly one formula when they are alternatives", () => {

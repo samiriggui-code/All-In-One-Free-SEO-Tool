@@ -272,7 +272,9 @@ export async function generateInvoicePdf(
       width: 85,
       align: "right",
     });
-    y += 16;
+    // A long description wraps inside its column: the next row starts
+    // below it, not on top of its second line.
+    y += Math.max(16, doc.heightOfString(item.description, { width: 290 }) + 4);
   }
 
   doc

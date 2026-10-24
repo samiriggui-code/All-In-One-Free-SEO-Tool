@@ -48,8 +48,8 @@ export function initialCart(input: CartInput): Cart {
 /**
  * Why a selection cannot be accepted, or null when it can.
  *
- * The severities the agency included stay included: the client adds
- * work, they do not remove what the quote is built on.
+ * The services and severities the agency included stay included: the
+ * client adds work, they do not remove what the quote is built on.
  */
 export function checkCart(input: CartInput, cart: Cart): "offers" | "choice" | "severities" | null {
   const known = new Set([...input.offers, ...input.addons].map((o) => o.offerId));
@@ -59,6 +59,10 @@ export function checkCart(input: CartInput, cart: Cart): "offers" | "choice" | "
   if (input.quote.alternatives && input.offers.length > 0) {
     const picked = input.offers.filter((o) => cart.offerIds.includes(o.offerId));
     if (picked.length !== 1) return "choice";
+  } else if (input.offers.some((o) => !cart.offerIds.includes(o.offerId))) {
+    // Not alternatives: the services the agency quoted are the quote.
+    // The page shows them as included; the server holds the same line.
+    return "offers";
   }
 
   if (cart.severities.some((s) => !SEVERITIES.includes(s))) return "severities";

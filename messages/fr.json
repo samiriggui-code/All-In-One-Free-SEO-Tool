@@ -1319,7 +1319,8 @@
         "choice": "Choisissez une formule.",
         "severities": "Les corrections incluses par votre interlocuteur ne peuvent pas être retirées.",
         "invalid": "Sélection invalide. Rechargez la page."
-      }
+      },
+      "seeDeliverables": "Voir mes prestations et livrables"
     },
     "chat": {
       "open": "Poser une question",

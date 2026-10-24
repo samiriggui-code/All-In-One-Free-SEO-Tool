@@ -1319,7 +1319,8 @@
         "choice": "Choose one formula.",
         "severities": "The fixes your account manager included cannot be removed.",
         "invalid": "Invalid selection. Reload the page."
-      }
+      },
+      "seeDeliverables": "See my services and deliverables"
     },
     "chat": {
       "open": "Ask a question",
