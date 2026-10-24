@@ -1,6 +1,6 @@
 {
   "nav": {
-    "appName": "SEO Tool",
+    "appName": "rank_forge",
     "appTagline": "v0.2 · local",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
@@ -601,7 +601,7 @@
     }
   },
   "auth": {
-    "appName": "SEO Tool",
+    "appName": "rank_forge",
     "signInAccount": "Sign in to your account.",
     "signInPassword": "Self-hosted instance — sign in with the password your admin set.",
     "email": "Email",
