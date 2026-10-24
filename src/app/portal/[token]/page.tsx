@@ -438,7 +438,7 @@ export default async function PortalPage({
         )}
 
         <footer className="pb-6 pt-4 text-center text-[10px] text-muted-foreground">
-          {t("footer", { brand: brandName ? `${brandName} via SEO tool` : "SEO tool" })}
+          {brandName ? t("footer", { brand: brandName }) : t("footerDefault")}
         </footer>
       </div>
 
