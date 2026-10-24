@@ -66,4 +66,9 @@ describe("CMS exporters", () => {
   it("neutralizes a formula hidden behind a leading newline", () => {
     expect(csvEscape("\n=HYPERLINK(\"http://x\")").startsWith('"\'')).toBe(true);
   });
+
+  it("never emits a script URL or an attribute break-out", () => {
+    expect(markdownToHtml("[run](javascript:alert`1`)")).not.toContain("href");
+    expect(markdownToHtml('![The "best" bread](a.png)')).toContain('alt="The &quot;best&quot; bread"');
+  });
 });
