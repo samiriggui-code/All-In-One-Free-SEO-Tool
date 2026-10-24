@@ -11,6 +11,11 @@ import toolsCatalogEn from "../../messages/tools-catalog.en.json";
 import toolsCatalogFr from "../../messages/tools-catalog.fr.json";
 import toolPagesEn from "../../messages/tools-pages.en.json";
 import toolPagesFr from "../../messages/tools-pages.fr.json";
+import auditUiEn from "../../messages/audit-ui.en.json";
+import auditUiFr from "../../messages/audit-ui.fr.json";
+import reportUiEn from "../../messages/report-ui.en.json";
+import reportUiFr from "../../messages/report-ui.fr.json";
+import { TOOL_UI } from "./tools-ui";
 
 async function resolveLocale(): Promise<Locale> {
   try {
@@ -41,6 +46,16 @@ const TOOL_PAGES = {
   fr: toolPagesFr,
 } as const;
 
+const AUDIT_UI = {
+  en: auditUiEn,
+  fr: auditUiFr,
+} as const;
+
+const REPORT_UI = {
+  en: reportUiEn,
+  fr: reportUiFr,
+} as const;
+
 export default getRequestConfig(async () => {
   const locale = await resolveLocale();
   const base = (await import(`../../messages/${locale}.json`)).default;
@@ -56,7 +71,10 @@ export default getRequestConfig(async () => {
         ...(base.tools ?? {}),
         catalog: TOOL_CATALOGS[locale],
         pages: TOOL_PAGES[locale],
+        ui: TOOL_UI[locale],
       },
+      auditUi: AUDIT_UI[locale],
+      reportUi: REPORT_UI[locale],
     },
   };
 });
