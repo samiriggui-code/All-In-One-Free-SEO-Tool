@@ -741,7 +741,14 @@ export default async function AuditDetailPage({
                         <IssueExplainer
                           issueType={g.type}
                           url={g.affectedUrls[0]}
-                          explainer={getExplainer(g.type)}
+                          explainer={
+                            // Built-in guides carry functions (externalTool),
+                            // which cannot cross to a client component; the
+                            // component looks those up itself.
+                            g.type.startsWith("seomator:")
+                              ? getExplainer(g.type)
+                              : undefined
+                          }
                         />
                       </div>
 
