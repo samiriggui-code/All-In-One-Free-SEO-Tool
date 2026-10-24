@@ -100,7 +100,7 @@ export function NewInvoiceForm({
           <Input
             id="currency"
             name="currency"
-            defaultValue="USD"
+            defaultValue="EUR"
             maxLength={4}
           />
         </div>

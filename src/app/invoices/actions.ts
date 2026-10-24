@@ -18,7 +18,7 @@ const inputSchema = z.object({
   invoiceNumber: z.string().trim().min(1).max(40),
   issueDate: z.string().trim().optional(),
   dueDate: z.string().trim().optional(),
-  currency: z.string().trim().min(2).max(8).default("USD"),
+  currency: z.string().trim().min(2).max(8).default("EUR"),
   taxPercent: z.coerce.number().min(0).max(100).default(0),
   notes: z
     .string()
@@ -47,7 +47,7 @@ export async function createInvoice(
     invoiceNumber: formData.get("invoiceNumber") || (await nextInvoiceNumber()),
     issueDate: formData.get("issueDate") ?? undefined,
     dueDate: formData.get("dueDate") ?? undefined,
-    currency: formData.get("currency") ?? "USD",
+    currency: formData.get("currency") ?? "EUR",
     taxPercent: formData.get("taxPercent") ?? 0,
     notes: formData.get("notes") ?? undefined,
   });

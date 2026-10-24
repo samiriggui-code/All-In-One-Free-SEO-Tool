@@ -72,13 +72,13 @@ export default async function InvoicesPage() {
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/20">
-              Paid: {formatMoney(totals.paid, "USD")}
+              Paid: {formatMoney(totals.paid, "EUR")}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300 ring-1 ring-inset ring-amber-500/20">
-              Outstanding: {formatMoney(totals.outstanding, "USD")}
+              Outstanding: {formatMoney(totals.outstanding, "EUR")}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              Draft: {formatMoney(totals.draft, "USD")}
+              Draft: {formatMoney(totals.draft, "EUR")}
             </span>
           </div>
         }

@@ -3,6 +3,7 @@ import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { db } from "@/db/client";
 import { proposals } from "@/db/schema";
 import { canSeeClient, currentUser } from "@/lib/auth";
+import { getLocale } from "next-intl/server";
 import { generateProposalPdf } from "@/lib/proposal-pdf";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,9 @@ export async function GET(
     intro: row.intro,
     scope: row.scopeJson ?? [],
     pricing: row.pricingJson ?? [],
+    offers: row.offersJson ?? null,
+    quote: row.quoteJson ?? null,
+    locale: await getLocale(),
     currency: row.currency,
     terms: row.terms,
     basedOnScore: row.basedOnScore,
