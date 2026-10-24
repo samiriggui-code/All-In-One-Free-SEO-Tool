@@ -80,6 +80,7 @@ export default async function PerClientAuditsPage({
 
   const t = await getTranslations("audits");
   const tStatus = await getTranslations("audits.status");
+  const tl = await getTranslations("auditUi.list");
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -156,28 +157,30 @@ export default async function PerClientAuditsPage({
                         href={`/audits/${a.id}`}
                         className="font-medium group-hover:underline"
                       >
-                        Audit #{a.id}
+                        {tl("auditNumber", { id: a.id })}
                       </Link>
                       {previousCompleted && (
                         <Link
                           href={`/audits/diff?a=${previousCompleted.id}&b=${a.id}`}
                           className="ml-2 rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
                         >
-                          diff vs #{previousCompleted.id}
+                          {tl("diffVs", { id: previousCompleted.id })}
                         </Link>
                       )}
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                        {a.kind === "ai_full"
-                          ? "AI"
-                          : a.mode === "full"
-                            ? "Full"
-                            : a.mode === "quick"
-                              ? "Quick"
-                              : a.kind === "seomator"
-                                ? "Technical"
-                                : "Crawl"}
+                        {tl(
+                          a.kind === "ai_full"
+                            ? "engine.ai"
+                            : a.mode === "full"
+                              ? "engine.full"
+                              : a.mode === "quick"
+                                ? "engine.quick"
+                                : a.kind === "seomator"
+                                  ? "engine.technical"
+                                  : "engine.crawl",
+                        )}
                       </span>
                     </td>
                     <td className="px-5 py-4">

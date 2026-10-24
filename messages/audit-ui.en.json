@@ -1,1 +1,213 @@
-{}
+{
+  "categories": {
+    "core": "Core",
+    "technical": "Technical SEO",
+    "perf": "Performance",
+    "links": "Links",
+    "images": "Images",
+    "security": "Security",
+    "crawl": "Crawlability",
+    "schema": "Structured Data",
+    "a11y": "Accessibility",
+    "content": "Content",
+    "social": "Social",
+    "eeat": "E-E-A-T",
+    "url": "URL Structure",
+    "mobile": "Mobile",
+    "i18n": "Internationalization",
+    "legal": "Legal Compliance",
+    "js": "JavaScript Rendering",
+    "redirect": "Redirects",
+    "htmlval": "HTML Validation",
+    "geo": "AI/GEO Readiness"
+  },
+  "verdict": {
+    "A": "Excellent",
+    "B": "Good",
+    "C": "Fair",
+    "D": "Needs Work",
+    "F": "Poor"
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
+  },
+  "list": {
+    "auditNumber": "Audit #{id}",
+    "diffVs": "diff vs #{id}",
+    "engine": {
+      "ai": "AI",
+      "full": "Full",
+      "quick": "Quick",
+      "technical": "Technical",
+      "crawl": "Crawl"
+    }
+  },
+  "detail": {
+    "closedNotice": "{count, plural, one {# issue} other {# issues}} marked resolved / ignored / false positive — they're hidden from the active list below.",
+    "typesCount": "{count, plural, one {# type} other {# types}}",
+    "autoTasks": "Auto-generated <b>{count}</b> {count, plural, one {task type} other {task types}} from non-low-severity issues.",
+    "openTasks": "Open tasks",
+    "groupMeta": "{types, plural, one {# issue type} other {# issue types}} · {occurrences, plural, one {# occurrence} other {# occurrences}}",
+    "pagesCount": "{count} pages",
+    "fixLabel": "Fix:",
+    "showUrls": "{count, plural, one {Show URL} other {Show # URLs}}",
+    "more": "+{count} more",
+    "falsePositive": "False positive",
+    "categoryBreakdown": "Category breakdown",
+    "passCount": "{count} pass",
+    "warnCount": "{count} warn",
+    "failCount": "{count} fail",
+    "cwvStatus": {
+      "pass": "pass",
+      "warn": "warn",
+      "fail": "fail",
+      "notMeasured": "not-measured"
+    },
+    "allClear": "All clear",
+    "stalledTitle": "This one has been running for a while",
+    "stalledHint": "Audits that take more than ten minutes have usually been interrupted. Start a new audit from the client page to take over.",
+    "goToClient": "Go to the client page",
+    "failedHint": "The site may have been unreachable. Try running it again from the client page — the error is usually a DNS failure, a firewall, or the site being down at the time."
+  },
+  "geo": {
+    "title": "AI / GEO readiness",
+    "description": "{category} — llms.txt, semantic structure, and AI bot access.",
+    "score": "Score",
+    "counts": "{pass} passed · {warn} warnings · {fail} failed",
+    "more": "+ {count} more GEO findings in the issue list below.",
+    "noIssues": "No open GEO issues — category checks passed on crawled pages."
+  },
+  "progress": {
+    "previewAlt": "Rendered preview of {url}",
+    "capturing": "Capturing landing page render…",
+    "crawl": "Crawl",
+    "pagesUnit": "{count, plural, one {page} other {pages}}",
+    "phaseCategories": "Running the 373 technical rules, category by category.",
+    "phaseCrawl": "Crawling the site and running SEO Tool's checks.",
+    "categoryProgress": "Category progress",
+    "categoryProgressHint": "Categories complete one by one with live scores.",
+    "catCounts": "{pass} pass{warn, plural, =0 {} other { · # warn}}{fail, plural, =0 {} other { · # fail}}",
+    "running": "Running…",
+    "pending": "Pending"
+  },
+  "diff": {
+    "crumb": "Compare audit #{older} → #{newer}",
+    "title": "Audit comparison",
+    "older": "Older",
+    "newer": "Newer",
+    "scoreChange": "Score change",
+    "fixed": "Fixed",
+    "new": "New",
+    "same": "Same",
+    "scoreUnavailable": "Score not available",
+    "categoryDeltas": "Category score deltas",
+    "ruleChanges": "Rule changes",
+    "rules": {
+      "fixed": "Fixed",
+      "regressed": "Regressed",
+      "newFails": "New fails",
+      "worsened": "Worsened"
+    },
+    "none": "None",
+    "fixedTitle": "Fixed ({count})",
+    "fixedSubtitle": "These were in the older audit but didn't appear in the newer one.",
+    "newTitle": "New issues ({count})",
+    "newSubtitle": "These appeared in the newer audit but weren't there before.",
+    "stillTitle": "Still present ({count})",
+    "stillSubtitle": "In both audits — open work.",
+    "bothClean": "Both audits are clean — no issues to compare.",
+    "issuesCount": "{count} issues"
+  },
+  "fix": {
+    "noWizard": "No fix wizard for issue type: {type}",
+    "invalidClient": "Invalid client id",
+    "missingUrl": "Missing page URL",
+    "missingValue": "Missing value to apply",
+    "notConnected": "This client doesn't have the WordPress Bridge plugin connected. Set it up on the client page first.",
+    "unreachable": "Bridge unreachable: {error}. Verify the plugin is active + the endpoint is correct.",
+    "postNotFound": "Couldn't find that URL on the WP site. The page may not be a published post/page, or the bridge plugin doesn't have permission to read it.",
+    "unsupported": "Auto-apply isn't supported for issue type ''{type}'' yet. Copy the suggestion and paste it manually.",
+    "rejected": "WP bridge rejected the patch: {error}",
+    "unknownError": "unknown error"
+  },
+  "reports": {
+    "archive": {
+      "allClients": "All clients",
+      "empty": "No reports archived yet. Generate one from a client's page — it will land here automatically.",
+      "deletedClient": "(deleted client)",
+      "noPdf": "no PDF",
+      "downloadTitle": "Download PDF",
+      "download": "Download",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "delete": "Delete",
+      "deleteTitle": "Delete this archived report?",
+      "deleteDescription": "The PDF and its associated record will be removed. Can't be undone.",
+      "deleteConfirm": "Delete report",
+      "entryTitle": "{client} — {template} report — {date}"
+    },
+    "batch": {
+      "clientsHeading": "Clients ({selected} of {total})",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "noClients": "No clients yet — add one first.",
+      "template": "Template",
+      "templates": {
+        "executive": {
+          "label": "Executive",
+          "blurb": "One page. Direction, win, priority."
+        },
+        "detailed": {
+          "label": "Detailed",
+          "blurb": "The full monthly. Most agencies send this."
+        },
+        "technical": {
+          "label": "Technical",
+          "blurb": "Crawl, speed, schema. For a dev team."
+        }
+      },
+      "generate": "Generate {count, plural, one {# report} other {# reports}}",
+      "timing": "Roughly 10-20 seconds each — they render one at a time. You can close this page; it keeps going.",
+      "generating": "Generating {name}…",
+      "starting": "Starting…",
+      "progress": "{done} of {total}",
+      "failedHeading": "Didn't generate ({count})",
+      "reviewHeading": "Ready to review ({count})",
+      "reviewEmpty": "Nothing waiting. Generated reports land here as drafts — read one, approve it, then send.",
+      "reviewHint": "Open each one before approving. Sending delivers the exact PDF you approved, not a fresh render.",
+      "open": "Open",
+      "approve": "Approve",
+      "reject": "Reject",
+      "openFirst": "Worth opening it first — this goes to a client.",
+      "send": "Send",
+      "sent": "Sent",
+      "approveError": "Couldn't approve that.",
+      "sendError": "Couldn't send that.",
+      "errors": {
+        "noneYours": "None of those clients are yours to report on.",
+        "noSuchReport": "No such report.",
+        "nothingToApprove": "That report didn't generate, so there's nothing to approve. Re-run the batch for this client.",
+        "alreadySent": "That one has already gone out.",
+        "approveFirst": "Approve it first — the review step is there so nothing goes to a client unread.",
+        "noPdf": "That report has no PDF attached.",
+        "noRecipients": "No one to send it to. Add recipients on this client's report schedule, then try again. You can also download the PDF and send it yourself.",
+        "sendFailed": "Sending failed. Check Settings → Email delivery."
+      }
+    },
+    "preview": {
+      "title": "Executive summary preview",
+      "hint": "Generate the AI exec summary and read it before sending the report. Thumbs-up / thumbs-down feeds the learning loop.",
+      "dataBehind": "Data behind this summary ({count})",
+      "templateFallback": "template fallback — no AI key configured",
+      "regenerating": "Regenerating…",
+      "regenerate": "Regenerate",
+      "generating": "Generating…",
+      "generate": "Generate exec summary",
+      "invalidClient": "Invalid client",
+      "clientNotFound": "Client not found"
+    }
+  }
+}

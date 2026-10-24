@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Check,
@@ -21,11 +22,7 @@ import {
   startBatch,
 } from "./actions";
 
-const TEMPLATES = [
-  { value: "executive", label: "Executive", blurb: "One page. Direction, win, priority." },
-  { value: "detailed", label: "Detailed", blurb: "The full monthly. Most agencies send this." },
-  { value: "technical", label: "Technical", blurb: "Crawl, speed, schema. For a dev team." },
-] as const;
+const TEMPLATES = ["executive", "detailed", "technical"] as const;
 
 export function BatchRunner({
   clients,
@@ -36,6 +33,7 @@ export function BatchRunner({
   queue: ReviewItem[];
   initialBatch: BatchProgress | null;
 }) {
+  const t = useTranslations("auditUi.reports.batch");
   const [selected, setSelected] = useState<number[]>(clients.map((c) => c.id));
   const [template, setTemplate] = useState<string>("detailed");
   const [batch, setBatch] = useState<BatchProgress | null>(initialBatch);
@@ -85,7 +83,7 @@ export function BatchRunner({
       <section className="glass-apple rounded-xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-medium">
-            Clients ({selected.length} of {clients.length})
+            {t("clientsHeading", { selected: selected.length, total: clients.length })}
           </h2>
           <div className="flex gap-2 text-xs">
             <button
@@ -93,21 +91,21 @@ export function BatchRunner({
               className="underline underline-offset-2 hover:text-foreground"
               onClick={() => setSelected(clients.map((c) => c.id))}
             >
-              Select all
+              {t("selectAll")}
             </button>
             <button
               type="button"
               className="underline underline-offset-2 hover:text-foreground"
               onClick={() => setSelected([])}
             >
-              Clear
+              {t("clear")}
             </button>
           </div>
         </div>
 
         {clients.length === 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
-            No clients yet — add one first.
+            {t("noClients")}
           </p>
         ) : (
           <div className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,22 +130,24 @@ export function BatchRunner({
         )}
 
         <div className="mt-4 space-y-1.5">
-          <Label htmlFor="template">Template</Label>
+          <Label htmlFor="template">{t("template")}</Label>
           <div className="grid gap-2 sm:grid-cols-3">
-            {TEMPLATES.map((t) => (
+            {TEMPLATES.map((tpl) => (
               <button
-                key={t.value}
+                key={tpl}
                 type="button"
                 disabled={running}
-                onClick={() => setTemplate(t.value)}
+                onClick={() => setTemplate(tpl)}
                 className={`rounded-lg border p-2.5 text-left text-xs transition-colors ${
-                  template === t.value
+                  template === tpl
                     ? "border-cyan-400/50 bg-cyan-500/10"
                     : "border-white/10 bg-white/[0.02] hover:bg-white/5"
                 }`}
               >
-                <div className="font-medium">{t.label}</div>
-                <div className="mt-0.5 text-muted-foreground">{t.blurb}</div>
+                <div className="font-medium">{t(`templates.${tpl}.label`)}</div>
+                <div className="mt-0.5 text-muted-foreground">
+                  {t(`templates.${tpl}.blurb`)}
+                </div>
               </button>
             ))}
           </div>
@@ -186,11 +186,10 @@ export function BatchRunner({
             ) : (
               <Play className="size-4" />
             )}
-            Generate {selected.length} report{selected.length === 1 ? "" : "s"}
+            {t("generate", { count: selected.length })}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Roughly 10-20 seconds each — they render one at a time. You can
-            close this page; it keeps going.
+            {t("timing")}
           </span>
         </div>
 
@@ -199,11 +198,11 @@ export function BatchRunner({
             <div className="flex items-center justify-between text-xs">
               <span>
                 {batch.currentClientName
-                  ? `Generating ${batch.currentClientName}…`
-                  : "Starting…"}
+                  ? t("generating", { name: batch.currentClientName })
+                  : t("starting")}
               </span>
               <span className="text-muted-foreground">
-                {batch.done + batch.failed} of {batch.total}
+                {t("progress", { done: batch.done + batch.failed, total: batch.total })}
               </span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -223,7 +222,7 @@ export function BatchRunner({
       {failures.length > 0 && (
         <section className="rounded-xl bg-rose-500/[0.07] p-5 ring-1 ring-inset ring-rose-500/25">
           <h2 className="text-sm font-medium text-rose-200">
-            Didn&apos;t generate ({failures.length})
+            {t("failedHeading", { count: failures.length })}
           </h2>
           <ul className="mt-3 space-y-2 text-xs">
             {failures.map((f) => (
@@ -239,18 +238,16 @@ export function BatchRunner({
       {/* Review */}
       <section className="glass-apple rounded-xl p-5">
         <h2 className="text-sm font-medium">
-          Ready to review ({drafts.length})
+          {t("reviewHeading", { count: drafts.length })}
         </h2>
         {drafts.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Nothing waiting. Generated reports land here as drafts — read one,
-            approve it, then send.
+            {t("reviewEmpty")}
           </p>
         ) : (
           <>
             <p className="mt-1 text-xs text-muted-foreground">
-              Open each one before approving. Sending delivers the exact PDF you
-              approved, not a fresh render.
+              {t("reviewHint")}
             </p>
             <ul className="mt-4 divide-y divide-white/5">
               {drafts.map((d) => (
@@ -271,6 +268,7 @@ function ReviewRow({
   item: ReviewItem;
   onError: (e: string | null) => void;
 }) {
+  const t = useTranslations("auditUi.reports.batch");
   const [pending, start] = useTransition();
   const [state, setState] = useState<"draft" | "approved" | "sent" | "gone">(
     "draft",
@@ -298,7 +296,7 @@ function ReviewRow({
         className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs hover:bg-white/10"
       >
         <Download className="size-3.5" />
-        Open
+        {t("open")}
       </a>
 
       {state === "draft" && (
@@ -313,12 +311,12 @@ function ReviewRow({
               start(async () => {
                 const r = await approveReport(item.id);
                 if (r.ok) setState("approved");
-                else onError(r.error ?? "Couldn't approve that.");
+                else onError(r.error ?? t("approveError"));
               })
             }
           >
             {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
-            Approve
+            {t("approve")}
           </Button>
           <Button
             size="sm"
@@ -332,11 +330,11 @@ function ReviewRow({
             }
           >
             <X className="size-3.5" />
-            Reject
+            {t("reject")}
           </Button>
           {!opened && (
             <span className="w-full text-[11px] text-amber-300/80">
-              Worth opening it first — this goes to a client.
+              {t("openFirst")}
             </span>
           )}
         </>
@@ -350,19 +348,19 @@ function ReviewRow({
             start(async () => {
               const r = await sendReport(item.id);
               if (r.ok) setState("sent");
-              else onError(r.error ?? "Couldn't send that.");
+              else onError(r.error ?? t("sendError"));
             })
           }
         >
           {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-          Send
+          {t("send")}
         </Button>
       )}
 
       {state === "sent" && (
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
           <Check className="size-3" />
-          Sent
+          {t("sent")}
         </span>
       )}
     </li>
