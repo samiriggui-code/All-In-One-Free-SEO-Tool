@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { clients, type ClientSocialLinks } from "@/db/schema";
@@ -44,6 +46,7 @@ export type ListImportableResult =
  * by domain heuristic, and surfaces a list ready for one-click import.
  */
 export async function listImportableProperties(): Promise<ListImportableResult> {
+  await requireSignedIn();
   let gsc: GscProperty[] = [];
   let ga4: Ga4Property[] = [];
   try {
@@ -127,6 +130,7 @@ type Niche = "local" | "ecommerce" | "saas" | "blog" | "services";
 export async function importSelectedProperties(opts: {
   keys: string[];
 }): Promise<ImportResult> {
+  await requireSignedIn();
   const errors: string[] = [];
   let imported = 0;
   let skipped = 0;

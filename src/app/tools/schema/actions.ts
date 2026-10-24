@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchSiteMetadata } from "@/lib/site-metadata";
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import type { AiFailure } from "@/lib/ai-error";
@@ -32,6 +34,7 @@ export async function generateSchema(opts: {
   url?: string;
   notes?: string;
 }): Promise<GenerateSchemaResult> {
+  await requireSignedIn();
   const lines: string[] = [];
   lines.push(`Type: ${opts.type}`);
 

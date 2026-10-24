@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -102,6 +104,7 @@ export async function generateAdsFunnel(
   _prev: AdsFunnelState | null,
   formData: FormData,
 ): Promise<AdsFunnelState> {
+  await requireSignedIn();
   const clientIdRaw = formData.get("clientId");
   const clientId = clientIdRaw ? Number(clientIdRaw) : null;
   const platformIdsRaw = formData.getAll("platforms") as string[];

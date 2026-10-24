@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -24,6 +26,7 @@ export async function approveQueueItem(
   clientId: number,
   edits?: { title?: string; body?: string },
 ): Promise<{ ok: boolean; message: string }> {
+  await requireSignedIn();
   const item = await ownItem(itemId, clientId);
   if (!item) return { ok: false, message: "Queue item not found." };
   if (item.status !== "pending_review") {
@@ -55,6 +58,7 @@ export async function approveAndPublishNow(
   clientId: number,
   edits?: { title?: string; body?: string },
 ): Promise<{ ok: boolean; message: string }> {
+  await requireSignedIn();
   const item = await ownItem(itemId, clientId);
   if (!item) return { ok: false, message: "Queue item not found." };
   if (item.status === "published") {
@@ -97,6 +101,7 @@ export async function rejectQueueItem(
   clientId: number,
   note?: string,
 ): Promise<void> {
+  await requireSignedIn();
   await db
     .update(publishQueue)
     .set({
@@ -117,6 +122,7 @@ export async function deleteQueueItem(
   itemId: number,
   clientId: number,
 ): Promise<void> {
+  await requireSignedIn();
   await db
     .delete(publishQueue)
     .where(

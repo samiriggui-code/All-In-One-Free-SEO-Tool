@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   generateCoverImagePrompts,
   suggestCategoriesAndTags,
@@ -9,6 +11,7 @@ import {
 import { saveToolRun } from "@/lib/tool-runs";
 
 export async function getCoverImagePrompts(formData: FormData): Promise<ImagePromptResult> {
+  await requireSignedIn();
   const title = String(formData.get("title") ?? "").trim();
   const brief = String(formData.get("brief") ?? "").trim();
   const niche = String(formData.get("niche") ?? "").trim() || null;
@@ -28,6 +31,7 @@ export async function getCoverImagePrompts(formData: FormData): Promise<ImagePro
 export async function getCategorySuggestions(
   formData: FormData,
 ): Promise<CategoryResult> {
+  await requireSignedIn();
   const title = String(formData.get("title") ?? "").trim();
   const excerpt = String(formData.get("excerpt") ?? "").trim();
   const existingRaw = String(formData.get("existingCategories") ?? "").trim();

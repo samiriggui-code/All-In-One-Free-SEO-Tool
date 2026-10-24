@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -35,6 +37,7 @@ export async function togglePlaybookItem(
   itemId: string,
   cadence: "once" | "weekly" | "monthly" | "quarterly",
 ): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   const occurrence = occurrenceKey(cadence);
 
@@ -83,6 +86,7 @@ export async function getCompletionsForClient(clientId: number): Promise<{
   monthly: Set<string>;
   quarterly: Set<string>;
 }> {
+  await requireSignedIn();
   const all = await db
     .select()
     .from(gbpPlaybookCompletions)

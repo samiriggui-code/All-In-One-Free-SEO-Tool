@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -15,6 +17,7 @@ export type FetchPropertiesResult =
   | { ok: false; error: string };
 
 export async function fetchGoogleProperties(): Promise<FetchPropertiesResult> {
+  await requireSignedIn();
   try {
     const [gsc, ga4] = await Promise.all([
       listGscProperties().catch(() => []),
@@ -42,6 +45,7 @@ export async function saveGoogleProperties(opts: {
   gscProperty: string | null;
   ga4PropertyId: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireSignedIn();
   if (!Number.isFinite(opts.clientId) || opts.clientId < 1) {
     return { ok: false, error: "Invalid client" };
   }

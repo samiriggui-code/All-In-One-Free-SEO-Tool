@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -35,6 +37,7 @@ export async function addBacklink(
   _prev: AddBacklinkResult | null,
   formData: FormData,
 ): Promise<AddBacklinkResult> {
+  await requireSignedIn();
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -75,6 +78,7 @@ export async function setBacklinkStatus(
   backlinkId: number,
   status: "active" | "lost" | "disavow",
 ) {
+  await requireSignedIn();
   await db
     .update(backlinks)
     .set({ status, updatedAt: new Date() })
@@ -83,6 +87,7 @@ export async function setBacklinkStatus(
 }
 
 export async function deleteBacklink(backlinkId: number) {
+  await requireSignedIn();
   await db.delete(backlinks).where(eq(backlinks.id, backlinkId));
   revalidatePath("/backlinks");
 }
@@ -150,6 +155,7 @@ export async function logBuiltLink(
   _prev: LogLinkResult | null,
   formData: FormData,
 ): Promise<LogLinkResult> {
+  await requireSignedIn();
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -269,6 +275,7 @@ export async function importAhrefsBacklinks(
   clientId: number,
   csvText: string,
 ): Promise<AhrefsImportResult> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) {
     return { ok: false, error: "Invalid clientId" };
   }

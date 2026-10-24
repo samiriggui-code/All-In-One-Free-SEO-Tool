@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 // Bulk approval calls approveAction in a loop, and a loop can run
 // outside a request — from the scheduler, or a script. revalidatePath
 // throws there rather than no-opping, which turned a working bulk apply
@@ -54,6 +56,7 @@ async function assertMayTouch(
 export async function saveAgentSettings(
   patch: Partial<AgentSettings>,
 ): Promise<AgentSettings> {
+  await requireSignedIn();
   // Autonomy is a workspace-wide setting that decides whether anything
   // writes to live sites, so it is owner-or-solo territory.
   const me = await currentUser();
@@ -66,6 +69,7 @@ export async function saveAgentSettings(
 }
 
 export async function setLevel(level: AutonomyLevel): Promise<AgentSettings> {
+  await requireSignedIn();
   return saveAgentSettings({ level });
 }
 
@@ -79,6 +83,7 @@ export type RunNowResult = {
 };
 
 export async function runNow(clientId?: number): Promise<RunNowResult> {
+  await requireSignedIn();
   const settings = await getAgentSettings();
   if (settings.level === "off") {
     return {
@@ -152,6 +157,7 @@ export async function runNow(clientId?: number): Promise<RunNowResult> {
 export async function approveAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const guard = await assertMayTouch(actionId);
   if (!guard.ok) return guard;
   const action = guard.action;
@@ -196,6 +202,7 @@ export async function approveAction(
 export async function rejectAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const guard = await assertMayTouch(actionId);
   if (!guard.ok) return guard;
 
@@ -210,6 +217,7 @@ export async function rejectAction(
 export async function undoAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const guard = await assertMayTouch(actionId);
   if (!guard.ok) return guard;
 
@@ -227,6 +235,7 @@ export async function undoAction(
 export async function undoRun(
   runId: number,
 ): Promise<{ ok: boolean; undone: number; failed: number; error?: string }> {
+  await requireSignedIn();
   const rows = await db
     .select({ id: agentActions.id, clientId: agentActions.clientId })
     .from(agentActions)
@@ -275,6 +284,7 @@ export async function approveAllOfKind(opts: {
   kind: string;
   includeNeedsReview?: boolean;
 }): Promise<import("@/lib/agent/bulk").BulkResult> {
+  await requireSignedIn();
   const { applyBulk } = await import("@/lib/agent/bulk");
   const result = await applyBulk({
     clientId: opts.clientId,
@@ -291,6 +301,7 @@ export async function approveAllOfKind(opts: {
 export async function waitingByKind(
   clientId: number,
 ): Promise<import("@/lib/agent/bulk").BulkGroup[]> {
+  await requireSignedIn();
   const { groupForBulk } = await import("@/lib/agent/bulk");
   const rows = await db
     .select({

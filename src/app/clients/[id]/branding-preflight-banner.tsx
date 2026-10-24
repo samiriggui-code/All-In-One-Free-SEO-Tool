@@ -18,6 +18,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Palette, X, Loader2, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { safeFetch } from "@/lib/safe-fetch";
 
@@ -29,6 +30,7 @@ type Props = {
 
 export function BrandingPreflightBanner({ clientId, template }: Props) {
   const router = useRouter();
+  const t = useTranslations("clientPage.brandingPreflight");
   const [busy, setBusy] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
@@ -40,12 +42,12 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
       { method: "POST" },
     );
     if (!r.ok) {
-      toast.error("Couldn't save the preference", { description: r.error });
+      toast.error(t("saveFailed"), { description: r.error });
       setBusy(false);
       return;
     }
-    toast.success("Branding skipped for this client", {
-      description: "Generating report now…",
+    toast.success(t("skipped"), {
+      description: t("generating"),
     });
     // Trigger the original report download in a new tab so the user
     // doesn't lose context. The route now skips the pre-flight check.
@@ -60,11 +62,10 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
       <div className="flex-1 space-y-2">
         <div>
           <h3 className="text-sm font-semibold text-amber-200">
-            Set your branding before generating reports
+            {t("title")}
           </h3>
           <p className="mt-0.5 text-xs text-amber-100/80">
-            Your reports will have your name + logo on the cover, replacing
-            ours. Takes 30 seconds. Or skip and generate plain reports.
+            {t("body")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -73,7 +74,7 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
             className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/25 px-3 py-1.5 text-xs font-medium text-amber-100 ring-1 ring-inset ring-amber-500/40 hover:bg-amber-500/35"
           >
             <Palette className="size-3.5" />
-            Set branding now
+            {t("setNow")}
           </Link>
           <button
             type="button"
@@ -86,14 +87,14 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
             ) : (
               <CheckCircle2 className="size-3.5" />
             )}
-            Generate without branding
+            {t("skip")}
           </button>
         </div>
       </div>
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        aria-label="Dismiss"
+        aria-label={t("dismiss")}
         className="grid size-6 shrink-0 place-items-center rounded text-amber-300/70 transition-colors hover:bg-amber-500/15 hover:text-amber-100"
       >
         <X className="size-3.5" />

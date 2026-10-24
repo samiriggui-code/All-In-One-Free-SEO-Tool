@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -60,6 +62,7 @@ export async function importKeywords(
   _prev: ImportResult | null,
   formData: FormData,
 ): Promise<ImportResult> {
+  await requireSignedIn();
   const csv = String(formData.get("csv") ?? "").trim();
   const targetClientId = Number(formData.get("clientId"));
   if (!csv) return { ok: false, error: "CSV is empty." };

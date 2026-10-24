@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
@@ -21,6 +23,7 @@ export async function runCapture(
   _prev: CaptureState | null,
   formData: FormData,
 ): Promise<CaptureState> {
+  await requireSignedIn();
   const parsed = captureSchema.safeParse({
     query: formData.get("query"),
     country: formData.get("country") || "US",
@@ -39,6 +42,7 @@ export async function runCapture(
 }
 
 export async function removeSnapshot(id: number): Promise<{ ok: true }> {
+  await requireSignedIn();
   await deleteSnapshot(id);
   revalidatePath("/tools/serp-features");
   return { ok: true };

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   buildSitemapHtml,
@@ -39,6 +41,7 @@ export async function generateSitemap(
   _prev: SitemapResult | null,
   formData: FormData,
 ): Promise<SitemapResult> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     url: formData.get("url"),
     maxPages: formData.get("maxPages"),

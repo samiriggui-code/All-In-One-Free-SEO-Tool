@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { snapshotRobots, listSnapshots } from "@/lib/robots-snapshots";
 
@@ -11,6 +13,7 @@ export async function runSnapshot(
   _prev: SnapshotState | null,
   formData: FormData,
 ): Promise<SnapshotState> {
+  await requireSignedIn();
   const host = String(formData.get("host") ?? "").trim();
   if (!host) return { ok: false, error: "Enter a domain." };
   const r = await snapshotRobots(host);
@@ -20,5 +23,6 @@ export async function runSnapshot(
 }
 
 export async function loadSnapshots(host: string) {
+  await requireSignedIn();
   return listSnapshots(host);
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { createContext, useContext, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,6 +67,7 @@ function QuickAddClientDialog({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("shell.quickAdd");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -104,12 +106,12 @@ function QuickAddClientDialog({
         if (!pending) onClose();
       }}
       size="sm"
-      title="Add a new client"
-      description="Just paste the website URL — we'll auto-fetch the logo, name, address, social links, tech stack, and niche, then seed an initial task list."
+      title={t("title")}
+      description={t("description")}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="qa-url">Website URL</Label>
+          <Label htmlFor="qa-url">{t("url")}</Label>
           <div className="relative">
             <Globe className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -123,7 +125,7 @@ function QuickAddClientDialog({
             />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            We&apos;ll add https:// for you.
+            {t("httpsHint")}
           </p>
         </div>
 
@@ -139,7 +141,7 @@ function QuickAddClientDialog({
                 className="inline-block font-medium text-violet-200 underline underline-offset-2"
                 onClick={onClose}
               >
-                Open existing client →
+                {t("openExisting")}
               </Link>
             ) : null}
           </div>
@@ -147,9 +149,7 @@ function QuickAddClientDialog({
 
         <div className="rounded-md border border-violet-500/20 bg-violet-500/[0.04] px-3 py-2 text-[11px] text-muted-foreground">
           <Sparkles className="mr-1 inline size-3 text-violet-300" />
-          Auto-extracted: logo, name, description, address, phone, social
-          links, tech stack, niche, initial niche-aware + stack-aware task
-          list. Editable later.
+          {t("autoExtracted")}
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-1">
@@ -160,18 +160,18 @@ function QuickAddClientDialog({
             onClick={onClose}
             disabled={pending}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" disabled={pending || !url.trim()}>
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Setting up… (~10s)
+                {t("settingUp")}
               </>
             ) : (
               <>
                 <Wand2 className="size-4" />
-                Create client
+                {t("create")}
               </>
             )}
           </Button>
@@ -193,9 +193,10 @@ export function QuickAddClientButton({
   className?: string;
 }) {
   const ctx = useQuickAddClient();
+  const t = useTranslations("common");
   return (
     <button type="button" onClick={ctx.open} className={className}>
-      {children ?? "Add client"}
+      {children ?? t("addClient")}
     </button>
   );
 }

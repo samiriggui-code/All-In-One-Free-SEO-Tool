@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -30,6 +32,7 @@ export async function researchAction(
   _prev: ResearchActionResult | null,
   formData: FormData,
 ): Promise<ResearchActionResult> {
+  await requireSignedIn();
   const seed = String(formData.get("seed") ?? "").trim();
   // normaliseCountry maps the "UK" the old form used onto GB, and
   // refuses anything a search engine would not accept.
@@ -67,6 +70,7 @@ export async function researchAction(
 }
 
 export async function trackKeyword(formData: FormData) {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const query = String(formData.get("query") ?? "").trim();
   const country = String(formData.get("country") ?? "US")
@@ -103,6 +107,7 @@ export async function trackKeyword(formData: FormData) {
 }
 
 export async function untrackKeyword(keywordId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(keywordId) || keywordId <= 0) return;
   await db.delete(keywords).where(eq(keywords.id, keywordId));
   revalidatePath("/keywords");

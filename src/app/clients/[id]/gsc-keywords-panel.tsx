@@ -1,8 +1,11 @@
 import { Search, TrendingDown, TrendingUp } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getGscTopQueries } from "@/lib/google-data";
 
 export async function GscKeywordsPanel({ siteUrl }: { siteUrl: string }) {
   const rows = await getGscTopQueries({ siteUrl, days: 28, limit: 15 });
+  const t = await getTranslations("clientPage.gscKeywords");
+  const locale = await getLocale();
 
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -10,28 +13,27 @@ export async function GscKeywordsPanel({ siteUrl }: { siteUrl: string }) {
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Search className="size-4 text-violet-300" />
-            Top keywords (last 28 days)
+            {t("title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Real data from Search Console — clicks, impressions, position.
+            {t("subtitle")}
           </p>
         </div>
       </header>
       {rows.length === 0 ? (
         <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-          No data yet. New properties take a few days before Google has enough
-          impressions to report.
+          {t("empty")}
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-[14px]">
             <thead>
               <tr className="border-b border-white/[0.06] text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
-                <th className="px-5 py-2.5 text-left">Query</th>
-                <th className="px-3 py-2.5 text-right">Clicks</th>
-                <th className="px-3 py-2.5 text-right">Impr.</th>
-                <th className="px-3 py-2.5 text-right">CTR</th>
-                <th className="px-5 py-2.5 text-right">Position</th>
+                <th className="px-5 py-2.5 text-left">{t("query")}</th>
+                <th className="px-3 py-2.5 text-right">{t("clicks")}</th>
+                <th className="px-3 py-2.5 text-right">{t("impressions")}</th>
+                <th className="px-3 py-2.5 text-right">{t("ctr")}</th>
+                <th className="px-5 py-2.5 text-right">{t("position")}</th>
               </tr>
             </thead>
             <tbody>
@@ -42,10 +44,10 @@ export async function GscKeywordsPanel({ siteUrl }: { siteUrl: string }) {
                 >
                   <td className="px-5 py-2.5 font-medium">{r.query}</td>
                   <td className="px-3 py-2.5 text-right tabular-nums">
-                    {r.clicks.toLocaleString()}
+                    {r.clicks.toLocaleString(locale)}
                   </td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
-                    {r.impressions.toLocaleString()}
+                    {r.impressions.toLocaleString(locale)}
                   </td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">
                     {(r.ctr * 100).toFixed(1)}%

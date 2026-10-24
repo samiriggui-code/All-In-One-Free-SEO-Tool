@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -16,6 +18,7 @@ export async function createApiKey(
   formData: FormData,
 ): Promise<CreateApiKeyState> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const name = String(formData.get("name") ?? "").trim();
   const scope = String(formData.get("scope") ?? "read").trim();
 
@@ -44,6 +47,7 @@ export async function createApiKey(
 
 export async function revokeApiKey(id: number): Promise<{ ok: boolean }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await db
     .update(apiKeys)
     .set({ revokedAt: new Date() })

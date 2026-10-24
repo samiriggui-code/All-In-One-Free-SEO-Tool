@@ -74,14 +74,13 @@ import { inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Mail, Plug } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-const nicheLabels: Record<string, string> = {
-  local: "Local",
-  ecommerce: "E-commerce",
-  saas: "SaaS",
-  blog: "Blog",
-  services: "Services",
-};
+type T = Awaited<ReturnType<typeof getTranslations<"clientPage">>>;
+
+function nicheLabel(niche: string, t: T): string {
+  return t.has(`niches.${niche}`) ? t(`niches.${niche}`) : niche;
+}
 
 const nicheTone: Record<string, string> = {
   local: "bg-violet-500/15 text-violet-300 ring-violet-500/20",
@@ -96,19 +95,19 @@ const nicheTone: Record<string, string> = {
  * "5 days ago", "3 months ago". Defaults to "today" for anything under
  * an hour so the copy reads naturally even right after a fresh audit.
  */
-function relativeTime(date: Date): string {
+function relativeTime(date: Date, t: T): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60 * 60) return "today";
+  if (seconds < 60 * 60) return t("ago.today");
   const hours = Math.floor(seconds / 3600);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  if (hours < 24) return t("ago.hours", { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 14) return t("ago.days", { count: days });
   const weeks = Math.floor(days / 7);
-  if (weeks < 9) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+  if (weeks < 9) return t("ago.weeks", { count: weeks });
   const months = Math.floor(days / 30);
-  if (months < 18) return `${months} month${months === 1 ? "" : "s"} ago`;
+  if (months < 18) return t("ago.months", { count: months });
   const years = Math.floor(days / 365);
-  return `${years} year${years === 1 ? "" : "s"} ago`;
+  return t("ago.years", { count: years });
 }
 
 function PanelSkeleton({ title }: { title: string }) {
@@ -158,6 +157,7 @@ export default async function ClientDetailPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("clientPage");
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
   const sp = (await searchParams) ?? {};
@@ -362,8 +362,8 @@ export default async function ClientDetailPage({
 
       <NextActionsPanel
         items={ranked}
-        heading="What's worth doing for this client"
-        emptyNote="Nothing ranked yet — run an audit and this fills in."
+        heading={t("nextActionsHeading")}
+        emptyNote={t("nextActionsEmpty")}
         showClient={false}
       />
 
@@ -436,7 +436,7 @@ export default async function ClientDetailPage({
           },
         }[tone];
         const auditedLabel = latestCompleted?.completedAt
-          ? relativeTime(latestCompleted.completedAt)
+          ? relativeTime(latestCompleted.completedAt, t)
           : null;
         const auditedDateFull = latestCompleted?.completedAt
           ? latestCompleted.completedAt.toLocaleDateString(undefined, {
@@ -474,7 +474,7 @@ export default async function ClientDetailPage({
                   href="/clients"
                   className="rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
                 >
-                  Clients
+                  {t("breadcrumb")}
                 </Link>
                 <span aria-hidden className="text-muted-foreground/40">·</span>
                 <span aria-current="page" className="truncate text-foreground/80">
@@ -504,7 +504,7 @@ export default async function ClientDetailPage({
                         href={client.url}
                         target="_blank"
                         rel="noreferrer noopener"
-                        aria-label={`${client.url} — opens in a new tab`}
+                        aria-label={t("opensNewTab", { url: client.url })}
                         className="group inline-flex max-w-full items-center gap-1.5 rounded-md bg-muted/40 px-2 py-1 font-mono text-[12px] text-muted-foreground ring-1 ring-inset ring-border transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
                       >
                         <span className="truncate">
@@ -525,14 +525,13 @@ export default async function ClientDetailPage({
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 ring-inset ${nicheTone[client.niche] ?? "bg-muted text-muted-foreground"}`}
                       >
                         <Sparkles className="size-3" />
-                        {nicheLabels[client.niche] ?? client.niche}
+                        {nicheLabel(client.niche, t)}
                       </span>
                     )}
                     {client.techStack && client.techStack.length > 0 && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2.5 py-0.5 text-[11px] text-muted-foreground ring-1 ring-inset ring-border">
                         <Layers className="size-3" />
-                        {client.techStack.length} tech
-                        {client.techStack.length === 1 ? "" : "s"} detected
+                        {t("techDetected", { count: client.techStack.length })}
                       </span>
                     )}
                     {auditedLabel && latestCompleted?.completedAt && (
@@ -542,7 +541,7 @@ export default async function ClientDetailPage({
                           className="size-1 rounded-full bg-muted-foreground/50"
                         />
                         <span>
-                          Audited{" "}
+                          {t("audited")}{" "}
                           <time
                             dateTime={latestCompleted.completedAt.toISOString()}
                           >
@@ -561,10 +560,10 @@ export default async function ClientDetailPage({
                     2026." */}
                 <dl
                   className="relative lg:border-l lg:border-border lg:pl-8"
-                  aria-label="Latest audit summary"
+                  aria-label={t("latestAuditSummary")}
                 >
                   <dt className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                    Health score
+                    {t("healthScore")}
                   </dt>
                   <dd className="mt-2 flex items-baseline gap-2">
                     <span
@@ -572,8 +571,8 @@ export default async function ClientDetailPage({
                       style={{ fontSize: "clamp(4rem, 6vw, 5.5rem)" }}
                       aria-label={
                         score === null
-                          ? "No score yet"
-                          : `${score} out of 100`
+                          ? t("noScore")
+                          : t("scoreOutOf", { score })
                       }
                     >
                       {score === null ? "—" : score}
@@ -604,7 +603,7 @@ export default async function ClientDetailPage({
                         <span className="font-medium text-foreground/80 tabular-nums">
                           {latestCompleted.issuesCount}
                         </span>
-                        <span>issues found</span>
+                        <span>{t("issuesFound")}</span>
                         <span aria-hidden className="text-muted-foreground/40">
                           ·
                         </span>
@@ -618,7 +617,7 @@ export default async function ClientDetailPage({
                       </>
                     ) : (
                       <span>
-                        Run an audit to score this site — takes ~30 seconds.
+                        {t("runToScore")}
                       </span>
                     )}
                   </dd>
@@ -632,22 +631,22 @@ export default async function ClientDetailPage({
                   <form action={runQuickAction}>
                     <SubmitButton
                       icon={<Play className="size-3.5" />}
-                      pendingChildren="Running quick audit…"
-                      pendingToast="Starting SEO + GEO quick audit"
-                      pendingToastDescription="Site crawl and checks, all 373 technical rules on the HTML (up to 8 pages), then GEO scoring."
+                      pendingChildren={t("quickRunning")}
+                      pendingToast={t("quickToast")}
+                      pendingToastDescription={t("quickToastBody")}
                     >
-                      Audit rapide
+                      {t("quickAudit")}
                     </SubmitButton>
                   </form>
                   <form action={runDeepAction}>
                     <SubmitButton
                       variant="outline"
                       icon={<Play className="size-3.5" />}
-                      pendingChildren="Running full audit…"
-                      pendingToast="Starting SEO + GEO full audit"
-                      pendingToastDescription="Everything in the quick audit, plus browser rendering, Core Web Vitals and mobile parity on up to 20 pages."
+                      pendingChildren={t("fullRunning")}
+                      pendingToast={t("fullToast")}
+                      pendingToastDescription={t("fullToastBody")}
                     >
-                      Audit complet
+                      {t("fullAudit")}
                     </SubmitButton>
                   </form>
 
@@ -658,7 +657,7 @@ export default async function ClientDetailPage({
                     trigger={
                       <>
                         <FileDown className="size-3.5" />
-                        Generate report
+                        {t("generateReport")}
                       </>
                     }
                   >
@@ -667,27 +666,27 @@ export default async function ClientDetailPage({
                         href={`/reports/${client.id}?template=executive`}
                         className="block px-3 py-2 text-sm hover:bg-accent"
                       >
-                        <div className="font-medium">Executive</div>
+                        <div className="font-medium">{t("reports.executive")}</div>
                         <div className="text-[11px] text-muted-foreground">
-                          Score, summary, top issues — 1 page
+                          {t("reports.executiveHint")}
                         </div>
                       </Link>
                       <Link
                         href={`/reports/${client.id}?template=detailed`}
                         className="block border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
-                        <div className="font-medium">Detailed</div>
+                        <div className="font-medium">{t("reports.detailed")}</div>
                         <div className="text-[11px] text-muted-foreground">
-                          Full report — work done + next steps
+                          {t("reports.detailedHint")}
                         </div>
                       </Link>
                       <Link
                         href={`/reports/${client.id}?template=technical`}
                         className="block border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
-                        <div className="font-medium">Technical</div>
+                        <div className="font-medium">{t("reports.technical")}</div>
                         <div className="text-[11px] text-muted-foreground">
-                          Every issue + URLs — engineering
+                          {t("reports.technicalHint")}
                         </div>
                       </Link>
                     </div>
@@ -702,7 +701,7 @@ export default async function ClientDetailPage({
                     })}
                   >
                     <Bot className="size-3.5" />
-                    AI audit
+                    {t("aiAudit")}
                   </Link>
 
                   {/* Onboarding — emphasised when not completed */}
@@ -717,14 +716,14 @@ export default async function ClientDetailPage({
                     })}
                     title={
                       client.onboardingStep === "completed"
-                        ? "Re-run onboarding to refresh keywords + plan"
-                        : "Smart onboarding — auto-generates a 30-day plan"
+                        ? t("replanTitle")
+                        : t("onboardingTitle")
                     }
                   >
                     <Sparkles className="size-3.5" />
                     {client.onboardingStep === "completed"
-                      ? "Re-plan"
-                      : "Smart onboarding"}
+                      ? t("replan")
+                      : t("onboarding")}
                   </Link>
 
                   {/* Overflow — everything else */}
@@ -736,7 +735,7 @@ export default async function ClientDetailPage({
                     trigger={
                       <>
                         <MoreHorizontal className="size-3.5" />
-                        More
+                        {t("more")}
                       </>
                     }
                   >
@@ -746,49 +745,49 @@ export default async function ClientDetailPage({
                         className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Bot className="size-3.5 text-violet-300" />
-                        AI agent
+                        {t("menu.agent")}
                       </Link>
                       <Link
                         href={`/clients/${client.id}/plan`}
                         className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Layers className="size-3.5 text-violet-300" />
-                        30-day plan
+                        {t("menu.plan")}
                       </Link>
                       <Link
                         href={`/findings/c/${client.id}`}
                         className="flex items-center gap-2 border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
                         <ClipboardList className="size-3.5 text-cyan-300" />
-                        What the tools found
+                        {t("menu.findings")}
                       </Link>
                       <Link
                         href={`/blog/${client.id}`}
                         className="flex items-center gap-2 border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Wand2 className="size-3.5 text-violet-300" />
-                        AI blog
+                        {t("menu.blog")}
                       </Link>
                       <Link
                         href={`/guest-posts/c/${client.id}`}
                         className="flex items-center gap-2 border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Wand2 className="size-3.5 text-amber-300" />
-                        Guest posts
+                        {t("menu.guestPosts")}
                       </Link>
                       <Link
                         href={`/link-building/c/${client.id}`}
                         className="flex items-center gap-2 border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Link2 className="size-3.5 text-emerald-300" />
-                        Backlinks
+                        {t("menu.backlinks")}
                       </Link>
                       <Link
                         href={`/clients/${client.id}/edit`}
                         className="flex items-center gap-2 border-t border-border px-3 py-2 text-sm hover:bg-accent"
                       >
                         <Pencil className="size-3.5 text-muted-foreground" />
-                        Edit client
+                        {t("menu.edit")}
                       </Link>
                       <form
                         action={refreshMetadataAction}
@@ -799,13 +798,13 @@ export default async function ClientDetailPage({
                           icon={
                             <RefreshCw className="size-3.5 text-muted-foreground" />
                           }
-                          pendingChildren="Refreshing…"
-                          pendingToast="Refreshing site metadata"
-                          pendingToastDescription="Re-fetching logo, NAP, tech stack…"
-                          title="Re-fetch logo, address, social links, and tech stack from the live site"
+                          pendingChildren={t("menu.refreshing")}
+                          pendingToast={t("menu.refreshToast")}
+                          pendingToastDescription={t("menu.refreshToastBody")}
+                          title={t("menu.refreshTitle")}
                           className="w-full justify-start rounded-none px-3 py-2 text-sm font-normal hover:bg-accent"
                         >
-                          Refresh metadata
+                          {t("menu.refresh")}
                         </SubmitButton>
                       </form>
                     </div>
@@ -840,11 +839,11 @@ export default async function ClientDetailPage({
           return (
             <div className="grid gap-4 sm:grid-cols-3">
               <StatCard
-                label="Open issues"
+                label={t("stats.openIssues")}
                 value={latestCompleted?.issuesCount ?? 0}
                 accent="amber"
                 icon={AlertCircle}
-                hint="From last audit"
+                hint={t("stats.fromLastAudit")}
                 // The other two cards on this row count rows in our own
                 // database and need no provenance. This one describes
                 // the client's website, which is a claim about the
@@ -854,29 +853,29 @@ export default async function ClientDetailPage({
                 spark={issuesSpark.length >= 2 ? issuesSpark : undefined}
                 delta={
                   issuesDelta !== null
-                    ? { value: issuesDelta, label: "vs prior" }
+                    ? { value: issuesDelta, label: t("stats.vsPrior") }
                     : undefined
                 }
               />
               <StatCard
-                label="Open tasks"
+                label={t("stats.openTasks")}
                 value={openTaskCount}
                 accent="violet"
                 icon={ClipboardList}
-                hint="Auto-generated + manual"
+                hint={t("stats.tasksHint")}
               />
               <StatCard
-                label="Tracked keywords"
+                label={t("stats.keywords")}
                 value={keywordCount}
                 accent="cyan"
                 icon={Search}
                 hint={
-                  keywordCount === 0 ? "Not tracking any yet" : "In rotation"
+                  keywordCount === 0 ? t("stats.noKeywords") : t("stats.inRotation")
                 }
                 spark={keywordsSpark.length >= 2 ? keywordsSpark : undefined}
                 delta={
                   kwDelta !== null
-                    ? { value: kwDelta, label: "vs prior" }
+                    ? { value: kwDelta, label: t("stats.vsPrior") }
                     : undefined
                 }
               />
@@ -888,15 +887,13 @@ export default async function ClientDetailPage({
           <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-cyan-500/10 blur-3xl" />
           <header className="relative">
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300">
-              Get started
+              {t("empty.kicker")}
             </p>
             <h2 className="mt-2 text-xl font-semibold">
-              No data for {client.name} yet — let&apos;s seed it.
+              {t("empty.title", { name: client.name })}
             </h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Pick any of the three to bootstrap this client. You can do them
-              in any order, and the AI agent will start filling in the rest
-              within 24h.
+              {t("empty.body")}
             </p>
           </header>
           <div className="relative mt-5 grid gap-3 sm:grid-cols-3">
@@ -909,13 +906,13 @@ export default async function ClientDetailPage({
                   <Play className="size-4" />
                 </span>
                 <div>
-                  <div className="text-sm font-semibold">Audit rapide</div>
+                  <div className="text-sm font-semibold">{t("quickAudit")}</div>
                   <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    Site crawl and 373 technical rules, HTML only.
+                    {t("empty.quickHint")}
                   </div>
                 </div>
                 <span className="mt-1 text-[11px] font-medium text-cyan-300 transition-transform group-hover:translate-x-0.5">
-                  Run now →
+                  {t("empty.runNow")}
                 </span>
               </button>
             </form>
@@ -927,14 +924,13 @@ export default async function ClientDetailPage({
                 <Search className="size-4" />
               </span>
               <div>
-                <div className="text-sm font-semibold">Track keywords</div>
+                <div className="text-sm font-semibold">{t("empty.keywords")}</div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
-                  10-15 keywords gives the AI enough signal to spot quick
-                  wins.
+                  {t("empty.keywordsHint")}
                 </div>
               </div>
               <span className="mt-1 text-[11px] font-medium text-violet-300 transition-transform group-hover:translate-x-0.5">
-                Add keywords →
+                {t("empty.addKeywords")}
               </span>
             </Link>
             <Link
@@ -945,13 +941,13 @@ export default async function ClientDetailPage({
                 <Sparkles className="size-4" />
               </span>
               <div>
-                <div className="text-sm font-semibold">Smart onboarding</div>
+                <div className="text-sm font-semibold">{t("onboarding")}</div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
-                  AI inspects the site and auto-generates a 30-day SEO plan.
+                  {t("empty.onboardingHint")}
                 </div>
               </div>
               <span className="mt-1 text-[11px] font-medium text-emerald-300 transition-transform group-hover:translate-x-0.5">
-                Auto-plan →
+                {t("empty.autoPlan")}
               </span>
             </Link>
           </div>
@@ -968,20 +964,19 @@ export default async function ClientDetailPage({
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Plug className="size-4 text-violet-300" />
-              Google Search Console + Analytics
+              {t("google.title")}
               {client.gscProperty || client.ga4PropertyId ? (
                 <span className="ml-1 inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                  Linked
+                  {t("google.linked")}
                 </span>
               ) : (
                 <span className="ml-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                  Optional
+                  {t("optional")}
                 </span>
               )}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Real keyword data + traffic for this client. Pick once — runs in
-              the background after that.
+              {t("google.body")}
             </p>
           </div>
         </header>
@@ -1009,7 +1004,7 @@ export default async function ClientDetailPage({
       {googleStatus.configured && client.ga4PropertyId && (
         <Suspense
           fallback={
-            <PanelSkeleton title="Loading organic traffic from Analytics…" />
+            <PanelSkeleton title={t("loading.traffic")} />
           }
         >
           <OrganicTrafficPanel propertyId={client.ga4PropertyId} />
@@ -1020,13 +1015,13 @@ export default async function ClientDetailPage({
         <div className="grid gap-6 lg:grid-cols-2">
           <Suspense
             fallback={
-              <PanelSkeleton title="Loading top keywords from Search Console…" />
+              <PanelSkeleton title={t("loading.keywords")} />
             }
           >
             <GscKeywordsPanel siteUrl={client.gscProperty} />
           </Suspense>
           <Suspense
-            fallback={<PanelSkeleton title="Finding quick wins…" />}
+            fallback={<PanelSkeleton title={t("loading.quickWins")} />}
           >
             <QuickWinsPanel siteUrl={client.gscProperty} />
           </Suspense>
@@ -1055,20 +1050,19 @@ export default async function ClientDetailPage({
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Mail className="size-4 text-cyan-300" />
-              Scheduled report email
+              {t("schedule.title")}
               {scheduleRow ? (
                 <span className="ml-1 inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                  Active
+                  {t("schedule.active")}
                 </span>
               ) : (
                 <span className="ml-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                  Optional
+                  {t("optional")}
                 </span>
               )}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Auto-deliver the branded PDF to client + team on a schedule. Or
-              hit &ldquo;Send now&rdquo; below to email it on demand.
+              {t("schedule.body")}
             </p>
           </div>
         </header>
@@ -1103,10 +1097,10 @@ export default async function ClientDetailPage({
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Layers className="size-4 text-cyan-300" />
-              Tech stack
+              {t("stack.title")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Detected from HTML + HTTP headers — drives every recommendation
+              {t("stack.body")}
             </p>
           </div>
           <form action={redetectAction}>
@@ -1117,7 +1111,7 @@ export default async function ClientDetailPage({
               className=""
             >
               <RotateCw className="size-3" />
-              Re-detect
+              {t("stack.redetect")}
             </Button>
           </form>
         </header>
@@ -1136,8 +1130,7 @@ export default async function ClientDetailPage({
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Nothing detected yet. The site may have been unreachable when we
-              looked — try Re-detect.
+              {t("stack.none")}
             </p>
           )}
         </div>
@@ -1151,14 +1144,14 @@ export default async function ClientDetailPage({
             <div>
               <h2 className="flex items-center gap-2 text-base font-semibold">
                 <Sparkles className="size-4 text-violet-300" />
-                Niche tasks
+                {t("niche.title")}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Starter task list for{" "}
+                {t("niche.bodyBefore")}{" "}
                 <span className="font-medium text-foreground">
-                  {nicheLabels[client.niche] ?? client.niche}
+                  {nicheLabel(client.niche, t)}
                 </span>{" "}
-                — duplicates are skipped on re-apply
+                {t("niche.bodyAfter")}
               </p>
             </div>
             <form action={applyTemplatesAction}>
@@ -1169,7 +1162,7 @@ export default async function ClientDetailPage({
                 className=""
               >
                 <RotateCw className="size-3" />
-                Re-apply templates
+                {t("niche.reapply")}
               </Button>
             </form>
           </header>
@@ -1183,14 +1176,14 @@ export default async function ClientDetailPage({
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Layers className="size-4 text-cyan-300" />
-              Tech-stack checklist
+              {t("checklist.title")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {matchedStacks.length === 1 && matchedStacks[0] === "custom"
-                ? "Generic SEO checklist (no major CMS detected)"
-                : `Tasks tailored for ${matchedStacks
-                    .map((s) => STACK_LABELS[s])
-                    .join(" + ")}`}
+                ? t("checklist.generic")
+                : t("checklist.tailored", {
+                    stacks: matchedStacks.map((s) => STACK_LABELS[s]).join(" + "),
+                  })}
             </p>
           </div>
           <form action={applyStackAction}>
@@ -1201,7 +1194,7 @@ export default async function ClientDetailPage({
               className=""
             >
               <RotateCw className="size-3" />
-              Re-apply checklist
+              {t("checklist.reapply")}
             </Button>
           </form>
         </header>
@@ -1217,9 +1210,7 @@ export default async function ClientDetailPage({
             ))}
           </div>
           <p className="mt-3 text-xs">
-            We auto-applied platform-specific SEO tasks when this client was
-            added. Tasks include actionable next steps with the exact plugin /
-            setting / step for the detected platform.
+            {t("checklist.body")}
           </p>
         </div>
       </section>
@@ -1230,13 +1221,13 @@ export default async function ClientDetailPage({
         <header className="relative border-b border-white/5 px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <ClipboardList className="size-4 text-cyan-300" />
-            Recent audits
+            {t("audits.title")}
           </h2>
         </header>
         <div className="relative">
           {recentAudits.length === 0 ? (
             <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-              No audits yet. Run a deep technical audit above to set the baseline.
+              {t("audits.none")}
             </p>
           ) : (
             <ul className="divide-y divide-white/5">
@@ -1249,25 +1240,25 @@ export default async function ClientDetailPage({
                     href={`/audits/${a.id}`}
                     className="font-medium hover:underline"
                   >
-                    Audit #{a.id}
+                    {t("audits.item", { id: a.id })}
                     <span className="ml-2 text-[10px] font-normal text-muted-foreground">
                       {a.kind === "ai_full"
-                        ? "AI"
+                        ? t("audits.kind.ai")
                         : a.mode === "full"
-                          ? "Full"
+                          ? t("audits.kind.full")
                           : a.mode === "quick"
-                            ? "Quick"
+                            ? t("audits.kind.quick")
                             : a.kind === "seomator"
-                              ? "Technical"
-                              : "Crawl"}
+                              ? t("audits.kind.technical")
+                              : t("audits.kind.crawl")}
                     </span>
                   </Link>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground">
-                      {a.status}
+                      {t.has(`audits.status.${a.status}`) ? t(`audits.status.${a.status}`) : a.status}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {a.issuesCount} issues
+                      {t("audits.issues", { count: a.issuesCount ?? 0 })}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {(a.completedAt ?? a.createdAt).toLocaleDateString()}
@@ -1292,7 +1283,7 @@ export default async function ClientDetailPage({
         <header className="border-b border-rose-500/20 px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold text-rose-300">
             <Trash2 className="size-4" />
-            Danger zone
+            {t("danger")}
           </h2>
         </header>
         <div className="p-5">

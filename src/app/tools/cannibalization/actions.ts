@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchGscPerformance } from "@/lib/google-oauth";
 import { recordToolRun } from "@/lib/tool-findings";
 import { cannibalFindings } from "@/lib/tool-finding-builders";
@@ -60,6 +62,7 @@ export async function runCannibalScan(
   _prev: CannibalState | null,
   formData: FormData,
 ): Promise<CannibalState> {
+  await requireSignedIn();
   const siteUrl = String(formData.get("site") ?? "").trim();
   if (!siteUrl) return { ok: false, error: "Pick a GSC property." };
 

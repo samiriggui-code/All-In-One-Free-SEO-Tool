@@ -26,7 +26,7 @@ export async function TopBar({
       <div className="min-w-0 flex-1">
         <SearchPalette />
       </div>
-      <div className="hidden min-w-0 lg:block">
+      <div className="hidden min-w-0 overflow-hidden lg:block">
         <NextStep />
       </div>
       <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">

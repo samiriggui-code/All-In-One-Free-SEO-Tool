@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -30,6 +32,7 @@ export async function fetchBespokeIdeas(
   _prev: IdeasState,
   formData: FormData,
 ): Promise<IdeasState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: "Bad client id." };
@@ -76,6 +79,7 @@ export async function trackBespokeIdea(
   clientId: number,
   idea: AiBacklinkIdea,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   let domain = "";
   try {
@@ -151,6 +155,7 @@ export async function bulkTrackResources(
   clientId: number,
   resourceIds: number[],
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   if (resourceIds.length === 0) return;
 
@@ -181,6 +186,7 @@ export async function setStatusForClient(
   submissionId: number,
   status: "pending" | "submitted" | "live" | "rejected" | "lost",
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   const updates: {
     status: typeof status;
@@ -202,6 +208,7 @@ export async function setLiveUrlForClient(
   submissionId: number,
   formData: FormData,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   const url = String(formData.get("submittedUrl") ?? "").trim();
   await db
@@ -219,6 +226,7 @@ export async function setLiveUrlForClient(
 export async function runLinkHealthCheck(
   clientId: number,
 ): Promise<HealthCheckResult> {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { checked: 0, lost: 0, errors: 0 };
   const result = await checkClientBacklinkHealth(clientId);
@@ -230,6 +238,7 @@ export async function removeForClient(
   clientId: number,
   submissionId: number,
 ) {
+  await requireSignedIn();
   if (!Number.isFinite(submissionId) || submissionId <= 0) return;
   await db
     .delete(resourceSubmissions)

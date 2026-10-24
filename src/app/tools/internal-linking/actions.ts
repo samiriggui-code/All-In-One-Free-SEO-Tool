@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -154,6 +156,7 @@ export async function suggestInternalLinks(input: {
   limit?: number;
   clientId?: number | null;
 }): Promise<InternalLinkResult> {
+  await requireSignedIn();
   const target = input.targetUrl.trim();
   const keyword = input.targetKeyword.trim();
   if (!target || !keyword) {

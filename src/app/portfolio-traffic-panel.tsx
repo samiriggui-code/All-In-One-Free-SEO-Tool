@@ -5,12 +5,14 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getPortfolioTraffic } from "@/lib/dashboard-data";
 import { cn } from "@/lib/utils";
 
 export async function PortfolioTrafficPanel() {
   const data = await getPortfolioTraffic();
   if (data.clientsContributing === 0) return null;
+  const t = await getTranslations("dashboard.traffic");
 
   return (
     <section className="glass-apple animate-page-enter relative overflow-hidden rounded-2xl">
@@ -19,12 +21,10 @@ export async function PortfolioTrafficPanel() {
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Activity className="size-4 text-cyan-300" />
-            Portfolio organic traffic
+            {t("title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Sum across {data.clientsContributing}{" "}
-            {data.clientsContributing === 1 ? "client" : "clients"} with GA4
-            connected — last 28 days, organic search only.
+            {t("subtitle", { count: data.clientsContributing })}
           </p>
         </div>
       </header>
@@ -33,21 +33,22 @@ export async function PortfolioTrafficPanel() {
         {/* Totals */}
         <div className="space-y-4">
           <Metric
-            label="Sessions (28d)"
+            label={t("sessions")}
             value={data.totalSessions}
             delta={data.deltaPct}
+            deltaLabel={t("vsPrior")}
             big
           />
           <div className="grid grid-cols-2 gap-3">
-            <Metric label="Users" value={data.totalUsers} />
-            <Metric label="Pageviews" value={data.totalPageviews} />
+            <Metric label={t("users")} value={data.totalUsers} />
+            <Metric label={t("pageviews")} value={data.totalPageviews} />
           </div>
         </div>
 
         {/* Movers list */}
         <div className="space-y-2">
           <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-            Biggest movers
+            {t("movers")}
           </div>
           <ul className="divide-y divide-white/[0.04]">
             {data.movers.map((m) => (
@@ -107,11 +108,13 @@ function Metric({
   label,
   value,
   delta,
+  deltaLabel,
   big,
 }: {
   label: string;
   value: number;
   delta?: number | null;
+  deltaLabel?: string;
   big?: boolean;
 }) {
   return (
@@ -146,7 +149,7 @@ function Metric({
             <TrendingDown className="size-3" />
           ) : null}
           {delta > 0 ? "+" : ""}
-          {delta}% vs prior
+          {delta}% {deltaLabel}
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { Sparkles, Zap } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getGscQuickWins } from "@/lib/google-data";
 
 export async function QuickWinsPanel({ siteUrl }: { siteUrl: string }) {
@@ -8,6 +9,8 @@ export async function QuickWinsPanel({ siteUrl }: { siteUrl: string }) {
     limit: 8,
     minImpressions: 50,
   });
+  const t = await getTranslations("clientPage.quickWins");
+  const locale = await getLocale();
 
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -16,19 +19,16 @@ export async function QuickWinsPanel({ siteUrl }: { siteUrl: string }) {
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Zap className="size-4 text-amber-300" />
-            Quick wins
+            {t("title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Keywords ranking just outside page 1 (positions 4–15) with real
-            search volume — one tweak away from a big CTR jump.
+            {t("subtitle")}
           </p>
         </div>
       </header>
       {rows.length === 0 ? (
         <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-          No quick wins right now. Either every tracked keyword is already on
-          page 1 (great problem) or there isn&apos;t enough impression data
-          yet.
+          {t("empty")}
         </div>
       ) : (
         <ul className="divide-y divide-white/[0.04]">
@@ -41,9 +41,11 @@ export async function QuickWinsPanel({ siteUrl }: { siteUrl: string }) {
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{r.query}</div>
                 <div className="text-xs text-muted-foreground">
-                  {r.impressions.toLocaleString()} impressions ·{" "}
-                  {r.clicks.toLocaleString()} clicks ·{" "}
-                  {(r.ctr * 100).toFixed(1)}% CTR
+                  {t("stats", {
+                    impressions: r.impressions.toLocaleString(locale),
+                    clicks: r.clicks.toLocaleString(locale),
+                    ctr: (r.ctr * 100).toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+                  })}
                 </div>
               </div>
               <div className="text-right">
@@ -51,7 +53,7 @@ export async function QuickWinsPanel({ siteUrl }: { siteUrl: string }) {
                   #{r.position.toFixed(1)}
                 </div>
                 <div className="text-[11px] text-muted-foreground">
-                  current
+                  {t("current")}
                 </div>
               </div>
             </li>

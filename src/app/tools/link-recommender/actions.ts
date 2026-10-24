@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   suggestInternalLinks,
@@ -30,6 +32,7 @@ export async function recommendLinks(
   _prev: RecommendState | null,
   formData: FormData,
 ): Promise<RecommendState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     siteUrl: formData.get("siteUrl"),
     draft: formData.get("draft"),

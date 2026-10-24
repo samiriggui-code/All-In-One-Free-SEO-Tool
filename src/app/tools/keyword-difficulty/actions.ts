@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { scanSerp } from "@/lib/serp-scanner";
 import { callAI } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -131,6 +133,7 @@ function band(d: number): DifficultyResult["difficulty_band"] {
 export async function estimateDifficulty(
   rawQuery: string,
 ): Promise<DifficultyApiResult> {
+  await requireSignedIn();
   const query = rawQuery.trim();
   if (!query) return { ok: false, error: "Enter a keyword" };
 

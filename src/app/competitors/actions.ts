@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -26,6 +28,7 @@ export async function addCompetitor(
   _prev: AddCompetitorResult | null,
   formData: FormData,
 ): Promise<AddCompetitorResult> {
+  await requireSignedIn();
   const raw = {
     clientId: formData.get("clientId"),
     name: formData.get("name"),
@@ -53,6 +56,7 @@ export async function addCompetitor(
 }
 
 export async function deleteCompetitor(competitorId: number) {
+  await requireSignedIn();
   await db.delete(competitors).where(eq(competitors.id, competitorId));
   revalidatePath("/competitors");
 }

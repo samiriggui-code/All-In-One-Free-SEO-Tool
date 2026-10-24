@@ -10,6 +10,7 @@
  * assistant bubble so the two don't overlap.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ import { safeFetch } from "@/lib/safe-fetch";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 
 export function PowerWidget() {
+  const t = useTranslations("shell.power");
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<null | "restart" | "stop">(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -58,27 +60,27 @@ export function PowerWidget() {
 
   async function restart() {
     const ok = await confirmDialog({
-      title: "Restart the server?",
-      description: "The page will reload itself once it's back (8–15 seconds).",
-      confirmLabel: "Restart",
+      title: t("restartConfirm"),
+      description: t("restartConfirmBody"),
+      confirmLabel: t("restartCta"),
     });
     if (!ok) return;
     setBusy("restart");
-    setMsg("Restarting…");
+    setMsg(t("restarting"));
     const r = await safeFetch<{ ok: boolean; message?: string }>(
       "/api/restart",
       { method: "POST" },
     );
     if (!r.ok) {
-      toast.error("Restart failed", { description: r.error });
+      toast.error(t("restartFailed"), { description: r.error });
       setMsg(r.error);
       setBusy(null);
       return;
     }
-    toast.success("Restarting server", {
-      description: "Page will reload itself once the server is back",
+    toast.success(t("restartingServer"), {
+      description: t("reloadWhenBack"),
     });
-    setMsg("Waiting for server to come back…");
+    setMsg(t("waiting"));
     const start = Date.now();
     const poll = async () => {
       pollTimerRef.current = null;
@@ -94,9 +96,7 @@ export function PowerWidget() {
       if (Date.now() - start < 60_000) {
         pollTimerRef.current = setTimeout(poll, 1_500);
       } else {
-        setMsg(
-          "Server didn't come back in 60s. Open seo.cmd or your desktop shortcut.",
-        );
+        setMsg(t("notBack"));
         setBusy(null);
       }
     };
@@ -105,29 +105,28 @@ export function PowerWidget() {
 
   async function stop() {
     const ok = await confirmDialog({
-      title: "Stop the server?",
-      description:
-        "The app will go offline. Launch it again from your desktop shortcut or by running seo.cmd.",
-      confirmLabel: "Stop server",
+      title: t("stopConfirm"),
+      description: t("stopConfirmBody"),
+      confirmLabel: t("stop"),
       destructive: true,
     });
     if (!ok) return;
     setBusy("stop");
-    setMsg("Stopping…");
+    setMsg(t("stopping"));
     const r = await safeFetch<{ ok: boolean; message?: string }>(
       "/api/shutdown",
       { method: "POST" },
     );
     if (!r.ok && r.status !== 0) {
-      toast.error("Stop failed", { description: r.error });
+      toast.error(t("stopFailed"), { description: r.error });
       setMsg(r.error);
       setBusy(null);
       return;
     }
-    toast.success("Server stopped", {
-      description: "Launch it again from your desktop shortcut.",
+    toast.success(t("stopped"), {
+      description: t("launchAgain"),
     });
-    setMsg("Server stopped. Launch it again from your desktop shortcut.");
+    setMsg(t("stoppedMsg"));
   }
 
   return (
@@ -140,13 +139,13 @@ export function PowerWidget() {
         <div className="mb-2 w-64 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <span className="text-[12px] font-medium text-foreground">
-              Server controls
+              {t("title")}
             </span>
             <button
               type="button"
               onClick={() => setOpen(false)}
               className="grid size-5 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              aria-label="Close"
+              aria-label={t("close")}
             >
               <X className="size-3" />
             </button>
@@ -161,7 +160,7 @@ export function PowerWidget() {
               <RefreshCw
                 className={`size-3.5 text-violet-300 ${busy === "restart" ? "animate-spin" : ""}`}
               />
-              <span className="flex-1">Restart server</span>
+              <span className="flex-1">{t("restart")}</span>
               <span className="text-[10px] text-muted-foreground">~10s</span>
             </button>
             <button
@@ -171,7 +170,7 @@ export function PowerWidget() {
               className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-[13px] text-foreground transition-colors hover:bg-accent disabled:opacity-50"
             >
               <Square className="size-3.5 text-rose-300" />
-              <span className="flex-1">Stop server</span>
+              <span className="flex-1">{t("stop")}</span>
             </button>
             <Link
               href="/settings/install"
@@ -179,7 +178,7 @@ export function PowerWidget() {
               className="flex items-center gap-2 rounded px-2 py-2 text-[13px] text-foreground transition-colors hover:bg-accent"
             >
               <Cog className="size-3.5 text-muted-foreground" />
-              <span className="flex-1">Install as app / shortcuts</span>
+              <span className="flex-1">{t("install")}</span>
             </Link>
           </div>
           {msg && (
@@ -193,8 +192,8 @@ export function PowerWidget() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title="Server controls"
-        aria-label="Server controls"
+        title={t("title")}
+        aria-label={t("title")}
         className="grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition-colors hover:bg-accent hover:text-foreground"
       >
         <Power className="size-4" />

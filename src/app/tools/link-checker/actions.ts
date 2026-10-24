@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -57,6 +59,7 @@ function decode(s: string): string {
 }
 
 export async function analyzeLinks(rawUrl: string): Promise<LinkAnalysisResult> {
+  await requireSignedIn();
   const trimmed = rawUrl.trim();
   if (!trimmed) return { ok: false, error: "Paste a URL" };
   let url: string;

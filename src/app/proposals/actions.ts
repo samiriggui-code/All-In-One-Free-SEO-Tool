@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { classifyIntent } from "@/lib/keyword-research";
@@ -58,6 +60,7 @@ export async function createProposal(input: {
   clientId?: number;
   leadId?: number;
 }): Promise<CreateResult> {
+  await requireSignedIn();
   const result = await buildProposal(input);
   if (result.ok) revalidatePath("/proposals");
   return result;
@@ -76,6 +79,7 @@ export async function buildProposal(input: {
   clientId?: number;
   leadId?: number;
 }): Promise<CreateResult> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
 
@@ -253,6 +257,7 @@ export async function updateProposal(
   id: number,
   rawPatch: ProposalPatch,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
   const parsed = patchSchema.safeParse(rawPatch);
@@ -309,6 +314,7 @@ export async function updateProposal(
 export async function deleteProposal(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const denied = await assertCanEdit();
   if (denied) return { ok: false, error: denied };
   const [existing] = await db
@@ -342,6 +348,7 @@ export type InvoiceFromProposalResult =
 export async function createInvoiceFromProposal(
   proposalId: number,
 ): Promise<InvoiceFromProposalResult> {
+  await requireSignedIn();
   if (await assertCanEdit()) return { ok: false, error: "readOnly" };
   if (!Number.isInteger(proposalId)) return { ok: false, error: "notFound" };
 
@@ -428,6 +435,7 @@ export async function createInvoiceFromProposal(
 export async function buildKickoffReport(
   clientId: number,
 ): Promise<CreateResult> {
+  await requireSignedIn();
   const base = await buildProposal({ clientId });
   if (!base.ok) return base;
 

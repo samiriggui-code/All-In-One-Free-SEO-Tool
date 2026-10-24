@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { eq, desc, and, inArray, lt } from "drizzle-orm";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { z } from "zod";
@@ -56,6 +58,7 @@ const DEFAULT_FEEDS: { url: string; name: string; category: "google" | "industry
  * Seed default SEO feeds on first visit. Idempotent — safe to call repeatedly.
  */
 export async function seedDefaultFeedsIfEmpty(): Promise<void> {
+  await requireSignedIn();
   const existing = await db.select({ url: newsFeeds.url }).from(newsFeeds).limit(1);
   if (existing.length > 0) return;
   await db.insert(newsFeeds).values(
@@ -81,6 +84,7 @@ export async function addFeed(input: {
   url: string;
   name?: string;
 }): Promise<AddFeedResult> {
+  await requireSignedIn();
   const parsed = addFeedSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -142,6 +146,7 @@ export async function addFeed(input: {
 export async function cleanupOldItems(opts: {
   days: number;
 }): Promise<{ deleted: number }> {
+  await requireSignedIn();
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - Math.max(1, opts.days));
   // Delete items where capturedAt < cutoff
@@ -154,22 +159,26 @@ export async function cleanupOldItems(opts: {
 }
 
 export async function clearAllItems(): Promise<{ deleted: number }> {
+  await requireSignedIn();
   const result = await db.delete(newsItems).returning({ id: newsItems.id });
   safeRevalidatePath("/news");
   return { deleted: result.length };
 }
 
 export async function deleteOneItem(itemId: number): Promise<void> {
+  await requireSignedIn();
   await db.delete(newsItems).where(eq(newsItems.id, itemId));
   safeRevalidatePath("/news");
 }
 
 export async function removeFeed(feedId: number): Promise<void> {
+  await requireSignedIn();
   await db.delete(newsFeeds).where(eq(newsFeeds.id, feedId));
   safeRevalidatePath("/news");
 }
 
 export async function toggleFeed(feedId: number, enabled: boolean): Promise<void> {
+  await requireSignedIn();
   await db
     .update(newsFeeds)
     .set({ enabled, updatedAt: new Date() })
@@ -189,6 +198,7 @@ export type RefreshResult = {
 };
 
 export async function refreshFeeds(): Promise<RefreshResult> {
+  await requireSignedIn();
   const feeds = await db
     .select()
     .from(newsFeeds)
@@ -267,6 +277,7 @@ export async function refreshFeeds(): Promise<RefreshResult> {
 }
 
 export async function listRecentItems(limit = 60) {
+  await requireSignedIn();
   return db
     .select({
       id: newsItems.id,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -13,27 +14,24 @@ import {
 } from "lucide-react";
 import { chat, type ChatMessage } from "@/app/assistant/actions";
 
-const SUGGESTIONS = [
-  "Which client has the worst score right now?",
-  "What's the most common issue across my audits?",
-  "Which keywords are in striking distance?",
-  "What should I focus on first this week?",
-];
+const SUGGESTIONS = ["worstScore", "commonIssue", "strikingDistance", "focusFirst"] as const;
 
-function pathToFriendly(path: string): string {
-  if (path === "/") return "the dashboard";
+type T = ReturnType<typeof useTranslations<"shell.assistant">>;
+
+function pathToFriendly(path: string, t: T): string {
+  if (path === "/") return t("pages.dashboard");
   const parts = path.split("/").filter(Boolean);
-  if (parts[0] === "clients" && parts[1]) return "a client page";
+  if (parts[0] === "clients" && parts[1]) return t("pages.client");
   if (parts[0] === "tools" && parts[1])
-    return `the ${parts[1].replace(/-/g, " ")} tool`;
-  if (parts[0] === "audits") return "an audit page";
-  if (parts[0] === "keywords") return "the keywords page";
+    return t("pages.tool", { name: parts[1].replace(/-/g, " ") });
+  if (parts[0] === "audits") return t("pages.audit");
+  if (parts[0] === "keywords") return t("pages.keywords");
   if (parts[0] === "backlinks" || parts[0] === "link-building")
-    return "the backlinks page";
-  if (parts[0] === "competitors") return "the competitors page";
-  if (parts[0] === "content") return "the content page";
-  if (parts[0] === "reports") return "the reports page";
-  return `the ${parts[0] ?? "current"} page`;
+    return t("pages.backlinks");
+  if (parts[0] === "competitors") return t("pages.competitors");
+  if (parts[0] === "content") return t("pages.content");
+  if (parts[0] === "reports") return t("pages.reports");
+  return t("pages.other", { name: parts[0] ?? "" });
 }
 
 export function AIAssistant() {
@@ -45,7 +43,8 @@ export function AIAssistant() {
   const [pending, startTransition] = useTransition();
   const scrollRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() ?? "/";
-  const pageContext = pathToFriendly(pathname);
+  const t = useTranslations("shell.assistant");
+  const pageContext = pathToFriendly(pathname, t);
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -92,8 +91,8 @@ export function AIAssistant() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="AI assistant"
-          title="AI assistant — Esc to close"
+          aria-label={t("open")}
+          title={t("openTitle")}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 text-white shadow-xl shadow-violet-500/40 ring-1 ring-inset ring-white/30 transition-transform hover:scale-110"
         >
           <Sparkles className="size-5" />
@@ -119,18 +118,18 @@ export function AIAssistant() {
                   <Bot className="size-4 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold">SEO assistant</div>
+                  <div className="text-sm font-semibold">{t("title")}</div>
                   <div className="text-[10px] text-muted-foreground">
                     {provider
-                      ? `Powered by ${provider}`
-                      : "Ask anything about your data"}
+                      ? t("poweredBy", { provider })
+                      : t("askAnything")}
                   </div>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close"
+                aria-label={t("close")}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
               >
                 <X className="size-3.5" />
@@ -145,12 +144,10 @@ export function AIAssistant() {
                   </div>
                   <div className="space-y-1">
                     <h3 className="text-base font-semibold">
-                      Ask anything about your SEO data
+                      {t("emptyTitle")}
                     </h3>
                     <p className="text-xs text-muted-foreground max-w-md">
-                      I can see your clients, audits, keywords, tasks, and
-                      recent page changes. Numbers come from your database, not
-                      made up.
+                      {t("emptyBody")}
                     </p>
                   </div>
                   <div className="grid w-full max-w-md gap-2 pt-2">
@@ -161,22 +158,22 @@ export function AIAssistant() {
                       type="button"
                       onClick={() =>
                         send(
-                          `I'm stuck on ${pageContext} (path: ${pathname}). Briefly: what is this for, what should I be doing here, and what are the 2-3 most useful actions I can take right now?`,
+                          t("stuckPrompt", { page: pageContext, path: pathname }),
                         )
                       }
                       className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-left text-xs text-amber-200 transition-colors hover:bg-amber-500/15"
                     >
                       <HelpCircle className="size-3.5 shrink-0" />
-                      I&apos;m stuck on this page — explain it
+                      {t("stuck")}
                     </button>
-                    {SUGGESTIONS.map((s) => (
+                    {SUGGESTIONS.map((key) => (
                       <button
-                        key={s}
+                        key={key}
                         type="button"
-                        onClick={() => send(s)}
+                        onClick={() => send(t(`suggestions.${key}`))}
                         className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-foreground/85 transition-colors hover:border-white/20 hover:bg-white/10"
                       >
-                        {s}
+                        {t(`suggestions.${key}`)}
                       </button>
                     ))}
                   </div>
@@ -224,14 +221,14 @@ export function AIAssistant() {
                   }
                 }}
                 rows={1}
-                placeholder="Ask about your SEO data…"
+                placeholder={t("placeholder")}
                 disabled={pending}
                 className="max-h-32 flex-1 resize-none rounded-lg border border-white/10 bg-card/60 px-3 py-2 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
               />
               <button
                 type="submit"
                 disabled={pending || input.trim().length === 0}
-                aria-label="Send"
+                aria-label={t("send")}
                 className="grid size-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 text-white shadow-md shadow-violet-500/30 ring-1 ring-inset ring-white/20 transition-opacity disabled:opacity-50"
               >
                 {pending ? (

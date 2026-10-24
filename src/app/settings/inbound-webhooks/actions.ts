@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
@@ -16,6 +18,7 @@ export async function createInboundWebhook(
   formData: FormData,
 ): Promise<CreateInboundState> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const name = String(formData.get("name") ?? "").trim();
   const eventType = String(formData.get("eventType") ?? "generic").trim();
   if (name.length < 2 || name.length > 80) {
@@ -38,6 +41,7 @@ export async function createInboundWebhook(
 
 export async function deleteInboundWebhook(id: number): Promise<{ ok: true }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await db.delete(inboundWebhooks).where(eq(inboundWebhooks.id, id));
   revalidatePath("/settings");
   return { ok: true };
@@ -48,6 +52,7 @@ export async function toggleInboundWebhook(
   enabled: boolean,
 ): Promise<{ ok: true }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await db
     .update(inboundWebhooks)
     .set({ enabled })

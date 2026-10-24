@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   analyseInternalLinks,
@@ -25,6 +27,7 @@ export async function runLinkGraph(
   _prev: LinkGraphState | null,
   formData: FormData,
 ): Promise<LinkGraphState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || undefined,

@@ -8,6 +8,7 @@ import {
   Plug,
   Trash2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { disconnectPerClientGoogle } from "./per-client-google-actions";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
@@ -21,6 +22,7 @@ export function PerClientGoogleConnect({
   connectedEmail: string | null;
   hasWorkspaceCreds: boolean;
 }) {
+  const t = useTranslations("clientPage.perClientGoogle");
   const [pending, startTransition] = useTransition();
   const [opening, setOpening] = useState(false);
 
@@ -63,9 +65,9 @@ export function PerClientGoogleConnect({
 
   async function disconnect() {
     const ok = await confirmDialog({
-      title: "Disconnect Google for this client?",
-      description: "Removes the per-client OAuth tokens. The workspace Google connection (used by other clients) stays intact. You can reconnect any time.",
-      confirmLabel: "Disconnect",
+      title: t("confirmTitle"),
+      description: t("confirmBody"),
+      confirmLabel: t("disconnect"),
       destructive: true,
     });
     if (!ok) return;
@@ -81,27 +83,23 @@ export function PerClientGoogleConnect({
       <header className="relative border-b border-white/[0.06] px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Plug className="size-4 text-violet-300" />
-          Per-client Google account
+          {t("title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          When the client&apos;s GSC / GA4 lives under their OWN Google account
-          (not yours), connect that account here. We&apos;ll use these tokens
-          for this client only — your workspace Google connection still works
-          for everyone else.
+          {t("intro")}
         </p>
       </header>
       <div className="relative space-y-3 p-5">
         {!hasWorkspaceCreds ? (
           <div className="rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-            Set up the workspace Google OAuth client first (Settings → Google).
-            Per-client connections reuse those credentials.
+            {t("needWorkspace")}
           </div>
         ) : connectedEmail ? (
           <>
             <div className="flex items-start gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
               <div>
-                <div className="font-medium">Connected</div>
+                <div className="font-medium">{t("connected")}</div>
                 <div className="text-xs">{connectedEmail}</div>
               </div>
             </div>
@@ -116,12 +114,12 @@ export function PerClientGoogleConnect({
                 {opening ? (
                   <>
                     <Loader2 className="size-3 animate-spin" />
-                    Reconnecting…
+                    {t("reconnecting")}
                   </>
                 ) : (
                   <>
                     <ExternalLink className="size-3" />
-                    Reconnect
+                    {t("reconnect")}
                   </>
                 )}
               </Button>
@@ -134,7 +132,7 @@ export function PerClientGoogleConnect({
                 className="border-rose-500/20 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10"
               >
                 <Trash2 className="size-3" />
-                Disconnect
+                {t("disconnect")}
               </Button>
             </div>
           </>
@@ -149,19 +147,17 @@ export function PerClientGoogleConnect({
               {opening ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Opening Google…
+                  {t("opening")}
                 </>
               ) : (
                 <>
                   <Plug className="size-4" />
-                  Connect this client&apos;s Google account
+                  {t("connect")}
                 </>
               )}
             </Button>
             <p className="text-[11px] text-muted-foreground">
-              Opens Google&apos;s consent screen in a popup. The client (or
-              you, signed in as them) approves once — we never see their
-              password.
+              {t("popupHint")}
             </p>
           </div>
         )}

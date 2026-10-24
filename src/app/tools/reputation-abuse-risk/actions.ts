@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   runReputationAbuseScan,
   type RiskReport,
@@ -16,6 +18,7 @@ export async function scanForRisk(
   _prev: ScanState,
   formData: FormData,
 ): Promise<ScanState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   if (!url) return { ok: false, error: "Enter a URL." };
   let parsed: URL;

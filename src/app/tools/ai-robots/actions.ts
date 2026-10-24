@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 
 import { auditAiBotRobots, type RobotsAudit } from "@/lib/ai-bot-robots";
 import { findingDraftsFor } from "@/lib/ai-robots-findings";
@@ -23,6 +25,7 @@ export async function runAiRobotsAudit(
   url: string,
   clientId?: number,
 ): Promise<RobotsAudit> {
+  await requireSignedIn();
   const audit = await auditAiBotRobots(url);
   if (!audit.ok) return audit;
 

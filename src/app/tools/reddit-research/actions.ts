@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { saveToolRun } from "@/lib/tool-runs";
 
 export type RedditPost = {
@@ -38,6 +40,7 @@ export async function searchReddit(opts: {
   sort?: "relevance" | "new" | "top" | "comments";
   time?: "all" | "year" | "month" | "week";
 }): Promise<RedditResearchResult> {
+  await requireSignedIn();
   if (!opts.query.trim()) return { ok: false, error: "Query required" };
 
   const sort = opts.sort ?? "relevance";

@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { GoogleSetupDialog } from "@/components/shell/google-setup-dialog";
 import {
@@ -42,6 +43,7 @@ export function ClientGooglePanel({
   initialClientId: string | null;
   hasSecret: boolean;
 }) {
+  const t = useTranslations("clientPage.google");
   const [status, setStatus] = useState<Status>(statusProp);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [gsc, setGsc] = useState(initialGsc ?? "");
@@ -63,7 +65,7 @@ export function ClientGooglePanel({
 
   useEffect(() => {
     if (!canFetch) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       startLoading(async () => {
         const r = await fetchGoogleProperties();
         if (!r.ok) {
@@ -74,7 +76,7 @@ export function ClientGooglePanel({
         setGa4Options(r.ga4);
       });
     }, 0);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [canFetch]);
 
   function save() {
@@ -88,7 +90,7 @@ export function ClientGooglePanel({
         setMessage({ tone: "error", text: result.error });
         return;
       }
-      setMessage({ tone: "success", text: "Saved." });
+      setMessage({ tone: "success", text: t("saved") });
     });
   }
 
@@ -101,19 +103,19 @@ export function ClientGooglePanel({
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-300" />
             <div className="flex-1 space-y-1">
               <div className="font-medium text-amber-200">
-                Google not connected
+                {t("notConnected")}
               </div>
               <p className="text-xs text-muted-foreground">
-                Connect Google once to unlock keyword data, traffic charts, and
-                the quick-wins finder for <em>every</em> client.{" "}
-                <strong>Skippable</strong> — the rest of this client&apos;s tools
-                work fine without it.
+                {t.rich("notConnectedBody", {
+                  em: (chunks) => <em>{chunks}</em>,
+                  b: (chunks) => <strong>{chunks}</strong>,
+                })}
               </p>
             </div>
           </div>
           <Button onClick={() => setDialogOpen(true)}>
             <Sparkles className="size-4" />
-            Connect Google
+            {t("connect")}
           </Button>
         </div>
         <GoogleSetupDialog
@@ -140,26 +142,24 @@ export function ClientGooglePanel({
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-[12px] text-muted-foreground">
-        <span className="font-medium text-violet-200">Per-client properties:</span>{" "}
-        Pick this client&apos;s own Search Console site and Analytics property
-        below. Each client you add can point to its own GSC + GA4 — results,
-        charts, and reports use the property selected here.
+        <span className="font-medium text-violet-200">{t("perClientLabel")}</span>{" "}
+        {t("perClientBody")}
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <PropertyPicker
-          label="Search Console property"
+          label={t("gscLabel")}
           icon={Plug}
           value={gsc}
           onChange={setGsc}
           loading={loading}
           options={gscOptions.map((o) => ({
             value: o.siteUrl,
-            label: `${o.siteUrl} (${o.permissionLevel.replace("siteOwner", "owner").replace("siteFullUser", "full").replace("siteRestrictedUser", "restricted")})`,
+            label: `${o.siteUrl} (${o.permissionLevel.replace("siteOwner", t("permOwner")).replace("siteFullUser", t("permFull")).replace("siteRestrictedUser", t("permRestricted"))})`,
           }))}
-          help="Pulls real keywords + clicks + impressions for this client."
+          help={t("gscHelp")}
         />
         <PropertyPicker
-          label="Analytics 4 property"
+          label={t("ga4Label")}
           icon={Database}
           value={ga4}
           onChange={setGa4}
@@ -168,7 +168,7 @@ export function ClientGooglePanel({
             value: o.id,
             label: `${o.displayName} · ${o.accountName} (${o.id})`,
           }))}
-          help="Pulls real organic traffic, top pages, conversions."
+          help={t("ga4Help")}
         />
       </div>
 
@@ -189,12 +189,12 @@ export function ClientGooglePanel({
           {saving ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Saving…
+              {t("saving")}
             </>
           ) : (
             <>
               <CheckCircle2 className="size-4" />
-              Save Google properties
+              {t("save")}
             </>
           )}
         </Button>
@@ -211,13 +211,13 @@ export function ClientGooglePanel({
               }
               setGscOptions(r.gsc);
               setGa4Options(r.ga4);
-              setMessage({ tone: "success", text: "Property list refreshed." });
+              setMessage({ tone: "success", text: t("refreshed") });
             });
           }}
           disabled={loading}
         >
           <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
+          {t("refresh")}
         </Button>
       </div>
     </div>
@@ -241,6 +241,7 @@ function PropertyPicker({
   loading: boolean;
   help: string;
 }) {
+  const t = useTranslations("clientPage.google");
   return (
     <div className="space-y-1.5">
       <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
@@ -255,10 +256,10 @@ function PropertyPicker({
       >
         <option value="">
           {loading
-            ? "Loading…"
+            ? t("loading")
             : options.length === 0
-              ? "No properties available"
-              : "— Skip for now —"}
+              ? t("noProperties")
+              : t("skip")}
         </option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>

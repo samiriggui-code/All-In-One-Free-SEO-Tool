@@ -1,6 +1,9 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { desc, eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import {
   activityLog,
@@ -27,6 +30,8 @@ export type Notification = {
 };
 
 export async function recentNotifications(): Promise<Notification[]> {
+  await requireSignedIn();
+  const t = await getTranslations("serverMessages.notifications");
   const out: Notification[] = [];
 
   // Audits — last 8 across clients
@@ -56,8 +61,8 @@ export async function recentNotifications(): Promise<Notification[]> {
         id: `score:${a.id}`,
         kind: "score_drop",
         level: "warning",
-        title: `Score dropped — ${a.clientName ?? "Client"}`,
-        body: `Health score went from ${prev} → ${a.score} (-${prev - a.score}).`,
+        title: t("scoreDropped", { client: a.clientName ?? t("client") }),
+        body: t("scoreDroppedBody", { prev, score: a.score, diff: prev - a.score }),
         href: `/audits/${a.id}`,
         at: a.completedAt ?? a.createdAt,
       });
@@ -71,8 +76,8 @@ export async function recentNotifications(): Promise<Notification[]> {
         id: `audit:${a.id}`,
         kind: "audit_failed",
         level: "error",
-        title: `Audit failed — ${a.clientName ?? "Client"}`,
-        body: "Site may be unreachable. Try running again.",
+        title: t("auditFailed", { client: a.clientName ?? t("client") }),
+        body: t("auditFailedBody"),
         href: `/audits/${a.id}`,
         at: a.completedAt ?? a.createdAt,
       });
@@ -81,8 +86,8 @@ export async function recentNotifications(): Promise<Notification[]> {
         id: `audit:${a.id}`,
         kind: "audit_complete",
         level: "success",
-        title: `Audit complete — ${a.clientName ?? "Client"}`,
-        body: `Score ${a.score ?? "—"} · ${a.issuesCount} issues found.`,
+        title: t("auditComplete", { client: a.clientName ?? t("client") }),
+        body: t("auditCompleteBody", { score: a.score ?? "—", count: a.issuesCount }),
         href: `/audits/${a.id}`,
         at: a.completedAt ?? a.createdAt,
       });
@@ -117,7 +122,7 @@ export async function recentNotifications(): Promise<Notification[]> {
       id: `change:${c.id}`,
       kind: "page_change",
       level: "warning",
-      title: `${c.field} changed — ${c.clientName ?? "Client"}`,
+      title: t("fieldChanged", { field: c.field, client: c.clientName ?? t("client") }),
       body: `${c.pageLabel ?? c.pageUrl?.replace(/^https?:\/\//, "") ?? ""} · "${(c.oldValue ?? "—").slice(0, 60)}" → "${(c.newValue ?? "—").slice(0, 60)}"`,
       href: "/monitor",
       at: c.detectedAt,
@@ -163,7 +168,7 @@ export async function recentNotifications(): Promise<Notification[]> {
       id: `sys:avail:${lastAvail.id}`,
       kind: "update_available",
       level: "info",
-      title: "Update available",
+      title: t("updateAvailable"),
       body: lastAvail.message,
       href: "/settings#update",
       at: lastAvail.at,
@@ -180,7 +185,7 @@ export async function recentNotifications(): Promise<Notification[]> {
       id: `sys:upd:${lastUpdated.id}`,
       kind: "update_applied",
       level: (lastUpdated.level ?? "success") as Notification["level"],
-      title: "App updated",
+      title: t("appUpdated"),
       body: lastUpdated.message,
       href: "/settings#update",
       at: lastUpdated.at,

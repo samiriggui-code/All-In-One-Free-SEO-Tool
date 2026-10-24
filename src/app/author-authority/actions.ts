@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -23,6 +25,7 @@ export async function runAuthorScan(
   _prev: ScanState,
   formData: FormData,
 ): Promise<ScanState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const domain = String(formData.get("domain") ?? "")
     .trim()
@@ -60,6 +63,7 @@ export async function runAuthorScan(
 }
 
 export async function listAuthorRecords(clientId: number) {
+  await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return [];
   return db
     .select()

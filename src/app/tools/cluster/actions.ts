@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { buildCluster, type ClusterPlan } from "@/lib/cluster-builder";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -11,6 +13,7 @@ export async function runCluster(
   _prev: ClusterState | null,
   formData: FormData,
 ): Promise<ClusterState> {
+  await requireSignedIn();
   const topic = String(formData.get("topic") ?? "").trim();
   const country = String(formData.get("country") ?? "US").trim() || "US";
   if (!topic) return { ok: false, error: "Head topic required." };

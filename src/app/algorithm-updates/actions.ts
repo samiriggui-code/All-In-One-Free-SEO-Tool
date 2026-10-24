@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { refreshRankingUpdates } from "@/lib/google-updates-store";
 
@@ -8,6 +10,7 @@ export type RefreshUpdatesResult =
   | { ok: false; error: string };
 
 export async function refreshGoogleUpdatesAction(): Promise<RefreshUpdatesResult> {
+  await requireSignedIn();
   try {
     const r = await refreshRankingUpdates();
     revalidatePath("/algorithm-updates");

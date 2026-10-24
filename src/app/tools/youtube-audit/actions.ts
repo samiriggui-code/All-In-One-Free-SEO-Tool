@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { auditYouTube, type YouTubeAuditResult } from "@/lib/youtube-audit";
 import { recordToolRun } from "@/lib/tool-findings";
 import { youtubeAuditFindings } from "@/lib/tool-finding-builders";
@@ -12,6 +14,7 @@ export async function runYtAudit(
   _prev: YtAuditState | null,
   formData: FormData,
 ): Promise<YtAuditState> {
+  await requireSignedIn();
   const url = String(formData.get("url") ?? "").trim();
   const targetKeyword =
     String(formData.get("targetKeyword") ?? "").trim() || undefined;

@@ -1,6 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
+
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db/client";
@@ -36,6 +39,7 @@ export async function saveSchedule(
   _prev: SaveScheduleResult | null,
   formData: FormData,
 ): Promise<SaveScheduleResult> {
+  await requireSignedIn();
   const parsed = scheduleInput.safeParse({
     clientId: formData.get("clientId"),
     template: formData.get("template"),
@@ -48,6 +52,7 @@ export async function saveSchedule(
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+  await requireClientAccess(parsed.data.clientId, { edit: true });
 
   const recipients = parseRecipients(parsed.data.recipients);
   if (recipients.length === 0) {
@@ -110,9 +115,13 @@ export async function saveSchedule(
 }
 
 export async function deleteSchedule(scheduleId: number, clientId: number) {
+  await requireSignedIn();
+  await requireClientAccess(clientId, { edit: true });
+  // Matched on the client too: the access check is for clientId, so the
+  // row must belong to it.
   await db
     .delete(reportSchedules)
-    .where(eq(reportSchedules.id, scheduleId));
+    .where(and(eq(reportSchedules.id, scheduleId), eq(reportSchedules.clientId, clientId)));
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -121,6 +130,8 @@ export async function sendReportNow(opts: {
   template: "executive" | "detailed" | "technical";
   recipients: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
+  await requireClientAccess(opts.clientId, { edit: true });
   const smtp = await getSmtpConfig();
   if (!smtp) {
     return {

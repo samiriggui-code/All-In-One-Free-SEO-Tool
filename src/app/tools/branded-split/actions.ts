@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { fetchGscPerformance } from "@/lib/google-oauth";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -48,6 +50,7 @@ export async function runSplit(
   _prev: BrandedSplitState | null,
   formData: FormData,
 ): Promise<BrandedSplitState> {
+  await requireSignedIn();
   const site = String(formData.get("site") ?? "").trim();
   const brandRaw = String(formData.get("brandTerms") ?? "").trim();
   if (!site) return { ok: false, error: "Pick a GSC property." };

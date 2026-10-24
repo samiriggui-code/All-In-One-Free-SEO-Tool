@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { gte, eq, count, and, desc } from "drizzle-orm";
 import {
@@ -29,6 +30,8 @@ import {
  * owner can read it as a Monday-morning briefing.
  */
 export async function AgencyWeekInReview() {
+  const t = await getTranslations("dashboard.agencyWeek");
+  const locale = await getLocale();
   const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const [
@@ -118,10 +121,13 @@ export async function AgencyWeekInReview() {
 - Active clients (had completions): ${recentActiveClients.length}/${clientCount}`;
 
   const aiSummary = await cachedNarrative({
-    id: "agency_week",
+    // Per locale: the cache is keyed by id + facts, and a French
+    // workspace should not be served the English sentence.
+    id: `agency_week_${locale}`,
     facts,
     system:
-      "You write 1-2 sentence Monday-morning briefings for an SEO agency owner. Use the numbers exactly. Lead with the most important signal. No fluff, no headers, no preamble — just the briefing.",
+      "You write 1-2 sentence Monday-morning briefings for an SEO agency owner. Use the numbers exactly. Lead with the most important signal. No fluff, no headers, no preamble — just the briefing." +
+      (locale === "fr" ? " Write in French." : ""),
     user: `${facts}
 
 Write the Monday-morning briefing. Highlight any anomalies (zero activity = silent clients; high mentions but few completions = leverage opportunity). 1-2 sentences max.`,
@@ -132,7 +138,7 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Briefcase className="size-4 text-violet-300" />
-          Agency week in review
+          {t("title")}
         </h2>
         {aiSummary && (
           <p className="mt-2 rounded-md bg-violet-500/10 px-3 py-2 text-sm text-violet-100/90 ring-1 ring-inset ring-violet-500/20">
@@ -140,67 +146,66 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
           </p>
         )}
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Aggregate activity across all {clientCount} client
-          {clientCount === 1 ? "" : "s"} over the last 7 days.
+          {t("subtitle", { count: clientCount })}
         </p>
       </header>
 
       <div className="grid gap-3 p-5 sm:grid-cols-3 lg:grid-cols-4">
         <Tile
           icon={ListChecks}
-          label="Tasks completed"
+          label={t("tasksDone")}
           value={tasksDone}
           href="/tasks"
           tone="emerald"
         />
         <Tile
           icon={Link2}
-          label="Links built"
+          label={t("linksBuilt")}
           value={linksBuilt}
           href="/backlinks"
           tone="cyan"
         />
         <Tile
           icon={MousePointerClick}
-          label="Short-link clicks"
+          label={t("clicks")}
           value={clicksRecent}
           href="/links"
           tone="violet"
-          subtitle={`${shortLinkCount} active`}
+          subtitle={t("activeLinks", { count: shortLinkCount })}
         />
         <Tile
           icon={Megaphone}
-          label="Brand mentions"
+          label={t("mentions")}
           value={mentionsRecent}
           href="/brand-monitor"
           tone={positiveMentions > 0 ? "emerald" : "amber"}
           subtitle={
             positiveMentions > 0
-              ? `${positiveMentions} positive`
-              : "scan to update"
+              ? t("positive", { count: positiveMentions })
+              : t("scanToUpdate")
           }
         />
         <Tile
           icon={Activity}
-          label="Page changes"
+          label={t("pageChanges")}
           value={pageChangesRecent}
           href="/monitor"
           tone={pageChangesRecent > 0 ? "amber" : "neutral"}
         />
         <Tile
           icon={TrendingUp}
-          label="Active clients"
+          label={t("activeClients")}
           value={recentActiveClients.length}
           href="/clients"
           tone="violet"
-          subtitle="had completions"
+          subtitle={t("hadCompletions")}
         />
       </div>
 
       {recentActiveClients.length > 0 && (
         <div className="border-t border-white/[0.06] px-5 py-3">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Most active clients
+            {t("mostActive")}
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {recentActiveClients.map((c) => (

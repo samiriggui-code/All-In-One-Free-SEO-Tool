@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireSettingsAdmin } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -25,6 +27,7 @@ export async function saveGoogleCredentials(
   formData: FormData,
 ): Promise<SaveCredentialsResult> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const parsed = credentialsSchema.safeParse({
     clientId: formData.get("clientId"),
     clientSecret: formData.get("clientSecret"),
@@ -49,6 +52,7 @@ export async function saveGoogleCredentials(
 
 export async function clearGoogleCredentials() {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await disconnectGoogle();
   await Promise.all([
     deleteSetting("google.client_id"),
@@ -64,6 +68,7 @@ export async function clearGoogleCredentials() {
 
 export async function disconnectGoogleAccount() {
   await requireSettingsAdmin();
+  await requireSignedIn();
   await disconnectGoogle();
   await logActivity({
     kind: "google.disconnected",
@@ -85,6 +90,7 @@ export async function saveServiceAccount(
   formData: FormData,
 ): Promise<{ ok: boolean; error?: string; email?: string }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const { saveServiceAccountKey } = await import("@/lib/google-service-account");
   const raw = String(formData.get("json") ?? "");
   const result = await saveServiceAccountKey(raw);
@@ -103,6 +109,7 @@ export async function saveServiceAccount(
 
 export async function removeServiceAccount() {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const { clearServiceAccount } = await import("@/lib/google-service-account");
   await clearServiceAccount();
   await logActivity({
@@ -126,6 +133,7 @@ export async function testServiceAccount(): Promise<{
   detail: string;
 }> {
   await requireSettingsAdmin();
+  await requireSignedIn();
   const { serviceAccountAccessToken, serviceAccountEmail } = await import(
     "@/lib/google-service-account"
   );

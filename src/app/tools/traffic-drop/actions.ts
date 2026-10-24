@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * @ai-optional
  *
@@ -32,6 +34,7 @@ export async function runDiagnostic(
   _prev: TrafficDropState | null,
   formData: FormData,
 ): Promise<TrafficDropState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     siteUrl: formData.get("siteUrl"),
   });

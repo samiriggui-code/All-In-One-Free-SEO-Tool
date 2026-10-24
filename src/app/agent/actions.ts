@@ -1,5 +1,8 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
+
 import { eq } from "drizzle-orm";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { db } from "@/db/client";
@@ -11,6 +14,8 @@ import {
 } from "@/lib/seo-agent-runner";
 
 export async function runAgent(clientId: number): Promise<AgentRunResult> {
+  await requireSignedIn();
+  await requireClientAccess(clientId, { edit: true });
   const result = await runSeoAgent(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   return result;
@@ -19,6 +24,8 @@ export async function runAgent(clientId: number): Promise<AgentRunResult> {
 export async function runAgentExecute(
   clientId: number,
 ): Promise<AgentRunReport> {
+  await requireSignedIn();
+  await requireClientAccess(clientId, { edit: true });
   const report = await runAgentActions(clientId);
   safeRevalidatePath(`/agent/c/${clientId}`);
   safeRevalidatePath(`/clients/${clientId}`);
@@ -27,12 +34,14 @@ export async function runAgentExecute(
 }
 
 export async function applySuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -43,12 +52,14 @@ export async function applySuggestion(suggestionId: number) {
 }
 
 export async function dismissSuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -59,12 +70,14 @@ export async function dismissSuggestion(suggestionId: number) {
 }
 
 export async function reopenSuggestion(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   await db
     .update(aiSuggestions)
@@ -79,12 +92,14 @@ export async function reopenSuggestion(suggestionId: number) {
  * when the user wants to track applying it as work-in-progress.
  */
 export async function suggestionToTask(suggestionId: number) {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(aiSuggestions)
     .where(eq(aiSuggestions.id, suggestionId))
     .limit(1);
   if (!s) return;
+  await requireClientAccess(s.clientId, { edit: true });
 
   const titleByType: Record<string, string> = {
     title_rewrite: "Update page title",

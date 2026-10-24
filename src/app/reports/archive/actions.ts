@@ -1,16 +1,20 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { reportArchives } from "@/db/schema";
 
 export async function deleteArchivedReport(id: number) {
+  await requireSignedIn();
   await db.delete(reportArchives).where(eq(reportArchives.id, id));
   revalidatePath("/reports/archive");
 }
 
 export async function pinArchivedReport(id: number) {
+  await requireSignedIn();
   const [r] = await db
     .select({ pinned: reportArchives.pinned })
     .from(reportArchives)

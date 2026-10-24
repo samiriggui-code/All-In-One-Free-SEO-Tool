@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   emailPortalLink,
@@ -27,6 +28,7 @@ export function ShareCard({
   shareToken: string | null;
   clientEmail?: string | null;
 }) {
+  const t = useTranslations("clientPage.share");
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
   const [emailing, startEmailing] = useTransition();
@@ -74,11 +76,10 @@ export function ShareCard({
       <header className="relative border-b border-white/5 px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Link2 className="size-4 text-fuchsia-300" />
-          Client portal
+          {t("title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Generate a read-only link your client can open. Shows score, audit
-          history, completed work, and what&apos;s in progress — no login.
+          {t("intro")}
         </p>
       </header>
       <div className="relative space-y-3 p-5">
@@ -93,10 +94,10 @@ export function ShareCard({
               className="shadow-md shadow-fuchsia-500/20"
             >
               <Link2 className="size-4" />
-              {pending ? "Generating…" : "Generate share link"}
+              {pending ? t("generating") : t("generate")}
             </Button>
             <span className="text-xs text-muted-foreground">
-              Anyone with the link can view (read-only).
+              {t("anyone")}
             </span>
           </div>
         ) : (
@@ -119,7 +120,7 @@ export function ShareCard({
                 ) : (
                   <Copy className="size-3" />
                 )}
-                {copied ? "Copied" : "Copy"}
+                {copied ? t("copied") : t("copy")}
               </button>
             </div>
             <div className="flex items-center gap-2 text-xs">
@@ -134,7 +135,7 @@ export function ShareCard({
                 className="border-white/10 bg-white/5"
               >
                 <RefreshCw className="size-3" />
-                Regenerate
+                {t("regenerate")}
               </Button>
               <Button
                 type="button"
@@ -147,17 +148,17 @@ export function ShareCard({
                 className="border-rose-500/20 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10"
               >
                 <Trash2 className="size-3" />
-                Revoke
+                {t("revoke")}
               </Button>
               <span className="text-muted-foreground">
-                Regenerating invalidates the old link immediately.
+                {t("regenerateHint")}
               </span>
             </div>
 
             <div className="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
               <div className="flex items-center gap-2 text-xs font-semibold">
                 <Mail className="size-3.5 text-fuchsia-300" />
-                Email it directly to your client
+                {t("emailTitle")}
               </div>
               <div className="flex gap-2">
                 <input
@@ -199,12 +200,12 @@ export function ShareCard({
                   {emailing ? (
                     <>
                       <Loader2 className="size-3 animate-spin" />
-                      Sending…
+                      {t("sending")}
                     </>
                   ) : (
                     <>
                       <Mail className="size-3" />
-                      Send
+                      {t("send")}
                     </>
                   )}
                 </Button>
@@ -212,7 +213,7 @@ export function ShareCard({
               {emailStatus.kind === "sent" && (
                 <div className="inline-flex items-center gap-1 text-[11px] text-emerald-300">
                   <Check className="size-3" />
-                  Sent.
+                  {t("sent")}
                 </div>
               )}
               {emailStatus.kind === "error" && (

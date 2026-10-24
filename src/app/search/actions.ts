@@ -1,6 +1,10 @@
 "use server";
 
-import { like, or, eq, desc } from "drizzle-orm";
+import { requireSignedIn } from "@/lib/action-guard";
+
+import { and, desc, eq, inArray, like, or } from "drizzle-orm";
+import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
+import { currentUser, visibleClientIds } from "@/lib/auth";
 import { db } from "@/db/client";
 import {
   audits,
@@ -130,10 +134,17 @@ export type SearchResults = {
 };
 
 export async function search(rawQuery: string): Promise<SearchResults> {
+  await requireSignedIn();
   const q = rawQuery.trim();
   if (q.length < 1) return { query: q, hits: [] };
   const pattern = `%${q}%`;
   const qLc = q.toLowerCase();
+
+  // Members and client viewers only find rows of the clients assigned to
+  // them; rows with no client (agency-wide) are not theirs either.
+  const scope = await visibleClientIds(await currentUser());
+  const inScope = (col: AnySQLiteColumn) =>
+    scope === null ? undefined : inArray(col, scope.length ? scope : [-1]);
 
   const hits: SearchHit[] = [];
 
@@ -159,7 +170,7 @@ export async function search(rawQuery: string): Promise<SearchResults> {
   const clientMatches = await db
     .select({ id: clients.id, name: clients.name, url: clients.url })
     .from(clients)
-    .where(or(like(clients.name, pattern), like(clients.url, pattern)))
+    .where(and(or(like(clients.name, pattern), like(clients.url, pattern)), inScope(clients.id)))
     .limit(5);
   for (const c of clientMatches) {
     hits.push({
@@ -182,7 +193,7 @@ export async function search(rawQuery: string): Promise<SearchResults> {
     })
     .from(tasks)
     .leftJoin(clients, eq(tasks.clientId, clients.id))
-    .where(like(tasks.title, pattern))
+    .where(and(like(tasks.title, pattern), inScope(tasks.clientId)))
     .orderBy(desc(tasks.createdAt))
     .limit(6);
   for (const t of taskMatches) {
@@ -205,7 +216,7 @@ export async function search(rawQuery: string): Promise<SearchResults> {
     })
     .from(keywords)
     .leftJoin(clients, eq(keywords.clientId, clients.id))
-    .where(like(keywords.query, pattern))
+    .where(and(like(keywords.query, pattern), inScope(keywords.clientId)))
     .orderBy(desc(keywords.createdAt))
     .limit(5);
   for (const k of keywordMatches) {
@@ -228,7 +239,12 @@ export async function search(rawQuery: string): Promise<SearchResults> {
     })
     .from(competitors)
     .leftJoin(clients, eq(competitors.clientId, clients.id))
-    .where(or(like(competitors.name, pattern), like(competitors.url, pattern)))
+    .where(
+      and(
+        or(like(competitors.name, pattern), like(competitors.url, pattern)),
+        inScope(competitors.clientId),
+      ),
+    )
     .limit(4);
   for (const c of competitorMatches) {
     hits.push({
@@ -252,10 +268,13 @@ export async function search(rawQuery: string): Promise<SearchResults> {
     .from(outreachContacts)
     .leftJoin(clients, eq(outreachContacts.clientId, clients.id))
     .where(
-      or(
-        like(outreachContacts.name, pattern),
-        like(outreachContacts.email, pattern),
-        like(outreachContacts.website, pattern),
+      and(
+        or(
+          like(outreachContacts.name, pattern),
+          like(outreachContacts.email, pattern),
+          like(outreachContacts.website, pattern),
+        ),
+        inScope(outreachContacts.clientId),
       ),
     )
     .limit(4);
@@ -279,7 +298,7 @@ export async function search(rawQuery: string): Promise<SearchResults> {
     })
     .from(invoices)
     .leftJoin(clients, eq(invoices.clientId, clients.id))
-    .where(like(invoices.invoiceNumber, pattern))
+    .where(and(like(invoices.invoiceNumber, pattern), inScope(invoices.clientId)))
     .limit(4);
   for (const i of invoiceMatches) {
     hits.push({
@@ -324,7 +343,7 @@ export async function search(rawQuery: string): Promise<SearchResults> {
       })
       .from(audits)
       .leftJoin(clients, eq(audits.clientId, clients.id))
-      .where(eq(audits.id, auditId))
+      .where(and(eq(audits.id, auditId), inScope(audits.clientId)))
       .limit(1);
     if (a) {
       hits.push({

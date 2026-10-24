@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import {
   reverseEngineerCompetitor,
@@ -36,6 +38,7 @@ export async function runCompetitorAnalysis(
   _prev: PlaybookState | null,
   formData: FormData,
 ): Promise<PlaybookState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     competitorUrl: formData.get("competitorUrl"),
     myUrl: formData.get("myUrl") ?? undefined,
@@ -66,6 +69,7 @@ export async function playbookToTasks(opts: {
   competitorUrl: string;
   synthesis: string;
 }): Promise<{ ok: boolean; created: number; error?: string }> {
+  await requireSignedIn();
   if (!opts.synthesis?.trim())
     return { ok: false, created: 0, error: "Empty synthesis" };
   if (!Number.isFinite(opts.clientId) || opts.clientId <= 0)

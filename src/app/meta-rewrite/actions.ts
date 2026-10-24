@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import {
@@ -21,6 +23,7 @@ export async function findCandidates(
   _prev: FindState | null,
   formData: FormData,
 ): Promise<FindState> {
+  await requireSignedIn();
   const parsed = findSchema.safeParse({
     clientId: formData.get("clientId"),
   });
@@ -58,6 +61,7 @@ export async function applyRewrite(
   _prev: ApplyState | null,
   formData: FormData,
 ): Promise<ApplyState> {
+  await requireSignedIn();
   const parsed = applySchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),

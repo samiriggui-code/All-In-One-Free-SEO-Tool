@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { requireEditor } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -13,6 +15,7 @@ export async function runDistill(): Promise<{
   error?: string;
 }> {
   await requireEditor();
+  await requireSignedIn();
   try {
     const r = await distillPreferences();
     revalidatePath("/settings/ai-learning");
@@ -24,6 +27,7 @@ export async function runDistill(): Promise<{
 
 export async function togglePreference(id: number): Promise<void> {
   await requireEditor();
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   const [row] = await db
     .select({ active: aiPreferences.active })
@@ -40,6 +44,7 @@ export async function togglePreference(id: number): Promise<void> {
 
 export async function deletePreference(id: number): Promise<void> {
   await requireEditor();
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(aiPreferences).where(eq(aiPreferences.id, id));
   revalidatePath("/settings/ai-learning");

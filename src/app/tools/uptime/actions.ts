@@ -1,5 +1,8 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+import { requireEditor } from "@/lib/auth";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
@@ -7,6 +10,8 @@ import { uptimeTargets } from "@/db/schema";
 import { pingAll } from "@/lib/uptime";
 
 export async function addTarget(formData: FormData) {
+  await requireSignedIn();
+  await requireEditor();
   const url = String(formData.get("url") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim() || null;
   const expectedStatus = Number(formData.get("expectedStatus") ?? 200);
@@ -26,11 +31,15 @@ export async function addTarget(formData: FormData) {
 }
 
 export async function deleteTarget(id: number) {
+  await requireSignedIn();
+  await requireEditor();
   await db.delete(uptimeTargets).where(eq(uptimeTargets.id, id));
   revalidatePath("/tools/uptime");
 }
 
 export async function toggleTarget(id: number, enabled: boolean) {
+  await requireSignedIn();
+  await requireEditor();
   await db
     .update(uptimeTargets)
     .set({ enabled })
@@ -39,6 +48,7 @@ export async function toggleTarget(id: number, enabled: boolean) {
 }
 
 export async function runPingNow() {
+  await requireSignedIn();
   const r = await pingAll();
   revalidatePath("/tools/uptime");
   return r;

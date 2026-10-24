@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   findPostIdByUrl,
   getClientWpCreds,
@@ -31,6 +33,7 @@ export async function applyFixViaWp(opts: {
   issueType: string;
   newValue: string;
 }): Promise<WpApplyResult> {
+  await requireSignedIn();
   const { clientId, pageUrl, issueType, newValue } = opts;
 
   if (!Number.isFinite(clientId) || clientId <= 0) {

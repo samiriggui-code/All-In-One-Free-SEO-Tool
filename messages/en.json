@@ -1,7 +1,7 @@
 {
   "nav": {
     "appName": "SEO Tool",
-    "appTagline": "v0.2 · local",
+    "appTagline": "SEO office",
     "collapse": "Collapse sidebar",
     "expand": "Expand sidebar",
     "search": "Search",
@@ -161,7 +161,116 @@
       "tools": "100+ free tools"
     },
     "noPaidApis": "No paid APIs",
-    "noPaidApisBody": "Browser mode + free Google APIs cover everything. BYO key only if you want premium SERP data."
+    "noPaidApisBody": "Browser mode + free Google APIs cover everything. BYO key only if you want premium SERP data.",
+    "briefing": {
+      "title": "Today's briefing",
+      "subtitle": "What changed in the last 24h across your portfolio.",
+      "signals": "{count, plural, =0 {no signals} one {# signal} other {# signals}}",
+      "empty": "All quiet. No new page changes, audit issues, or stale tasks. Your mornings should look like this.",
+      "pageChanged": "{field} changed on {page}",
+      "auditFound": "{count, plural, one {Audit found # issue} other {Audit found # issues}}",
+      "auditDetail": "Score {score}/100 · {client}",
+      "unknown": "unknown",
+      "staleDetail": "Created {days}d ago · {priority} priority",
+      "priority": {
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "kind": {
+        "page-change": "Page change",
+        "audit-issue": "Audit",
+        "stale-task": "Stale task",
+        "decay": "Decay"
+      }
+    },
+    "agencyWeek": {
+      "title": "Agency week in review",
+      "subtitle": "{count, plural, one {Aggregate activity across # client over the last 7 days.} other {Aggregate activity across all # clients over the last 7 days.}}",
+      "tasksDone": "Tasks completed",
+      "linksBuilt": "Links built",
+      "clicks": "Short-link clicks",
+      "activeLinks": "{count} active",
+      "mentions": "Brand mentions",
+      "positive": "{count} positive",
+      "scanToUpdate": "scan to update",
+      "pageChanges": "Page changes",
+      "activeClients": "Active clients",
+      "hadCompletions": "had completions",
+      "mostActive": "Most active clients"
+    },
+    "autonomy": {
+      "title": "How much should the agent do on its own?",
+      "body": "It currently finds work every night and changes nothing, because nobody has answered this yet. Every change it makes is logged with the previous value and can be undone in one click. You can change this any time in agent settings.",
+      "levels": {
+        "suggest": {
+          "label": "Just tell me",
+          "hint": "Finds everything, changes nothing. You apply what you agree with.",
+          "description": "Analyses your sites every day and proposes fixes, but never changes anything. You apply what you agree with."
+        },
+        "apply_safe": {
+          "label": "Fix the obvious things",
+          "hint": "Applies fixes that are wrong by a measurable rule. Queues judgement calls for you.",
+          "description": "Fixes things that are wrong by a measurable rule — titles too long to display, missing alt text, missing meta descriptions — and queues judgement calls for you. Every change is logged with its previous value and can be undone in one click."
+        },
+        "apply_all": {
+          "label": "Do it all",
+          "hint": "Applies everything it proposes, including wording. You review after the fact.",
+          "description": "Applies everything it proposes, including rewrites that are a matter of judgement. Still logged, still reversible, but you'll be reviewing after the fact rather than before."
+        }
+      }
+    },
+    "checklist": {
+      "title": "Get set up · {done} of {total} done",
+      "remaining": "{count, plural, one {One step left and you're fully running.} other {Finish # more steps to unlock the full tool.}}",
+      "complete": "complete",
+      "ai": {
+        "title": "Add an AI key",
+        "description": "Paste a free-tier key (Gemini / Groq / DeepSeek) or run Ollama locally. Unlocks the AI assistant, executive summaries, content writer and code generator.",
+        "subscription": "Your chat app ({client}) is connected and can read your SEO data — but that works inside Claude, not in here. This app's own AI pages (assistant, summaries, content writer) call a model directly, so they need a key or Ollama.",
+        "manage": "Manage AI",
+        "add": "Add a key"
+      },
+      "client": {
+        "title": "Add your first client",
+        "description": "Paste a domain — we auto-extract brand, logo, NAP, social links, and detect their tech stack in seconds.",
+        "view": "View clients",
+        "add": "Add client"
+      },
+      "google": {
+        "title": "Connect Google (GSC + GA4)",
+        "description": "One-click OAuth unlocks real ranking + traffic data. Skip if you only want technical audits — most other tools work without it.",
+        "manage": "Manage",
+        "connect": "Connect Google"
+      },
+      "audit": {
+        "title": "Run your first audit",
+        "description": "370+ rules for indexability, schema, Core Web Vitals, hreflang, security headers, broken links — local and free.",
+        "view": "View audits",
+        "run": "Run audit"
+      },
+      "report": {
+        "title": "Generate your first report",
+        "description": "AI executive summary + white-label PDF + magic-link client portal. Goes from 6 hours/month to 25 minutes/month.",
+        "view": "View reports",
+        "generate": "Generate report"
+      }
+    },
+    "quickWins": {
+      "title": "Quick wins across all clients",
+      "subtitle": "Highest-impression keywords sitting at positions 4-15. One tweak from page 1.",
+      "stats": "{impressions, number} impr · {clicks, number} clicks",
+      "current": "current"
+    },
+    "traffic": {
+      "title": "Portfolio organic traffic",
+      "subtitle": "{count, plural, one {Sum across # client with GA4 connected — last 28 days, organic search only.} other {Sum across # clients with GA4 connected — last 28 days, organic search only.}}",
+      "sessions": "Sessions (28d)",
+      "users": "Users",
+      "pageviews": "Pageviews",
+      "movers": "Biggest movers",
+      "vsPrior": "vs prior"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -781,14 +890,14 @@
     "auditsRunCount": "{count} audits run",
     "exportCsv": "Export CSV",
     "clientTitle": "Audits · {name}",
-    "clientDescription": "SEO + GEO in one audit: SEO Tool's crawl and checks, the 373 technical rules and the generative-engine score.",
+    "clientDescription": "SEO + GEO in one audit: rank_forge's crawl and checks, the 373 technical rules and the generative-engine score.",
     "clientEmpty": "No audits yet for this client. Run SEO + GEO to score technical SEO and AI-search readiness.",
     "runQuick": "Quick audit (SEO + GEO)",
     "runFull": "Full audit (SEO + GEO)",
     "pendingFullTitle": "Starting SEO + GEO full audit",
     "pendingFullDescription": "Everything in the quick audit, plus browser rendering, Core Web Vitals and mobile parity (up to 20 pages).",
     "pendingQuickTitle": "Starting SEO + GEO quick audit",
-    "pendingQuickDescription": "SEO Tool crawl and checks, all 373 technical rules on the HTML (up to 8 pages), then GEO scoring.",
+    "pendingQuickDescription": "rank_forge crawl and checks, all 373 technical rules on the HTML (up to 8 pages), then GEO scoring.",
     "compareDiff": "Compare two audits",
     "table": {
       "audit": "Audit",
@@ -895,17 +1004,17 @@
       "howToFix": "How to fix",
       "markResolved": "✓ Mark resolved",
       "ignore": "Ignore",
-      "seoToolChecks": "SEO Tool checks",
-      "seoToolChecksHint": "SEO Tool's own checks (crawl, pages, links) that the engine does not already cover. They feed tasks and the agent.",
+      "seoToolChecks": "rank_forge checks",
+      "seoToolChecksHint": "rank_forge's own checks (crawl, pages, links) that the engine does not already cover. They feed tasks and the agent.",
       "navAria": "Audit sections",
       "navOverview": "Overview",
       "navSummary": "Summary",
       "navPage": "Analysed page",
       "navStartPage": "Start page",
       "navCategories": "Audit sections ({count})",
-      "navSeoTool": "SEO Tool",
+      "navSeoTool": "rank_forge",
       "navGeo": "AI visibility (GEO)",
-      "navChecks": "SEO Tool checks",
+      "navChecks": "rank_forge checks",
       "cat": {
         "core": "Core SEO",
         "technical": "Technical SEO",
@@ -1463,7 +1572,6 @@
       "issues": "{count, plural, =0 {no issues} one {# issue} other {# issues}}"
     },
     "footer": "Read-only client portal · Powered by {brand} via SEO tool",
-    "footerDefault": "Read-only client portal · Powered by SEO tool",
     "quote": {
       "eyebrow": "Your quote",
       "sentOn": "Sent on {date}",
@@ -1548,7 +1656,8 @@
         "paid": "paid",
         "overdue": "overdue"
       }
-    }
+    },
+    "footerDefault": "Read-only client portal · Powered by SEO tool"
   },
   "invoices": {
     "title": "Invoices",
@@ -1629,6 +1738,556 @@
       "invalid": "Check the invoice fields.",
       "noLines": "Add at least one line item."
     }
+  },
+  "shell": {
+    "sidebar": {
+      "accountSettings": "Account · Settings",
+      "newCount": "{count} new",
+      "revealAllTitle": "Reveal every tool in the sidebar",
+      "guidedTitle": "Hide advanced tools — keep the essentials only",
+      "pro": "Pro",
+      "easy": "Easy",
+      "selfHosted": "Self-hosted · your data stays on your server"
+    },
+    "toolDot": {
+      "ready": "Ready",
+      "needsSetup": "Needs setup"
+    },
+    "theme": {
+      "toDark": "Switch to dark theme",
+      "toSystem": "Match system theme",
+      "toLight": "Switch to light theme"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Recent activity from your data",
+      "loading": "Loading…",
+      "emptyTitle": "All caught up",
+      "emptyBody": "Alerts appear here when audits surface critical issues, pages change, ranks drop, or the daily agent finishes a run.",
+      "addClient": "Add a client to start tracking →",
+      "count": "{count, plural, one {# item} other {# items}}",
+      "markAllRead": "Mark all read"
+    },
+    "needsKey": {
+      "title": "This one needs an AI key",
+      "body": "It writes text, so it calls a model directly. Gemini and Groq have free tiers — about two minutes to set up.",
+      "subscription": "{client} is connected, but it works the other way round — it calls into this app. You can ask it to do this instead, or add a key to do it here.",
+      "yourChatApp": "Your chat app",
+      "connect": "Connect a key"
+    },
+    "profile": {
+      "menu": "Profile menu",
+      "appName": "rank_forge",
+      "signInBelow": "Sign in below",
+      "notSignedIn": "Not signed in",
+      "sharedPassword": "Shared password",
+      "localSingleUser": "Local · single-user",
+      "team": "Team",
+      "setUpTeam": "Set up team accounts",
+      "settings": "Settings",
+      "aiKeys": "AI provider keys",
+      "updates": "Check for updates",
+      "health": "System health",
+      "errors": "Error log",
+      "backup": "Backup & restore",
+      "adminAfterSignIn": "Admin links appear after you sign in.",
+      "signIn": "Sign in",
+      "chatCapabilities": "What the AI chat can do",
+      "automated": "What's automated",
+      "about": "About & support the developer",
+      "repo": "GitHub repo",
+      "signOut": "Sign out",
+      "signOutPassword": "Sign out (clears password cookie)"
+    },
+    "nextStep": {
+      "ai": {
+        "label": "Connect an AI provider",
+        "detail": "Free Gemini or Groq — takes 2 min"
+      },
+      "client": {
+        "label": "Add your first client",
+        "detail": "Their site URL is all you need to start"
+      },
+      "google": {
+        "label": "Connect Google (GSC + GA4)",
+        "detail": "Real keyword + traffic data, one-time setup"
+      },
+      "audit": {
+        "label": "Run your first audit",
+        "detail": "Site-wide scan, ~2 minutes"
+      },
+      "keywords": {
+        "label": "Track your first keyword",
+        "detail": "Daily rank checks, free via browser mode"
+      },
+      "report": {
+        "label": "Generate your first report",
+        "detail": "PDF, white-labeled, AI summary"
+      },
+      "tasks": {
+        "label": "{count, plural, one {# open task} other {# open tasks}}",
+        "detail": "Pick one to work on"
+      },
+      "morning": {
+        "label": "Daily briefing",
+        "detail": "Today's priorities across all clients"
+      },
+      "hide": "Hide this suggestion"
+    },
+    "firstRun": {
+      "title": "Make rank_forge feel like a real app",
+      "intro": "One click each. You can change this any time in",
+      "settingsInstall": "Settings → Install",
+      "close": "Close",
+      "pwaTitle": "Install as app (PWA)",
+      "pwaDesc": "Own window, no browser chrome. Adds to Start Menu / Applications. Right-click → Pin to taskbar.",
+      "install": "Install",
+      "notAvailable": "Not available",
+      "shortcutTitle": "Desktop & Start Menu shortcut",
+      "shortcutDesc": "Launches the server AND opens the browser — works even when the server is currently off.",
+      "createShortcuts": "Create shortcuts",
+      "skip": "Skip — I'll do this later",
+      "done": "Done",
+      "pwaUnavailable": "PWA install not available",
+      "pwaUnavailableHint": "Use Chrome / Edge / Brave to install. On Safari use Share → Add to Dock.",
+      "installed": "Installed as app",
+      "installedHint": "Find rank_forge in your Start Menu / Applications.",
+      "shortcutFailed": "Couldn't create shortcut",
+      "shortcutCreated": "Shortcut created",
+      "shortcutCreatedHint": "Desktop + Start Menu icons added. Right-click the Start Menu entry → Pin to taskbar."
+    },
+    "power": {
+      "title": "Server controls",
+      "close": "Close",
+      "restart": "Restart server",
+      "stop": "Stop server",
+      "install": "Install as app / shortcuts",
+      "restartConfirm": "Restart the server?",
+      "restartConfirmBody": "The page will reload itself once it's back (8–15 seconds).",
+      "restartCta": "Restart",
+      "restarting": "Restarting…",
+      "restartFailed": "Restart failed",
+      "restartingServer": "Restarting server",
+      "reloadWhenBack": "Page will reload itself once the server is back",
+      "waiting": "Waiting for server to come back…",
+      "notBack": "Server didn't come back in 60s. Start it again (seo.cmd, desktop shortcut, or docker compose up -d on a VPS).",
+      "stopConfirm": "Stop the server?",
+      "stopConfirmBody": "The app will go offline. Launch it again from your desktop shortcut, seo.cmd, or docker compose up -d on a VPS.",
+      "stopping": "Stopping…",
+      "stopFailed": "Stop failed",
+      "stopped": "Server stopped",
+      "launchAgain": "Launch it again from your desktop shortcut.",
+      "stoppedMsg": "Server stopped. Launch it again from your desktop shortcut."
+    },
+    "assistant": {
+      "open": "AI assistant",
+      "openTitle": "AI assistant — Esc to close",
+      "title": "SEO assistant",
+      "poweredBy": "Powered by {provider}",
+      "askAnything": "Ask anything about your data",
+      "emptyTitle": "Ask anything about your SEO data",
+      "emptyBody": "I can see your clients, audits, keywords, tasks, and recent page changes. Numbers come from your database, not made up.",
+      "stuck": "I'm stuck on this page — explain it",
+      "stuckPrompt": "I'm stuck on {page} (path: {path}). Briefly: what is this for, what should I be doing here, and what are the 2-3 most useful actions I can take right now?",
+      "placeholder": "Ask about your SEO data…",
+      "send": "Send",
+      "close": "Close",
+      "suggestions": {
+        "worstScore": "Which client has the worst score right now?",
+        "commonIssue": "What's the most common issue across my audits?",
+        "strikingDistance": "Which keywords are in striking distance?",
+        "focusFirst": "What should I focus on first this week?"
+      },
+      "pages": {
+        "dashboard": "the dashboard",
+        "client": "a client page",
+        "tool": "the {name} tool",
+        "audit": "an audit page",
+        "keywords": "the keywords page",
+        "backlinks": "the backlinks page",
+        "competitors": "the competitors page",
+        "content": "the content page",
+        "reports": "the reports page",
+        "other": "the {name} page"
+      }
+    },
+    "quickAdd": {
+      "title": "Add a new client",
+      "description": "Just paste the website URL — we'll auto-fetch the logo, name, address, social links, tech stack, and niche, then seed an initial task list.",
+      "url": "Website URL",
+      "httpsHint": "We'll add https:// for you.",
+      "openExisting": "Open existing client →",
+      "autoExtracted": "Auto-extracted: logo, name, description, address, phone, social links, tech stack, niche, initial niche-aware + stack-aware task list. Editable later.",
+      "cancel": "Cancel",
+      "settingUp": "Setting up… (~10s)",
+      "create": "Create client"
+    }
+  },
+  "clientPage": {
+    "niches": {
+      "local": "Local",
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "blog": "Blog",
+      "services": "Services"
+    },
+    "ago": {
+      "today": "today",
+      "hours": "{count, plural, one {# hour ago} other {# hours ago}}",
+      "days": "{count, plural, one {# day ago} other {# days ago}}",
+      "weeks": "{count, plural, one {# week ago} other {# weeks ago}}",
+      "months": "{count, plural, one {# month ago} other {# months ago}}",
+      "years": "{count, plural, one {# year ago} other {# years ago}}"
+    },
+    "nextActionsHeading": "What's worth doing for this client",
+    "nextActionsEmpty": "Nothing ranked yet — run an audit and this fills in.",
+    "breadcrumb": "Clients",
+    "opensNewTab": "{url} — opens in a new tab",
+    "techDetected": "{count, plural, one {# tech detected} other {# techs detected}}",
+    "audited": "Audited",
+    "latestAuditSummary": "Latest audit summary",
+    "healthScore": "Health score",
+    "noScore": "No score yet",
+    "scoreOutOf": "{score} out of 100",
+    "issuesFound": "issues found",
+    "runToScore": "Run an audit to score this site — takes ~30 seconds.",
+    "quickAudit": "Quick audit",
+    "quickRunning": "Running quick audit…",
+    "quickToast": "Starting SEO + GEO quick audit",
+    "quickToastBody": "Site crawl and checks, all 373 technical rules on the HTML (up to 8 pages), then GEO scoring.",
+    "fullAudit": "Full audit",
+    "fullRunning": "Running full audit…",
+    "fullToast": "Starting SEO + GEO full audit",
+    "fullToastBody": "Everything in the quick audit, plus browser rendering, Core Web Vitals and mobile parity on up to 20 pages.",
+    "generateReport": "Generate report",
+    "reports": {
+      "executive": "Executive",
+      "executiveHint": "Score, summary, top issues — 1 page",
+      "detailed": "Detailed",
+      "detailedHint": "Full report — work done + next steps",
+      "technical": "Technical",
+      "technicalHint": "Every issue + URLs — engineering"
+    },
+    "aiAudit": "AI audit",
+    "replanTitle": "Re-run onboarding to refresh keywords + plan",
+    "onboardingTitle": "Smart onboarding — auto-generates a 30-day plan",
+    "replan": "Re-plan",
+    "onboarding": "Smart onboarding",
+    "more": "More",
+    "menu": {
+      "agent": "AI agent",
+      "plan": "30-day plan",
+      "findings": "What the tools found",
+      "blog": "AI blog",
+      "guestPosts": "Guest posts",
+      "backlinks": "Backlinks",
+      "edit": "Edit client",
+      "refreshing": "Refreshing…",
+      "refreshToast": "Refreshing site metadata",
+      "refreshToastBody": "Re-fetching logo, NAP, tech stack…",
+      "refreshTitle": "Re-fetch logo, address, social links, and tech stack from the live site",
+      "refresh": "Refresh metadata"
+    },
+    "stats": {
+      "openIssues": "Open issues",
+      "fromLastAudit": "From last audit",
+      "vsPrior": "vs prior",
+      "openTasks": "Open tasks",
+      "tasksHint": "Auto-generated + manual",
+      "keywords": "Tracked keywords",
+      "noKeywords": "Not tracking any yet",
+      "inRotation": "In rotation"
+    },
+    "empty": {
+      "kicker": "Get started",
+      "title": "No data for {name} yet — let's seed it.",
+      "body": "Pick any of the three to bootstrap this client. You can do them in any order, and the AI agent will start filling in the rest within 24h.",
+      "quickHint": "Site crawl and 373 technical rules, HTML only.",
+      "runNow": "Run now →",
+      "keywords": "Track keywords",
+      "keywordsHint": "10-15 keywords gives the AI enough signal to spot quick wins.",
+      "addKeywords": "Add keywords →",
+      "onboardingHint": "AI inspects the site and auto-generates a 30-day SEO plan.",
+      "autoPlan": "Auto-plan →"
+    },
+    "google": {
+      "title": "Google Search Console + Analytics",
+      "linked": "Linked",
+      "body": "Real keyword data + traffic for this client. Pick once — runs in the background after that.",
+      "saved": "Saved.",
+      "notConnected": "Google not connected",
+      "notConnectedBody": "Connect Google once to unlock keyword data, traffic charts, and the quick-wins finder for <em>every</em> client. <b>Skippable</b> — the rest of this client's tools work fine without it.",
+      "connect": "Connect Google",
+      "perClientLabel": "Per-client properties:",
+      "perClientBody": "Pick this client's own Search Console site and Analytics property below. Each client you add can point to its own GSC + GA4 — results, charts, and reports use the property selected here.",
+      "gscLabel": "Search Console property",
+      "gscHelp": "Pulls real keywords + clicks + impressions for this client.",
+      "ga4Label": "Analytics 4 property",
+      "ga4Help": "Pulls real organic traffic, top pages, conversions.",
+      "permOwner": "owner",
+      "permFull": "full",
+      "permRestricted": "restricted",
+      "saving": "Saving…",
+      "save": "Save Google properties",
+      "refreshed": "Property list refreshed.",
+      "refresh": "Refresh",
+      "loading": "Loading…",
+      "noProperties": "No properties available",
+      "skip": "— Skip for now —"
+    },
+    "optional": "Optional",
+    "loading": {
+      "traffic": "Loading organic traffic from Analytics…",
+      "keywords": "Loading top keywords from Search Console…",
+      "quickWins": "Finding quick wins…"
+    },
+    "schedule": {
+      "title": "Scheduled report email",
+      "active": "Active",
+      "body": "Auto-deliver the branded PDF to client + team on a schedule. Or hit “Send now” below to email it on demand."
+    },
+    "stack": {
+      "title": "Tech stack",
+      "body": "Detected from HTML + HTTP headers — drives every recommendation",
+      "redetect": "Re-detect",
+      "none": "Nothing detected yet. The site may have been unreachable when we looked — try Re-detect."
+    },
+    "niche": {
+      "title": "Niche tasks",
+      "bodyBefore": "Starter task list for",
+      "bodyAfter": "— duplicates are skipped on re-apply",
+      "reapply": "Re-apply templates"
+    },
+    "checklist": {
+      "title": "Tech-stack checklist",
+      "generic": "Generic SEO checklist (no major CMS detected)",
+      "tailored": "Tasks tailored for {stacks}",
+      "reapply": "Re-apply checklist",
+      "body": "We auto-applied platform-specific SEO tasks when this client was added. Tasks include actionable next steps with the exact plugin / setting / step for the detected platform."
+    },
+    "audits": {
+      "title": "Recent audits",
+      "none": "No audits yet. Run a deep technical audit above to set the baseline.",
+      "item": "Audit #{id}",
+      "kind": {
+        "ai": "AI",
+        "full": "Full",
+        "quick": "Quick",
+        "technical": "Technical",
+        "crawl": "Crawl"
+      },
+      "status": {
+        "running": "running",
+        "completed": "completed",
+        "failed": "failed",
+        "queued": "queued"
+      },
+      "issues": "{count, plural, one {# issue} other {# issues}}"
+    },
+    "danger": "Danger zone",
+    "startHere": {
+      "s1Title": "Check the site",
+      "s1Findings": "{count, plural, one {# thing to look at} other {# things to look at}}",
+      "s1Done": "done",
+      "s1NotRun": "not run yet",
+      "s1See": "See what we found",
+      "s1Run": "Run the audit",
+      "s2Title": "Agree the keywords and the scope",
+      "s2Tracked": "{count, plural, one {# keyword tracked} other {# keywords tracked}}",
+      "s2NoScope": " · scope not set",
+      "s2None": "none tracked yet",
+      "s2Review": "Review them",
+      "s2Find": "Find keywords",
+      "s3Title": "Send the client the plan",
+      "s3NotWritten": "not written yet",
+      "s3Accepted": "approved by the client",
+      "s3Sent": "sent — waiting on them",
+      "s3Declined": "they said no",
+      "s3Draft": "written, not sent yet",
+      "s3Open": "Open the document",
+      "s3Write": "Write it",
+      "s4Title": "Then work the plan",
+      "s4Status": "tools for this client are in the panel on the left",
+      "s4Cta": "Open the task board",
+      "allDone": "Set up and approved — the plan is agreed.",
+      "taskBoard": "Task board",
+      "title": "Start here",
+      "subtitle": "The order that works — the client signs off before the work starts.",
+      "progress": "{done} of 3 done"
+    },
+    "quickWins": {
+      "title": "Quick wins",
+      "subtitle": "Keywords ranking just outside page 1 (positions 4–15) with real search volume — one tweak away from a big CTR jump.",
+      "empty": "No quick wins right now. Either every tracked keyword is already on page 1 (great problem) or there isn't enough impression data yet.",
+      "stats": "{impressions} impressions · {clicks} clicks · {ctr}% CTR",
+      "current": "current"
+    },
+    "gscKeywords": {
+      "title": "Top keywords (last 28 days)",
+      "subtitle": "Real data from Search Console — clicks, impressions, position.",
+      "empty": "No data yet. New properties take a few days before Google has enough impressions to report.",
+      "query": "Query",
+      "clicks": "Clicks",
+      "impressions": "Impr.",
+      "ctr": "CTR",
+      "position": "Position"
+    },
+    "brandingPreflight": {
+      "saveFailed": "Couldn't save the preference",
+      "skipped": "Branding skipped for this client",
+      "generating": "Generating report now…",
+      "title": "Set your branding before generating reports",
+      "body": "Your reports will have your name + logo on the cover, replacing ours. Takes 30 seconds. Or skip and generate plain reports.",
+      "setNow": "Set branding now",
+      "skip": "Generate without branding",
+      "dismiss": "Dismiss"
+    },
+    "dailyAutomation": {
+      "title": "Daily automation",
+      "empty": "No schedules yet. Set up auto-generation of blog posts, GBP posts, social copy, or daily checklists for this client.",
+      "active": "{active}/{total, plural, one {# schedule active} other {# schedules active}}",
+      "pending": " · {count, plural, one {# item} other {# items}} waiting for review",
+      "lastPublished": " · last published {date}",
+      "review": "Review {count}",
+      "setUp": "Set up automation",
+      "manage": "Manage schedules"
+    },
+    "organicTraffic": {
+      "title": "Organic traffic (last 28 days)",
+      "subtitle": "Real GA4 data — only Organic Search sessions, not paid or social.",
+      "empty": "No GA4 data yet for this period.",
+      "sessions": "Sessions",
+      "users": "Users",
+      "pageviews": "Pageviews",
+      "vsPrior": "{delta}% vs prior period"
+    },
+    "perClientGoogle": {
+      "confirmTitle": "Disconnect Google for this client?",
+      "confirmBody": "Removes the per-client OAuth tokens. The workspace Google connection (used by other clients) stays intact. You can reconnect any time.",
+      "disconnect": "Disconnect",
+      "title": "Per-client Google account",
+      "intro": "When the client's GSC / GA4 lives under their OWN Google account (not yours), connect that account here. We'll use these tokens for this client only — your workspace Google connection still works for everyone else.",
+      "needWorkspace": "Set up the workspace Google OAuth client first (Settings → Google). Per-client connections reuse those credentials.",
+      "connected": "Connected",
+      "reconnecting": "Reconnecting…",
+      "reconnect": "Reconnect",
+      "opening": "Opening Google…",
+      "connect": "Connect this client's Google account",
+      "popupHint": "Opens Google's consent screen in a popup. The client (or you, signed in as them) approves once — we never see their password."
+    },
+    "share": {
+      "title": "Client portal",
+      "intro": "Generate a read-only link your client can open. Shows score, audit history, completed work, and what's in progress — no login.",
+      "generating": "Generating…",
+      "generate": "Generate share link",
+      "anyone": "Anyone with the link can view (read-only).",
+      "copied": "Copied",
+      "copy": "Copy",
+      "regenerate": "Regenerate",
+      "revoke": "Revoke",
+      "regenerateHint": "Regenerating invalidates the old link immediately.",
+      "emailTitle": "Email it directly to your client",
+      "sending": "Sending…",
+      "send": "Send",
+      "sent": "Sent."
+    },
+    "delete": {
+      "button": "Delete client…",
+      "hint": "Removes the client + everything attached to it. You'll get a clear confirmation before anything is touched.",
+      "title": "Delete \"{name}\" — this cannot be undone",
+      "close": "Close",
+      "intro": "This will permanently delete the following from your local database (<code>data.db</code>):",
+      "counts": {
+        "audits": "{count, plural, one {<b>#</b> audit} other {<b>#</b> audits}}",
+        "auditIssues": "{count, plural, one {<b>#</b> audit issue} other {<b>#</b> audit issues}}",
+        "tasks": "{count, plural, one {<b>#</b> task} other {<b>#</b> tasks}}",
+        "keywords": "{count, plural, one {<b>#</b> tracked keyword} other {<b>#</b> tracked keywords}}",
+        "rankings": "{count, plural, one {<b>#</b> historical rank record} other {<b>#</b> historical rank records}}",
+        "backlinks": "{count, plural, one {<b>#</b> backlink} other {<b>#</b> backlinks}}",
+        "reports": "{count, plural, one {<b>#</b> saved report} other {<b>#</b> saved reports}}",
+        "snapshots": "{count, plural, one {<b>#</b> metric snapshot} other {<b>#</b> metric snapshots}}"
+      },
+      "none": "No related records — just the client row itself.",
+      "plus": "Plus: the client's brand info, integrations (GSC/GA4/GBP/WP bridge tokens), share-link, and onboarding state.",
+      "irreversible": "<b>Cannot be undone.</b> Restore is only possible from a backup of your data.db file.",
+      "typeToConfirm": "Type <name></name> to confirm:",
+      "keep": "Keep this client",
+      "deleting": "Deleting…",
+      "deleteForever": "Delete forever"
+    },
+    "reportSchedule": {
+      "emailed": "Report emailed.",
+      "failed": "Failed",
+      "smtpMissing": "SMTP not configured",
+      "smtpBody": "Set up email delivery in <link>Settings → Email delivery</link> before scheduling reports.",
+      "recipients": "Recipients",
+      "recipientsHint": "Comma, semicolon, or newline-separated. Invalid addresses are silently dropped.",
+      "template": "Template",
+      "tplDetailed": "Detailed (recommended)",
+      "tplExecutive": "Executive (1 page)",
+      "tplTechnical": "Technical",
+      "frequency": "Frequency",
+      "monthly": "Monthly",
+      "weekly": "Weekly",
+      "dayOfMonth": "Day of month",
+      "dayOrdinal": "{d, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}",
+      "cappedHint": "Capped at 28 to handle short months consistently.",
+      "dayOfWeek": "Day of week",
+      "hourOfDay": "Hour of day",
+      "hourHint": "Local time (0-23). 9 = 9 AM.",
+      "saved": "Schedule saved. Next send: {next}",
+      "computed": "computed.",
+      "saving": "Saving…",
+      "update": "Update schedule",
+      "save": "Save schedule",
+      "sending": "Sending…",
+      "sendNow": "Send now",
+      "remove": "Remove",
+      "active": "Active schedule",
+      "tplName": "{template}",
+      "summary": "<b>{template}</b> report · <b>{when}</b> at {hour}:00",
+      "monthlyOn": "monthly on day {day}",
+      "weeklyOn": "weekly on {weekday}",
+      "recipientList": "{count, plural, one {# recipient} other {# recipients}}: {list}",
+      "lastSent": "Last sent: {date}",
+      "nextSend": "Next send: {date}"
+    }
+  },
+  "settingsTeam": {
+    "title": "Team",
+    "crumbSettings": "Settings",
+    "soloDescription": "Give everyone their own login instead of sharing one password.",
+    "soloIntro": "This instance is in single-password mode. That's fine for one person — but if more than one of you uses it, accounts are worth the two minutes:",
+    "soloPoint1": "Each person signs in as themselves, with their own password",
+    "soloPoint2": "Assign clients so people only see the ones they work on",
+    "soloPoint3": "Task and activity history says who actually did the work",
+    "soloPoint4": "Removing someone removes their access, not everyone's",
+    "soloCta": "Set up accounts",
+    "soloCtaHint": "you'll become the owner and can invite the rest of your team.",
+    "ownerDescription": "Invite people, set what they can see, and hand over ownership.",
+    "memberDescription": "Who's on this instance and what they can see.",
+    "waiting": "Waiting to be accepted",
+    "people": "People",
+    "inviteTitle": "Invite someone",
+    "inviteEmail": "Their email",
+    "inviteEmailPlaceholder": "rahul@agency.com",
+    "inviteRole": "Role",
+    "createLink": "Create link",
+    "linkHint": "Send them this link — it works once and expires in seven days.",
+    "copied": "Copied",
+    "copy": "Copy",
+    "expiresIn": "expires in {days, plural, one {# day} other {# days}}",
+    "cancel": "Cancel",
+    "you": "(you)",
+    "deactivated": "deactivated",
+    "lastSignedIn": "last signed in {date}",
+    "neverSignedIn": "never signed in",
+    "clientCount": "{count, plural, one {# client} other {# clients}}",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "accessHint": "{name} sees only the clients ticked here. Everything else in the app is filtered to match — dashboard, tasks, reports, keywords.",
+    "noClients": "No clients yet — add one first.",
+    "saveAccess": "Save access"
   },
   "landing": {
     "metaTitle": "{name} · Your complete SEO office",
@@ -1749,5 +2408,121 @@
     "ctaContact": "Contact us",
     "ctaMailSubject": "SEO audit request",
     "footerTagline": "SEO audits, writing and tracking."
+  },
+  "clientForm": {
+    "pageTitle": "Add a client",
+    "pageDescription": "Just the basics for now. We'll detect the tech stack and generate niche-specific tasks automatically.",
+    "crumbClients": "Clients",
+    "crumbNew": "New",
+    "nicheSkip": "Skip for now",
+    "nicheLocal": "Local: physical storefront / service area",
+    "nicheEcommerce": "E-commerce: selling products online",
+    "nicheSaas": "SaaS / B2B",
+    "nicheBlog": "Blog / content site",
+    "nicheServices": "Professional services",
+    "enterUrlFirst": "Enter a URL first.",
+    "filledName": "name",
+    "filledLogo": "logo",
+    "filledDescription": "description",
+    "filledAddress": "address",
+    "filledPhone": "phone",
+    "filledEmail": "email",
+    "filledGbp": "Google Business",
+    "filledSocial": "social links",
+    "found": "Found {list}. Edit anything before saving.",
+    "nothingFound": "Site loaded but we couldn't extract metadata. Fill the rest manually.",
+    "websiteUrl": "Website URL",
+    "autoFillTitle": "Fetch logo, name, address, social links from the website",
+    "fetching": "Fetching…",
+    "autoFill": "Auto-fill",
+    "urlHelp": "We'll add https:// for you. Click <b>Auto-fill</b> to pull the logo, name, address, and social links straight from the site.",
+    "clientName": "Client name",
+    "niche": "Niche",
+    "nicheHelp": "Drives the auto-generated task list. You can change this later.",
+    "description": "Description",
+    "contactSection": "Contact & Google Business",
+    "address": "Address",
+    "addressPlaceholder": "123 Main St, Springfield, IL",
+    "phone": "Phone",
+    "contactEmail": "Contact email",
+    "gbp": "Google Business profile",
+    "gbpPlaceholder": "maps.google.com/… or business name",
+    "gbpHint": "Paste the share link from Google Maps.",
+    "socialSection": "Social links",
+    "socialSubtitle": "Auto-filled from the homepage when present. Edit anything that's wrong.",
+    "googleSection": "Connect Google data (optional)",
+    "googleSubtitle": "Skippable. After saving, you'll pick the Search Console + GA4 property for this client from a dropdown. The Google account you connect here serves every client, so you don't have to do this twice.",
+    "bullet1": "Real keyword positions, clicks, impressions from Google itself.",
+    "bullet2": "Quick-wins finder: keywords at positions 4-15, one tweak from page 1.",
+    "bullet3": "Real organic traffic charts in PDF reports.",
+    "bullet4": "Free forever: 25,000 GSC queries/day, 50,000 GA4/day.",
+    "googleConnected": "Connected",
+    "googleConnectedAs": "Connected ({email})",
+    "connectGoogle": "Connect Google",
+    "pickProperty": "Pick the property on this client's detail page after saving.",
+    "saving": "Saving…",
+    "adding": "Adding…",
+    "saveChanges": "Save changes",
+    "addClient": "Add client",
+    "cancel": "Cancel",
+    "logo": "Logo",
+    "logoAlt": "Site logo preview"
+  },
+  "serverMessages": {
+    "quickAdd": {
+      "urlRequired": "URL is required",
+      "alreadyExists": "This site is already in your workspace as “{name}” (client #{id}).",
+      "unreachable": "Couldn't reach that URL. Check it loads in a browser, then try again."
+    },
+    "notifications": {
+      "client": "Client",
+      "scoreDropped": "Score dropped: {client}",
+      "scoreDroppedBody": "Health score went from {prev} → {score} (-{diff}).",
+      "auditFailed": "Audit failed: {client}",
+      "auditFailedBody": "Site may be unreachable. Try running again.",
+      "auditComplete": "Audit complete: {client}",
+      "auditCompleteBody": "Score {score} · {count, plural, one {# issue found} other {# issues found}}.",
+      "fieldChanged": "{field} changed: {client}",
+      "updateAvailable": "Update available",
+      "appUpdated": "App updated"
+    }
+  },
+  "googleSetup": {
+    "unknownError": "Unknown error",
+    "titleSignIn": "Sign in with Google",
+    "titleConnect": "Connect Google",
+    "descSignIn": "One click. Read-only access to Search Console + Analytics. Skippable: the rest of the app works without it.",
+    "descSetup": "One-time setup. The same connection serves every client. Skippable: the rest of the app works without it.",
+    "bullet1": "<b>Real keyword positions</b> from Google itself, not scraped.",
+    "bullet2": "<b>Quick-wins finder</b>: keywords at positions 4-15.",
+    "bullet3": "<b>Real organic traffic</b> in PDF reports.",
+    "bullet4": "<b>Free forever</b>: 25k GSC + 50k GA4 queries/day.",
+    "howItWorks": "How it works",
+    "how1": "<b>1.</b> One-time: create an OAuth app in Google Cloud (~3 min, free). You'll paste a Client ID + Secret here.",
+    "how2": "<b>2.</b> One-time: log in with the Google account that has access to your GSC properties.",
+    "how3": "<b>3.</b> Per client: pick the GSC property + GA4 property from a dropdown.",
+    "startSetup": "Start setup",
+    "cloudSteps": "Steps in Google Cloud Console",
+    "step1": "<b>1.</b> <a>Create a project</a> (any name)",
+    "step2": "<b>2.</b> Enable APIs:",
+    "step3": "<b>3.</b> <a>Configure OAuth consent screen</a> (External, add yourself as Test User)",
+    "step4": "<b>4.</b> <a>Create OAuth Client ID</a> (Web application). Paste this redirect URI:",
+    "copied": "copied",
+    "copy": "copy",
+    "clientId": "Client ID",
+    "clientSecret": "Client Secret",
+    "secretSaved": "•••••••••••••••• (saved)",
+    "back": "Back",
+    "saving": "Saving…",
+    "saveCredentials": "Save credentials",
+    "connectEnv": "Click below. A new window opens for Google to ask which account you want to use and to grant <b>read-only</b> access to Search Console + Analytics.",
+    "connectOwn": "Click <b>Connect Google</b>. A new window opens for you to sign in. Pick the Google account that has access to your Search Console + Analytics properties. Grant read access, and you're done.",
+    "headsUp": "<b>Heads up:</b> Google shows a “this app isn't verified” warning while your project is in test mode. Click <b>Advanced → Go to [your project]</b>. This is normal for personal/local apps.",
+    "waiting": "Waiting for Google…",
+    "signIn": "Sign in with Google",
+    "connected": "Connected",
+    "doneText": "Now go to any client's detail page and pick the matching <b>Search Console property</b> and <b>GA4 property</b> from the dropdowns. The same Google login covers every client: you just pick the right property each time.",
+    "disconnect": "Disconnect",
+    "done": "Done"
   }
 }

@@ -1,5 +1,8 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+import { guardedFetch } from "@/lib/url-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -38,6 +41,7 @@ export async function createAutomation(
   _prev: SaveAutomationResult | null,
   formData: FormData,
 ): Promise<SaveAutomationResult> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     name: formData.get("name"),
     trigger: formData.get("trigger"),
@@ -97,6 +101,7 @@ export async function createAutomation(
 }
 
 export async function setAutomationEnabled(id: number, enabled: boolean) {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db
     .update(automations)
@@ -106,6 +111,7 @@ export async function setAutomationEnabled(id: number, enabled: boolean) {
 }
 
 export async function deleteAutomation(id: number) {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(automations).where(eq(automations.id, id));
   revalidatePath("/automations");
@@ -115,6 +121,7 @@ export async function testWebhook(url: string): Promise<
   | { ok: true; status: number }
   | { ok: false; error: string }
 > {
+  await requireSignedIn();
   if (!/^https?:\/\//i.test(url)) {
     return { ok: false, error: "Webhook URL must start with http(s)://" };
   }
@@ -126,7 +133,8 @@ export async function testWebhook(url: string): Promise<
   try {
     const c = new AbortController();
     const t = setTimeout(() => c.abort(), 8_000);
-    const res = await fetch(url, {
+    // guardedFetch refuses private and loopback hosts on every redirect hop.
+    const res = await guardedFetch(url, {
       method: "POST",
       signal: c.signal,
       headers: { "content-type": "application/json" },
@@ -152,6 +160,7 @@ export async function installWorkflowTemplate(input: {
   clientId?: number | null;
   webhookUrl?: string;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
+  await requireSignedIn();
   const tmpl = workflowTemplates.find((t) => t.id === input.templateId);
   if (!tmpl) return { ok: false, error: "Unknown template" };
 

@@ -9,6 +9,7 @@
  * = already shown). Resetting is a manual storage edit, intentional.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ type BeforeInstallPromptEvent = Event & {
 const KEY = "seo:first-run-done";
 
 export function FirstRunPrompt() {
+  const t = useTranslations("shell.firstRun");
   const [visible, setVisible] = useState(false);
   const [pwaPrompt, setPwaPrompt] = useState<BeforeInstallPromptEvent | null>(
     null,
@@ -89,9 +91,8 @@ export function FirstRunPrompt() {
 
   async function installPwa() {
     if (!pwaPrompt) {
-      toast.error("PWA install not available", {
-        description:
-          "Use Chrome / Edge / Brave to install. On Safari use Share → Add to Dock.",
+      toast.error(t("pwaUnavailable"), {
+        description: t("pwaUnavailableHint"),
       });
       return;
     }
@@ -99,8 +100,8 @@ export function FirstRunPrompt() {
     const choice = await pwaPrompt.userChoice;
     if (choice.outcome === "accepted") {
       setPwaDone(true);
-      toast.success("Installed as app", {
-        description: "Find SEO Tool in your Start Menu / Applications.",
+      toast.success(t("installed"), {
+        description: t("installedHint"),
       });
     }
     setPwaPrompt(null);
@@ -114,13 +115,12 @@ export function FirstRunPrompt() {
     );
     setShortcutBusy(false);
     if (!r.ok) {
-      toast.error("Couldn't create shortcut", { description: r.error });
+      toast.error(t("shortcutFailed"), { description: r.error });
       return;
     }
     setShortcutDone(true);
-    toast.success("Shortcut created", {
-      description:
-        "Desktop + Start Menu icons added. Right-click the Start Menu entry → Pin to taskbar.",
+    toast.success(t("shortcutCreated"), {
+      description: t("shortcutCreatedHint"),
     });
   }
 
@@ -139,16 +139,16 @@ export function FirstRunPrompt() {
           </div>
           <div className="flex-1 space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground">
-              Make SEO Tool feel like a real app
+              {t("title")}
             </h2>
             <p className="text-[13px] text-muted-foreground">
-              One click each. You can change this any time in{" "}
+              {t("intro")}{" "}
               <Link
                 href="/settings/install"
                 className="text-violet-300 hover:underline"
                 onClick={() => dismiss(true)}
               >
-                Settings → Install
+                {t("settingsInstall")}
               </Link>
               .
             </p>
@@ -156,7 +156,7 @@ export function FirstRunPrompt() {
           <button
             type="button"
             onClick={() => dismiss(false)}
-            aria-label="Close"
+            aria-label={t("close")}
             className="grid size-6 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="size-3.5" />
@@ -167,24 +167,26 @@ export function FirstRunPrompt() {
           <Row
             icon={AppWindow}
             iconColor="text-violet-300"
-            title="Install as app (PWA)"
-            desc="Own window, no browser chrome. Adds to Start Menu / Applications. Right-click → Pin to taskbar."
+            title={t("pwaTitle")}
+            desc={t("pwaDesc")}
             done={pwaDone}
-            ctaLabel={pwaPrompt ? "Install" : "Not available"}
+            ctaLabel={pwaPrompt ? t("install") : t("notAvailable")}
             disabled={!pwaPrompt || pwaDone}
             onClick={installPwa}
+            doneLabel={t("done")}
           />
           {isWindows && (
             <Row
               icon={MonitorDown}
               iconColor="text-cyan-300"
-              title="Desktop & Start Menu shortcut"
-              desc="Launches the server AND opens the browser — works even when the server is currently off."
+              title={t("shortcutTitle")}
+              desc={t("shortcutDesc")}
               done={shortcutDone}
               busy={shortcutBusy}
-              ctaLabel="Create shortcuts"
+              ctaLabel={t("createShortcuts")}
               disabled={shortcutDone}
               onClick={createShortcut}
+              doneLabel={t("done")}
             />
           )}
         </div>
@@ -195,7 +197,7 @@ export function FirstRunPrompt() {
             onClick={() => dismiss(true)}
             className="text-[12px] text-muted-foreground hover:text-foreground"
           >
-            Skip — I&apos;ll do this later
+            {t("skip")}
           </button>
           <button
             type="button"
@@ -204,7 +206,7 @@ export function FirstRunPrompt() {
             className="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
             <CheckCircle2 className="size-3.5" />
-            Done
+            {t("done")}
           </button>
         </div>
       </div>
@@ -222,6 +224,7 @@ function Row({
   ctaLabel,
   disabled,
   onClick,
+  doneLabel,
 }: {
   icon: typeof AppWindow;
   iconColor: string;
@@ -232,6 +235,7 @@ function Row({
   ctaLabel: string;
   disabled: boolean;
   onClick: () => void;
+  doneLabel: string;
 }) {
   return (
     <div className="flex items-start gap-3 rounded-md border border-border bg-card p-3">
@@ -244,7 +248,7 @@ function Row({
       </div>
       {done ? (
         <span className="inline-flex shrink-0 items-center gap-1 rounded bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-          <CheckCircle2 className="size-3" /> Done
+          <CheckCircle2 className="size-3" /> {doneLabel}
         </span>
       ) : (
         <button

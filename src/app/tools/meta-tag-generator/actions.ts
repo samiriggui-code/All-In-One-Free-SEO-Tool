@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { callAI } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -40,6 +42,7 @@ export async function generateMetaTags(
   _prev: MetaTagState | null,
   formData: FormData,
 ): Promise<MetaTagState> {
+  await requireSignedIn();
   const topic = String(formData.get("topic") ?? "").trim();
   const keyword = String(formData.get("keyword") ?? "").trim();
   const brand = String(formData.get("brand") ?? "").trim();

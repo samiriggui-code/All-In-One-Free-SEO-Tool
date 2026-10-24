@@ -7,6 +7,7 @@ import {
   Target,
   Wrench,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 /**
  * The order to do things in, for one client.
@@ -47,68 +48,69 @@ type Step = {
   cta: string;
 };
 
-function stepsFor(s: StartHereState): Step[] {
+function stepsFor(s: StartHereState, t: ReturnType<typeof useTranslations>): Step[] {
   const c = s.clientId;
   return [
     {
       n: 1,
-      title: "Check the site",
+      title: t("s1Title"),
       icon: ClipboardCheck,
       done: s.auditDone,
       status: s.auditDone
         ? s.auditFindings !== null
-          ? `${s.auditFindings} things to look at`
-          : "done"
-        : "not run yet",
+          ? t("s1Findings", { count: s.auditFindings })
+          : t("s1Done")
+        : t("s1NotRun"),
       href: `/audits?clientId=${c}`,
-      cta: s.auditDone ? "See what we found" : "Run the audit",
+      cta: s.auditDone ? t("s1See") : t("s1Run"),
     },
     {
       n: 2,
-      title: "Agree the keywords and the scope",
+      title: t("s2Title"),
       icon: Target,
       done: s.keywordCount > 0 && s.onboardingDone,
       status:
         s.keywordCount > 0
-          ? `${s.keywordCount} keyword${s.keywordCount === 1 ? "" : "s"} tracked` +
-            (s.onboardingDone ? "" : " · scope not set")
-          : "none tracked yet",
+          ? t("s2Tracked", { count: s.keywordCount }) +
+            (s.onboardingDone ? "" : t("s2NoScope"))
+          : t("s2None"),
       href: `/clients/${c}/onboarding`,
-      cta: s.keywordCount > 0 ? "Review them" : "Find keywords",
+      cta: s.keywordCount > 0 ? t("s2Review") : t("s2Find"),
     },
     {
       n: 3,
-      title: "Send the client the plan",
+      title: t("s3Title"),
       icon: FileText,
       // Built is not sent. A document sitting in draft has not done its
       // job, and calling this step done would hide the only thing left.
       done: s.proposalStatus === "sent" || s.proposalStatus === "accepted",
       status: !s.proposalId
-        ? "not written yet"
+        ? t("s3NotWritten")
         : s.proposalStatus === "accepted"
-          ? "approved by the client"
+          ? t("s3Accepted")
           : s.proposalStatus === "sent"
-            ? "sent — waiting on them"
+            ? t("s3Sent")
             : s.proposalStatus === "declined"
-              ? "they said no"
-              : "written, not sent yet",
+              ? t("s3Declined")
+              : t("s3Draft"),
       href: s.proposalId ? `/proposals/${s.proposalId}/pdf` : `/clients/${c}/onboarding`,
-      cta: s.proposalId ? "Open the document" : "Write it",
+      cta: s.proposalId ? t("s3Open") : t("s3Write"),
     },
     {
       n: 4,
-      title: "Then work the plan",
+      title: t("s4Title"),
       icon: Wrench,
       done: false,
-      status: "tools for this client are in the panel on the left",
+      status: t("s4Status"),
       href: `/tasks?client=${c}`,
-      cta: "Open the task board",
+      cta: t("s4Cta"),
     },
   ];
 }
 
 export function StartHere(props: StartHereState) {
-  const steps = stepsFor(props);
+  const t = useTranslations("clientPage.startHere");
+  const steps = stepsFor(props, t);
   // The first step that is not done is the one to do. Step 4 is never
   // "done", so it becomes current once the first three are — which is
   // the right answer: the ongoing work has no completion state.
@@ -122,13 +124,13 @@ export function StartHere(props: StartHereState) {
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-2.5 text-xs">
         <Check className="size-3.5 shrink-0 text-emerald-400" />
         <span className="text-emerald-700 dark:text-emerald-200">
-          Set up and approved — the plan is agreed.
+          {t("allDone")}
         </span>
         <Link
           href={`/tasks?client=${props.clientId}`}
           className="ml-auto inline-flex items-center gap-1 text-emerald-700 underline decoration-dotted underline-offset-2 hover:text-emerald-600 dark:text-emerald-300 dark:hover:text-emerald-200"
         >
-          Task board
+          {t("taskBoard")}
           <ArrowRight className="size-3" />
         </Link>
       </div>
@@ -138,12 +140,12 @@ export function StartHere(props: StartHereState) {
   return (
     <section className="overflow-hidden rounded-2xl border border-white/[0.06] bg-card/50 backdrop-blur-md">
       <header className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-2.5">
-        <h2 className="text-[13px] font-semibold">Start here</h2>
+        <h2 className="text-[13px] font-semibold">{t("title")}</h2>
         <p className="text-xs text-muted-foreground">
-          The order that works — the client signs off before the work starts.
+          {t("subtitle")}
         </p>
         <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-          {finishedCount} of 3 done
+          {t("progress", { done: finishedCount })}
         </span>
       </header>
 

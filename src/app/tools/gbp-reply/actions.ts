@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * @ai-partial
  *
@@ -36,6 +38,7 @@ export async function listReplyLocations(): Promise<
   | { ok: true; locations: ReplyLocation[]; aiFailure?: AiFailure | null }
   | { ok: false; error: string }
 > {
+  await requireSignedIn();
   try {
     const accounts = await listGbpAccounts();
     const out: ReplyLocation[] = [];
@@ -66,6 +69,7 @@ export async function fetchReviewsWithDrafts(
   locationName: string,
   businessName: string,
 ): Promise<{ ok: true; reviews: ReviewWithDraft[]; aiFailure?: AiFailure | null } | { ok: false; error: string }> {
+  await requireSignedIn();
   try {
     const reviews = await listGbpReviews({ locationName, pageSize: 50 });
     const out: ReviewWithDraft[] = [];
@@ -149,6 +153,7 @@ export async function submitReply(
   _prev: SubmitReplyState,
   formData: FormData,
 ): Promise<SubmitReplyState> {
+  await requireSignedIn();
   const reviewName = String(formData.get("reviewName") ?? "");
   const comment = String(formData.get("comment") ?? "").trim();
   if (!reviewName) return { ok: false, error: "Missing review name." };

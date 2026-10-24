@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { chooseAutonomy } from "@/lib/agent/autonomy";
 import type { AutonomyLevel } from "@/lib/agent/autonomy-levels";
@@ -15,6 +17,7 @@ import { logActivity } from "@/lib/activity";
 export async function chooseAutonomyAction(
   level: AutonomyLevel,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireSignedIn();
   const allowed: AutonomyLevel[] = ["off", "suggest", "apply_safe", "apply_all"];
   if (!allowed.includes(level)) {
     return { ok: false, error: "Unknown autonomy level." };

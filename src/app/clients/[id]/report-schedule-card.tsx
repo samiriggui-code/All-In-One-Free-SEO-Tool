@@ -10,6 +10,7 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +34,11 @@ type ScheduleSnapshot = {
   nextSendAt: Date | null;
 };
 
-const dowLabels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+/** Weekday names, Sunday first to match the stored dayOfWeek. 2024-01-07 was a Sunday. */
+function weekdayNames(locale: string): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" });
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(Date.UTC(2024, 0, 7 + i))));
+}
 
 export function ReportScheduleCard({
   clientId,
@@ -48,6 +53,9 @@ export function ReportScheduleCard({
     SaveScheduleResult | null,
     FormData
   >(saveSchedule, null);
+  const t = useTranslations("clientPage.reportSchedule");
+  const locale = useLocale();
+  const dowLabels = weekdayNames(locale);
 
   const [recipients, setRecipients] = useState(
     schedule?.recipients.join(", ") ?? "",
@@ -80,8 +88,8 @@ export function ReportScheduleCard({
       });
       setSendNowMsg(
         r.ok
-          ? { tone: "success", text: "Report emailed." }
-          : { tone: "error", text: r.error ?? "Failed" },
+          ? { tone: "success", text: t("emailed") }
+          : { tone: "error", text: r.error ?? t("failed") },
       );
     });
   }
@@ -93,17 +101,19 @@ export function ReportScheduleCard({
           <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-300" />
           <div className="flex-1 space-y-0.5">
             <div className="font-medium text-amber-200">
-              SMTP not configured
+              {t("smtpMissing")}
             </div>
             <p className="text-xs text-muted-foreground">
-              Set up email delivery in{" "}
-              <a
-                href="/settings"
-                className="text-amber-200 underline-offset-2 hover:underline"
-              >
-                Settings → Email delivery
-              </a>{" "}
-              before scheduling reports.
+              {t.rich("smtpBody", {
+                link: (chunks) => (
+                  <a
+                    href="/settings"
+                    className="text-amber-200 underline-offset-2 hover:underline"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </p>
           </div>
         </div>
@@ -113,7 +123,7 @@ export function ReportScheduleCard({
         <input type="hidden" name="clientId" value={clientId} />
 
         <div className="space-y-1.5">
-          <Label htmlFor="recipients">Recipients</Label>
+          <Label htmlFor="recipients">{t("recipients")}</Label>
           <textarea
             id="recipients"
             name="recipients"
@@ -124,14 +134,13 @@ export function ReportScheduleCard({
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-[15px] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <p className="text-[11px] text-muted-foreground/80">
-            Comma, semicolon, or newline-separated. Invalid addresses are
-            silently dropped.
+            {t("recipientsHint")}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="template">Template</Label>
+            <Label htmlFor="template">{t("template")}</Label>
             <select
               id="template"
               name="template"
@@ -141,14 +150,14 @@ export function ReportScheduleCard({
               }
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[14px] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <option value="detailed">Detailed (recommended)</option>
-              <option value="executive">Executive (1 page)</option>
-              <option value="technical">Technical</option>
+              <option value="detailed">{t("tplDetailed")}</option>
+              <option value="executive">{t("tplExecutive")}</option>
+              <option value="technical">{t("tplTechnical")}</option>
             </select>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="frequency">Frequency</Label>
+            <Label htmlFor="frequency">{t("frequency")}</Label>
             <select
               id="frequency"
               name="frequency"
@@ -158,14 +167,14 @@ export function ReportScheduleCard({
               }
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-[14px] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
+              <option value="monthly">{t("monthly")}</option>
+              <option value="weekly">{t("weekly")}</option>
             </select>
           </div>
 
           {frequency === "monthly" ? (
             <div className="space-y-1.5">
-              <Label htmlFor="dayOfMonth">Day of month</Label>
+              <Label htmlFor="dayOfMonth">{t("dayOfMonth")}</Label>
               <select
                 id="dayOfMonth"
                 name="dayOfMonth"
@@ -175,18 +184,17 @@ export function ReportScheduleCard({
               >
                 {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
                   <option key={d} value={d}>
-                    {d}
-                    {d === 1 ? "st" : d === 2 ? "nd" : d === 3 ? "rd" : "th"}
+                    {t("dayOrdinal", { d })}
                   </option>
                 ))}
               </select>
               <p className="text-[11px] text-muted-foreground/80">
-                Capped at 28 to handle short months consistently.
+                {t("cappedHint")}
               </p>
             </div>
           ) : (
             <div className="space-y-1.5">
-              <Label htmlFor="dayOfWeek">Day of week</Label>
+              <Label htmlFor="dayOfWeek">{t("dayOfWeek")}</Label>
               <select
                 id="dayOfWeek"
                 name="dayOfWeek"
@@ -204,7 +212,7 @@ export function ReportScheduleCard({
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="hourOfDay">Hour of day</Label>
+            <Label htmlFor="hourOfDay">{t("hourOfDay")}</Label>
             <Input
               id="hourOfDay"
               name="hourOfDay"
@@ -215,7 +223,7 @@ export function ReportScheduleCard({
               onChange={(e) => setHourOfDay(e.target.value)}
             />
             <p className="text-[11px] text-muted-foreground/80">
-              Local time (0-23). 9 = 9 AM.
+              {t("hourHint")}
             </p>
           </div>
         </div>
@@ -227,15 +235,16 @@ export function ReportScheduleCard({
         )}
         {state?.ok && (
           <div className="rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-emerald-500/30">
-            Schedule saved. Next send:{" "}
-            {schedule?.nextSendAt?.toLocaleString() ?? "computed."}
+            {t("saved", {
+              next: schedule?.nextSendAt?.toLocaleString(locale) ?? t("computed"),
+            })}
           </div>
         )}
 
         <div className="flex flex-wrap items-center gap-2">
           <Button type="submit" disabled={pending}>
             <CalendarClock className="size-3.5" />
-            {pending ? "Saving…" : schedule ? "Update schedule" : "Save schedule"}
+            {pending ? t("saving") : schedule ? t("update") : t("save")}
           </Button>
           <Button
             type="button"
@@ -246,12 +255,12 @@ export function ReportScheduleCard({
             {sendNowPending ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                Sending…
+                {t("sending")}
               </>
             ) : (
               <>
                 <Send className="size-3.5" />
-                Send now
+                {t("sendNow")}
               </>
             )}
           </Button>
@@ -263,7 +272,7 @@ export function ReportScheduleCard({
             >
               <Button type="submit" variant="ghost" size="sm">
                 <Trash2 className="size-3.5" />
-                Remove
+                {t("remove")}
               </Button>
             </form>
           )}
@@ -291,29 +300,31 @@ export function ReportScheduleCard({
         <div className="rounded-lg border border-white/[0.06] bg-white/[0.015] p-3 text-xs">
           <div className="flex items-center gap-2 font-medium text-foreground">
             <Mail className="size-3.5 text-violet-300" />
-            Active schedule
+            {t("active")}
           </div>
           <div className="mt-1.5 space-y-0.5 text-muted-foreground">
             <div>
-              <strong className="text-foreground">{schedule.template}</strong>{" "}
-              report ·{" "}
-              <strong className="text-foreground">
-                {schedule.frequency === "monthly"
-                  ? `monthly on day ${schedule.dayOfMonth}`
-                  : `weekly on ${dowLabels[schedule.dayOfWeek ?? 1]}`}
-              </strong>{" "}
-              at {schedule.hourOfDay}:00
+              {t.rich("summary", {
+                template: t("tplName", { template: schedule.template }),
+                when:
+                  schedule.frequency === "monthly"
+                    ? t("monthlyOn", { day: schedule.dayOfMonth ?? 1 })
+                    : t("weeklyOn", { weekday: dowLabels[schedule.dayOfWeek ?? 1] }),
+                hour: schedule.hourOfDay,
+                b: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+              })}
             </div>
             <div>
-              {schedule.recipients.length} recipient
-              {schedule.recipients.length === 1 ? "" : "s"}:{" "}
-              {schedule.recipients.join(", ")}
+              {t("recipientList", {
+                count: schedule.recipients.length,
+                list: schedule.recipients.join(", "),
+              })}
             </div>
             {schedule.lastSentAt && (
-              <div>Last sent: {schedule.lastSentAt.toLocaleString()}</div>
+              <div>{t("lastSent", { date: schedule.lastSentAt.toLocaleString(locale) })}</div>
             )}
             {schedule.nextSendAt && (
-              <div>Next send: {schedule.nextSendAt.toLocaleString()}</div>
+              <div>{t("nextSend", { date: schedule.nextSendAt.toLocaleString(locale) })}</div>
             )}
           </div>
         </div>

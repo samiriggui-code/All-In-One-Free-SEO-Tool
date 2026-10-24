@@ -4,11 +4,12 @@ import { useTransition } from "react";
 import { Moon, Sun, MonitorSmartphone } from "lucide-react";
 import { cycleTheme } from "@/app/settings/theme-actions";
 import type { ThemePreference } from "@/app/settings/theme-actions";
+import { useTranslations } from "next-intl";
 
-const NEXT_LABEL: Record<ThemePreference, string> = {
-  light: "Switch to dark theme",
-  dark: "Match system theme",
-  system: "Switch to light theme",
+const NEXT_LABEL: Record<ThemePreference, "toDark" | "toSystem" | "toLight"> = {
+  light: "toDark",
+  dark: "toSystem",
+  system: "toLight",
 };
 
 /**
@@ -21,6 +22,7 @@ const NEXT_LABEL: Record<ThemePreference, string> = {
  */
 export function ThemeToggle({ theme }: { theme: ThemePreference }) {
   const [pending, startTransition] = useTransition();
+  const t = useTranslations("shell.theme");
 
   function onClick() {
     const next: ThemePreference =
@@ -48,8 +50,8 @@ export function ThemeToggle({ theme }: { theme: ThemePreference }) {
       type="button"
       onClick={onClick}
       disabled={pending}
-      title={NEXT_LABEL[theme]}
-      aria-label={NEXT_LABEL[theme]}
+      title={t(NEXT_LABEL[theme])}
+      aria-label={t(NEXT_LABEL[theme])}
       className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
     >
       <Icon className="size-4" />

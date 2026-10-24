@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { createWorker } from "tesseract.js";
 import { callGemini as sharedCallGemini } from "@/lib/providers/gemini";
 import { callAnthropic as sharedCallAnthropic } from "@/lib/providers/anthropic";
@@ -26,6 +28,7 @@ export async function extractScreenshotText(
   _prev: OcrResult | null,
   formData: FormData,
 ): Promise<OcrResult> {
+  await requireSignedIn();
   const dataUrl = String(formData.get("imageDataUrl") ?? "");
   if (!dataUrl.startsWith("data:image/")) {
     return { ok: false, error: "No image provided." };

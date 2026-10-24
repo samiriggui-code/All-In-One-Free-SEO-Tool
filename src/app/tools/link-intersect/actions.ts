@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { linkIntersect, type IntersectResult } from "@/lib/link-intersect";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -24,6 +26,7 @@ export async function runLinkIntersect(
   _prev: IntersectState | null,
   formData: FormData,
 ): Promise<IntersectState> {
+  await requireSignedIn();
   const parsed = inputSchema.safeParse({
     yourDomain: formData.get("yourDomain"),
     competitor1: formData.get("competitor1"),

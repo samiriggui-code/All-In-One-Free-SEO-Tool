@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -75,6 +77,7 @@ export async function createShortLink(
   _prev: CreateShortLinkResult | null,
   formData: FormData,
 ): Promise<CreateShortLinkResult> {
+  await requireSignedIn();
   const parsed = createSchema.safeParse({
     clientId: formData.get("clientId") || undefined,
     destination: formData.get("destination"),
@@ -139,6 +142,7 @@ export async function createShortLink(
 }
 
 export async function deleteShortLink(id: number): Promise<void> {
+  await requireSignedIn();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(shortLinks).where(eq(shortLinks.id, id));
   revalidatePath("/links");
@@ -167,6 +171,7 @@ export async function importShortLinksCsv(
   _prev: ImportShortLinksResult | null,
   formData: FormData,
 ): Promise<ImportShortLinksResult> {
+  await requireSignedIn();
   const parsed = csvImportSchema.safeParse({
     clientId: formData.get("clientId") || undefined,
     csv: formData.get("csv"),

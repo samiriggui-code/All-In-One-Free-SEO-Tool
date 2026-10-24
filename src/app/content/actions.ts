@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -93,6 +95,7 @@ export type ResearchState =
   | Fail;
 
 export async function researchKeywords(input: { clientId: number; seed: string }): Promise<ResearchState> {
+  await requireSignedIn();
   const parsed = z
     .object({ clientId: z.coerce.number().int().positive(), seed: z.string().trim().min(2).max(120) })
     .safeParse(input);
@@ -115,6 +118,7 @@ export async function researchKeywords(input: { clientId: number; seed: string }
 export type CreateState = Fail | null;
 
 export async function createArticle(_prev: CreateState, formData: FormData): Promise<CreateState> {
+  await requireSignedIn();
   const parsed = z
     .object({
       clientId: z.coerce.number().int().positive(),
@@ -142,6 +146,7 @@ export async function createArticle(_prev: CreateState, formData: FormData): Pro
 }
 
 export async function deleteArticle(input: { clientId: number; postId: number }): Promise<Fail | null> {
+  await requireSignedIn();
   const parsed = ids.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, postId } = parsed.data;
@@ -159,6 +164,7 @@ export async function deleteArticle(input: { clientId: number; postId: number })
 export type OutlineState = { ok: true; outlineText: string; approved: boolean } | Fail;
 
 export async function generateArticleOutline(input: { clientId: number; postId: number }): Promise<OutlineState> {
+  await requireSignedIn();
   const parsed = ids.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, postId } = parsed.data;
@@ -200,6 +206,7 @@ export async function saveArticleOutline(input: {
   text: string;
   approve: boolean;
 }): Promise<OutlineState> {
+  await requireSignedIn();
   const parsed = ids
     .extend({ text: z.string().max(20_000), approve: z.boolean() })
     .safeParse(input);
@@ -245,6 +252,7 @@ export type DraftState =
   | Fail;
 
 export async function writeArticleDraft(input: { clientId: number; postId: number }): Promise<DraftState> {
+  await requireSignedIn();
   const parsed = ids.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, postId } = parsed.data;
@@ -295,6 +303,7 @@ export async function saveArticleDraft(input: {
   metaTitle: string;
   metaDescription: string;
 }): Promise<{ ok: true; savedAt: number } | Fail> {
+  await requireSignedIn();
   const parsed = ids
     .extend({
       title: z.string().trim().max(200),
@@ -341,6 +350,7 @@ export async function scoreArticle(input: {
   fetch: boolean;
   refresh?: boolean;
 }): Promise<ScoreState> {
+  await requireSignedIn();
   const parsed = ids
     .extend({ markdown: z.string().max(200_000), fetch: z.boolean(), refresh: z.boolean().optional() })
     .safeParse(input);
@@ -426,6 +436,7 @@ function articleUrl(post: ContentPost, client: { url: string }): string {
 export type SchemaState = { ok: true; schemaJsonLd: string } | Fail;
 
 export async function buildSchemaForArticle(input: { clientId: number; postId: number }): Promise<SchemaState> {
+  await requireSignedIn();
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const schemaJsonLd = buildArticleSchema({ ...ctx.post, schemaJsonLd: null }, ctx.client);
@@ -436,6 +447,7 @@ export async function buildSchemaForArticle(input: { clientId: number; postId: n
 export type SocialState = { ok: true; social: SocialPack } | Fail;
 
 export async function generateSocialPosts(input: { clientId: number; postId: number }): Promise<SocialState> {
+  await requireSignedIn();
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const { post, client } = ctx;
@@ -460,6 +472,7 @@ export async function generateSocialPosts(input: { clientId: number; postId: num
 export type NewsletterState = { ok: true; newsletter: NewsletterPack } | Fail;
 
 export async function generateNewsletterExcerpt(input: { clientId: number; postId: number }): Promise<NewsletterState> {
+  await requireSignedIn();
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const { post, client } = ctx;
@@ -497,6 +510,7 @@ export async function publishToWordPress(input: {
   postId: number;
   mode: "draft" | "publish";
 }): Promise<PublishState> {
+  await requireSignedIn();
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const mode = input.mode === "publish" ? "publish" : "draft";
@@ -553,6 +567,7 @@ export async function markArticlePublished(input: {
   postId: number;
   url: string;
 }): Promise<{ ok: true } | Fail> {
+  await requireSignedIn();
   const parsed = ids.extend({ url: z.httpUrl().max(500) }).safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, postId, url } = parsed.data;
@@ -578,6 +593,7 @@ export type QuestionTreeState = { ok: true; tree: PaaNode } | Fail;
 
 /** People-also-ask, followed a few levels down, in the client's language. */
 export async function exploreQuestions(input: { clientId: number; seed: string }): Promise<QuestionTreeState> {
+  await requireSignedIn();
   const parsed = seedInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, seed } = parsed.data;
@@ -599,6 +615,7 @@ export type TopicCoverageState = { ok: true; result: TopicAuthorityResult } | Fa
  * Wikipedia article's sections and links as the list of sub-topics.
  */
 export async function measureTopicCoverage(input: { clientId: number; seed: string }): Promise<TopicCoverageState> {
+  await requireSignedIn();
   const parsed = seedInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid" };
   const { clientId, seed } = parsed.data;
@@ -620,6 +637,7 @@ export async function measureTopicCoverage(input: { clientId: number; seed: stri
  * save the result as a new article to review. The live page is untouched.
  */
 export async function refreshFromUrl(_prev: CreateState, formData: FormData): Promise<CreateState> {
+  await requireSignedIn();
   const parsed = z
     .object({ clientId: z.coerce.number().int().positive(), url: z.httpUrl().max(500) })
     .safeParse({ clientId: formData.get("clientId"), url: formData.get("url") });

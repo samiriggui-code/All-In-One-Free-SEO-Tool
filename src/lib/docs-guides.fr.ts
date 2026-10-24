@@ -313,6 +313,41 @@ export const DOC_GUIDES_FR: DocGuide[] = [
     related: ["/reports", "/reports/batch"],
   },
   {
+    slug: "team",
+    title: "Donner à l’équipe ses propres accès",
+    summary: "Un compte par personne, le bon rôle, et seulement les clients sur lesquels elle travaille.",
+    minutes: 5,
+    group: "running",
+    steps: [
+      {
+        do: "Ouvrez Paramètres → Équipe et cliquez sur « Activer les comptes ».",
+        then: "Vous créez le premier compte et devenez propriétaire. Ensuite, tout le monde se connecte sur la page de connexion.",
+      },
+      {
+        do: "Dans « Inviter quelqu’un », saisissez son e-mail, choisissez un rôle et cliquez sur « Créer le lien ».",
+        then: "Le lien ne sert qu’une fois et expire dans sept jours. Aucun e-mail n’est envoyé : transmettez-le vous-même.",
+      },
+      {
+        do: "Choisissez le rôle selon ce que la personne doit pouvoir toucher.",
+        then: "Manager : tous les clients et tout le travail. Membre : uniquement les clients qui lui sont assignés. Client (lecture seule) : pour un contact client qui suit l’avancement. L’équipe, les clés d’intégration et les sauvegardes restent au propriétaire.",
+      },
+      {
+        do: "Pour un membre ou un client, cliquez sur son nombre de clients, cochez ceux qu’il peut voir, puis « Enregistrer l’accès ».",
+        then: "Le tableau de bord, les tâches, les rapports et les mots-clés sont filtrés sur ces clients.",
+      },
+      {
+        do: "Pour retirer quelqu’un, cliquez sur « Désactiver ».",
+        then: "La personne est déconnectée immédiatement. Son historique est conservé.",
+      },
+      {
+        do: "Pour partir, ouvrez le menu du profil et cliquez sur « Se déconnecter ».",
+        then: "Vous revenez sur la page de connexion.",
+      },
+    ],
+    related: ["/settings/team"],
+    note: "Changer le rôle de quelqu’un ou le désactiver le déconnecte aussitôt : une personne retirée ne peut pas continuer depuis un onglet resté ouvert.",
+  },
+  {
     slug: "update-backup",
     title: "Mettre à jour, sauvegarder, changer de machine",
     summary: "Les trois depuis le panneau de contrôle. Pas de terminal.",
@@ -339,6 +374,6 @@ export const DOC_GUIDES_FR: DocGuide[] = [
         then: "La base de données est dans un volume Docker : la reconstruction la conserve.",
       },
     ],
-    note: "Vos données ne quittent jamais la machine. Pas de compte, pas de serveur avec lequel se synchroniser.",
+    note: "Vos données ne quittent jamais la machine ou le serveur où l’outil tourne. Pas de compte en ligne, rien à synchroniser.",
   },
 ];

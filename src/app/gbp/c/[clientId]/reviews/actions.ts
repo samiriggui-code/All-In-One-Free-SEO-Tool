@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * The review desk: pull, draft, edit, send.
  *
@@ -57,6 +59,7 @@ export async function loadReviewDesk(
   clientId: number,
   filter: QueueFilter = "unanswered",
 ): Promise<ReviewDeskState> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -87,6 +90,7 @@ export type LocationChoices =
 export async function listLocationChoices(
   clientId: number,
 ): Promise<LocationChoices> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -122,6 +126,7 @@ export async function chooseLocation(
   clientId: number,
   locationName: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   if (!/^accounts\/[^/]+\/locations\/[^/]+$/.test(locationName)) {
     return { ok: false, error: "That is not a location name." };
   }
@@ -138,6 +143,7 @@ export type SyncResult =
   | { ok: false; error: string; scopeMissing?: boolean };
 
 export async function syncReviews(clientId: number): Promise<SyncResult> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -196,6 +202,7 @@ export async function draftNextReplies(opts: {
   limit?: number;
   redraft?: boolean;
 }): Promise<DraftBatchState> {
+  await requireSignedIn();
   const [client] = await db
     .select()
     .from(clients)
@@ -218,6 +225,7 @@ export async function saveDraft(opts: {
   reviewId: string;
   text: string;
 }): Promise<{ ok: boolean }> {
+  await requireSignedIn();
   await saveDraftReply({
     clientId: opts.clientId,
     reviewId: opts.reviewId,
@@ -232,6 +240,7 @@ export async function publishReply(opts: {
   reviewId: string;
   text: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  await requireSignedIn();
   const res = await sendReply(opts);
   refresh(opts.clientId);
   return res.ok ? { ok: true } : { ok: false, error: res.error };
@@ -246,6 +255,7 @@ export type PublishAllResult = {
 export async function publishAllDrafts(
   clientId: number,
 ): Promise<PublishAllResult> {
+  await requireSignedIn();
   const out = await sendAllDrafts({ clientId });
   if (out.sent > 0) {
     await appendResearchLog(

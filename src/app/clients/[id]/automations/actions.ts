@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -14,6 +16,7 @@ export async function createSchedule(
   _prev: CreateScheduleState,
   formData: FormData,
 ): Promise<CreateScheduleState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const kind = String(formData.get("kind") ?? "");
   const cadenceDays = Math.max(1, Math.min(90, Number(formData.get("cadenceDays") ?? 1)));
@@ -78,6 +81,7 @@ export async function toggleScheduleEnabled(
   scheduleId: number,
   clientId: number,
 ): Promise<void> {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(dailySchedules)
@@ -100,6 +104,7 @@ export async function deleteSchedule(
   scheduleId: number,
   clientId: number,
 ): Promise<void> {
+  await requireSignedIn();
   await db
     .delete(dailySchedules)
     .where(
@@ -119,6 +124,7 @@ export async function runScheduleNow(
   scheduleId: number,
   clientId: number,
 ): Promise<{ ok: boolean; message: string }> {
+  await requireSignedIn();
   const [s] = await db
     .select()
     .from(dailySchedules)

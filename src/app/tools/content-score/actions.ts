@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 /**
  * @ai-partial
  *
@@ -64,6 +66,7 @@ export async function scoreContent(opts: {
   content: string;
   targetKeyword: string;
 }): Promise<ContentScoreResult> {
+  await requireSignedIn();
   const content = opts.content?.trim() ?? "";
   const keyword = opts.targetKeyword?.trim() ?? "";
   if (!content) return { ok: false, error: "Paste some content first" };
@@ -284,6 +287,7 @@ export async function saveContentScoreSnapshot(opts: {
   targetKeyword: string;
   result: ContentScoreResult;
 }): Promise<{ ok: true; id: number }> {
+  await requireSignedIn();
   if (!opts.result.ok) {
     return Promise.reject(new Error("Can't save a failed score"));
   }

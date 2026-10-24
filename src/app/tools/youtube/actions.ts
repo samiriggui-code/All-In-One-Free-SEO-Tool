@@ -1,5 +1,8 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+import { requireSettingsAdmin } from "@/lib/auth";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
@@ -12,6 +15,8 @@ import {
 import { saveToolRun } from "@/lib/tool-runs";
 
 export async function saveYouTubeKey(formData: FormData): Promise<void> {
+  await requireSignedIn();
+  await requireSettingsAdmin();
   const key = String(formData.get("key") ?? "").trim();
   if (!key) return;
   await setYouTubeApiKey(key);
@@ -19,6 +24,8 @@ export async function saveYouTubeKey(formData: FormData): Promise<void> {
 }
 
 export async function clearYouTubeKey(): Promise<void> {
+  await requireSignedIn();
+  await requireSettingsAdmin();
   await clearYouTubeApiKey();
   revalidatePath("/tools/youtube");
 }
@@ -41,6 +48,7 @@ export async function researchOnYouTube(
   _prev: YouTubeResearchState | null,
   formData: FormData,
 ): Promise<YouTubeResearchState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     query: formData.get("query"),
     order: formData.get("order") || undefined,

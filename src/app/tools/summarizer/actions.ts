@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { summarizeContent, type Summary } from "@/lib/content-ai-helpers";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -11,6 +13,7 @@ export async function runSummarize(
   _prev: SumState | null,
   formData: FormData,
 ): Promise<SumState> {
+  await requireSignedIn();
   const text = String(formData.get("text") ?? "").trim();
   if (!text) return { ok: false, error: "Paste some content." };
   const r = await summarizeContent({ text });

@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { z } from "zod";
 import { auditCanonicals, type CanonicalAuditResult } from "@/lib/canonical-audit";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -78,6 +80,7 @@ export async function runCanonical(
   _prev: CanonState | null,
   formData: FormData,
 ): Promise<CanonState> {
+  await requireSignedIn();
   const parsed = schema.safeParse({
     startUrl: formData.get("startUrl"),
     maxPages: formData.get("maxPages") || 80,

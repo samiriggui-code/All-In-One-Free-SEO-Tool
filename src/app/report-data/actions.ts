@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -54,6 +56,7 @@ export async function parseReportDataPaste(
   _prev: ParseState,
   formData: FormData,
 ): Promise<ParseState> {
+  await requireSignedIn();
   const clientId = Number(formData.get("clientId"));
   const rawText = String(formData.get("rawText") ?? "").trim();
 
@@ -170,11 +173,13 @@ export async function parseReportDataPaste(
 }
 
 export async function deleteEntry(id: number): Promise<void> {
+  await requireSignedIn();
   await db.delete(manualReportData).where(eq(manualReportData.id, id));
   revalidatePath("/report-data");
 }
 
 export async function listForClient(clientId: number) {
+  await requireSignedIn();
   return db
     .select()
     .from(manualReportData)

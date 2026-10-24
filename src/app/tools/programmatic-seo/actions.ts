@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import {
   generateProgramPages,
   parseCsv,
@@ -15,6 +17,7 @@ export async function runProgram(
   _prev: ProgState | null,
   formData: FormData,
 ): Promise<ProgState> {
+  await requireSignedIn();
   const csv = String(formData.get("csv") ?? "").trim();
   const slugPattern = String(formData.get("slugPattern") ?? "").trim();
   const titlePattern = String(formData.get("titlePattern") ?? "").trim();

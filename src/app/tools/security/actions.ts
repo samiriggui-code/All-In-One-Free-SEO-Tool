@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -276,6 +278,7 @@ export async function checkSecurity(
   rawUrl: string,
   clientId?: number | null,
 ): Promise<SecurityResult> {
+  await requireSignedIn();
   if (!rawUrl?.trim()) return { ok: false, error: "URL is required" };
   const host = hostnameOf(rawUrl);
   if (!host) return { ok: false, error: "Invalid URL" };

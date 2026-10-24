@@ -18,61 +18,26 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { decrypt } from "@/lib/crypto";
+import { guardedFetch } from "@/lib/url-guard";
 
 export type WpCreds = { endpoint: string; key: string };
 
 /**
- * SSRF guard. Rejects URLs that resolve to loopback, link-local, or
- * RFC1918 private space. The wpEndpoint field is user-controlled (or
- * anyone-who-can-write-the-clients-table-controlled) and gets fetched
- * with our Bearer key in the X-STB-Key header — if an attacker pointed
- * it at http://169.254.169.254/ (AWS IMDSv1) or http://localhost:6379/
- * (Redis), our key would leak to that internal endpoint and we'd
- * happily forward any response back.
- *
- * Returns null when the URL is safe to fetch; returns an error message
- * when it's not.
+ * SSRF guard options for every request to a WordPress endpoint. The
+ * endpoint is user-controlled and gets our key in the X-STB-Key header,
+ * so a host on loopback, link-local or private space (cloud metadata,
+ * Redis on localhost) is refused, after DNS resolution and on every
+ * redirect hop (`guardedFetch`).
  *
  * SEO_ALLOW_PRIVATE_WP_ENDPOINT=1 turns the private-address rules off.
  * That exists because blocking them outright is wrong for this product:
  * a self-hoster running WordPress in the same compose stack, or on
  * 192.168.x.x on their own LAN, is a normal setup and could not connect
  * at all. It's opt-in and off by default so the protection still holds
- * for anyone who hasn't thought about it, and it never disables the
- * protocol check — file:// and gopher:// stay refused either way.
+ * for anyone who hasn't thought about it.
  */
-function rejectIfPrivateUrl(rawUrl: string): string | null {
-  let parsed: URL;
-  try {
-    parsed = new URL(rawUrl);
-  } catch {
-    return "Invalid URL";
-  }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return `Only http(s) URLs allowed (got ${parsed.protocol})`;
-  }
-  if (process.env.SEO_ALLOW_PRIVATE_WP_ENDPOINT === "1") return null;
-  const h = parsed.hostname.toLowerCase();
-  // Bare hostnames / aliases that resolve to the local machine
-  if (
-    h === "localhost" ||
-    h === "ip6-localhost" ||
-    h === "ip6-loopback" ||
-    h.endsWith(".localhost")
-  ) {
-    return "Endpoint points at localhost";
-  }
-  // IPv4 literals — loopback, link-local, RFC 1918
-  if (/^127\./.test(h)) return "Endpoint is loopback (127.x.x.x)";
-  if (/^169\.254\./.test(h)) return "Endpoint is link-local (169.254.x.x — cloud metadata)";
-  if (/^10\./.test(h)) return "Endpoint is private (10.x.x.x)";
-  if (/^192\.168\./.test(h)) return "Endpoint is private (192.168.x.x)";
-  if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return "Endpoint is private (172.16-31.x.x)";
-  if (/^0\./.test(h)) return "Endpoint is 0.0.0.0/8 (invalid)";
-  // IPv6 literals — loopback + link-local + unique-local
-  if (h === "::1" || h === "[::1]") return "Endpoint is IPv6 loopback";
-  if (/^\[?(fe80|fc|fd)/i.test(h)) return "Endpoint is IPv6 link-local / unique-local";
-  return null;
+function wpGuard() {
+  return { allowPrivate: process.env.SEO_ALLOW_PRIVATE_WP_ENDPOINT === "1" };
 }
 
 export async function getClientWpCreds(
@@ -98,13 +63,12 @@ async function wpFetch<T>(
   init?: RequestInit,
 ): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string }> {
   const url = `${creds.endpoint}${path}`;
-  const ssrfErr = rejectIfPrivateUrl(url);
-  if (ssrfErr) {
-    return { ok: false, status: 0, error: ssrfErr };
-  }
   try {
-    const res = await fetch(url, {
+    // guardedFetch resolves the host and checks every redirect hop, so a
+    // public name pointing at a private address is refused too.
+    const res = await guardedFetch(url, {
       ...init,
+      ...wpGuard(),
       headers: {
         "X-STB-Key": creds.key,
         accept: "application/json",
@@ -426,13 +390,11 @@ export async function findPostIdByUrl(
   if (r.ok && typeof r.data.id === "number") return r.data.id;
 
   // Fallback: scrape the page for the WP "shortlink" with ?p=<id>.
-  // Apply the SAME SSRF guard here — the `url` parameter is caller-
-  // controlled and `redirect: "follow"` could chain into an internal IP.
-  if (rejectIfPrivateUrl(url)) return null;
+  // Same SSRF guard: the `url` parameter is caller-controlled.
   try {
-    const res = await fetch(url, {
+    const res = await guardedFetch(url, {
       headers: { accept: "text/html" },
-      redirect: "follow",
+      ...wpGuard(),
     });
     if (!res.ok) return null;
     const html = (await res.text()).slice(0, 200_000);

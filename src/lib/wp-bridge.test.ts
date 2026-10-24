@@ -27,6 +27,18 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 vi.mock("@/db/client", () => ({ db: {} }));
 vi.mock("@/db/schema", () => ({ clients: {} }));
 vi.mock("./crypto", () => ({ decrypt: (v: string) => v }));
+// The real address rules, minus the DNS lookup a test cannot make.
+vi.mock("@/lib/url-guard", async (importOriginal) => {
+  const real = await importOriginal<typeof import("@/lib/url-guard")>();
+  return {
+    ...real,
+    guardedFetch: async (url: string, init?: RequestInit & { allowPrivate?: boolean }) => {
+      const verdict = await real.guardUrl(url, { allowPrivate: init?.allowPrivate, resolveDns: false });
+      if (!verdict.ok) throw new real.SsrfBlockedError(verdict.reason);
+      return fetch(url, init);
+    },
+  };
+});
 
 const {
   getPostSeo,

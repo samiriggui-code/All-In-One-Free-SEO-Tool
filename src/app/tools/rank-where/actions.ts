@@ -1,5 +1,7 @@
 "use server";
 
+import { requireSignedIn } from "@/lib/action-guard";
+
 import { scanSerp } from "@/lib/serp-scanner";
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -46,6 +48,7 @@ export async function checkRank(
   _prev: RankWhereState,
   formData: FormData,
 ): Promise<RankWhereState> {
+  await requireSignedIn();
   const domain = normalizeDomain(String(formData.get("domain") ?? ""));
   const query = String(formData.get("query") ?? "").trim();
   const country = String(formData.get("country") ?? "US").trim().toUpperCase();
