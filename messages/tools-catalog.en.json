@@ -257,7 +257,7 @@
   },
   "crux": {
     "title": "Real-user CWV (CrUX)",
-    "description": "Real video data — view counts, channels, recurring tag phrases. Free YouTube Data API tier (100 searches a day)."
+    "description": "Real Chrome user data for this URL over the last 28 days. Unlike Lighthouse / PageSpeed (lab numbers), this is what actual users experienced. Google assesses Core Web Vitals at origin level, so check the CrUX Origin Summary too."
   },
   "content-grader": {
     "title": "Content grader (Surfer / Clearscope replacement)",
