@@ -902,7 +902,8 @@
       "noOutline": "Il faut d’abord un plan avec au moins une section.",
       "failed": "L’opération a échoué. Réessayez dans un instant.",
       "noDraft": "Il faut d’abord un article rédigé et enregistré.",
-      "noWordPress": "Le site de ce client n’est pas relié à WordPress."
+      "noWordPress": "Le site de ce client n’est pas relié à WordPress.",
+      "fetchFailed": "Impossible de récupérer cette page. Vérifiez l’adresse et qu’elle contient bien un article."
     },
     "new": {
       "title": "Nouvel article",
@@ -1008,6 +1009,59 @@
       "wordpress": "WordPress",
       "ghost": "Ghost",
       "webflow": "Webflow"
+    },
+    "tools": {
+      "toolLabel": "Outils de contenu",
+      "back": "Retour aux articles",
+      "title": "Outils de contenu · {name}",
+      "description": "Trouver quoi écrire, mesurer la couverture d’un sujet, rafraîchir une page existante et préparer le llms.txt du site.",
+      "linkTitle": "Outils de contenu",
+      "linkHint": "Arbre de questions, couverture d’un sujet, rafraîchir une page, llms.txt.",
+      "newArticle": "Écrire dessus",
+      "running": "En cours…",
+      "questions": {
+        "title": "Arbre de questions",
+        "hint": "Les questions que les internautes posent autour d’un sujet, sur deux niveaux. Chacune peut devenir un article ou une entrée de FAQ.",
+        "seed": "Sujet",
+        "placeholder": "ex. pain au levain",
+        "run": "Explorer",
+        "found": "{count, plural, =0 {Aucune question trouvée pour ce sujet.} one {# question trouvée.} other {# questions trouvées.}}"
+      },
+      "coverage": {
+        "title": "Couverture du sujet",
+        "hint": "Compare les articles de ce client aux sous-thèmes de l’article Wikipédia du sujet, pour voir ce qui manque avant de viser les requêtes principales.",
+        "seed": "Sujet ou niche",
+        "placeholder": "ex. boulangerie",
+        "run": "Mesurer",
+        "noData": "Aucun article Wikipédia trouvé pour ce sujet. Essayez un terme plus large.",
+        "source": "Article Wikipédia de référence",
+        "summary": "{covered} sous-thèmes couverts sur {total}.",
+        "missing": "Sous-thèmes manquants",
+        "covered": "Déjà couverts (nombre de mentions)",
+        "tier": {
+          "strong": "couverture solide",
+          "moderate": "couverture moyenne",
+          "surface": "couverture superficielle",
+          "no_data": "pas de données"
+        }
+      },
+      "refresh": {
+        "title": "Rafraîchir une page existante",
+        "hint": "Récupère un article déjà en ligne, le remet à jour (dates, faits, structure) et l’enregistre comme nouveau brouillon à relire. La page en ligne n’est pas modifiée.",
+        "url": "Adresse de la page",
+        "run": "Rafraîchir",
+        "running": "Récupération et réécriture…"
+      },
+      "llms": {
+        "title": "llms.txt",
+        "hint": "{count, plural, =0 {Le fichier qui présente le site aux IA (ChatGPT, Claude, Perplexity). Aucun article publié pour l’instant : seule la page d’accueil y figure.} one {Le fichier qui présente le site aux IA (ChatGPT, Claude, Perplexity), avec # article publié.} other {Le fichier qui présente le site aux IA (ChatGPT, Claude, Perplexity), avec # articles publiés.}}",
+        "description": "Présentation du site en une ou deux phrases",
+        "descriptionPlaceholder": "ex. Boulangerie artisanale à Lyon : pains au levain, viennoiseries et ateliers.",
+        "sectionSite": "Site",
+        "sectionArticles": "Articles",
+        "download": "Télécharger llms.txt",
+        "where": "À déposer à la racine du site, par ex. https://exemple.fr/llms.txt."
+      }
     }
   }
 }

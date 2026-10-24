@@ -37,8 +37,14 @@ export interface TopicAuthorityResult {
   recommended_action: string;
 }
 
-async function wikiSearch(query: string): Promise<string | null> {
-  const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=1&origin=*`;
+/** "fr-FR" → "fr". Anything odd falls back to English Wikipedia. */
+function wikiHost(lang: string): string {
+  const code = lang.toLowerCase().split(/[-_]/)[0];
+  return `${/^[a-z]{2,3}$/.test(code) ? code : "en"}.wikipedia.org`;
+}
+
+async function wikiSearch(query: string, host: string): Promise<string | null> {
+  const url = `https://${host}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=1&origin=*`;
   try {
     const r = await fetch(url, { headers: { "user-agent": `SEOToolContentStudio/1.0 (${REPO_UA_SUFFIX})` } });
     if (!r.ok) return null;
@@ -49,10 +55,10 @@ async function wikiSearch(query: string): Promise<string | null> {
   }
 }
 
-async function wikiParse(title: string): Promise<WikiParseResp["parse"] | null> {
-  const url = `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=sections|links&format=json&origin=*`;
+async function wikiParse(title: string, host: string): Promise<WikiParseResp["parse"] | null> {
+  const url = `https://${host}/w/api.php?action=parse&page=${encodeURIComponent(title)}&prop=sections|links&format=json&origin=*`;
   try {
-    const r = await fetch(url, { headers: { "user-agent": "SEOToolContentStudio/1.0" } });
+    const r = await fetch(url, { headers: { "user-agent": `SEOToolContentStudio/1.0 (${REPO_UA_SUFFIX})` } });
     if (!r.ok) return null;
     const j = (await r.json()) as WikiParseResp;
     return j.parse ?? null;
@@ -69,9 +75,11 @@ function tier(score: number): TopicAuthorityResult["tier"] {
 
 export async function scoreTopicAuthority(
   niche: string,
-  clientPostsText: string
+  clientPostsText: string,
+  lang = "en"
 ): Promise<TopicAuthorityResult> {
-  const article = await wikiSearch(niche);
+  const host = wikiHost(lang);
+  const article = await wikiSearch(niche, host);
   if (!article) {
     return {
       niche,
@@ -84,13 +92,13 @@ export async function scoreTopicAuthority(
       recommended_action: "No Wikipedia anchor found for this niche. Try a broader seed term."
     };
   }
-  const parsed = await wikiParse(article);
+  const parsed = await wikiParse(article, host);
   if (!parsed) {
     return {
       niche,
       score: 0,
       tier: "no_data",
-      wikipedia_anchor: `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}`,
+      wikipedia_anchor: `https://${host}/wiki/${encodeURIComponent(article)}`,
       total_entities: 0,
       covered: [],
       missing: [],
@@ -101,7 +109,7 @@ export async function scoreTopicAuthority(
   const sections = (parsed.sections ?? [])
     .filter((s) => s.level === "2" || s.level === "3")
     .map((s) => s.line.trim())
-    .filter((s) => s && !/^(see also|references|external links|bibliography|further reading|notes)$/i.test(s));
+    .filter((s) => s && !/^(see also|references|external links|bibliography|further reading|notes|voir aussi|références|liens externes|bibliographie|articles connexes|notes et références)$/i.test(s));
 
   const links = (parsed.links ?? [])
     .filter((l) => l.ns === 0)
@@ -129,7 +137,10 @@ export async function scoreTopicAuthority(
 
   for (const entity of entities) {
     const e = entity.toLowerCase();
-    const matches = haystack.match(new RegExp(`\\b${e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g"));
+    // Letter-aware boundaries: \b treats "é" as a word break, so French
+    // entities like "énergie" would never match.
+    const escaped = e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matches = haystack.match(new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "gu"));
     if (matches && matches.length > 0) {
       covered.push({ entity, post_count: matches.length });
     } else {
@@ -147,7 +158,7 @@ export async function scoreTopicAuthority(
     niche,
     score,
     tier: t,
-    wikipedia_anchor: `https://en.wikipedia.org/wiki/${encodeURIComponent(article)}`,
+    wikipedia_anchor: `https://${host}/wiki/${encodeURIComponent(article)}`,
     total_entities: entities.length,
     covered: covered.sort((a, b) => b.post_count - a.post_count),
     missing: missing.slice(0, 20),
