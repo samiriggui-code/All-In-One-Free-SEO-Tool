@@ -900,7 +900,9 @@
       "notFound": "Cet article ou ce client est introuvable.",
       "invalid": "Vérifiez les champs : quelque chose est vide ou trop long.",
       "noOutline": "Il faut d’abord un plan avec au moins une section.",
-      "failed": "L’opération a échoué. Réessayez dans un instant."
+      "failed": "L’opération a échoué. Réessayez dans un instant.",
+      "noDraft": "Il faut d’abord un article rédigé et enregistré.",
+      "noWordPress": "Le site de ce client n’est pas relié à WordPress."
     },
     "new": {
       "title": "Nouvel article",
@@ -970,6 +972,42 @@
       "refresh": "Réanalyser le top 10",
       "analysing": "Analyse (10 à 30 s)…",
       "note": "Le top 10 est lu une fois puis gardé une heure. Le score est un repère, pas une garantie de position."
+    },
+    "distribution": {
+      "title": "Diffusion",
+      "hint": "Publiez l’article, exportez-le vers un CMS, et préparez son balisage Schema, ses posts réseaux sociaux et sa newsletter.",
+      "needsDraft": "Rédigez d’abord l’article : la diffusion part du texte enregistré.",
+      "publishTitle": "Publication",
+      "publishedAt": "En ligne :",
+      "wpDraft": "Envoyer en brouillon WordPress",
+      "wpPublish": "Publier sur WordPress",
+      "confirmPublish": "Publier l’article en ligne sur le site WordPress du client maintenant ?",
+      "wpDraftDone": "Brouillon créé dans WordPress.",
+      "open": "Ouvrir",
+      "wpMissing": "Le site de ce client n’est pas relié à WordPress.",
+      "wpConnect": "Le connecter depuis la fiche client",
+      "wpFailed": "WordPress a refusé : {detail}",
+      "manualPlaceholder": "https://… (URL où l’article est en ligne)",
+      "markPublished": "Marquer comme publié",
+      "exportTitle": "Exporter",
+      "hugoHint": "Hugo : le Schema est dans le front matter (« schema »). Ajoutez cette ligne une fois dans le gabarit des articles pour l’afficher :",
+      "schemaTitle": "Balisage Schema (JSON-LD)",
+      "schemaHint": "Article, plus FAQPage quand l’article contient des questions en titre. Il est envoyé avec la publication WordPress et inclus dans les exports.",
+      "socialTitle": "Posts réseaux sociaux",
+      "socialHint": "Un fil X, un post LinkedIn, Instagram, Pinterest et un message WhatsApp, tirés de l’article.",
+      "newsletterTitle": "Newsletter",
+      "newsletterHint": "Un extrait court et un extrait long pour annoncer l’article par e-mail.",
+      "short": "Court",
+      "long": "Long",
+      "generate": "Générer",
+      "regenerate": "Regénérer",
+      "copy": "Copier"
+    },
+    "exportAll": "Tout exporter :",
+    "exportFormats": {
+      "wordpress": "WordPress",
+      "ghost": "Ghost",
+      "webflow": "Webflow"
     }
   }
 }

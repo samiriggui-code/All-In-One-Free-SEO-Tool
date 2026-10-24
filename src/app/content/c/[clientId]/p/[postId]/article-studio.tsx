@@ -19,6 +19,7 @@ import {
   type ContentError,
 } from "../../../../actions";
 import { StatusBadge, scoreTone } from "../../badges";
+import { Distribution, type DistributionInitial } from "./distribution";
 
 type Fields = {
   title: string;
@@ -44,12 +45,16 @@ export function ArticleStudio({
   editable,
   status: initialStatus,
   initial,
+  wpConnected,
+  distribution,
 }: {
   clientId: number;
   postId: number;
   editable: boolean;
   status: ContentPost["status"];
   initial: Fields;
+  wpConnected: boolean;
+  distribution: DistributionInitial;
 }) {
   const t = useTranslations("content.studio");
   const tStatus = useTranslations("content.status");
@@ -354,6 +359,20 @@ export function ArticleStudio({
           onAnalyse={analyse}
         />
       </div>
+
+      {/* 3. Distribution */}
+      <Distribution
+        clientId={clientId}
+        postId={postId}
+        editable={editable}
+        hasDraft={fields.draftMarkdown.trim().length > 0}
+        wpConnected={wpConnected}
+        initial={distribution}
+        beforeRun={async () => {
+          if (dirty && editable) await save();
+        }}
+        onStatus={setStatus}
+      />
     </div>
   );
 }

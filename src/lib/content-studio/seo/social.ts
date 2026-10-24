@@ -42,6 +42,8 @@ export async function repurposeSocial(input: {
   conclusion_cta: string;
   url: string;
   brand_voice?: unknown;
+  /** Language the output should be written in (ISO code, e.g. "fr"). */
+  language?: string;
 }): Promise<SocialPack> {
   const providers = await contentProviders();
   if (providers.length === 0) {

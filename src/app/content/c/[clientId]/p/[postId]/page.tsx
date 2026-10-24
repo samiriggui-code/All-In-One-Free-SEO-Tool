@@ -26,7 +26,9 @@ export default async function ArticlePage({
   if (!Number.isFinite(clientId) || !Number.isFinite(postId)) notFound();
 
   const [[client], post, t, me] = await Promise.all([
-    db.select({ id: clients.id, name: clients.name }).from(clients).where(eq(clients.id, clientId)).limit(1),
+    db
+      .select({ id: clients.id, name: clients.name, wpEndpoint: clients.wpEndpoint, wpKey: clients.wpKey })
+      .from(clients).where(eq(clients.id, clientId)).limit(1),
     getPost(clientId, postId),
     getTranslations("content"),
     currentUser(),
@@ -52,6 +54,13 @@ export default async function ArticlePage({
         postId={post.id}
         editable={editable}
         status={post.status}
+        wpConnected={Boolean(client.wpEndpoint && client.wpKey)}
+        distribution={{
+          schemaJsonLd: post.schemaJsonLd ?? "",
+          social: post.social ?? null,
+          newsletter: post.newsletter ?? null,
+          publishedUrl: post.publishedUrl ?? "",
+        }}
         initial={{
           title: post.title ?? "",
           outlineText: post.outline ? outlineToText(post.outline) : "",

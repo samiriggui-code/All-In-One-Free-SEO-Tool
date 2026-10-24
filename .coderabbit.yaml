@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit review settings for SEO-Tool.
+# Reference: https://docs.coderabbit.ai/reference/configuration
+language: fr-FR
+tone_instructions: "Réponds en français, de façon directe et concrète. Pour chaque problème, explique le scénario réel qui casse et propose un correctif minimal."
+early_access: true
+# Fill any setting not defined here from the account's central config, if one exists.
+inheritance: true
+
+reviews:
+  profile: assertive
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  related_prs: true
+  suggested_labels: true
+  poem: false
+  in_progress_fortune: false
+  enable_prompt_for_ai_agents: true
+  path_filters:
+    - "!**/*.generated.ts"
+    - "!pnpm-lock.yaml"
+    - "!src/db/migrations/meta/**"
+    - "!public/**/*.min.js"
+  path_instructions:
+    - path: "src/app/**/actions.ts"
+      instructions: |
+        Server actions. Every write must check `canEdit`, and every read of a client's data must check `canSeeClient` (src/lib/auth.ts).
+        Validate input with zod before use. Flag any action that returns another client's data or secrets.
+    - path: "src/app/**/route.ts"
+      instructions: |
+        Route handlers do not inherit the layout's access check: each one must check access itself.
+        Routes under src/app/api/v1 must call `authenticateRequest` (src/lib/api-auth.ts).
+    - path: "src/**/*.ts"
+      instructions: |
+        Any server-side fetch of a user-supplied URL must go through `guardUrl`/`guardedFetch` (src/lib/url-guard.ts), otherwise it is an SSRF.
+        API keys and credentials must never reach a client component or a log line.
+    - path: "src/**/*.tsx"
+      instructions: |
+        UI strings must come from next-intl (messages/fr.json and messages/en.json), never hard-coded. French is the default locale.
+    - path: "messages/*.json"
+      instructions: "fr.json and en.json must keep the same keys. Flag a key present in one file only."
+    - path: "src/db/**"
+      instructions: |
+        SQLite (better-sqlite3 + Drizzle). Migrations must be additive and safe on an existing database with data: no dropped column or table without a migration path.
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+  finishing_touches:
+    docstrings:
+      enabled: true
+    unit_tests:
+      enabled: true
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: "Titre court et descriptif, qui dit ce que la PR change pour l'utilisateur."
+    description:
+      mode: warning
+    custom_checks:
+      - name: "Contrôle d'accès"
+        mode: warning
+        instructions: |
+          Every new server action, route handler or page that reads or writes a client's data checks access
+          (canEdit / canSeeClient / authenticateRequest). Fail if one is missing.
+  tools:
+    eslint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    semgrep:
+      enabled: true
+    actionlint:
+      enabled: true
+    hadolint:
+      enabled: true
+    shellcheck:
+      enabled: true
+    yamllint:
+      enabled: true
+    trivy:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+  learnings:
+    scope: auto
+  pull_requests:
+    scope: auto
