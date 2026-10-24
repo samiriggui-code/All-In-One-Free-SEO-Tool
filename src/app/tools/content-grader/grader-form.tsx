@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { ExternalLink, Gauge, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { gradeContent, type GradeContentState } from "./actions";
 
 export function GraderForm() {
+  const t = useTranslations("tools.ui.content-grader");
   const [state, formAction, pending] = useActionState<
     GradeContentState | null,
     FormData
@@ -18,16 +20,16 @@ export function GraderForm() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_120px]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Target keyword</span>
+            <span className="text-muted-foreground">{t("targetKeyword")}</span>
             <input
               name="targetKeyword"
               required
-              placeholder="best vegan cookbooks"
+              placeholder={t("keywordPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{t("country")}</span>
             <input
               name="country"
               defaultValue="US"
@@ -38,13 +40,13 @@ export function GraderForm() {
         </div>
         <label className="block space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Your content (paste markdown or plain text)
+            {t("content")}
           </span>
           <textarea
             name="content"
             required
             rows={14}
-            placeholder="# Best Vegan Cookbooks for Beginners\n\nIf you're new to plant-based cooking..."
+            placeholder={t("contentPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -56,19 +58,17 @@ export function GraderForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Scoring against the SERP… (1-2 min)
+              {t("running")}
             </>
           ) : (
             <>
               <Gauge className="mr-2 size-4" />
-              Grade content
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          We pull the top 10 SERP results, fetch each one&apos;s body text,
-          compute TF-IDF, and score your draft against the corpus. Takes
-          about 60-90 seconds.
+          {t("help")}
         </p>
       </form>
 
@@ -82,7 +82,7 @@ export function GraderForm() {
         <>
           <section className="grid gap-3 sm:grid-cols-4">
             <ScoreTile
-              label="Overall"
+              label={t("tiles.overall")}
               value={state.grade.score}
               max={100}
               tone={
@@ -95,19 +95,19 @@ export function GraderForm() {
               big
             />
             <ScoreTile
-              label="Length"
+              label={t("tiles.length")}
               value={state.grade.breakdown.lengthScore}
               max={30}
             />
             <ScoreTile
-              label="Term coverage"
+              label={t("tiles.coverage")}
               value={state.grade.breakdown.coverageScore}
               max={70}
             />
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-            <h2 className="text-base font-semibold">Recommendations</h2>
+            <h2 className="text-base font-semibold">{t("recommendations")}</h2>
             <ul className="space-y-1.5 text-sm">
               {state.grade.recommendations.map((r, i) => (
                 <li key={i} className="flex items-start gap-2">
@@ -120,15 +120,20 @@ export function GraderForm() {
 
           <section className="grid gap-4 lg:grid-cols-2">
             <div className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Length</h3>
+              <h3 className="text-sm font-semibold">{t("length")}</h3>
               <p className="text-2xl font-semibold tabular-nums">
                 {state.grade.wordCount}{" "}
-                <span className="text-sm text-muted-foreground">words</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("wordsUnit", { count: state.grade.wordCount })}
+                </span>
               </p>
               <p className="text-[11px] text-muted-foreground">
-                SERP target: {state.grade.targetWordCount.min} ·{" "}
-                <strong>{state.grade.targetWordCount.ideal}</strong> ·{" "}
-                {state.grade.targetWordCount.max}
+                {t.rich("serpTarget", {
+                  min: state.grade.targetWordCount.min,
+                  ideal: state.grade.targetWordCount.ideal,
+                  max: state.grade.targetWordCount.max,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </p>
             </div>
             {/*
@@ -140,38 +145,38 @@ export function GraderForm() {
               repeat a phrase in prose that didn't need it.
             */}
             <div className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-              <h3 className="text-sm font-semibold">Keyword repetition</h3>
+              <h3 className="text-sm font-semibold">{t("keywordRepetition")}</h3>
               <p className="text-2xl font-semibold tabular-nums">
                 {state.grade.keywordDensityPct.toFixed(2)}
                 <span className="text-sm text-muted-foreground">%</span>
               </p>
               <p className="text-[11px] text-muted-foreground">
                 {state.grade.keywordDensityPct > 3.5
-                  ? "High enough to read as stuffed. Cut repetitions that don't earn their place."
-                  : "Not scored. There's no density target to hit — cover the topic well and this takes care of itself."}
+                  ? t("densityHigh")
+                  : t("densityOk")}
               </p>
             </div>
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-            <h2 className="text-base font-semibold">Term coverage</h2>
+            <h2 className="text-base font-semibold">{t("termCoverage")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              Top terms across the SERP corpus. Bold = present in your draft.
+              {t("termCoverageHelp")}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {state.insights.topTerms.slice(0, 60).map((t) => {
-                const present = state.grade.presentTerms.includes(t.term);
+              {state.insights.topTerms.slice(0, 60).map((term) => {
+                const present = state.grade.presentTerms.includes(term.term);
                 return (
                   <span
-                    key={t.term}
+                    key={term.term}
                     className={`rounded-md px-2 py-0.5 text-[11px] ring-1 ring-inset ${
                       present
                         ? "bg-emerald-500/15 text-emerald-200 ring-emerald-500/30 font-medium"
                         : "bg-white/5 text-muted-foreground ring-white/10"
                     }`}
-                    title={`Appears ${t.corpusFreq} times across the SERP corpus`}
+                    title={t("termTitle", { count: term.corpusFreq })}
                   >
-                    {t.term}
+                    {term.term}
                   </span>
                 );
               })}
@@ -180,10 +185,9 @@ export function GraderForm() {
 
           {state.insights.recurringHeadings.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-              <h2 className="text-base font-semibold">Suggested sections</h2>
+              <h2 className="text-base font-semibold">{t("suggestedSections")}</h2>
               <p className="text-[11px] text-muted-foreground">
-                Headings used by 2+ top-ranking pages — strong signals of what
-                searchers expect.
+                {t("suggestedSectionsHelp")}
               </p>
               <ul className="space-y-1 text-sm">
                 {state.insights.recurringHeadings.map((h) => (
@@ -201,11 +205,13 @@ export function GraderForm() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                SERP corpus ({state.insights.corpusSize} pages)
+                {t("corpus", { count: state.insights.corpusSize })}
               </h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Median {state.insights.medianWordCount} words · avg keyword
-                density {state.insights.avgKeywordDensityPct.toFixed(2)}%
+                {t("corpusStats", {
+                  median: state.insights.medianWordCount,
+                  density: state.insights.avgKeywordDensityPct.toFixed(2),
+                })}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.05]">
@@ -221,7 +227,7 @@ export function GraderForm() {
                     <ExternalLink className="size-3 opacity-60" />
                   </a>
                   <span className="shrink-0 tabular-nums text-muted-foreground">
-                    {s.wordCount} words
+                    {t("words", { count: s.wordCount })}
                   </span>
                 </li>
               ))}

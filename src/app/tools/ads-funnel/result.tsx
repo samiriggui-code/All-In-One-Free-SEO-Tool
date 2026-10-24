@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 import { type AdsFunnelResult } from "./actions";
 import { findAdPlatform, FUNNEL_STAGE_META as STAGE_META } from "@/lib/ads-skills";
@@ -26,18 +27,19 @@ const STAGE_COLOR: Record<keyof typeof STAGE_META, string> = {
   retention: "border-amber-500/30 bg-amber-500/[0.04]",
 };
 
-function copy(text: string, label = "Copied to clipboard") {
+function copy(text: string, label: string) {
   navigator.clipboard.writeText(text).then(() => toast.success(label));
 }
 
 export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
+  const t = useTranslations("tools.ui.ads-funnel.result");
   return (
     <div className="space-y-5">
       {/* Strategy summary */}
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Target className="size-4 text-rose-300" />
-          Strategy
+          {t("strategy")}
         </h2>
         <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
           {result.strategySummary}
@@ -49,7 +51,7 @@ export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <DollarSign className="size-4 text-emerald-300" />
-          Budget — {result.budgetTotal}
+          {t("budget", { total: result.budgetTotal })}
         </h2>
         <div className="mt-3 space-y-2">
           {result.budgetSplit.map((b) => {
@@ -81,7 +83,7 @@ export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <Layers className="size-4 text-violet-300" />
-          Funnel map
+          {t("funnelMap")}
         </h2>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           {result.funnelMap.map((f, i) => {
@@ -112,11 +114,11 @@ export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
                   })}
                 </div>
                 <div className="mt-2 text-xs">
-                  <span className="font-medium text-foreground/80">Offer:</span>{" "}
+                  <span className="font-medium text-foreground/80">{t("offer")}</span>{" "}
                   {f.whatToOffer}
                 </div>
                 <div className="mt-1 text-xs">
-                  <span className="font-medium text-foreground/80">Measure:</span>{" "}
+                  <span className="font-medium text-foreground/80">{t("measure")}</span>{" "}
                   {f.successMetric}
                 </div>
               </div>
@@ -135,7 +137,7 @@ export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <TrendingUp className="size-4 text-cyan-300" />
-            Tracking playbook
+            {t("trackingPlaybook")}
           </h2>
           <ul className="mt-3 space-y-1.5 text-sm">
             {result.trackingPlaybook.map((t, i) => (
@@ -150,7 +152,7 @@ export function AdsFunnelResultView({ result }: { result: AdsFunnelResult }) {
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <CheckSquare className="size-4 text-amber-300" />
-            Preflight checklist
+            {t("preflightChecklist")}
           </h2>
           <ul className="mt-3 space-y-1.5 text-sm">
             {result.preflightChecklist.map((t, i) => (
@@ -171,6 +173,7 @@ function PlatformCard({
 }: {
   platform: AdsFunnelResult["platforms"][number];
 }) {
+  const t = useTranslations("tools.ui.ads-funnel.result");
   const [open, setOpen] = useState(true);
   const meta = findAdPlatform(platform.platformId);
   const stage = STAGE_META[platform.funnelStage];
@@ -201,7 +204,10 @@ function PlatformCard({
             {platform.rationale}
           </p>
           <p className="mt-1 text-[10px] text-muted-foreground/80">
-            Suggested budget: <strong>{platform.monthlyBudgetSuggestion}</strong>
+            {t.rich("suggestedBudget", {
+              budget: platform.monthlyBudgetSuggestion,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </div>
       </button>
@@ -212,7 +218,7 @@ function PlatformCard({
           {platform.copyVariants.length > 0 && (
             <div>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Ad copy variants ({platform.copyVariants.length})
+                {t("copyVariants", { count: platform.copyVariants.length })}
               </h4>
               <div className="mt-2 space-y-3">
                 {platform.copyVariants.map((v, i) => (
@@ -227,11 +233,10 @@ function PlatformCard({
             <div>
               <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <ImageIcon className="size-3.5" />
-                Image-generation prompts ({platform.imagePrompts.length})
+                {t("imagePrompts", { count: platform.imagePrompts.length })}
               </h4>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Paste any of these into MidJourney, DALL-E, Stable Diffusion,
-                or a creative tool. Aspect ratio is encoded inline.
+                {t("imagePromptsHint")}
               </p>
               <ul className="mt-2 space-y-2">
                 {platform.imagePrompts.map((p, i) => (
@@ -242,8 +247,8 @@ function PlatformCard({
                     <code className="block font-mono leading-relaxed">{p}</code>
                     <button
                       type="button"
-                      onClick={() => copy(p, "Prompt copied")}
-                      title="Copy prompt"
+                      onClick={() => copy(p, t("promptCopied"))}
+                      title={t("copyPrompt")}
                       className="absolute right-1.5 top-1.5 grid size-7 place-items-center rounded text-muted-foreground opacity-0 transition-all hover:bg-white/10 hover:text-foreground group-hover:opacity-100"
                     >
                       <Copy className="size-3" />
@@ -259,30 +264,26 @@ function PlatformCard({
             <div>
               <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <ListChecks className="size-3.5" />
-                Keyword bundle
+                {t("keywordBundle")}
               </h4>
               <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <KeywordGroup
-                  title="Exact"
-                  hint="Bracket: [keyword]"
+                  kind="exact"
                   items={platform.keywords.exact}
                   tone="emerald"
                 />
                 <KeywordGroup
-                  title="Phrase"
-                  hint={`Quote: "keyword phrase"`}
+                  kind="phrase"
                   items={platform.keywords.phrase}
                   tone="cyan"
                 />
                 <KeywordGroup
-                  title="Broad"
-                  hint="No punctuation"
+                  kind="broad"
                   items={platform.keywords.broad}
                   tone="violet"
                 />
                 <KeywordGroup
-                  title="Negatives"
-                  hint="Block these"
+                  kind="negatives"
                   items={platform.keywords.negatives}
                   tone="rose"
                 />
@@ -297,7 +298,7 @@ function PlatformCard({
               {platform.trackingNotes.length > 0 && (
                 <div className="rounded-md bg-cyan-500/[0.04] p-3 ring-1 ring-inset ring-cyan-500/20">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300">
-                    Tracking setup
+                    {t("trackingSetup")}
                   </p>
                   <ul className="mt-1.5 space-y-1 text-xs text-foreground/85">
                     {platform.trackingNotes.map((n, i) => (
@@ -310,7 +311,7 @@ function PlatformCard({
                 <div className="rounded-md bg-amber-500/[0.04] p-3 ring-1 ring-inset ring-amber-500/20">
                   <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-300">
                     <AlertCircle className="size-3" />
-                    Pitfalls to avoid
+                    {t("pitfalls")}
                   </p>
                   <ul className="mt-1.5 space-y-1 text-xs text-foreground/85">
                     {platform.pitfallsToAvoid.map((p, i) => (
@@ -334,13 +335,14 @@ function CopyVariant({
   variant: AdsFunnelResult["platforms"][number]["copyVariants"][number];
   index: number;
 }) {
+  const t = useTranslations("tools.ui.ads-funnel.result");
   const allText = [
-    variant.primaryText ? `Primary: ${variant.primaryText}` : "",
+    variant.primaryText ? `${t("clipPrimary")} ${variant.primaryText}` : "",
     variant.headlines.length > 0
-      ? `Headlines:\n${variant.headlines.map((h) => `  • ${h}`).join("\n")}`
+      ? `${t("clipHeadlines")}\n${variant.headlines.map((h) => `  • ${h}`).join("\n")}`
       : "",
     variant.descriptions && variant.descriptions.length > 0
-      ? `Descriptions:\n${variant.descriptions.map((d) => `  • ${d}`).join("\n")}`
+      ? `${t("clipDescriptions")}\n${variant.descriptions.map((d) => `  • ${d}`).join("\n")}`
       : "",
     variant.cta ? `CTA: ${variant.cta}` : "",
   ]
@@ -351,7 +353,7 @@ function CopyVariant({
     <div className="rounded-md bg-black/30 p-3 ring-1 ring-inset ring-white/5 text-xs">
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Variant {index}
+          {t("variant", { index })}
           {variant.cta && (
             <span className="ml-2 rounded bg-white/5 px-1.5 py-0.5 text-foreground">
               CTA: {variant.cta}
@@ -360,8 +362,8 @@ function CopyVariant({
         </span>
         <button
           type="button"
-          onClick={() => copy(allText, `Variant ${index} copied`)}
-          title="Copy this variant"
+          onClick={() => copy(allText, t("variantCopied", { index }))}
+          title={t("copyVariant")}
           className="grid size-7 place-items-center rounded text-muted-foreground hover:bg-white/10 hover:text-foreground"
         >
           <Copy className="size-3" />
@@ -371,7 +373,7 @@ function CopyVariant({
       {variant.primaryText && (
         <div className="mt-2">
           <span className="text-[10px] text-muted-foreground">
-            Primary ({variant.primaryText.length} chars)
+            {t("primary", { count: variant.primaryText.length })}
           </span>
           <p className="mt-0.5 whitespace-pre-wrap leading-relaxed">
             {variant.primaryText}
@@ -381,7 +383,7 @@ function CopyVariant({
       {variant.headlines.length > 0 && (
         <div className="mt-2">
           <span className="text-[10px] text-muted-foreground">
-            Headlines ({variant.headlines.length})
+            {t("headlines", { count: variant.headlines.length })}
           </span>
           <ul className="mt-0.5 space-y-0.5">
             {variant.headlines.map((h, i) => (
@@ -401,7 +403,7 @@ function CopyVariant({
       {variant.descriptions && variant.descriptions.length > 0 && (
         <div className="mt-2">
           <span className="text-[10px] text-muted-foreground">
-            Descriptions ({variant.descriptions.length})
+            {t("descriptions", { count: variant.descriptions.length })}
           </span>
           <ul className="mt-0.5 space-y-0.5">
             {variant.descriptions.map((d, i) => (
@@ -428,13 +430,11 @@ function CopyVariant({
 }
 
 function KeywordGroup({
-  title,
-  hint,
+  kind,
   items,
   tone,
 }: {
-  title: string;
-  hint: string;
+  kind: "exact" | "phrase" | "broad" | "negatives";
   items: string[];
   tone: "emerald" | "cyan" | "violet" | "rose";
 }) {
@@ -444,6 +444,9 @@ function KeywordGroup({
     violet: "text-violet-300",
     rose: "text-rose-300",
   }[tone];
+  const t = useTranslations("tools.ui.ads-funnel.result.keywords");
+  const title = t(`${kind}.title`);
+  const hint = t(`${kind}.hint`);
   return (
     <div className="rounded-md bg-white/[0.02] p-2.5 ring-1 ring-inset ring-white/5">
       <div className="flex items-center justify-between">
@@ -455,8 +458,8 @@ function KeywordGroup({
         {items.length > 0 && (
           <button
             type="button"
-            onClick={() => copy(items.join("\n"), `${title} keywords copied`)}
-            title={`Copy all ${title.toLowerCase()} keywords`}
+            onClick={() => copy(items.join("\n"), t(`${kind}.copied`))}
+            title={t(`${kind}.copyAll`)}
             className="grid size-5 place-items-center rounded text-muted-foreground hover:bg-white/10 hover:text-foreground"
           >
             <Copy className="size-3" />

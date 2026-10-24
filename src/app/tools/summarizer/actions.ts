@@ -4,6 +4,7 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { summarizeContent, type Summary } from "@/lib/content-ai-helpers";
 import { saveToolRun } from "@/lib/tool-runs";
+import { getTranslations } from "next-intl/server";
 
 export type SumState =
   | { ok: true; summary: Summary }
@@ -15,7 +16,10 @@ export async function runSummarize(
 ): Promise<SumState> {
   await requireSignedIn();
   const text = String(formData.get("text") ?? "").trim();
-  if (!text) return { ok: false, error: "Paste some content." };
+  if (!text) {
+    const t = await getTranslations("tools.ui.summarizer");
+    return { ok: false, error: t("errorEmpty") };
+  }
   const r = await summarizeContent({ text });
   if (!r.ok) return { ok: false, error: r.error };
   await saveToolRun({

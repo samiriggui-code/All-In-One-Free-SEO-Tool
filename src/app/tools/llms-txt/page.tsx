@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { ToolPageChrome } from "@/components/tools/tool-page-chrome";
 import { useToolPage } from "@/lib/i18n/use-tool-page";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,8 @@ export default function LlmsTxtPage() {
 }
 
 function Generator() {
+  const t = useTranslations("tools.ui.llms-txt");
+  const tCommon = useTranslations("tools.common");
   const [url, setUrl] = useState("");
   const [hint, setHint] = useState("");
   const [pending, startTransition] = useTransition();
@@ -107,7 +110,7 @@ function Generator() {
     <div className="space-y-4">
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="space-y-1.5">
-          <Label htmlFor="lurl">Your site URL</Label>
+          <Label htmlFor="lurl">{t("yourSiteUrl")}</Label>
           <Input
             id="lurl"
             value={url}
@@ -116,13 +119,13 @@ function Generator() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="lhint">Extra context (optional)</Label>
+          <Label htmlFor="lhint">{t("hintLabel")}</Label>
           <textarea
             id="lhint"
             value={hint}
             onChange={(e) => setHint(e.target.value)}
             rows={3}
-            placeholder="e.g. main product is X, pricing page is at /pricing, blog is the most updated section"
+            placeholder={t("hintPlaceholder")}
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-[15px] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
@@ -131,12 +134,12 @@ function Generator() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
               <>
                 <Sparkles className="size-4" />
-                Generate
+                {t("generate")}
               </>
             )}
           </Button>
@@ -154,12 +157,12 @@ function Generator() {
           <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <CheckCircle2 className="size-4 text-emerald-300" />
-              Generated llms.txt
+              {t("generatedTitle")}
             </h2>
             <div className="flex gap-2">
               <Button type="button" variant="outline" size="sm" onClick={copy}>
                 <Copy className="size-3.5" />
-                {copied ? "Copied" : "Copy"}
+                {copied ? tCommon("copied") : tCommon("copy")}
               </Button>
               <Button
                 type="button"
@@ -168,7 +171,7 @@ function Generator() {
                 onClick={download}
               >
                 <Download className="size-3.5" />
-                Download
+                {tCommon("download")}
               </Button>
             </div>
           </header>
@@ -176,9 +179,12 @@ function Generator() {
             {content}
           </pre>
           <div className="border-t border-white/[0.06] p-4 text-xs text-muted-foreground">
-            <strong>Where to put it:</strong> upload as{" "}
-            <code className="rounded bg-white/5 px-1 py-0.5">/llms.txt</code>{" "}
-            at the root of your domain.
+            {t.rich("whereToPut", {
+              strong: (chunks) => <strong>{chunks}</strong>,
+              code: (chunks) => (
+                <code className="rounded bg-white/5 px-1 py-0.5">{chunks}</code>
+              ),
+            })}
           </div>
         </section>
       )}
@@ -187,6 +193,7 @@ function Generator() {
 }
 
 function Validator() {
+  const t = useTranslations("tools.ui.llms-txt");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ValidateLlmsResult | null>(null);
@@ -204,7 +211,7 @@ function Validator() {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="vurl">Site URL</Label>
+            <Label htmlFor="vurl">{t("siteUrl")}</Label>
             <Input
               id="vurl"
               value={url}
@@ -216,12 +223,12 @@ function Validator() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Checking…
+                {t("checking")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Validate
+                {t("validate")}
               </>
             )}
           </Button>
@@ -241,21 +248,18 @@ function Validator() {
         // absence is information, not a problem to fix.
         <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           <AlertCircle className="mr-2 inline size-4" />
-          This site has no llms.txt. That is not a problem in itself — the
-          format is a proposal, not something Google has said it reads. Generate
-          one above if you want assistants to have a curated summary of the
-          site.
+          {t("notPresent")}
         </div>
       )}
 
       {result?.ok && result.present && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Tile label="Sections (##)" value={result.sectionCount} />
-            <Tile label="Links" value={result.linkCount} />
+            <Tile label={t("tileSections")} value={result.sectionCount} />
+            <Tile label={t("tileLinks")} value={result.linkCount} />
             <Tile
-              label="Size"
-              value={`${result.content.length} chars`}
+              label={t("tileSize")}
+              value={t("chars", { count: result.content.length })}
               tone={
                 result.content.length <= 2000
                   ? "emerald"
@@ -269,7 +273,7 @@ function Validator() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <AlertCircle className="size-4 text-amber-300" />
-                  Issues ({result.issues.length})
+                  {t("issuesTitle", { count: result.issues.length })}
                 </h2>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -283,13 +287,13 @@ function Validator() {
           ) : (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
               <CheckCircle2 className="mr-2 inline size-4" />
-              llms.txt looks valid.
+              {t("valid")}
             </div>
           )}
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">Content</h2>
+              <h2 className="text-base font-semibold">{t("contentTitle")}</h2>
             </header>
             <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-relaxed text-foreground/90 whitespace-pre-wrap">
               {result.content}

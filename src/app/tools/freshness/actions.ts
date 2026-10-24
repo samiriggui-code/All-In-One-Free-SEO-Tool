@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { auditFreshness, type FreshnessAudit } from "@/lib/freshness-check";
 import { recordToolRun } from "@/lib/tool-findings";
@@ -12,7 +13,10 @@ export async function runFreshnessAudit(
 ): Promise<FreshnessAudit> {
   await requireSignedIn();
   const trimmed = url.trim();
-  if (!trimmed) return { ok: false, url: "", error: "Enter a URL first." };
+  if (!trimmed) {
+    const t = await getTranslations("tools.ui.freshness");
+    return { ok: false, url: "", error: t("errors.urlRequired") };
+  }
   const result = await auditFreshness(trimmed, {
     sitemapUrl: sitemapUrl?.trim() || undefined,
   });

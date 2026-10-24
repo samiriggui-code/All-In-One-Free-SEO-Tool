@@ -15,48 +15,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslations } from "next-intl";
 import { generateSchema, type SchemaType } from "./actions";
 import { getSchemaAdvisory } from "@/lib/schema-deprecations-2026";
 
-const TYPES: { id: SchemaType; label: string; description: string }[] = [
-  {
-    id: "Article",
-    label: "Article",
-    description: "Blog posts, news, editorial content",
-  },
-  {
-    id: "LocalBusiness",
-    label: "LocalBusiness",
-    description: "Brick-and-mortar with NAP",
-  },
-  {
-    id: "FAQPage",
-    label: "FAQPage",
-    description: "Pages built around questions",
-  },
-  {
-    id: "Product",
-    label: "Product",
-    description: "E-commerce product pages",
-  },
-  {
-    id: "Recipe",
-    label: "Recipe",
-    description: "Food / cooking pages",
-  },
-  {
-    id: "Event",
-    label: "Event",
-    description: "Concerts, conferences, classes",
-  },
-  {
-    id: "Organization",
-    label: "Organization",
-    description: "Company / brand identity",
-  },
+const TYPES: SchemaType[] = [
+  "Article",
+  "LocalBusiness",
+  "FAQPage",
+  "Product",
+  "Recipe",
+  "Event",
+  "Organization",
 ];
 
 export default function SchemaGeneratorPage() {
+  const t = useTranslations("tools.ui.schema");
+  const tCommon = useTranslations("tools.common");
   const [type, setType] = useState<SchemaType>("Article");
   // Seeded from ?url= so opening this from a client keeps the client.
   const [url, setUrl] = useState(usePresetUrl());
@@ -94,7 +69,7 @@ export default function SchemaGeneratorPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -103,34 +78,36 @@ export default function SchemaGeneratorPage() {
             <Code2 className="size-5 text-cyan-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Schema markup generator</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Pick a type, paste your URL — AI fills the rest using site metadata
-          we auto-extract. Output: valid JSON-LD ready to paste into your{" "}
-          <code className="rounded bg-white/5 px-1 py-0.5 text-xs">&lt;head&gt;</code>.
+          {t.rich("intro", {
+            code: () => (
+              <code className="rounded bg-white/5 px-1 py-0.5 text-xs">&lt;head&gt;</code>
+            ),
+          })}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="space-y-1.5">
-          <Label>Schema type</Label>
+          <Label>{t("schemaType")}</Label>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {TYPES.map((t) => (
+            {TYPES.map((id) => (
               <button
-                key={t.id}
+                key={id}
                 type="button"
-                onClick={() => setType(t.id)}
+                onClick={() => setType(id)}
                 className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                  type === t.id
+                  type === id
                     ? "border-violet-500/40 bg-violet-500/10"
                     : "border-white/10 bg-white/5 hover:bg-white/10"
                 }`}
               >
-                <div className="text-sm font-medium">{t.label}</div>
+                <div className="text-sm font-medium">{id}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {t.description}
+                  {t(`types.${id}`)}
                 </div>
               </button>
             ))}
@@ -140,7 +117,7 @@ export default function SchemaGeneratorPage() {
         <SchemaAdvisoryBanner type={type} />
 
         <div className="space-y-1.5">
-          <Label htmlFor="surl">Page URL (we auto-extract metadata)</Label>
+          <Label htmlFor="surl">{t("pageUrl")}</Label>
           <Input
             id="surl"
             value={url}
@@ -150,13 +127,13 @@ export default function SchemaGeneratorPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="snotes">Extra notes (optional)</Label>
+          <Label htmlFor="snotes">{t("extraNotes")}</Label>
           <textarea
             id="snotes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            placeholder="e.g. published date 2024-08-15, author Jane Doe, price $29.99 USD"
+            placeholder={t("notesPlaceholder")}
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-[15px] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
@@ -166,12 +143,12 @@ export default function SchemaGeneratorPage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
               <>
                 <Sparkles className="size-4" />
-                Generate schema
+                {t("generate")}
               </>
             )}
           </Button>
@@ -190,11 +167,11 @@ export default function SchemaGeneratorPage() {
           <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <CheckCircle2 className="size-4 text-emerald-300" />
-              Generated JSON-LD
+              {t("generatedJsonLd")}
             </h2>
             <Button type="button" variant="outline" size="sm" onClick={copy}>
               <Copy className="size-3.5" />
-              {copied ? "Copied" : "Copy"}
+              {copied ? tCommon("copied") : tCommon("copy")}
             </Button>
           </header>
           <div className="space-y-3 p-5">
@@ -202,23 +179,29 @@ export default function SchemaGeneratorPage() {
               {jsonld}
             </pre>
             <div className="rounded-md border border-violet-500/20 bg-violet-500/5 px-3 py-2 text-xs text-muted-foreground">
-              <strong className="text-violet-200">How to use:</strong> wrap
-              this in{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">
-                &lt;script type=&quot;application/ld+json&quot;&gt;...&lt;/script&gt;
-              </code>{" "}
-              and paste into the page&apos;s{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">&lt;head&gt;</code>.
-              Validate at{" "}
-              <a
-                href="https://search.google.com/test/rich-results"
-                target="_blank"
-                rel="noreferrer"
-                className="text-violet-300 underline-offset-2 hover:underline"
-              >
-                Google&apos;s Rich Results Test
-              </a>
-              .
+              {t.rich("howToUse", {
+                strong: (chunks) => (
+                  <strong className="text-violet-200">{chunks}</strong>
+                ),
+                script: () => (
+                  <code className="rounded bg-white/5 px-1 py-0.5">
+                    &lt;script type=&quot;application/ld+json&quot;&gt;...&lt;/script&gt;
+                  </code>
+                ),
+                head: () => (
+                  <code className="rounded bg-white/5 px-1 py-0.5">&lt;head&gt;</code>
+                ),
+                link: (chunks) => (
+                  <a
+                    href="https://search.google.com/test/rich-results"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-violet-300 underline-offset-2 hover:underline"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </div>
           </div>
         </section>
@@ -234,6 +217,7 @@ function SchemaAdvisoryBanner({
   type: SchemaType;
   compact?: boolean;
 }) {
+  const t = useTranslations("tools.ui.schema");
   const advisory = getSchemaAdvisory(type);
   if (advisory.status === "ok") {
     if (compact) return null;
@@ -257,13 +241,13 @@ function SchemaAdvisoryBanner({
   return (
     <div className={`${compact ? "border-b border-white/[0.06] px-5 py-3" : "rounded-md border px-3 py-2"} ${tone} text-xs`}>
       <p className="font-medium">
-        {advisory.status === "deprecated" ? "⚠ Deprecated:" : "⚠ Reduced display:"}{" "}
+        {advisory.status === "deprecated" ? t("deprecated") : t("reducedDisplay")}{" "}
         {advisory.headline}
       </p>
       <p className="mt-1 opacity-80">{advisory.reason}</p>
       {advisory.recommendation && (
         <p className="mt-1.5 opacity-90">
-          <strong className="font-medium">Recommendation:</strong>{" "}
+          <strong className="font-medium">{t("recommendation")}</strong>{" "}
           {advisory.recommendation}
         </p>
       )}

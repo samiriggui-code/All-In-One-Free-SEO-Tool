@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Loader2, Network } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runFacetTrap, type FacetTrapState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
@@ -15,6 +16,8 @@ const RISK_TONE = {
 };
 
 export default function FacetTrapPage() {
+  const t = useTranslations("tools.ui.facet-trap");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<FacetTrapState, FormData>(
     runFacetTrap,
     null,
@@ -27,12 +30,12 @@ export default function FacetTrapPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Faceted-nav crawl-trap detector"
-        description="Filter / sort / pagination params on category pages can balloon a crawl from thousands to millions of near-duplicate URLs. We crawl + group URLs by query shape and flag the ones that need canonical/noindex protection."
+        title={t("title")}
+        description={t("description")}
         icon={Network}
         accent="rose"
       />
@@ -42,7 +45,7 @@ export default function FacetTrapPage() {
         className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Site URL (homepage or any category)</span>
+          <span className="text-muted-foreground">{t("urlLabel")}</span>
           <input
             name="url"
             required
@@ -58,19 +61,17 @@ export default function FacetTrapPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Crawling… (60-120s)
+              {t("running")}
             </>
           ) : (
             <>
               <Network className="mr-2 size-4" />
-              Detect facet traps
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Crawls up to 60 pages from the homepage. Groups URLs by their
-          query-string shape and classifies each group as filter / pagination
-          / tracking / clean.
+          {t("help")}
         </p>
       </form>
 
@@ -98,21 +99,24 @@ export default function FacetTrapPage() {
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${RISK_TONE[state.report.overall]}`}
               >
-                {state.report.overall.toUpperCase()}
+                {t(`risk.${state.report.overall}`).toUpperCase()}
               </span>
             </div>
             <p className="mt-2 text-sm">{state.report.summary}</p>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {state.report.pagesScanned} pages scanned · {state.report.uniqueShapes} unique URL shapes ·{" "}
-              {state.report.facetUrlCount} facet-shaped URLs found
+              {t("stats", {
+                pages: state.report.pagesScanned,
+                shapes: state.report.uniqueShapes,
+                facets: state.report.facetUrlCount,
+              })}
             </p>
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">URL shape groups</h3>
+              <h3 className="text-sm font-semibold">{t("groupsTitle")}</h3>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Sorted by risk severity, then by group size.
+                {t("groupsHelp")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.06]">
@@ -125,29 +129,29 @@ export default function FacetTrapPage() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ring-1 ring-inset ${RISK_TONE[g.risk]}`}
                     >
-                      {g.risk}
+                      {t(`risk.${g.risk}`)}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
-                      {g.count} URL{g.count === 1 ? "" : "s"}
+                      {t("urlCount", { count: g.count })}
                     </span>
                     {g.hasFilterParams && (
                       <span className="rounded-md bg-rose-500/10 px-1.5 py-0.5 text-[10px] text-rose-300 ring-1 ring-inset ring-rose-500/30">
-                        filter params
+                        {t("tags.filter")}
                       </span>
                     )}
                     {g.hasPaginationOnly && (
                       <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 text-[10px] text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
-                        pagination
+                        {t("tags.pagination")}
                       </span>
                     )}
                     {g.hasTrackingOnly && (
                       <span className="rounded-md bg-violet-500/10 px-1.5 py-0.5 text-[10px] text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                        tracking only
+                        {t("tags.tracking")}
                       </span>
                     )}
                     {g.hasCanonicalAway && (
                       <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                        canonical-away ✓
+                        {t("tags.canonicalAway")}
                       </span>
                     )}
                     {g.hasNoindex && (

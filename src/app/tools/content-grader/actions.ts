@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { z } from "zod";
 import {
@@ -31,13 +32,25 @@ export async function gradeContent(
   formData: FormData,
 ): Promise<GradeContentState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.content-grader");
   const parsed = inputSchema.safeParse({
     targetKeyword: formData.get("targetKeyword"),
     country: formData.get("country") || "US",
     content: formData.get("content"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    const field = parsed.error.issues[0]?.path[0];
+    return {
+      ok: false,
+      error:
+        field === "targetKeyword"
+          ? t("errors.keyword")
+          : field === "country"
+            ? t("errors.country")
+            : field === "content"
+              ? t("errors.content")
+              : t("errors.invalid"),
+    };
   }
 
   let insights: CorpusInsights;
@@ -47,12 +60,12 @@ export async function gradeContent(
       country: parsed.data.country,
     });
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Corpus build failed" };
+    return { ok: false, error: (err as Error).message || t("errors.corpusFailed") };
   }
   if (insights.corpusSize === 0) {
     return {
       ok: false,
-      error: insights.error ?? "Couldn't build a SERP corpus for this keyword.",
+      error: insights.error ?? t("errors.emptyCorpus"),
     };
   }
 

@@ -2,12 +2,14 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   runBacklinkDiscovery,
   type DiscoveryState,
 } from "./actions";
 
 export function DiscoveryForm() {
+  const t = useTranslations("tools.ui.backlink-discovery");
   const [state, formAction, pending] = useActionState<
     DiscoveryState | null,
     FormData
@@ -20,7 +22,7 @@ export function DiscoveryForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Target domain</span>
+          <span className="text-muted-foreground">{t("targetDomain")}</span>
           <input
             name="targetDomain"
             required
@@ -30,7 +32,7 @@ export function DiscoveryForm() {
         </label>
         <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
           <input type="checkbox" name="skipVerify" className="size-3.5" />
-          Skip the crawl-to-confirm pass (faster, mention-only)
+          {t("skipVerify")}
         </label>
         <button
           type="submit"
@@ -40,16 +42,16 @@ export function DiscoveryForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Discovering… (1-3 min)
+              {t("running")}
             </>
           ) : (
-            "Run discovery"
+            t("submit")
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Discovery runs three queries against DuckDuckGo, then fetches
-          each candidate page to confirm a real <code>&lt;a href&gt;</code>{" "}
-          and read its anchor text and rel. Up to 60 pages per run.
+          {t.rich("help", {
+            code: (chunks) => <code>{chunks}</code>,
+          })}
         </p>
       </form>
 
@@ -63,17 +65,17 @@ export function DiscoveryForm() {
         <>
           <section className="grid gap-3 sm:grid-cols-3">
             <Tile
-              label="Verified links"
+              label={t("tiles.verified")}
               value={state.result.verified}
               tone="emerald"
             />
             <Tile
-              label="Mentions only"
+              label={t("tiles.mentions")}
               value={state.result.mentions}
               tone="amber"
             />
             <Tile
-              label="Total candidates"
+              label={t("tiles.candidates")}
               value={state.result.candidates}
               tone="neutral"
             />
@@ -81,20 +83,19 @@ export function DiscoveryForm() {
 
           {state.result.errors.length > 0 && (
             <p className="rounded-md bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300 ring-1 ring-inset ring-amber-500/30">
-              Notes: {state.result.errors.join(" · ")}
+              {t("notes", { notes: state.result.errors.join(" · ") })}
             </p>
           )}
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Discovered links to {state.result.target}
+                {t("heading", { target: state.result.target })}
               </h2>
             </header>
             {state.result.links.length === 0 ? (
               <p className="px-5 py-6 text-sm text-muted-foreground">
-                No candidates found. Try a more popular domain or skip
-                crawl-to-confirm to widen the net.
+                {t("empty")}
               </p>
             ) : (
               <ul className="divide-y divide-white/[0.05]">
@@ -123,7 +124,7 @@ export function DiscoveryForm() {
                         </div>
                         {l.anchorText && (
                           <div className="text-[11px]">
-                            anchor:{" "}
+                            {t("anchor")}{" "}
                             <span className="rounded bg-white/5 px-1.5 py-0.5 font-mono">
                               {l.anchorText}
                             </span>
@@ -138,7 +139,7 @@ export function DiscoveryForm() {
                               : "bg-amber-500/15 text-amber-300 ring-amber-500/30"
                           }`}
                         >
-                          {l.status}
+                          {t(`status.${l.status}`)}
                         </span>
                         {l.status === "verified" && (
                           <span
@@ -150,7 +151,7 @@ export function DiscoveryForm() {
                             title={
                               l.rel
                                 ? `rel="${l.rel}"`
-                                : "No rel attribute, so it passes ranking signal"
+                                : t("noRel")
                             }
                           >
                             {l.follow}

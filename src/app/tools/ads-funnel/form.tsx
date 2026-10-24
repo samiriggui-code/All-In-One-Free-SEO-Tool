@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   AD_PLATFORMS,
   NICHE_LABELS,
@@ -16,30 +17,27 @@ import { AdsFunnelResultView } from "./result";
 
 type ClientRow = { id: number; name: string; url: string; niche: string | null };
 
-const GOAL_OPTIONS: {
-  value: "awareness" | "traffic" | "leads" | "sales" | "app_installs" | "engagement";
-  label: string;
-}[] = [
-  { value: "leads", label: "Leads" },
-  { value: "sales", label: "Sales" },
-  { value: "traffic", label: "Traffic" },
-  { value: "awareness", label: "Awareness" },
-  { value: "engagement", label: "Engagement" },
-  { value: "app_installs", label: "App installs" },
-];
+const GOAL_OPTIONS = [
+  "leads",
+  "sales",
+  "traffic",
+  "awareness",
+  "engagement",
+  "app_installs",
+] as const;
 
 // One-line taglines for the platform picker. Full platform constraint
 // details live in lib/ads-skills.ts and feed the AI prompt; the UI
 // just needs enough to remind the user what each platform is FOR.
-const PLATFORM_TAGLINES: Record<string, string> = {
-  meta: "Mass reach, visual products.",
-  google_search: "Catch buying intent.",
-  google_display: "Retargeting layer.",
-  google_shopping: "DTC / e-com only.",
-  linkedin: "B2B with ≥$5k deals.",
-  tiktok: "Short-form, Gen Z.",
-  youtube: "Video + intent.",
-};
+const PLATFORM_TAGLINE_IDS = new Set([
+  "meta",
+  "google_search",
+  "google_display",
+  "google_shopping",
+  "linkedin",
+  "tiktok",
+  "youtube",
+]);
 
 const NICHE_KEYS = Object.keys(NICHE_LABELS) as BusinessNiche[];
 
@@ -50,6 +48,7 @@ export function AdsFunnelForm({
   clients: ClientRow[];
   preselectClientId: number | null;
 }) {
+  const t = useTranslations("tools.ui.ads-funnel");
   const [state, formAction, pending] = useActionState<
     AdsFunnelState | null,
     FormData
@@ -95,7 +94,7 @@ export function AdsFunnelForm({
         {/* Client (optional) */}
         {clients.length > 0 && (
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Client (optional)</span>
+            <span className="text-muted-foreground">{t("clientOptional")}</span>
             <select
               name="clientId"
               defaultValue={preselectClientId ?? ""}
@@ -104,7 +103,7 @@ export function AdsFunnelForm({
               }
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             >
-              <option value="">— Standalone (no client) —</option>
+              <option value="">{t("clientNone")}</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} ({c.url.replace(/^https?:\/\//, "")})
@@ -116,7 +115,7 @@ export function AdsFunnelForm({
 
         {/* Platforms */}
         <div>
-          <label className="text-sm font-semibold">Platforms</label>
+          <label className="text-sm font-semibold">{t("platforms")}</label>
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {AD_PLATFORMS.map((p) => {
               const checked = selectedPlatforms.has(p.id);
@@ -142,7 +141,9 @@ export function AdsFunnelForm({
                       <span className="truncate">{p.name}</span>
                     </span>
                     <span className="block truncate text-[11px] text-muted-foreground">
-                      {PLATFORM_TAGLINES[p.id] ?? ""}
+                      {PLATFORM_TAGLINE_IDS.has(p.id)
+                        ? t(`taglines.${p.id}` as "taglines.meta")
+                        : ""}
                     </span>
                   </span>
                 </label>
@@ -154,7 +155,7 @@ export function AdsFunnelForm({
         {/* Niche + goal + budget — compact row */}
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Niche</span>
+            <span className="text-muted-foreground">{t("niche")}</span>
             <select
               name="niche"
               key={selectedClient?.niche ?? "free"}
@@ -170,21 +171,21 @@ export function AdsFunnelForm({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Goal</span>
+            <span className="text-muted-foreground">{t("goal")}</span>
             <select
               name="goal"
               defaultValue="leads"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             >
               {GOAL_OPTIONS.map((g) => (
-                <option key={g.value} value={g.value}>
-                  {g.label}
+                <option key={g} value={g}>
+                  {t(`goals.${g}`)}
                 </option>
               ))}
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Budget USD/mo</span>
+            <span className="text-muted-foreground">{t("budget")}</span>
             <input
               name="monthlyBudgetUsd"
               type="number"
@@ -199,7 +200,7 @@ export function AdsFunnelForm({
         {/* Product + landing */}
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Product / service</span>
+            <span className="text-muted-foreground">{t("product")}</span>
             <input
               name="productName"
               placeholder="Acme CRM"
@@ -208,7 +209,7 @@ export function AdsFunnelForm({
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Landing URL</span>
+            <span className="text-muted-foreground">{t("landingUrl")}</span>
             <input
               name="landingUrl"
               type="url"
@@ -221,21 +222,21 @@ export function AdsFunnelForm({
 
         {/* Audience + offer */}
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Audience</span>
+          <span className="text-muted-foreground">{t("audience")}</span>
           <textarea
             name="audience"
             rows={2}
-            placeholder="B2B marketing managers at 50-500p SaaS, frustrated with their current attribution tool"
+            placeholder={t("audiencePlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
 
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Offer</span>
+          <span className="text-muted-foreground">{t("offer")}</span>
           <textarea
             name="offer"
             rows={2}
-            placeholder="14-day free trial, no credit card"
+            placeholder={t("offerPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -254,12 +255,12 @@ export function AdsFunnelForm({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Generating… (~60s)
+              {t("generating")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-4" />
-              Generate strategy
+              {t("submit")}
             </>
           )}
         </button>

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Megaphone } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { desc } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -14,6 +15,7 @@ export default async function AdsFunnelToolPage({
   searchParams: Promise<{ clientId?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("tools.ui.ads-funnel");
   const preselectClientId = params?.clientId ? Number(params.clientId) : null;
 
   const allClients = await db
@@ -30,8 +32,8 @@ export default async function AdsFunnelToolPage({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Ad Funnel Architect"
-        description="Multi-platform ad strategy + ready-to-paste copy."
+        title={t("title")}
+        description={t("description")}
         icon={Megaphone}
         accent="rose"
       />

@@ -3,6 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
 import { checkMobileFriendliness, type MobileFriendlyCheck } from "@/lib/page-inspectors";
 import { recordToolRun } from "@/lib/tool-findings";
 import { mobileFindings } from "@/lib/tool-finding-builders";
@@ -25,9 +26,10 @@ export async function runMobile(
   formData: FormData,
 ): Promise<MobileState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.mobile-friendly");
   const parsed = schema.safeParse({ url: formData.get("url") });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidUrl") };
   const r = await checkMobileFriendliness(parsed.data.url);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   await recordToolRun({

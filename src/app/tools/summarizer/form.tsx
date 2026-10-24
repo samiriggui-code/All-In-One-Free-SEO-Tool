@@ -2,9 +2,12 @@
 
 import { useActionState, useState } from "react";
 import { Check, Copy, FileText, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runSummarize, type SumState } from "./actions";
 
 export function SummarizerForm() {
+  const t = useTranslations("tools.ui.summarizer");
+  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<SumState | null, FormData>(
     runSummarize,
     null,
@@ -29,7 +32,7 @@ export function SummarizerForm() {
           required
           rows={10}
           spellCheck={false}
-          placeholder="Paste content here…"
+          placeholder={t("placeholder")}
           className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <button
@@ -40,12 +43,12 @@ export function SummarizerForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Summarizing…
+              {t("summarizing")}
             </>
           ) : (
             <>
               <FileText className="mr-2 size-4" />
-              Summarize
+              {t("summarize")}
             </>
           )}
         </button>
@@ -66,14 +69,14 @@ export function SummarizerForm() {
             onCopy={() => copy("tldr", state.summary.tldr)}
           />
           <Block
-            label={`Meta description (${state.summary.metaDescription.length} chars)`}
+            label={t("metaDescription", { count: state.summary.metaDescription.length })}
             text={state.summary.metaDescription}
             copied={copied === "meta"}
             onCopy={() => copy("meta", state.summary.metaDescription)}
           />
           {state.summary.tweetableQuote && (
             <Block
-              label="Tweetable quote"
+              label={t("tweetableQuote")}
               text={state.summary.tweetableQuote}
               copied={copied === "quote"}
               onCopy={() => copy("quote", state.summary.tweetableQuote)}
@@ -81,13 +84,13 @@ export function SummarizerForm() {
           )}
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Key takeaways</h3>
+              <h3 className="text-sm font-semibold">{t("keyTakeaways")}</h3>
               <button
                 type="button"
                 onClick={() =>
                   copy(
                     "takeaways",
-                    state.summary.keyTakeaways.map((t) => `• ${t}`).join("\n"),
+                    state.summary.keyTakeaways.map((k) => `• ${k}`).join("\n"),
                   )
                 }
                 className="inline-flex h-7 items-center rounded-md bg-white/5 px-2 text-[11px] text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
@@ -95,21 +98,21 @@ export function SummarizerForm() {
                 {copied === "takeaways" ? (
                   <>
                     <Check className="mr-1 size-3 text-emerald-300" />
-                    Copied
+                    {tCommon("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="mr-1 size-3" />
-                    Copy
+                    {tCommon("copy")}
                   </>
                 )}
               </button>
             </div>
             <ul className="mt-3 space-y-1.5 text-sm">
-              {state.summary.keyTakeaways.map((t, i) => (
+              {state.summary.keyTakeaways.map((k, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-cyan-400" />
-                  <span>{t}</span>
+                  <span>{k}</span>
                 </li>
               ))}
             </ul>
@@ -131,6 +134,7 @@ function Block({
   copied: boolean;
   onCopy: () => void;
 }) {
+  const tCommon = useTranslations("tools.common");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
       <div className="flex items-center justify-between">
@@ -145,12 +149,12 @@ function Block({
           {copied ? (
             <>
               <Check className="mr-1 size-3 text-emerald-300" />
-              Copied
+              {tCommon("copied")}
             </>
           ) : (
             <>
               <Copy className="mr-1 size-3" />
-              Copy
+              {tCommon("copy")}
             </>
           )}
         </button>

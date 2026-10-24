@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { z } from "zod";
 import { measureCwv, type CwvResult } from "@/lib/local-cwv";
@@ -35,13 +36,14 @@ export async function runLocalCwv(
   formData: FormData,
 ): Promise<LocalCwvState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.local-cwv");
   const parsed = inputSchema.safeParse({
     url: formData.get("url"),
     device: formData.get("device") || "mobile",
     mode: formData.get("mode") || "psi",
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("errorInvalidInput") };
   }
   try {
     const { url, device, mode } = parsed.data;
@@ -87,7 +89,7 @@ export async function runLocalCwv(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "CWV measurement failed",
+      error: (err as Error).message ?? t("errorFailed"),
     };
   }
 }

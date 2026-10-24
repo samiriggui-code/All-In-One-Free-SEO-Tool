@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -38,14 +39,13 @@ const CATEGORY_ORDER = [
   "platform",
 ] as const;
 
-function summaryFor(composite: number): string {
-  if (composite >= 75) {
-    return `Strong GEO readiness (${composite}/100). Likely to surface in AI Overviews and answer engines — keep improving the weakest category.`;
-  }
-  if (composite >= 50) {
-    return `Mixed GEO readiness (${composite}/100). Fix the lowest native GEO categories first (citability and technical access matter most).`;
-  }
-  return `Weak GEO readiness (${composite}/100). Improve passage structure, crawl access, and structured data before expecting AI citations.`;
+function summaryFor(
+  t: (key: string, values?: Record<string, number>) => string,
+  composite: number,
+): string {
+  if (composite >= 75) return t("summaryStrong", { composite });
+  if (composite >= 50) return t("summaryMixed", { composite });
+  return t("summaryWeak", { composite });
 }
 
 export async function runGeoScore(
@@ -53,22 +53,23 @@ export async function runGeoScore(
   formData: FormData,
 ): Promise<GeoScoreState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.geo-score");
   const urlRaw = String(formData.get("url") ?? "").trim();
   const clientIdRaw = String(formData.get("clientId") ?? "").trim();
-  if (!urlRaw) return { ok: false, error: "URL required." };
+  if (!urlRaw) return { ok: false, error: t("errorUrlRequired") };
   let url: string;
   try {
     url = new URL(/^https?:\/\//i.test(urlRaw) ? urlRaw : `https://${urlRaw}`)
       .toString();
   } catch {
-    return { ok: false, error: "Invalid URL." };
+    return { ok: false, error: t("errorInvalidUrl") };
   }
 
   let audit;
   try {
     audit = await runGeoSiteAudit(url, { mode: "quick", maxPages: 1 });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "GEO audit failed.";
+    const msg = e instanceof Error ? e.message : t("errorAuditFailed");
     return { ok: false, error: msg };
   }
 
@@ -83,8 +84,8 @@ export async function runGeoScore(
     const note =
       top?.title ??
       (audit.findings.length > 0
-        ? `${audit.findings.length} signal(s) on this page`
-        : "No blocking signals on the start URL");
+        ? t("noteSignals", { count: audit.findings.length })
+        : t("noteNoSignals"));
     categories[key] = { score, weightPct, note };
   }
 
@@ -112,7 +113,7 @@ export async function runGeoScore(
     tier: tierLabel,
     tierMeaning,
     categories,
-    summary: summaryFor(composite),
+    summary: summaryFor(t, composite),
     findingCount: audit.findings.length,
   };
 

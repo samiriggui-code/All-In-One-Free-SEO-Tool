@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { z } from "zod";
 import {
@@ -25,12 +26,13 @@ export async function runBacklinkDiscovery(
   formData: FormData,
 ): Promise<DiscoveryState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.backlink-discovery");
   const parsed = inputSchema.safeParse({
     targetDomain: formData.get("targetDomain"),
     skipVerify: formData.get("skipVerify"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: t("errors.invalidDomain") };
   }
 
   try {
@@ -47,6 +49,6 @@ export async function runBacklinkDiscovery(
     }).catch(() => undefined);
     return { ok: true, result };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Discovery failed" };
+    return { ok: false, error: (err as Error).message || t("errors.failed") };
   }
 }
