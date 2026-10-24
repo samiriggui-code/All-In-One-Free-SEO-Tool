@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { saveToolRun } from "@/lib/tool-runs";
 
@@ -41,7 +42,8 @@ export async function searchReddit(opts: {
   time?: "all" | "year" | "month" | "week";
 }): Promise<RedditResearchResult> {
   await requireSignedIn();
-  if (!opts.query.trim()) return { ok: false, error: "Query required" };
+  const tr = await getTranslations("tools.ui.reddit-research");
+  if (!opts.query.trim()) return { ok: false, error: tr("errQuery") };
 
   const sort = opts.sort ?? "relevance";
   const time = opts.time ?? "year";
@@ -72,10 +74,10 @@ export async function searchReddit(opts: {
     if (res.status === 429) {
       return {
         ok: false,
-        error: "Reddit rate-limited the request. Wait a few minutes and try again.",
+        error: tr("errRateLimit"),
       };
     }
-    return { ok: false, error: `Reddit returned ${res.status}` };
+    return { ok: false, error: tr("errStatus", { status: res.status }) };
   }
 
   type RedditChildData = {
@@ -136,7 +138,11 @@ export async function searchReddit(opts: {
   const result = { ok: true as const, query: opts.query, posts, questions, topSubreddits };
   await saveToolRun({
     toolId: "reddit-research",
-    label: `${opts.query} · ${posts.length} posts · ${topSubreddits.length} subs`,
+    label: tr("runLabel", {
+      query: opts.query,
+      posts: posts.length,
+      subs: topSubreddits.length,
+    }),
     input: { query: opts.query },
     result,
   }).catch(() => undefined);

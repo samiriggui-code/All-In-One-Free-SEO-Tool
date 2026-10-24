@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { callAI, lastAiFailure } from "@/lib/ai-call";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -39,18 +40,19 @@ export async function generateCode(
   formData: FormData,
 ): Promise<CodeGenState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.code-generator");
   const targetId = String(formData.get("target") ?? "") as GeneratorTarget;
   const task = String(formData.get("task") ?? "").trim();
   const constraints = String(formData.get("constraints") ?? "").trim();
 
   if (!targetId || !TARGETS[targetId]) {
-    return { ok: false, error: "Pick a target output type." };
+    return { ok: false, error: t("errPickTarget") };
   }
   if (!task) {
-    return { ok: false, error: "Describe what you want the code to do." };
+    return { ok: false, error: t("errDescribe") };
   }
   if (task.length > 2000) {
-    return { ok: false, error: "Keep the task description under 2000 chars." };
+    return { ok: false, error: t("errTooLong") };
   }
 
   const spec = TARGETS[targetId];
@@ -70,13 +72,13 @@ export async function generateCode(
     return {
       ok: false,
       error:
-        lastAiFailure()?.message ?? "AI provider didn't respond. Make sure you've configured one in Settings → AI.",
+        lastAiFailure()?.message ?? t("errNoAi"),
     };
   }
 
   const code = stripFences(raw);
   if (code.length < 20) {
-    return { ok: false, error: "Got an empty response — try rephrasing the task." };
+    return { ok: false, error: t("errEmpty") };
   }
 
   const result: CodeGenResult = {

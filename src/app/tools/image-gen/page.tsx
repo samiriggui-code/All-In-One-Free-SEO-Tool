@@ -8,12 +8,14 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runImageGen, type GenState } from "./actions";
 import { RecentRuns } from "@/components/recent-runs";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
 export default function ImageGenPage() {
+  const t = useTranslations("tools.ui.image-gen");
   const [state, formAction, pending] = useActionState<GenState, FormData>(
     runImageGen,
     null,
@@ -37,8 +39,8 @@ export default function ImageGenPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="AI image generation (BYO OpenAI key)"
-        description="Generate hero images, OG images, or illustrative graphics for content using DALL·E 3. Requires an OpenAI API key in Settings. Output is downloaded directly — no server storage."
+        title={t("title")}
+        description={t("description")}
         icon={ImageIcon}
         accent="violet"
       />
@@ -48,49 +50,49 @@ export default function ImageGenPage() {
         className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Prompt</span>
+          <span className="text-muted-foreground">{t("prompt")}</span>
           <textarea
             name="prompt"
             required
             rows={4}
-            placeholder="A flat-design illustration of a person reviewing analytics dashboards on a laptop, violet + cyan gradient, modern minimal style, no text"
+            placeholder={t("promptPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Aspect</span>
+            <span className="text-muted-foreground">{t("aspect")}</span>
             <select
               name="aspect"
               defaultValue="landscape"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="landscape">Landscape (1792×1024)</option>
-              <option value="square">Square (1024×1024)</option>
-              <option value="portrait">Portrait (1024×1792)</option>
+              <option value="landscape">{t("aspectLandscape")}</option>
+              <option value="square">{t("aspectSquare")}</option>
+              <option value="portrait">{t("aspectPortrait")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Quality</span>
+            <span className="text-muted-foreground">{t("quality")}</span>
             <select
               name="quality"
               defaultValue="standard"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="standard">Standard (~$0.04)</option>
-              <option value="hd">HD (~$0.08)</option>
+              <option value="standard">{t("qualityStandard")}</option>
+              <option value="hd">{t("qualityHd")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Style</span>
+            <span className="text-muted-foreground">{t("style")}</span>
             <select
               name="style"
               defaultValue="vivid"
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="vivid">Vivid (more dramatic)</option>
-              <option value="natural">Natural (softer, more realistic)</option>
+              <option value="vivid">{t("styleVivid")}</option>
+              <option value="natural">{t("styleNatural")}</option>
             </select>
           </label>
         </div>
@@ -103,19 +105,17 @@ export default function ImageGenPage() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Generating… (15-30s)
+              {t("generating")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-4" />
-              Generate image
+              {t("generate")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Uses your OpenAI API key. Cost: $0.04 standard / $0.08 HD per
-          image. No images are stored on the server — they go straight to
-          your download.
+          {t("costHint")}
         </p>
       </form>
 
@@ -128,14 +128,14 @@ export default function ImageGenPage() {
       {state?.ok && (
         <section className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5">
           <header className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Generated image</h2>
+            <h2 className="text-base font-semibold">{t("generated")}</h2>
             <button
               type="button"
               onClick={download}
               className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-3 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
             >
               <Download className="size-3" />
-              Download PNG
+              {t("downloadPng")}
             </button>
           </header>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -148,7 +148,7 @@ export default function ImageGenPage() {
             {Math.round(state.sizeBytes / 1024)} KB
             {state.revisedPrompt && (
               <>
-                {" · OpenAI revised prompt: "}
+                {t("revisedPrompt")}
                 <em>&quot;{state.revisedPrompt}&quot;</em>
               </>
             )}

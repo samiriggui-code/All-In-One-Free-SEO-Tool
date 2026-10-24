@@ -2,6 +2,7 @@
 
 import { requireSignedIn } from "@/lib/action-guard";
 
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import {
   buildSitemapHtml,
@@ -42,20 +43,21 @@ export async function generateSitemap(
   formData: FormData,
 ): Promise<SitemapResult> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.sitemap");
   const parsed = schema.safeParse({
     url: formData.get("url"),
     maxPages: formData.get("maxPages"),
     respectRobots: formData.get("respectRobots"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? t("invalidInput") };
   }
 
   let host: string;
   try {
     host = new URL(parsed.data.url).hostname;
   } catch {
-    return { ok: false, error: "Invalid URL" };
+    return { ok: false, error: t("invalidUrl") };
   }
 
   const { pages, errors } = await crawlSite({
@@ -76,7 +78,7 @@ export async function generateSitemap(
   };
   await saveToolRun({
     toolId: "sitemap",
-    label: `${host} · ${pages.length} pages · ${errors.length} errors`,
+    label: t("runLabel", { host, pages: pages.length, errors: errors.length }),
     input: { url: parsed.data.url, maxPages: parsed.data.maxPages },
     result: out,
   }).catch(() => undefined);

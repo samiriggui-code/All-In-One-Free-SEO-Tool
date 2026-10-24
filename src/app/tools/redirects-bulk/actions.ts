@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { traceMany, type RedirectChain } from "@/lib/redirect-tracer";
 import { recordToolRun, type FindingDraft } from "@/lib/tool-findings";
@@ -23,7 +24,10 @@ export type BulkState =
  * rule on the site with an undo. That is the loop this tool has been one
  * step short of since it was written.
  */
-function chainFindings(chains: RedirectChain[]): FindingDraft[] {
+function chainFindings(
+  chains: RedirectChain[],
+  t: (key: string, values?: Record<string, string | number>) => string,
+): FindingDraft[] {
   const out: FindingDraft[] = [];
 
   for (const c of chains) {
@@ -32,12 +36,10 @@ function chainFindings(chains: RedirectChain[]): FindingDraft[] {
     if (c.hadLoop) {
       out.push({
         signature: `redirects-bulk.loop.${c.startUrl}`,
-        title: `Redirect loop: ${c.startUrl} never resolves`,
+        title: t("findings.loopTitle", { url: c.startUrl }),
         severity: "critical",
         category: "redirects",
-        details:
-          "The URL redirects back into a cycle, so browsers give up and nobody reaches the page. " +
-          `Traced ${c.hopCount} hops before stopping.`,
+        details: t("findings.loopDetails", { hops: c.hopCount }),
       });
       continue;
     }
@@ -45,12 +47,13 @@ function chainFindings(chains: RedirectChain[]): FindingDraft[] {
     if (c.hopCount > 1) {
       out.push({
         signature: `redirects-bulk.chain.${c.startUrl}`,
-        title: `${c.hopCount} redirects to reach ${c.finalUrl}`,
+        title: t("findings.chainTitle", { hops: c.hopCount, finalUrl: c.finalUrl }),
         severity: c.hopCount > 2 ? "medium" : "low",
         category: "redirects",
-        details:
-          `Each hop costs time and loses a little of what the link passes on. Pointing ${c.startUrl} ` +
-          `straight at ${c.finalUrl} removes both.`,
+        details: t("findings.chainDetails", {
+          url: c.startUrl,
+          finalUrl: c.finalUrl,
+        }),
       });
     }
 
@@ -59,22 +62,24 @@ function chainFindings(chains: RedirectChain[]): FindingDraft[] {
     if (c.hadMixedScheme) {
       out.push({
         signature: `redirects-bulk.mixed_scheme.${c.startUrl}`,
-        title: `${c.startUrl} redirects through http before reaching https`,
+        title: t("findings.mixedTitle", { url: c.startUrl }),
         severity: "medium",
         category: "redirects",
-        details:
-          "The first request travels unencrypted, so anything on the network sees the URL " +
-          "before the redirect to https happens.",
+        details: t("findings.mixedDetails"),
       });
     }
 
     if (c.finalStatus >= 400) {
       out.push({
         signature: `redirects-bulk.dead.${c.startUrl}`,
-        title: `${c.startUrl} ends at ${c.finalStatus}`,
+        title: t("findings.deadTitle", { url: c.startUrl, status: c.finalStatus }),
         severity: c.finalStatus === 404 ? "high" : "medium",
         category: "redirects",
-        details: `After ${c.hopCount} hop${c.hopCount === 1 ? "" : "s"} the final URL ${c.finalUrl} returns ${c.finalStatus}.`,
+        details: t("findings.deadDetails", {
+          hops: c.hopCount,
+          finalUrl: c.finalUrl,
+          status: c.finalStatus,
+        }),
       });
     }
   }
@@ -87,8 +92,9 @@ export async function runBulk(
   formData: FormData,
 ): Promise<BulkState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.redirects-bulk");
   const raw = String(formData.get("urls") ?? "").trim();
-  if (!raw) return { ok: false, error: "Paste at least one URL." };
+  if (!raw) return { ok: false, error: t("errPasteUrl") };
 
   const urls = Array.from(
     new Set(
@@ -99,21 +105,21 @@ export async function runBulk(
         .filter((s) => /^https?:\/\/|^[a-z0-9.-]+\.[a-z]{2,}/i.test(s)),
     ),
   ).slice(0, 100);
-  if (urls.length === 0) return { ok: false, error: "No valid URLs found." };
+  if (urls.length === 0) return { ok: false, error: t("errNoValidUrls") };
 
   try {
     const chains = await traceMany(urls);
     const clientId = clientIdFrom(formData);
     await recordToolRun({
       toolId: "redirects-bulk",
-      label: `${urls.length} URLs traced`,
+      label: t("runLabel", { count: urls.length }),
       clientId,
       input: { urlCount: urls.length, clientId },
       result: { ok: true, chains },
-      findings: chainFindings(chains),
+      findings: chainFindings(chains, t),
     });
     return { ok: true, chains };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Trace failed" };
+    return { ok: false, error: (err as Error).message ?? t("errTraceFailed") };
   }
 }

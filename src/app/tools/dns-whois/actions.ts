@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { getTranslations } from "next-intl/server";
 
 import { checkDns, type DnsCheck } from "@/lib/dns-rdap";
 import { saveToolRun } from "@/lib/tool-runs";
@@ -15,7 +16,10 @@ export async function runDns(
 ): Promise<DnsState> {
   await requireSignedIn();
   const raw = String(formData.get("host") ?? "").trim();
-  if (!raw) return { ok: false, error: "Enter a domain or URL." };
+  if (!raw) {
+    const t = await getTranslations("tools.ui.dns-whois");
+    return { ok: false, error: t("errEnterDomain") };
+  }
   const r = await checkDns(raw);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   await saveToolRun({

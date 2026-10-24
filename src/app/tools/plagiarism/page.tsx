@@ -10,11 +10,14 @@ import {
   ScanText,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { checkPlagiarism, type PlagiarismResult } from "./actions";
 
 export default function PlagiarismPage() {
+  const t = useTranslations("tools.ui.plagiarism");
+  const tCommon = useTranslations("tools.common");
   const [content, setContent] = useState("");
   const [result, setResult] = useState<PlagiarismResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -35,7 +38,7 @@ export default function PlagiarismPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -45,46 +48,45 @@ export default function PlagiarismPage() {
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
             <span className="text-gradient-brand">
-              Plagiarism + AI detector
+              {t("title")}
             </span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          AI-powered review of how AI-generated and how original your content
-          reads. For a definitive verbatim-plagiarism check against the live
-          web, use the linked external tools — they have full web indexes we
-          don&apos;t.
+          {t("intro")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <Label htmlFor="pl-content" className="text-sm">
-          Paste your draft
+          {t("pasteDraft")}
         </Label>
         <textarea
           id="pl-content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Paste the article, blog post, or product description you're about to publish…"
+          placeholder={t("placeholder")}
           rows={12}
           disabled={pending}
           className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
         <div className="mt-3 flex items-center justify-between gap-3">
           <span className="text-[11px] text-muted-foreground">
-            {content.length} chars · {content.split(/\s+/).filter(Boolean).length}{" "}
-            words
+            {t("counts", {
+              chars: content.length,
+              words: content.split(/\s+/).filter(Boolean).length,
+            })}
           </span>
           <Button onClick={run} disabled={pending || content.length < 100}>
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Analyzing…
+                {tCommon("analyzing")}
               </>
             ) : (
               <>
                 <ScanText className="size-4" />
-                Run check
+                {t("run")}
               </>
             )}
           </Button>
@@ -102,14 +104,14 @@ export default function PlagiarismPage() {
         <>
           <section className="grid gap-3 sm:grid-cols-2">
             <Score
-              label="AI likelihood"
+              label={t("aiLikelihood")}
               value={result.aiLikelihood}
               hint={
                 result.aiLikelihood >= 70
-                  ? "Reads heavily AI-generated"
+                  ? t("aiHigh")
                   : result.aiLikelihood >= 40
-                    ? "Some AI signals — could be tightened"
-                    : "Reads human-written"
+                    ? t("aiMid")
+                    : t("aiLow")
               }
               tone={
                 result.aiLikelihood >= 70
@@ -120,14 +122,14 @@ export default function PlagiarismPage() {
               }
             />
             <Score
-              label="Originality score"
+              label={t("originality")}
               value={result.originalityScore}
               hint={
                 result.originalityScore >= 70
-                  ? "Specific, opinionated, real-world"
+                  ? t("origHigh")
                   : result.originalityScore >= 40
-                    ? "Solid, but could use specifics"
-                    : "Generic — needs named examples & numbers"
+                    ? t("origMid")
+                    : t("origLow")
               }
               tone={
                 result.originalityScore >= 70
@@ -142,7 +144,7 @@ export default function PlagiarismPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Sparkles className="size-4 text-violet-300" />
-              Verdict
+              {t("verdict")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">{result.verdict}</p>
           </section>
@@ -151,11 +153,10 @@ export default function PlagiarismPage() {
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold">
-                  Phrases flagged ({result.flags.length})
+                  {t("flagsTitle", { count: result.flags.length })}
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  Common AI templates spotted in your draft. Rewrite these in
-                  your own voice.
+                  {t("flagsHint")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -176,11 +177,10 @@ export default function PlagiarismPage() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Verify against the web (external)
+                {t("verifyTitle")}
               </h2>
               <p className="text-[11px] text-muted-foreground">
-                AI-detection alone misses verbatim plagiarism. Run these for a
-                full check:
+                {t("verifyHint")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">

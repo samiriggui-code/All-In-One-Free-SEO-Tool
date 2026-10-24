@@ -12,6 +12,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   addTarget,
   deleteTarget,
@@ -30,6 +31,7 @@ type Row = {
 };
 
 export function UptimeManager({ initial }: { initial: Row[] }) {
+  const t = useTranslations("tools.ui.uptime");
   const [, startMut] = useTransition();
   const [pinging, setPinging] = useState(false);
   const [pingMsg, setPingMsg] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
     startMut(async () => {
       const r = await runPingNow();
       setPinging(false);
-      setPingMsg(`Pinged ${r.total} target${r.total === 1 ? "" : "s"} — ${r.ok} ok / ${r.failed} failed.`);
+      setPingMsg(t("pinged", { total: r.total, ok: r.ok, failed: r.failed }));
     });
   }
 
@@ -61,13 +63,13 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
           />
           <input
             name="label"
-            placeholder="Label (optional)"
+            placeholder={t("labelPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Expected status</span>
+            <span className="text-muted-foreground">{t("expectedStatus")}</span>
             <input
               type="number"
               name="expectedStatus"
@@ -76,10 +78,10 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
             />
           </label>
           <label className="md:col-span-2 space-y-1 text-xs">
-            <span className="text-muted-foreground">Expected text (optional)</span>
+            <span className="text-muted-foreground">{t("expectedText")}</span>
             <input
               name="expectedText"
-              placeholder="Cart · Login · Acme — phrase that proves the page rendered"
+              placeholder={t("expectedTextPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
@@ -90,7 +92,7 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
             className="inline-flex h-9 items-center rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
           >
             <Plus className="mr-2 size-3" />
-            Add target
+            {t("addTarget")}
           </button>
           <button
             type="button"
@@ -101,12 +103,12 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
             {pinging ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Pinging…
+                {t("pinging")}
               </>
             ) : (
               <>
                 <Zap className="mr-2 size-3" />
-                Ping all now
+                {t("pingAll")}
               </>
             )}
           </button>
@@ -116,7 +118,7 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
 
       {initial.length === 0 && (
         <p className="rounded-md bg-white/[0.02] px-3 py-2 text-sm text-muted-foreground">
-          No targets yet. Add one above.
+          {t("empty")}
         </p>
       )}
 
@@ -125,11 +127,10 @@ export function UptimeManager({ initial }: { initial: Row[] }) {
           <header className="border-b border-white/[0.06] px-5 py-3">
             <h3 className="flex items-center gap-2 text-sm font-semibold">
               <Activity className="size-4 text-emerald-300" />
-              Targets ({initial.length})
+              {t("targets", { count: initial.length })}
             </h3>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
-              7-day uptime + average latency. Hit &quot;Ping all now&quot; or wire into
-              your scheduler for continuous monitoring.
+              {t("targetsHint")}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.05]">

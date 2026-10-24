@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { History, Loader2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runSnapshot, loadSnapshots, type SnapshotState } from "./actions";
 import { diffSnapshots, type DiffLine } from "@/lib/diff-text";
 import type { RobotsSnapshot } from "@/db/schema";
@@ -11,6 +12,7 @@ export function RobotsTracker({
 }: {
   initialHosts: { hostname: string; lastFetched: Date; snapshots: number }[];
 }) {
+  const t = useTranslations("tools.ui.robots-history");
   const [state, formAction, pending] = useActionState<
     SnapshotState | null,
     FormData
@@ -58,12 +60,12 @@ export function RobotsTracker({
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Fetching…
+                {t("fetching")}
               </>
             ) : (
               <>
                 <Plus className="mr-2 size-3" />
-                Snapshot
+                {t("snapshot")}
               </>
             )}
           </button>
@@ -77,8 +79,8 @@ export function RobotsTracker({
         {state?.ok && (
           <p className={`rounded-md px-3 py-2 text-xs ring-1 ring-inset ${state.changed ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30" : "bg-white/5 text-muted-foreground ring-white/10"}`}>
             {state.changed
-              ? "Changed — new snapshot saved."
-              : "Unchanged since last snapshot."}
+              ? t("changed")
+              : t("unchanged")}
           </p>
         )}
       </form>
@@ -88,7 +90,7 @@ export function RobotsTracker({
           <header className="border-b border-white/[0.06] px-5 py-3">
             <h3 className="flex items-center gap-2 text-sm font-semibold">
               <History className="size-4 text-amber-300" />
-              Tracked hosts ({initialHosts.length})
+              {t("trackedHosts", { count: initialHosts.length })}
             </h3>
           </header>
           <ul className="divide-y divide-white/[0.05]">
@@ -105,8 +107,10 @@ export function RobotsTracker({
                   {h.hostname}
                 </button>
                 <span className="text-muted-foreground tabular-nums">
-                  {h.snapshots} snapshot{h.snapshots === 1 ? "" : "s"} · last{" "}
-                  {h.lastFetched.toLocaleDateString()}
+                  {t("hostMeta", {
+                    count: h.snapshots,
+                    date: h.lastFetched.toLocaleDateString(),
+                  })}
                 </span>
               </li>
             ))}
@@ -116,9 +120,9 @@ export function RobotsTracker({
 
       {openHost && snapshots.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-          <h3 className="text-sm font-semibold">Snapshots for {openHost}</h3>
+          <h3 className="text-sm font-semibold">{t("snapshotsFor", { host: openHost })}</h3>
           <p className="text-xs text-muted-foreground">
-            Pick two snapshots to diff.
+            {t("pickTwo")}
           </p>
           <div className="grid gap-2 md:grid-cols-2">
             <SnapshotPicker
@@ -138,7 +142,7 @@ export function RobotsTracker({
           {a && b && (
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">
-                +{added} lines / −{removed} lines
+                {t("diffStats", { added, removed })}
               </div>
               <pre className="max-h-[400px] overflow-auto rounded-md bg-black/40 p-3 font-mono text-[11px] leading-relaxed">
                 {diff.map((d, i) => (
@@ -153,7 +157,7 @@ export function RobotsTracker({
                     }
                   >
                     {d.kind === "added" ? "+ " : d.kind === "removed" ? "- " : "  "}
-                    {d.text || "(blank)"}
+                    {d.text || t("blank")}
                   </div>
                 ))}
               </pre>
@@ -176,17 +180,18 @@ function SnapshotPicker({
   picked: number | null;
   onPick: (id: number) => void;
 }) {
+  const t = useTranslations("tools.ui.robots-history");
   return (
     <div className="space-y-1">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        Snapshot {label}
+        {t("snapshotLabel", { label })}
       </div>
       <select
         value={picked ?? ""}
         onChange={(e) => onPick(Number(e.target.value))}
         className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
       >
-        <option value="">Pick…</option>
+        <option value="">{t("pick")}</option>
         {snapshots.map((s) => (
           <option key={s.id} value={s.id}>
             #{s.id} · {s.fetchedAt.toLocaleString()} · {s.status} · {s.content.length}b
