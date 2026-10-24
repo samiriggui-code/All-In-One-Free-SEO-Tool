@@ -17,7 +17,7 @@ const OPEN_READS = new Set([
   "getUiMode",
 ]);
 
-const GUARD = /^\s*(await (requireEditor|requireSettingsAdmin)\(\);|\/\/ The toggle is in the shell)/;
+const GUARD = /^\s*(await (requireEditor|requireSettingsAdmin)\(\);|if \(!\(await mayEdit\(\)\)\) return;)/;
 
 /** Index of a function's body brace: past the params and any `Promise<{ … }>` return type. */
 function bodyStart(src: string, from: number): number {
@@ -60,9 +60,13 @@ describe("settings server actions", () => {
       const unguarded: string[] = [];
       for (const m of src.matchAll(/^export async function (\w+)\(/gm)) {
         if (OPEN_READS.has(m[1])) continue;
-        // The guard must be the first statement of the body.
-        const firstLine = src.slice(bodyStart(src, m.index!) + 1).split("\n")[1];
-        if (!GUARD.test(firstLine)) unguarded.push(m[1]);
+        // The guard must be the first statement of the body (comments aside).
+        const firstLine = src
+          .slice(bodyStart(src, m.index!) + 1)
+          .split("\n")
+          .slice(1)
+          .find((line) => line.trim() && !line.trim().startsWith("//"));
+        if (!firstLine || !GUARD.test(firstLine)) unguarded.push(m[1]);
       }
       expect(unguarded).toEqual([]);
     });

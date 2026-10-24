@@ -141,11 +141,15 @@ export default async function SettingsPage() {
     .from(apiKeys)
     .orderBy(descSql(apiKeys.createdAt))
     .limit(50);
-  const inboundWebhookRows = await dbClient
-    .select()
-    .from(inboundWebhooks)
-    .orderBy(descSql(inboundWebhooks.createdAt))
-    .limit(50);
+  // Each row carries the webhook's bearer token; the manager is a client
+  // component, so only the owner gets the rows at all.
+  const inboundWebhookRows = isAdmin
+    ? await dbClient
+        .select()
+        .from(inboundWebhooks)
+        .orderBy(descSql(inboundWebhooks.createdAt))
+        .limit(50)
+    : null;
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return (
@@ -561,7 +565,13 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="relative p-5">
-          <InboundWebhooksManager initial={inboundWebhookRows} />
+          {inboundWebhookRows ? (
+            <InboundWebhooksManager initial={inboundWebhookRows} />
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Only the workspace owner can manage inbound webhooks.
+            </p>
+          )}
         </div>
       </section>
 
