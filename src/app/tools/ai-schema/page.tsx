@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { Code2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { AiSchemaForm } from "./ai-schema-form";
 
-export default function AiSchemaPage() {
+export default async function AiSchemaPage() {
+  const t = await getTranslations("tools.ui.ai-schema");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="AI schema generator (from URL)"
-        description="Paste any URL — we fetch the page, classify content type, and AI emits valid JSON-LD schema markup grounded in the actual on-page content. Won't invent fields that aren't there (Google penalises for that)."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={Code2}
         accent="cyan"
       />

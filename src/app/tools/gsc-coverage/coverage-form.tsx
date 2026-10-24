@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ListChecks, Loader2, Sparkles, Wrench } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   runCoverage,
   analyzeFixesForCoverage,
@@ -18,6 +19,7 @@ function tone(state: string | null): string {
 }
 
 export function CoverageForm({ properties }: { properties: string[] }) {
+  const t = useTranslations("tools.ui.gsc-coverage");
   const [state, formAction, pending] = useActionState<
     CoverageState | null,
     FormData
@@ -36,7 +38,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">GSC property</span>
+          <span className="text-muted-foreground">{t("propertyLabel")}</span>
           <select
             name="site"
             required
@@ -50,7 +52,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
           </select>
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">URLs (1 per line, max 60)</span>
+          <span className="text-muted-foreground">{t("urlsLabel")}</span>
           <textarea
             name="urls"
             required
@@ -68,12 +70,12 @@ export function CoverageForm({ properties }: { properties: string[] }) {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Inspecting URLs (this is rate-limited)…
+              {t("inspecting")}
             </>
           ) : (
             <>
               <ListChecks className="mr-2 size-4" />
-              Inspect
+              {t("inspect")}
             </>
           )}
         </button>
@@ -89,7 +91,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
         <>
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold">Coverage summary</h3>
+              <h3 className="text-sm font-semibold">{t("summaryTitle")}</h3>
               {/* AI-fix CTA. Posts the rows JSON to the analyzer
                   action; results render below. */}
               <form action={fixAction}>
@@ -106,12 +108,12 @@ export function CoverageForm({ properties }: { properties: string[] }) {
                   {fixPending ? (
                     <>
                       <Loader2 className="mr-1.5 size-3 animate-spin" />
-                      Analyzing fixes…
+                      {t("analyzingFixes")}
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-1.5 size-3" />
-                      AI: suggest fixes
+                      {t("suggestFixes")}
                     </>
                   )}
                 </button>
@@ -139,7 +141,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
 
           {fixState?.ok && fixState.items.length === 0 && (
             <p className="rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-              ✓ Everything you pasted is indexed cleanly. No fixes needed.
+              {t("allIndexed")}
             </p>
           )}
 
@@ -148,13 +150,10 @@ export function CoverageForm({ properties }: { properties: string[] }) {
               <header className="border-b border-white/[0.06] px-5 py-3">
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                   <Wrench className="size-3.5 text-violet-300" />
-                  AI fix plan ({fixState.items.length})
+                  {t("fixPlanTitle", { count: fixState.items.length })}
                 </h3>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Per-URL diagnosis + concrete steps. Auto-apply hooks
-                  are surfaced where the WP bridge could do the change
-                  for you — wire up Settings → WordPress per client to
-                  enable them.
+                  {t("fixPlanHelp")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -169,7 +168,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
                       {item.url}
                     </a>
                     <p className="text-sm">
-                      <span className="text-rose-300">Cause:</span>{" "}
+                      <span className="text-rose-300">{t("cause")}</span>{" "}
                       {item.cause}
                     </p>
                     {item.steps.length > 0 && (
@@ -182,7 +181,7 @@ export function CoverageForm({ properties }: { properties: string[] }) {
                     {item.autoApply && (
                       <p className="inline-flex items-center gap-1.5 rounded-md bg-cyan-500/10 px-2 py-1 text-[11px] text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
                         <Wrench className="size-3" />
-                        Auto-apply available:{" "}
+                        {t("autoApply")}{" "}
                         <code className="font-mono">{item.autoApply.kind}</code>
                       </p>
                     )}
@@ -194,17 +193,17 @@ export function CoverageForm({ properties }: { properties: string[] }) {
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
-              <h3 className="text-sm font-semibold">Per-URL inspection</h3>
+              <h3 className="text-sm font-semibold">{t("perUrlTitle")}</h3>
             </header>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-2 text-left">URL</th>
-                    <th className="px-4 py-2 text-left">Coverage</th>
-                    <th className="px-4 py-2 text-left">Verdict</th>
-                    <th className="px-4 py-2 text-left">Crawled as</th>
-                    <th className="px-4 py-2 text-left">Last crawl</th>
+                    <th className="px-4 py-2 text-left">{t("colUrl")}</th>
+                    <th className="px-4 py-2 text-left">{t("colCoverage")}</th>
+                    <th className="px-4 py-2 text-left">{t("colVerdict")}</th>
+                    <th className="px-4 py-2 text-left">{t("colCrawledAs")}</th>
+                    <th className="px-4 py-2 text-left">{t("colLastCrawl")}</th>
                   </tr>
                 </thead>
                 <tbody>

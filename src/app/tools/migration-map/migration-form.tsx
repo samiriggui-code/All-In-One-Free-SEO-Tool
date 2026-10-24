@@ -2,6 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { Check, Copy, GitMerge, Loader2, Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   runMapping,
   importToRedirectRules,
@@ -9,6 +10,7 @@ import {
 } from "./actions";
 
 export function MigrationForm() {
+  const t = useTranslations("tools.ui.migration-map");
   const [state, formAction, pending] = useActionState<
     MigrationState | null,
     FormData
@@ -27,7 +29,7 @@ export function MigrationForm() {
       document.querySelector('textarea[name="newUrls"]') as HTMLTextAreaElement
     )?.value;
     if (!oldUrls || !newUrls) {
-      setImportMsg("Fill both lists first.");
+      setImportMsg(t("fillBoth"));
       return;
     }
     const fd = new FormData();
@@ -36,7 +38,7 @@ export function MigrationForm() {
     startImport(async () => {
       const r = await importToRedirectRules(null, fd);
       if (r.ok) {
-        setImportMsg(`✓ Imported ${r.inserted} high-confidence rules into the redirect manager.`);
+        setImportMsg(t("imported", { count: r.inserted }));
       } else {
         setImportMsg(r.error);
       }
@@ -58,7 +60,7 @@ export function MigrationForm() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Old URLs (1 per line)</span>
+            <span className="text-muted-foreground">{t("oldLabel")}</span>
             <textarea
               name="oldUrls"
               required
@@ -69,7 +71,7 @@ export function MigrationForm() {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">New URLs (1 per line)</span>
+            <span className="text-muted-foreground">{t("newLabel")}</span>
             <textarea
               name="newUrls"
               required
@@ -88,12 +90,12 @@ export function MigrationForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Matching URLs…
+              {t("matching")}
             </>
           ) : (
             <>
               <GitMerge className="mr-2 size-4" />
-              Generate redirect map
+              {t("submit")}
             </>
           )}
         </button>
@@ -117,12 +119,12 @@ export function MigrationForm() {
               {importing ? (
                 <>
                   <Loader2 className="mr-2 size-3 animate-spin" />
-                  Importing…
+                  {t("importing")}
                 </>
               ) : (
                 <>
                   <Upload className="mr-2 size-3" />
-                  Import high-confidence to redirect manager
+                  {t("importButton")}
                 </>
               )}
             </button>
@@ -132,28 +134,28 @@ export function MigrationForm() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label="Old URLs" value={state.map.summary.total.toString()} />
-            <Stat label="High confidence" value={state.map.summary.matched.toString()} hint="≥85%" tone="emerald" />
-            <Stat label="Needs review" value={state.map.summary.review.toString()} hint="50-85%" tone="amber" />
+            <Stat label={t("statOld")} value={state.map.summary.total.toString()} />
+            <Stat label={t("statHigh")} value={state.map.summary.matched.toString()} hint="≥85%" tone="emerald" />
+            <Stat label={t("statReview")} value={state.map.summary.review.toString()} hint="50-85%" tone="amber" />
             <Stat
-              label="Avg confidence"
+              label={t("statAvg")}
               value={`${(state.map.summary.avgConfidence * 100).toFixed(0)}%`}
             />
           </div>
 
           <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
-            {(["table", "nginx", "apache", "nextjs"] as const).map((t) => (
+            {(["table", "nginx", "apache", "nextjs"] as const).map((key) => (
               <button
-                key={t}
+                key={key}
                 type="button"
-                onClick={() => setTab(t)}
+                onClick={() => setTab(key)}
                 className={`-mb-px border-b-2 px-3 py-2 text-xs font-medium transition-colors ${
-                  tab === t
+                  tab === key
                     ? "border-amber-400 text-amber-300"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t}
+                {key === "table" ? t("tabTable") : key}
               </button>
             ))}
           </div>
@@ -164,10 +166,10 @@ export function MigrationForm() {
                 <table className="w-full text-xs">
                   <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-2 text-left">Old URL</th>
-                      <th className="px-4 py-2 text-left">→ New URL</th>
-                      <th className="px-4 py-2 text-right">Conf.</th>
-                      <th className="px-4 py-2 text-left">Reason</th>
+                      <th className="px-4 py-2 text-left">{t("colOld")}</th>
+                      <th className="px-4 py-2 text-left">{t("colNew")}</th>
+                      <th className="px-4 py-2 text-right">{t("colConf")}</th>
+                      <th className="px-4 py-2 text-left">{t("colReason")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -175,7 +177,7 @@ export function MigrationForm() {
                       <tr key={i} className="border-t border-white/[0.04]">
                         <td className="px-4 py-1.5 font-mono">{r.oldUrl}</td>
                         <td className="px-4 py-1.5 font-mono">
-                          {r.newUrl ?? <span className="text-rose-300">— (review)</span>}
+                          {r.newUrl ?? <span className="text-rose-300">{t("review")}</span>}
                         </td>
                         <td className={`px-4 py-1.5 text-right tabular-nums ${
                           r.confidence >= 0.85
@@ -198,7 +200,7 @@ export function MigrationForm() {
           {tab === "nginx" && (
             <CopyBlock
               label="nginx"
-              code={state.output.nginx || "(no rows)"}
+              code={state.output.nginx || t("noRows")}
               copied={copied === "nginx"}
               onCopy={() => copy("nginx", state.output.nginx)}
             />
@@ -206,7 +208,7 @@ export function MigrationForm() {
           {tab === "apache" && (
             <CopyBlock
               label="apache"
-              code={state.output.apache || "(no rows)"}
+              code={state.output.apache || t("noRows")}
               copied={copied === "apache"}
               onCopy={() => copy("apache", state.output.apache)}
             />
@@ -214,7 +216,7 @@ export function MigrationForm() {
           {tab === "nextjs" && (
             <CopyBlock
               label="nextjs"
-              code={state.output.nextjs || "(no rows)"}
+              code={state.output.nextjs || t("noRows")}
               copied={copied === "nextjs"}
               onCopy={() => copy("nextjs", state.output.nextjs)}
             />
@@ -261,6 +263,7 @@ function CopyBlock({
   copied: boolean;
   onCopy: () => void;
 }) {
+  const tCommon = useTranslations("tools.common");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
@@ -273,12 +276,12 @@ function CopyBlock({
           {copied ? (
             <>
               <Check className="mr-1 size-3 text-emerald-300" />
-              Copied
+              {tCommon("copied")}
             </>
           ) : (
             <>
               <Copy className="mr-1 size-3" />
-              Copy
+              {tCommon("copy")}
             </>
           )}
         </button>

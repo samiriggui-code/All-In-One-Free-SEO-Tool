@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -28,8 +29,10 @@ export async function runSocial(
 ): Promise<SocialState> {
   await requireSignedIn();
   const parsed = schema.safeParse({ url: formData.get("url") });
-  if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid URL" };
+  if (!parsed.success) {
+    const t = await getTranslations("tools.ui.social-preview");
+    return { ok: false, error: t("errInvalidUrl") };
+  }
   const r = await extractSocialPreviews(parsed.data.url);
   if (!r.ok && r.error) return { ok: false, error: r.error };
   await saveToolRun({

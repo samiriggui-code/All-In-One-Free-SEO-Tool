@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -23,12 +24,13 @@ export async function estimateVolumes(
   formData: FormData,
 ): Promise<EstimateState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.search-volume");
   const parsed = inputSchema.safeParse({
     queries: formData.get("queries"),
     country: formData.get("country") || "US",
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: t("errInvalidInput") };
   }
   const queries = parsed.data.queries
     .split(/\r?\n|,/)
@@ -36,7 +38,7 @@ export async function estimateVolumes(
     .filter((q) => q.length > 1 && q.length < 200)
     .slice(0, 30);
   if (queries.length === 0) {
-    return { ok: false, error: "No queries to estimate." };
+    return { ok: false, error: t("errNoQueries") };
   }
 
   const estimates = await estimateBulk({
@@ -45,7 +47,10 @@ export async function estimateVolumes(
   });
   await saveToolRun({
     toolId: "search-volume",
-    label: `${queries.length} queries · ${parsed.data.country}`,
+    label: t("runLabel", {
+      count: queries.length,
+      country: parsed.data.country,
+    }),
     input: { country: parsed.data.country, count: queries.length },
     result: { ok: true, estimates },
   }).catch(() => undefined);

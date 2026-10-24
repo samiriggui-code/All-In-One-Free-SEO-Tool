@@ -2,9 +2,11 @@
 
 import { useActionState } from "react";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runBulkAlt, type AltState } from "./actions";
 
 export function BulkAltForm() {
+  const t = useTranslations("tools.ui.bulk-alt");
   const [state, formAction, pending] = useActionState<AltState | null, FormData>(
     runBulkAlt,
     null,
@@ -31,12 +33,12 @@ export function BulkAltForm() {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Generating…
+                {t("generating")}
               </>
             ) : (
               <>
                 <ImageIcon className="mr-2 size-3" />
-                Generate
+                {t("submit")}
               </>
             )}
           </button>
@@ -53,11 +55,10 @@ export function BulkAltForm() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
             <h3 className="text-sm font-semibold">
-              {state.suggestions.length} alt-text suggestion
-              {state.suggestions.length === 1 ? "" : "s"}
+              {t("suggestionsTitle", { count: state.suggestions.length })}
             </h3>
             <p className="mt-0.5 text-[10px] text-muted-foreground">
-              Page context: {state.pageContext.slice(0, 120)}…
+              {t("pageContext", { context: state.pageContext.slice(0, 120) })}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.05]">
@@ -75,7 +76,7 @@ export function BulkAltForm() {
                   </code>
                   <p className="font-medium">{s.alt}</p>
                   <p className="text-[10px] text-muted-foreground">
-                    {s.alt.length} chars
+                    {t("chars", { count: s.alt.length })}
                   </p>
                 </div>
               </li>

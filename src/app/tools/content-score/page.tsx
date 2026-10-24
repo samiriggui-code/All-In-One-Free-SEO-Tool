@@ -16,6 +16,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,8 @@ import {
 } from "./actions";
 
 export default function ContentScorePage() {
+  const t = useTranslations("tools.ui.content-score");
+  const tCommon = useTranslations("tools.common");
   const [content, setContent] = useState("");
   const [keyword, setKeyword] = useState("");
   const [pending, startTransition] = useTransition();
@@ -62,7 +65,7 @@ export default function ContentScorePage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <header className="space-y-2">
@@ -71,36 +74,31 @@ export default function ContentScorePage() {
             <Gauge className="size-5 text-emerald-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Content scorer</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Paste a draft (or live page text) + your target keyword. AI scores
-          it on readability, density, structure, and E-E-A-T signals — then
-          surfaces specific changes + LSI terms to add.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="space-y-1.5">
-          <Label htmlFor="cs-keyword">Target keyword</Label>
+          <Label htmlFor="cs-keyword">{t("keywordLabel")}</Label>
           <Input
             id="cs-keyword"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="best espresso machines under 500"
+            placeholder={t("keywordPlaceholder")}
           />
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="cs-content">Content</Label>
+            <Label htmlFor="cs-content">{t("contentLabel")}</Label>
             <span className="text-[11px] tabular-nums text-muted-foreground">
-              {
-                content
-                  .split(/\s+/)
-                  .filter(Boolean).length
-              }{" "}
-              words
+              {t("wordCount", {
+                count: content.split(/\s+/).filter(Boolean).length,
+              })}
             </span>
           </div>
           <textarea
@@ -108,7 +106,7 @@ export default function ContentScorePage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={14}
-            placeholder="Paste the draft here. Plain text or HTML — we strip tags."
+            placeholder={t("contentPlaceholder")}
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] leading-relaxed shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
@@ -120,12 +118,12 @@ export default function ContentScorePage() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Scoring…
+                {t("scoring")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Score content
+                {t("submit")}
               </>
             )}
           </Button>
@@ -146,7 +144,7 @@ export default function ContentScorePage() {
               <ScoreBubble score={result.score} />
               <div className="space-y-1">
                 <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Verdict
+                  {t("verdict")}
                 </div>
                 <p className="text-sm text-foreground/95">{result.verdict}</p>
               </div>
@@ -159,17 +157,17 @@ export default function ContentScorePage() {
                 {savePending ? (
                   <>
                     <Loader2 className="size-3.5 animate-spin" />
-                    Saving…
+                    {t("saving")}
                   </>
                 ) : saved ? (
                   <>
                     <CheckCircle2 className="size-3.5 text-emerald-300" />
-                    Saved
+                    {tCommon("saved")}
                   </>
                 ) : (
                   <>
                     <Save className="size-3.5" />
-                    Save snapshot
+                    {t("saveSnapshot")}
                   </>
                 )}
               </Button>
@@ -180,13 +178,13 @@ export default function ContentScorePage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <List
-              title="Strengths"
+              title={t("strengths")}
               icon={TrendingUp}
               tone="emerald"
               items={result.strengths}
             />
             <List
-              title="Weaknesses"
+              title={t("weaknesses")}
               icon={TrendingDown}
               tone="rose"
               items={result.weaknesses}
@@ -198,11 +196,10 @@ export default function ContentScorePage() {
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <Sparkles className="size-4 text-violet-300" />
-                  Suggested terms to weave in
+                  {t("termsTitle")}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Semantically-related terms top-ranking pages include for
-                  this keyword. Add naturally — don&apos;t stuff.
+                  {t("termsHelp")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -215,7 +212,7 @@ export default function ContentScorePage() {
 
           {result.aiInsights.length > 0 && (
             <List
-              title="E-E-A-T + topical insights"
+              title={t("insightsTitle")}
               icon={Eye}
               tone="violet"
               items={result.aiInsights}
@@ -228,51 +225,52 @@ export default function ContentScorePage() {
 }
 
 function StatsBlock({ stats }: { stats: ContentStats }) {
+  const t = useTranslations("tools.ui.content-score");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-3">
-        <h2 className="text-base font-semibold">Stats</h2>
+        <h2 className="text-base font-semibold">{t("stats")}</h2>
       </header>
       <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Word count" value={stats.wordCount} />
+        <Stat label={t("statWordCount")} value={stats.wordCount} />
         <Stat
-          label="Reading time"
-          value={`${stats.readingTimeMin} min`}
+          label={t("statReadingTime")}
+          value={t("minutes", { count: stats.readingTimeMin })}
         />
         <Stat
-          label="Reading ease"
+          label={t("statReadingEase")}
           value={`${stats.fleschScore.toFixed(0)}`}
           hint={stats.fleschGrade}
         />
         <Stat
-          label="Avg words/sentence"
+          label={t("statAvgWords")}
           value={stats.averageWordsPerSentence.toFixed(1)}
           hint={
             stats.averageWordsPerSentence > 22
-              ? "long — aim ≤20"
+              ? t("hintLong")
               : stats.averageWordsPerSentence < 12
-                ? "choppy"
-                : "good"
+                ? t("hintChoppy")
+                : t("hintGood")
           }
         />
         <Stat
-          label="Keyword count"
+          label={t("statKeywordCount")}
           value={stats.primaryCount}
-          hint={`${stats.primaryDensityPct.toFixed(2)}% density`}
+          hint={t("hintDensity", { pct: stats.primaryDensityPct.toFixed(2) })}
         />
         <Stat
-          label="Short sentences"
+          label={t("statShortSentences")}
           value={`${stats.shortSentencePct.toFixed(0)}%`}
           hint={
-            stats.shortSentencePct < 20 ? "low — vary rhythm" : "good rhythm"
+            stats.shortSentencePct < 20 ? t("hintLowRhythm") : t("hintGoodRhythm")
           }
         />
         <Stat
-          label="Passive voice"
+          label={t("statPassive")}
           value={`${stats.passiveVoicePct.toFixed(0)}%`}
-          hint={stats.passiveVoicePct > 25 ? "high — rewrite to active" : "ok"}
+          hint={stats.passiveVoicePct > 25 ? t("hintPassiveHigh") : t("hintOk")}
         />
-        <Stat label="Sentences" value={stats.sentenceCount} />
+        <Stat label={t("statSentences")} value={stats.sentenceCount} />
       </div>
     </section>
   );
@@ -338,6 +336,7 @@ function List({
 }
 
 function TermRow({ term, rationale }: { term: string; rationale: string }) {
+  const t = useTranslations("tools.ui.content-score");
   const [copied, setCopied] = useState(false);
   function copy() {
     navigator.clipboard.writeText(term).then(() => {
@@ -351,7 +350,7 @@ function TermRow({ term, rationale }: { term: string; rationale: string }) {
         type="button"
         onClick={copy}
         className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-violet-500/15 hover:text-violet-300"
-        title="Copy term"
+        title={t("copyTerm")}
       >
         {copied ? (
           <CheckCircle2 className="size-3.5 text-emerald-300" />
@@ -368,6 +367,7 @@ function TermRow({ term, rationale }: { term: string; rationale: string }) {
 }
 
 function ScoreBubble({ score }: { score: number }) {
+  const t = useTranslations("tools.ui.content-score");
   const tone =
     score >= 80
       ? "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30"
@@ -380,7 +380,7 @@ function ScoreBubble({ score }: { score: number }) {
     >
       <div className="text-3xl font-bold tabular-nums">{score}</div>
       <div className="text-[10px] uppercase tracking-wider opacity-80">
-        Content
+        {t("scoreLabel")}
       </div>
     </div>
   );

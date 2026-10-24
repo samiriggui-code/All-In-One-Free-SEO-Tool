@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import {
@@ -18,14 +19,15 @@ export async function runBulkAlt(
   formData: FormData,
 ): Promise<AltState> {
   await requireSignedIn();
+  const t = await getTranslations("tools.ui.bulk-alt");
   const url = String(formData.get("url") ?? "").trim();
-  if (!url) return { ok: false, error: "URL required." };
+  if (!url) return { ok: false, error: t("errUrlRequired") };
   const fullUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
   const fetched = await fetchImagesFromUrl(fullUrl);
-  if (!fetched) return { ok: false, error: "Couldn't fetch the page." };
+  if (!fetched) return { ok: false, error: t("errFetch") };
   if (fetched.images.length === 0)
-    return { ok: false, error: "No images on this page." };
+    return { ok: false, error: t("errNoImages") };
 
   const r = await generateBulkAlt({
     pageContext: fetched.pageContext,

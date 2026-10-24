@@ -2,8 +2,8 @@
 
 import { useActionState } from "react";
 import { Loader2, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { estimateVolumes, type EstimateState } from "./actions";
-import { bucketLabel } from "@/lib/search-volume";
 
 const BUCKET_TONE: Record<string, string> = {
   very_high: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
@@ -14,6 +14,7 @@ const BUCKET_TONE: Record<string, string> = {
 };
 
 export function VolumeForm() {
+  const t = useTranslations("tools.ui.search-volume");
   const [state, formAction, pending] = useActionState<
     EstimateState | null,
     FormData
@@ -27,19 +28,17 @@ export function VolumeForm() {
       >
         <div className="grid gap-3 md:grid-cols-[1fr_120px]">
           <label className="space-y-1 text-xs md:col-span-1">
-            <span className="text-muted-foreground">
-              Keywords (one per line, max 30)
-            </span>
+            <span className="text-muted-foreground">{t("keywordsLabel")}</span>
             <textarea
               name="queries"
               required
               rows={8}
-              placeholder={"vegan cookbooks\nbest meal planner\nbudget recipes for beginners"}
+              placeholder={t("keywordsPlaceholder")}
               className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs md:self-start">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{t("countryLabel")}</span>
             <input
               name="country"
               defaultValue="US"
@@ -56,12 +55,12 @@ export function VolumeForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Probing signals…
+              {t("probing")}
             </>
           ) : (
             <>
               <TrendingUp className="mr-2 size-4" />
-              Estimate
+              {t("submit")}
             </>
           )}
         </button>
@@ -77,23 +76,26 @@ export function VolumeForm() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              Estimates ({state.estimates.length})
+              {t("estimatesTitle", { count: state.estimates.length })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Bucket = relative monthly volume. Confidence reflects how many
-              of the four signal sources we got data from.
+              {t("estimatesHelp")}
             </p>
           </header>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="px-5 py-3 text-left font-medium">Keyword</th>
-                  <th className="px-3 py-3 text-right font-medium">Bucket</th>
-                  <th className="px-3 py-3 text-right font-medium">Trends</th>
-                  <th className="px-3 py-3 text-right font-medium">G AC</th>
-                  <th className="px-3 py-3 text-right font-medium">B AC</th>
-                  <th className="px-3 py-3 text-right font-medium">Conf.</th>
+                  <th className="px-5 py-3 text-left font-medium">{t("colKeyword")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colBucket")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colTrends")}</th>
+                  <th className="px-3 py-3 text-right font-medium" title={t("googleAcTitle")}>
+                    {t("colGoogleAc")}
+                  </th>
+                  <th className="px-3 py-3 text-right font-medium" title={t("bingAcTitle")}>
+                    {t("colBingAc")}
+                  </th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colConf")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -111,7 +113,7 @@ export function VolumeForm() {
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ring-1 ring-inset ${BUCKET_TONE[e.bucket]}`}
                       >
-                        {bucketLabel(e.bucket)}
+                        {t(`buckets.${e.bucket}`)}
                       </span>
                     </td>
                     <td className="px-3 py-2.5 text-right tabular-nums text-muted-foreground">

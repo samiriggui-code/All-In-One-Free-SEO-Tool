@@ -9,6 +9,7 @@ import {
   ScanText,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
 import { parseScreenshot } from "./actions";
@@ -17,40 +18,19 @@ import { RecentRuns } from "@/components/recent-runs";
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
+// Label + hint for each live under tools.ui.screenshot-import.types.{id}.
 const PARSE_TYPES = [
-  {
-    id: "rank_table",
-    label: "Rank tracker / SERP table",
-    hint: "Keyword, position, volume, change",
-  },
-  {
-    id: "audit_issues",
-    label: "Audit issues list",
-    hint: "From Ahrefs / Semrush / Screaming Frog",
-  },
-  {
-    id: "backlink_table",
-    label: "Backlink list",
-    hint: "Source domain, anchor, target",
-  },
-  {
-    id: "metric_panel",
-    label: "Metric / KPI panel",
-    hint: "Traffic, conversions, MRR — with current/previous values",
-  },
-  {
-    id: "content_brief",
-    label: "Content brief / outline",
-    hint: "Headings + supporting points",
-  },
-  {
-    id: "general",
-    label: "General — extract any structured table",
-    hint: "Best-effort fallback",
-  },
-];
+  "rank_table",
+  "audit_issues",
+  "backlink_table",
+  "metric_panel",
+  "content_brief",
+  "general",
+] as const;
 
 export default function ScreenshotImportPage() {
+  const t = useTranslations("tools.ui.screenshot-import");
+  const tCommon = useTranslations("tools.common");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [parseType, setParseType] = useState("metric_panel");
   const [pending, startTransition] = useTransition();
@@ -63,11 +43,11 @@ export default function ScreenshotImportPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(file.type)) {
-      setError("Image must be PNG / JPEG / GIF / WebP.");
+      setError(t("errImageType"));
       return;
     }
     if (file.size > MAX_BYTES) {
-      setError("Image too large (>4MB).");
+      setError(t("errTooLarge"));
       return;
     }
     const reader = new FileReader();
@@ -85,7 +65,7 @@ export default function ScreenshotImportPage() {
 
   function run() {
     if (!imageDataUrl) {
-      setError("Pick a screenshot first.");
+      setError(t("errPickFirst"));
       return;
     }
     setError(null);
@@ -104,31 +84,33 @@ export default function ScreenshotImportPage() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All tools
+        {tCommon("allTools")}
       </Link>
 
       <PageHeader
-        title="Screenshot import — parse paid-tool data"
-        description="Drag a screenshot from Ahrefs, Semrush, GSC, GA4, or any internal dashboard. AI vision extracts the structured data so you can copy it into the tool and stop paying for tools you only use occasionally."
+        title={t("pageTitle")}
+        description={t("pageDescription")}
         icon={ScanText}
         accent="violet"
       />
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-5">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {PARSE_TYPES.map((t) => (
+          {PARSE_TYPES.map((id) => (
             <button
-              key={t.id}
+              key={id}
               type="button"
-              onClick={() => setParseType(t.id)}
+              onClick={() => setParseType(id)}
               className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                parseType === t.id
+                parseType === id
                   ? "border-violet-500/40 bg-violet-500/10"
                   : "border-white/10 bg-white/5 hover:bg-white/10"
               }`}
             >
-              <div className="text-sm font-medium">{t.label}</div>
-              <div className="text-[11px] text-muted-foreground">{t.hint}</div>
+              <div className="text-sm font-medium">{t(`types.${id}.label`)}</div>
+              <div className="text-[11px] text-muted-foreground">
+                {t(`types.${id}.hint`)}
+              </div>
             </button>
           ))}
         </div>
@@ -147,21 +129,21 @@ export default function ScreenshotImportPage() {
             className="inline-flex h-9 cursor-pointer items-center gap-1 rounded-md bg-white/5 px-3 text-xs text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
           >
             <ImagePlus className="size-3.5" />
-            Pick screenshot
+            {t("pickScreenshot")}
           </label>
           {imageDataUrl && (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageDataUrl}
-                alt="upload"
+                alt={t("uploadAlt")}
                 className="h-12 rounded ring-1 ring-inset ring-white/10"
               />
               <button
                 type="button"
                 onClick={clear}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
-                aria-label="Remove image"
+                aria-label={t("removeImage")}
               >
                 <X className="size-3" />
               </button>
@@ -176,12 +158,12 @@ export default function ScreenshotImportPage() {
             {pending ? (
               <>
                 <Loader2 className="mr-1 size-3 animate-spin" />
-                Extracting…
+                {t("extracting")}
               </>
             ) : (
               <>
                 <ScanText className="mr-1 size-3" />
-                Extract data
+                {t("extract")}
               </>
             )}
           </button>
@@ -196,13 +178,13 @@ export default function ScreenshotImportPage() {
       {parsed && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Extracted data</h2>
+            <h2 className="text-base font-semibold">{t("extractedTitle")}</h2>
             <button
               type="button"
               onClick={() => navigator.clipboard.writeText(parsed)}
               className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-3 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
             >
-              Copy
+              {tCommon("copy")}
             </button>
           </header>
           <pre className="overflow-x-auto whitespace-pre-wrap p-5 font-mono text-[12px] leading-relaxed">

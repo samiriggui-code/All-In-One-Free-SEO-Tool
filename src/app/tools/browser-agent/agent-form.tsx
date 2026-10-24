@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Bot, Loader2, MoveRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runAgent, type AgentState } from "./actions";
 
 const ACTION_TONE: Record<string, string> = {
@@ -14,6 +15,7 @@ const ACTION_TONE: Record<string, string> = {
 };
 
 export function AgentForm() {
+  const t = useTranslations("tools.ui.browser-agent");
   const [state, formAction, pending] = useActionState<
     AgentState | null,
     FormData
@@ -26,7 +28,7 @@ export function AgentForm() {
         className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3"
       >
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Start URL</span>
+          <span className="text-muted-foreground">{t("startUrlLabel")}</span>
           <input
             name="startUrl"
             required
@@ -35,17 +37,17 @@ export function AgentForm() {
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Goal (plain English)</span>
+          <span className="text-muted-foreground">{t("goalLabel")}</span>
           <textarea
             name="goal"
             required
             rows={3}
-            placeholder="Find the pricing page and extract every plan name + monthly price"
+            placeholder={t("goalPlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Max steps</span>
+          <span className="text-muted-foreground">{t("maxStepsLabel")}</span>
           <input
             name="maxSteps"
             type="number"
@@ -63,19 +65,17 @@ export function AgentForm() {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Driving Chrome…
+              {t("running")}
             </>
           ) : (
             <>
               <Bot className="mr-2 size-4" />
-              Run agent
+              {t("submit")}
             </>
           )}
         </button>
         <p className="text-[10px] text-muted-foreground">
-          The agent runs entirely in your local headless Chrome via the browser
-          pool — no third-party automation API. Each step is logged with a
-          screenshot for review.
+          {t("help")}
         </p>
       </form>
 
@@ -91,11 +91,11 @@ export function AgentForm() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-semibold">
                 {state.result.finished
-                  ? "✓ Goal completed"
-                  : `Stopped after ${state.result.steps.length} step${state.result.steps.length === 1 ? "" : "s"}`}
+                  ? t("goalCompleted")
+                  : t("stoppedAfter", { count: state.result.steps.length })}
               </h2>
               <span className="text-xs text-muted-foreground">
-                Final URL:{" "}
+                {t("finalUrl")}{" "}
                 <code className="rounded bg-white/5 px-1.5 py-0.5">
                   {state.result.finalUrl?.replace(/^https?:\/\//, "") ?? "—"}
                 </code>
@@ -108,7 +108,7 @@ export function AgentForm() {
 
           {state.result.extracted.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-              <h3 className="text-sm font-semibold">Extracted data</h3>
+              <h3 className="text-sm font-semibold">{t("extractedTitle")}</h3>
               {state.result.extracted.map((e, i) => (
                 <div key={i}>
                   <p className="text-xs text-muted-foreground">{e.description}</p>
@@ -123,7 +123,7 @@ export function AgentForm() {
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-3">
               <h3 className="text-sm font-semibold">
-                Step log ({state.result.steps.length})
+                {t("stepLogTitle", { count: state.result.steps.length })}
               </h3>
             </header>
             <ul className="divide-y divide-white/[0.05]">
@@ -148,7 +148,7 @@ export function AgentForm() {
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={s.screenshot}
-                      alt={`step ${s.index}`}
+                      alt={t("stepAlt", { index: s.index })}
                       className="mt-2 max-h-[300px] rounded-md ring-1 ring-inset ring-white/5"
                     />
                   )}
