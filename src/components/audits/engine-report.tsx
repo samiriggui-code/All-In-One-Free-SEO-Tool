@@ -335,7 +335,7 @@ function ReportHero({
     <section className="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-slate-950 text-white shadow-2xl shadow-black/40">
       {banner ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={banner} alt="" className="absolute inset-0 -z-10 size-full object-cover object-center" />
+        <img src={banner} alt="" referrerPolicy="no-referrer" className="absolute inset-0 -z-10 size-full object-cover object-center" />
       ) : (
         <div
           className="absolute inset-0 -z-10 bg-gradient-to-br from-cyan-600/50 via-violet-700/40 to-fuchsia-700/40"
@@ -612,7 +612,7 @@ function Snapshot({ report, multiPage, t }: { report: EngineReport; multiPage: b
             <div className="overflow-hidden rounded-xl border border-white/10 bg-black/20">
               {ogImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={ogImage} alt="" loading="lazy" className="aspect-[1.91/1] w-full bg-black/30 object-cover" />
+                <img src={ogImage} alt="" referrerPolicy="no-referrer" loading="lazy" className="aspect-[1.91/1] w-full bg-black/30 object-cover" />
               ) : null}
               <div className="space-y-0.5 p-3">
                 <div className="text-[11px] uppercase text-muted-foreground">{page.og.siteName ?? hostOf(base)}</div>

@@ -773,15 +773,7 @@ export default async function AuditDetailPage({
                           })}{" "}
                       · {client.name}
                       {" · "}
-                      {audit.kind === "seomator"
-                        ? t("seomatorKind")
-                        : audit.kind === "ai_full"
-                          ? t("aiKind")
-                          : audit.mode === "full"
-                            ? t("fullKind")
-                            : audit.mode === "quick"
-                              ? t("quickKind")
-                              : t("crawlerKind")}
+                      {kindLabel}
                     </p>
                   </div>
                 </div>
@@ -818,37 +810,35 @@ export default async function AuditDetailPage({
                 </div>
               </div>
 
-              {!report ? (
-                <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
-                  <div className="origin-center scale-90 sm:scale-100">
-                    <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      Health score
-                    </div>
-                    <div className="text-sm font-medium">
-                      {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
-                      {pagesCrawled !== null
-                        ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
-                        : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {audit.status === "completed"
-                        ? verdict
-                          ? `${verdict.grade} · ${verdict.label}`
-                          : "Out of 100"
-                        : audit.status}
-                    </div>
-                    {/* The number most likely to end up in front of a client,
-                        and the one whose basis is least obvious. It describes
-                        what our crawler saw on the pages it reached — not
-                        what Google has indexed, and not every page on the
-                        site. */}
-                    {sourceBadge}
-                  </div>
+              <div className="relative flex w-full flex-col items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 backdrop-blur sm:flex-row sm:gap-5 sm:p-5 md:w-auto">
+                <div className="origin-center scale-90 sm:scale-100">
+                  <ScoreGauge score={audit.score ?? null} size={140} label={t("healthScore")} />
                 </div>
-              ) : null}
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Health score
+                  </div>
+                  <div className="text-sm font-medium">
+                    {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
+                    {pagesCrawled !== null
+                      ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
+                      : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {audit.status === "completed"
+                      ? verdict
+                        ? `${verdict.grade} · ${verdict.label}`
+                        : "Out of 100"
+                      : audit.status}
+                  </div>
+                  {/* The number most likely to end up in front of a client,
+                      and the one whose basis is least obvious. It describes
+                      what our crawler saw on the pages it reached — not
+                      what Google has indexed, and not every page on the
+                      site. */}
+                  {sourceBadge}
+                </div>
+              </div>
             </div>
           </section>
         </>

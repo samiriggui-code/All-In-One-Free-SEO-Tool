@@ -623,10 +623,8 @@ export default async function SettingsPage() {
             {connectionMode === "mcp" ? (
               <details className="group rounded-xl border border-white/10 bg-white/[0.02]">
                 <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium marker:content-none">
-                  Also add an API key
-                  <span className="ml-2 text-xs font-normal text-muted-foreground">
-                    optional — only needed for work that runs while you&apos;re away
-                  </span>
+                  {t("alsoAddApiKey")}
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">{t("alsoAddApiKeyHint")}</span>
                 </summary>
                 <div className="space-y-5 border-t border-white/5 p-4">
                   <ActiveProviderCard

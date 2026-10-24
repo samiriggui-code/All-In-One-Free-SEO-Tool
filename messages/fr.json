@@ -195,7 +195,9 @@
     "ownerOnlyBrowser": "Seul le propriétaire de l’espace peut modifier le pool de navigateurs.",
     "ownerOnlyApiKeys": "Seul le propriétaire de l’espace peut gérer les clés d’API publiques.",
     "ownerOnlyInboundWebhooks": "Seul le propriétaire de l’espace peut gérer les webhooks entrants.",
-    "ownerOnlyAi": "Seul le propriétaire de l’espace peut changer la connexion IA, le fournisseur et les clés."
+    "ownerOnlyAi": "Seul le propriétaire de l’espace peut changer la connexion IA, le fournisseur et les clés.",
+    "alsoAddApiKey": "Ajouter aussi une clé d’API",
+    "alsoAddApiKeyHint": "facultatif : seulement pour les tâches qui tournent en votre absence"
   },
   "reports": {
     "title": "Rapports",

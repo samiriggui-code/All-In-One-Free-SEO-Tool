@@ -55,7 +55,9 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": "private, max-age=86400",
+      // Access is checked per request, so no cache may replay the image
+      // to a user who has since lost access to the client.
+      "Cache-Control": "no-store",
     },
   });
 }

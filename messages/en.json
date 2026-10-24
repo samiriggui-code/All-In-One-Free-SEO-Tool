@@ -195,7 +195,9 @@
     "ownerOnlyBrowser": "Only the workspace owner can change the browser pool.",
     "ownerOnlyApiKeys": "Only the workspace owner can manage public API keys.",
     "ownerOnlyInboundWebhooks": "Only the workspace owner can manage inbound webhooks.",
-    "ownerOnlyAi": "Only the workspace owner can change the AI connection, provider and keys."
+    "ownerOnlyAi": "Only the workspace owner can change the AI connection, provider and keys.",
+    "alsoAddApiKey": "Also add an API key",
+    "alsoAddApiKeyHint": "optional — only needed for work that runs while you’re away"
   },
   "reports": {
     "title": "Reports",

@@ -15,6 +15,11 @@ export function SiteLogo({ src }: { src: string }) {
     <img
       src={src}
       alt=""
+      referrerPolicy="no-referrer"
+      // An image that failed before hydration never fires onError.
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth === 0) setFailed(true);
+      }}
       onError={() => setFailed(true)}
       className="absolute inset-0 size-full bg-white object-contain p-2"
     />

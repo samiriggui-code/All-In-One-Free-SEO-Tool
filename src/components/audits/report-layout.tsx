@@ -64,9 +64,10 @@ export function ReportLayout({
 
   useEffect(() => {
     // Keep the picked tab in view in the phone tab bar.
-    document
-      .querySelector(`[data-tab="${CSS.escape(active)}"]`)
-      ?.scrollIntoView({ block: "nearest", inline: "center" });
+    // Only the bar scrolls: scrollIntoView would also move the page.
+    const tab = document.querySelector<HTMLElement>(`[data-tab="${CSS.escape(active)}"]`);
+    const bar = tab?.closest("nav");
+    if (tab && bar) bar.scrollTo({ left: tab.offsetLeft - (bar.clientWidth - tab.offsetWidth) / 2 });
     if (!hash) return;
     if (ids.includes(hash)) {
       // A new section starts at its top, but don't jump when that is in view.
@@ -130,7 +131,7 @@ function TabLink({ item, active }: { item: ReportNavItem; active: boolean }) {
   return (
     <a
       href={`#${item.id}`}
-      aria-current={active ? "page" : undefined}
+      aria-current={active ? "location" : undefined}
       className={cn(
         "flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         active
@@ -168,7 +169,7 @@ function NavLink({ item, active }: { item: ReportNavItem; active: boolean }) {
   return (
     <a
       href={`#${item.id}`}
-      aria-current={active ? "page" : undefined}
+      aria-current={active ? "location" : undefined}
       className={cn(
         "relative flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors",
         active
