@@ -33,7 +33,8 @@ export async function GET(
   try {
     await requireClientAccess(row.clientId);
   } catch (err) {
-    if (err instanceof AccessDeniedError) return new NextResponse("Forbidden", { status: 403 });
+    // Same answer as a missing preview, so it doesn't reveal which audits have one.
+    if (err instanceof AccessDeniedError) return new NextResponse("Not found", { status: 404 });
     throw err;
   }
 

@@ -816,19 +816,18 @@ export default async function AuditDetailPage({
                 </div>
                 <div className="space-y-1.5">
                   <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Health score
+                    {t("healthScore")}
                   </div>
                   <div className="text-sm font-medium">
-                    {audit.issuesCount} issue{audit.issuesCount === 1 ? "" : "s"}
                     {pagesCrawled !== null
-                      ? ` across ${pagesCrawled} page${pagesCrawled === 1 ? "" : "s"} crawled`
-                      : ` on ${pagesWithIssues} page${pagesWithIssues === 1 ? "" : "s"}`}
+                      ? t("issuesAcrossPages", { issues: audit.issuesCount, pages: pagesCrawled })
+                      : t("issuesOnPages", { issues: audit.issuesCount, pages: pagesWithIssues })}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {audit.status === "completed"
                       ? verdict
                         ? `${verdict.grade} · ${verdict.label}`
-                        : "Out of 100"
+                        : t("outOf100")
                       : audit.status}
                   </div>
                   {/* The number most likely to end up in front of a client,
