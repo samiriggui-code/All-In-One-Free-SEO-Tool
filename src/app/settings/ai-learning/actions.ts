@@ -1,5 +1,6 @@
 "use server";
 
+import { assertOwner } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -11,6 +12,7 @@ export async function runDistill(): Promise<{
   ruleCount: number;
   error?: string;
 }> {
+  await assertOwner();
   try {
     const r = await distillPreferences();
     revalidatePath("/settings/ai-learning");
@@ -21,6 +23,7 @@ export async function runDistill(): Promise<{
 }
 
 export async function togglePreference(id: number): Promise<void> {
+  await assertOwner();
   if (!Number.isFinite(id) || id <= 0) return;
   const [row] = await db
     .select({ active: aiPreferences.active })
@@ -36,6 +39,7 @@ export async function togglePreference(id: number): Promise<void> {
 }
 
 export async function deletePreference(id: number): Promise<void> {
+  await assertOwner();
   if (!Number.isFinite(id) || id <= 0) return;
   await db.delete(aiPreferences).where(eq(aiPreferences.id, id));
   revalidatePath("/settings/ai-learning");

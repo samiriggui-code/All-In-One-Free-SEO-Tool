@@ -1,5 +1,6 @@
 "use server";
 
+import { assertOwner } from "@/lib/auth";
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -14,6 +15,7 @@ export async function createInboundWebhook(
   _prev: CreateInboundState | null,
   formData: FormData,
 ): Promise<CreateInboundState> {
+  await assertOwner();
   const name = String(formData.get("name") ?? "").trim();
   const eventType = String(formData.get("eventType") ?? "generic").trim();
   if (name.length < 2 || name.length > 80) {
@@ -35,6 +37,7 @@ export async function createInboundWebhook(
 }
 
 export async function deleteInboundWebhook(id: number): Promise<{ ok: true }> {
+  await assertOwner();
   await db.delete(inboundWebhooks).where(eq(inboundWebhooks.id, id));
   revalidatePath("/settings");
   return { ok: true };
@@ -44,6 +47,7 @@ export async function toggleInboundWebhook(
   id: number,
   enabled: boolean,
 ): Promise<{ ok: true }> {
+  await assertOwner();
   await db
     .update(inboundWebhooks)
     .set({ enabled })

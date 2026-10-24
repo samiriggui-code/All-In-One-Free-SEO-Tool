@@ -201,7 +201,13 @@
     "counterAudits": "Audits",
     "counterTasks": "Tasks",
     "counterKeywords": "Keywords",
-    "databaseFile": "Database file"
+    "databaseFile": "Database file",
+    "member": {
+      "title": "Settings",
+      "description": "Workspace settings are managed by its owner.",
+      "yourRole": "Your role: {role}",
+      "ownerOnly": "API keys, Google integrations, email, backups, tokens and team management are owner-only. Ask the owner if something needs to change."
+    }
   },
   "reports": {
     "title": "Reports",

@@ -132,7 +132,12 @@ export async function issueSession(user: User): Promise<void> {
     {
       userId: user.id,
       expiresAt: Date.now() + SESSION_TTL_MS,
-      fingerprint: await userFingerprint(user.passwordHash, user.active),
+      fingerprint: await userFingerprint(
+        user.passwordHash,
+        user.active,
+        user.role,
+      ),
+      role: user.role,
     },
     ensureSessionSecret(),
   );
@@ -190,11 +195,11 @@ export async function currentUser(): Promise<User | null> {
   const user = db.select().from(users).where(eq(users.id, claims.userId)).get();
   if (!user || !user.active) return null;
 
-  // Password changed or account deactivated since this token was signed
+  // Password, role or active flag changed since this token was signed
   // → the token is stale. This is the revocation path stateless sessions
   // would otherwise lack.
-  const fp = await userFingerprint(user.passwordHash, user.active);
-  if (fp !== claims.fingerprint) return null;
+  const fp = await userFingerprint(user.passwordHash, user.active, user.role);
+  if (fp !== claims.fingerprint || claims.role !== user.role) return null;
 
   return user;
 }
@@ -279,6 +284,20 @@ export function mayEdit(user: User | null): boolean {
 export function mayManageSettings(user: User | null): boolean {
   const role = effectiveRole(user);
   return role !== null && canManageSettings(role);
+}
+
+/**
+ * Guard for server actions that change workspace-wide configuration:
+ * integration keys, SMTP, Google credentials, API and MCP tokens,
+ * backups, branding. Owner only (or a solo install).
+ *
+ * Server actions are reachable by id from any page, so a check on the
+ * page path is not enough; the action itself has to refuse.
+ */
+export async function assertOwner(): Promise<void> {
+  if (!mayManageSettings(await currentUser())) {
+    throw new Error("Only the workspace owner can change this setting.");
+  }
 }
 
 /**

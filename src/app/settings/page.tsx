@@ -27,7 +27,8 @@ import { db } from "@/db/client";
 import { audits, clients, keywords, tasks, users } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { getSetting } from "@/lib/settings-store";
-import { currentUser } from "@/lib/auth";
+import { currentUser, mayManageSettings } from "@/lib/auth";
+import { MemberSettings } from "./member-settings";
 import { redirect } from "next/navigation";
 import {
   configuredProviders,
@@ -61,6 +62,11 @@ import { getLocalePreference } from "./locale-actions";
 export default async function SettingsPage() {
   const me = await currentUser();
   if (me?.role === "viewer") redirect("/");
+  // Everything below configures the whole workspace (keys, SMTP, Google,
+  // tokens, backups), and its actions refuse anyone but the owner.
+  // Managers and members get a page that says so instead of forms that
+  // fail when submitted.
+  if (!mayManageSettings(me)) return <MemberSettings role={me?.role ?? null} />;
 
   const t = await getTranslations("settings");
   const locale = await getLocalePreference();

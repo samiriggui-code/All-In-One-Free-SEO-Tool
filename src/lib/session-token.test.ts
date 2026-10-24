@@ -22,6 +22,7 @@ function claims(overrides: Partial<Parameters<typeof signSession>[0]> = {}) {
     userId: 7,
     expiresAt: Date.now() + SESSION_TTL_MS,
     fingerprint: "abcdef0123456789",
+    role: "member" as const,
     ...overrides,
   };
 }
@@ -76,8 +77,23 @@ describe("verifySession", () => {
     expect(await verifySession(parts.join("."), SECRET)).toBeNull();
   });
 
+  it("rejects an edited role", async () => {
+    // Middleware applies role rules from this field, so promoting
+    // yourself to owner by editing the cookie must fail.
+    const token = await signSession(claims({ role: "viewer" }), SECRET);
+    const parts = token.split(".");
+    parts[4] = "owner";
+    expect(await verifySession(parts.join("."), SECRET)).toBeNull();
+  });
+
+  it("rejects tokens from before roles were signed in (v1)", async () => {
+    const token = await signSession(claims(), SECRET);
+    const [, id, exp, fp, , sig] = token.split(".");
+    expect(await verifySession(`v1.${id}.${exp}.${fp}.${sig}`, SECRET)).toBeNull();
+  });
+
   it("rejects junk, empty and missing tokens", async () => {
-    for (const bad of [undefined, null, "", "nope", "v1.1.2.3", "a.b.c.d.e"]) {
+    for (const bad of [undefined, null, "", "nope", "v1.1.2.3", "a.b.c.d.e", "v2.1.2.3.root.sig"]) {
       expect(await verifySession(bad, SECRET), String(bad)).toBeNull();
     }
   });
@@ -85,7 +101,7 @@ describe("verifySession", () => {
   it("rejects a token from a future format version", async () => {
     const token = await signSession(claims(), SECRET);
     expect(
-      await verifySession(token.replace(/^v1\./, "v2."), SECRET),
+      await verifySession(token.replace(/^v2\./, "v3."), SECRET),
     ).toBeNull();
   });
 
@@ -99,28 +115,35 @@ describe("verifySession", () => {
 
 describe("userFingerprint", () => {
   it("changes when the password changes", async () => {
-    const before = await userFingerprint("scrypt:1:aa:bb", true);
-    const after = await userFingerprint("scrypt:1:aa:cc", true);
+    const before = await userFingerprint("scrypt:1:aa:bb", true, "member");
+    const after = await userFingerprint("scrypt:1:aa:cc", true, "member");
     expect(after).not.toBe(before);
   });
 
   it("changes when the account is deactivated", async () => {
     // This is what makes deactivation take effect immediately rather
     // than in up to 14 days, when the token would have expired anyway.
-    const active = await userFingerprint("scrypt:1:aa:bb", true);
-    const inactive = await userFingerprint("scrypt:1:aa:bb", false);
+    const active = await userFingerprint("scrypt:1:aa:bb", true, "member");
+    const inactive = await userFingerprint("scrypt:1:aa:bb", false, "member");
     expect(inactive).not.toBe(active);
   });
 
+  it("changes when the role changes", async () => {
+    // A demoted manager must not keep a manager's token.
+    const manager = await userFingerprint("scrypt:1:aa:bb", true, "manager");
+    const member = await userFingerprint("scrypt:1:aa:bb", true, "member");
+    expect(member).not.toBe(manager);
+  });
+
   it("is stable for unchanged input", async () => {
-    expect(await userFingerprint("scrypt:1:aa:bb", true)).toBe(
-      await userFingerprint("scrypt:1:aa:bb", true),
+    expect(await userFingerprint("scrypt:1:aa:bb", true, "member")).toBe(
+      await userFingerprint("scrypt:1:aa:bb", true, "member"),
     );
   });
 
   it("does not leak the password hash", async () => {
     const hash = "scrypt:1:deadbeef:cafebabe";
-    const fp = await userFingerprint(hash, true);
+    const fp = await userFingerprint(hash, true, "member");
     expect(fp).not.toContain("deadbeef");
     expect(fp).not.toContain("cafebabe");
     expect(fp).toMatch(/^[0-9a-f]{16}$/);

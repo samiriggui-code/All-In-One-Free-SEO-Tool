@@ -201,7 +201,13 @@
     "counterAudits": "Audits",
     "counterTasks": "Tâches",
     "counterKeywords": "Mots-clés",
-    "databaseFile": "Fichier base de données"
+    "databaseFile": "Fichier base de données",
+    "member": {
+      "title": "Paramètres",
+      "description": "Les réglages de l’espace de travail sont gérés par son propriétaire.",
+      "yourRole": "Votre rôle : {role}",
+      "ownerOnly": "Les clés d’API, intégrations Google, e-mails, sauvegardes, jetons et la gestion de l’équipe sont réservés au propriétaire. Demandez-lui si un réglage doit changer."
+    }
   },
   "reports": {
     "title": "Rapports",

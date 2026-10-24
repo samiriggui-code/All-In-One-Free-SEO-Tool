@@ -1,5 +1,6 @@
 "use server";
 
+import { assertOwner } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { deleteSetting, setSetting } from "@/lib/settings-store";
@@ -42,6 +43,7 @@ export async function saveBrand(
   _prev: BrandActionResult | null,
   formData: FormData,
 ): Promise<BrandActionResult> {
+  await assertOwner();
   const raw = {
     name: formData.get("name") ?? "",
     color: formData.get("color") ?? "",
@@ -102,6 +104,7 @@ export async function saveBrand(
 }
 
 export async function clearLogo(): Promise<void> {
+  await assertOwner();
   await deleteSetting("brand.logo_data_url");
   revalidatePath("/settings");
 }

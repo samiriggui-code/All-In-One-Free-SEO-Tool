@@ -1,5 +1,6 @@
 "use server";
 
+import { assertOwner } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { setSetting } from "@/lib/settings-store";
 
@@ -9,6 +10,7 @@ import { setSetting } from "@/lib/settings-store";
  * accidental "retention=999999999" can't fill the disk.
  */
 export async function saveAutoBackupSettings(formData: FormData) {
+  await assertOwner();
   const enabled = formData.get("enabled") === "on";
   const cadenceRaw = Number(formData.get("cadence_hours"));
   const retentionRaw = Number(formData.get("retention"));
