@@ -39,8 +39,8 @@ export default async function DataSettingsPage() {
       <SettingsBlock title={t("contentTitle")}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {counters.map((x) => (
-            <div key={x.label} className="rounded-xl border border-border bg-muted/30 px-4 py-3">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <div key={x.label} className="rounded-md border border-border px-4 py-3">
+              <div className="text-[13px] text-muted-foreground">
                 {x.label}
               </div>
               <div className="mt-1 text-2xl font-semibold tracking-tight">{x.value}</div>
@@ -56,7 +56,7 @@ export default async function DataSettingsPage() {
         {isOwner ? (
           <Link
             href="/settings/backup"
-            className="mt-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            className="gsk-link mt-3"
           >
             {t("backupLink")}
             <ArrowRight className="size-3.5" />

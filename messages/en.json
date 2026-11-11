@@ -319,7 +319,7 @@
         "backup": "Backup",
         "updates": "Updates",
         "install": "Install the app",
-        "browser": "Headless browser",
+        "browser": "Browser",
         "edge": "Edge worker",
         "health": "System health",
         "errors": "Error log",

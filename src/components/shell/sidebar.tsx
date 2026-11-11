@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, LayoutGroup } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Search, PanelLeftClose, PanelLeftOpen, ChevronDown, ChevronRight } from "lucide-react";
@@ -15,6 +15,7 @@ import { navItemMessageKey } from "@/i18n/nav";
 import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
 import { useStoredState } from "@/components/use-stored-state";
 import { ProductMark, ProductWordmark } from "@/components/brand/product-logo";
+import { LAST_PAGE_KEY } from "@/app/settings/settings-overlay";
 
 /**
  * Per-group accent. Pre-baked Tailwind class strings so the JIT picks
@@ -98,6 +99,15 @@ export function Sidebar({
   const groups = navGroupsForRole(userRole);
   const tShell = useTranslations("shell.sidebar");
   const pathname = usePathname();
+  // Closing the settings window goes back to the page it was opened from.
+  useEffect(() => {
+    if (pathname.startsWith("/settings")) return;
+    try {
+      sessionStorage.setItem(LAST_PAGE_KEY, pathname);
+    } catch {
+      // private mode / storage blocked: the window falls back to "/"
+    }
+  }, [pathname]);
   const t = useTranslations("nav");
   const tItems = useTranslations("nav.items");
   const tGroups = useTranslations("nav.groups");

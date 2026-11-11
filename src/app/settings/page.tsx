@@ -34,7 +34,7 @@ export default async function SettingsPage() {
       <SectionHeader title={t("title")} description={t("description")} />
 
       <SettingsBlock title={t("appearance")}>
-        <div className="divide-y divide-border">
+        <div>
           <SettingRow label={t("languageLabel")} description={t("languageHint")}>
             <LanguageControl locale={locale} />
           </SettingRow>
@@ -45,7 +45,7 @@ export default async function SettingsPage() {
       </SettingsBlock>
 
       <SettingsBlock title={t("workspace")}>
-        <div className="divide-y divide-border">
+        <div>
           <SettingRow
             label={t("accessLabel")}
             description={
@@ -54,19 +54,19 @@ export default async function SettingsPage() {
           >
             <Link
               href="/settings/team"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              className="gsk-link"
             >
               {t("manageTeam")}
               <ArrowRight className="size-3.5" />
             </Link>
           </SettingRow>
           <SettingRow label={t("timezoneLabel")} description={t("timezoneHint")}>
-            <span className="font-mono text-sm text-muted-foreground">{tz}</span>
+            <span className="text-sm text-muted-foreground">{tz}</span>
           </SettingRow>
           <SettingRow label={t("shortcutsLabel")} description={t("shortcutsHint")}>
             <Link
               href="/shortcuts"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              className="gsk-link"
             >
               {t("shortcutsOpen")}
               <ArrowRight className="size-3.5" />
@@ -74,7 +74,7 @@ export default async function SettingsPage() {
           </SettingRow>
         </div>
         {me ? (
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-2 text-[13px] text-muted-foreground">
             {t("signedInAs", { name: me.name ?? me.email, role: me.role })}
           </p>
         ) : null}

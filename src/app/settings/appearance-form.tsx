@@ -25,26 +25,18 @@ function Segmented<T extends string>({
   disabled?: boolean;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
-      {options.map((o) => {
-        const on = o.value === value;
-        return (
-          <button
-            key={o.value}
-            type="button"
-            disabled={disabled}
-            aria-pressed={on}
-            onClick={() => onChange(o.value)}
-            className={`rounded-md px-3 py-1.5 text-sm transition-colors disabled:opacity-60 ${
-              on
-                ? "bg-card font-medium text-foreground shadow-sm ring-1 ring-inset ring-border"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {o.label}
-          </button>
-        );
-      })}
+    <div className="gsk-segmented" role="group">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          disabled={disabled}
+          aria-pressed={o.value === value}
+          onClick={() => onChange(o.value)}
+        >
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }
