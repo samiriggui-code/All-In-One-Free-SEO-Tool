@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Sidebar } from "@/components/shell/sidebar";
 import { NeedsKeyBanner } from "@/components/shell/needs-key-banner";
@@ -28,6 +28,7 @@ import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/l
 import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
+import { FONT_SCALES, FONT_SIZE_COOKIE, parseFontSize } from "@/lib/font-size";
 import "./globals.css";
 // GsKnora window and sheet styles (settings window, side sheets).
 import "./settings/settings-window.css";
@@ -123,6 +124,9 @@ export default async function RootLayout({
   // light/dark is resolved here on the server, which avoids the flash
   // entirely for users who have chosen one.
   const theme = await getThemePreference();
+  // Text size (Settings → Appearance), per browser. Applied here so the
+  // first paint is already at the right size: lib/font-size.ts.
+  const fontSize = parseFontSize((await cookies()).get(FONT_SIZE_COOKIE)?.value);
   const locale = await getLocale();
   const messages = await getMessages();
   const timeZone = await getTimeZone();
@@ -142,6 +146,12 @@ export default async function RootLayout({
       suppressHydrationWarning
       data-ui-mode={uiMode}
       data-theme={theme}
+      data-font-size={fontSize}
+      style={
+        fontSize === "normal"
+          ? undefined
+          : ({ zoom: FONT_SCALES[fontSize], "--rf-zoom": FONT_SCALES[fontSize] } as React.CSSProperties)
+      }
       data-embed={isEmbed ? "1" : undefined}
       className={`${theme === "dark" ? "dark" : ""} ${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
@@ -186,6 +196,8 @@ export default async function RootLayout({
                       uiMode={uiMode}
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
+                      theme={theme}
+                      isOwner={effectiveRole(me) === "owner"}
                     />
                     <div className="flex h-full min-w-0 flex-1 flex-col">
                       <TopBar

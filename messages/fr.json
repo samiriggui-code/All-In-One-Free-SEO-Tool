@@ -339,6 +339,11 @@
       "languageHint": "Langue de toute l'interface. Le français est la langue par défaut.",
       "themeLabel": "Thème",
       "themeHint": "« Système » suit le réglage clair ou sombre de votre ordinateur.",
+      "fontSizeLabel": "Taille du texte",
+      "fontSizeHint": "Agrandit ou réduit tout l'écran. Propre à ce navigateur.",
+      "fontSize_small": "Petite",
+      "fontSize_normal": "Normale",
+      "fontSize_large": "Grande",
       "themeLight": "Clair",
       "themeDark": "Sombre",
       "themeSystem": "Système",
@@ -1338,6 +1343,60 @@
     "stage_to_audit": "À auditer",
     "stage_auditing": "Audit en cours",
     "stage_audited": "Audité"
+  },
+  "clientAccount": {
+    "description": "L'entreprise : son contact, sa facturation, le portail et {count, plural, one {son projet} other {ses # projets}}.",
+    "contact": {
+      "title": "Contact",
+      "description": "Qui joindre chez ce client.",
+      "edit": "Modifier",
+      "empty": "Non renseigné",
+      "sheetTitle": "Coordonnées du client",
+      "companyTitle": "1. L'entreprise",
+      "name": "Nom du client",
+      "nameHelp": "Le nom de l'entreprise, tel qu'il apparaît dans la liste des clients.",
+      "personTitle": "2. La personne à contacter",
+      "contactName": "Contact",
+      "contactNamePlaceholder": "Prénom Nom, fonction",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "addressHelp": "Adresse de facturation, sur plusieurs lignes si besoin.",
+      "notes": "Notes",
+      "notesHelp": "Visibles par l'équipe seulement, jamais par le client.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveClose": "Enregistrer et fermer",
+      "error_name": "Le nom est obligatoire.",
+      "error_email": "Adresse e-mail invalide.",
+      "error_access": "Vous n'avez pas accès à ce client.",
+      "error_other": "Un champ est trop long ou invalide."
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Les sites de ce client, leur étape, leur score et les missions en cours."
+    },
+    "billing": {
+      "title": "Facturation",
+      "description": "Les factures et les devis de tous les projets de ce client.",
+      "paid": "Encaissé",
+      "due": "À encaisser",
+      "dueHint": "Factures envoyées ou en retard, hors brouillons et factures annulées.",
+      "invoices": "Factures",
+      "proposals": "Devis",
+      "project": "Projet",
+      "noInvoices": "Aucune facture pour ce client.",
+      "noProposals": "Aucun devis pour ce client.",
+      "newProposal": "Nouveau devis"
+    },
+    "portal": {
+      "title": "Portail client",
+      "description": "Chaque projet a son portail : le client y suit les résultats et accepte les devis, sans compte. Le lien se crée et se révoque dans les réglages du projet.",
+      "active": "Activé",
+      "inactive": "Non activé",
+      "open": "Ouvrir",
+      "manage": "Gérer"
+    }
   },
   "audits": {
     "title": "Audits",
@@ -2828,6 +2887,20 @@
         "removeTitle": "Supprimer l'envoi programmé ?",
         "removeBody": "Le rapport ne partira plus automatiquement. Vous pourrez toujours l'envoyer à la main."
       }
+    },
+    "tools": {
+      "title": "Outils du projet",
+      "featured": "Utiles maintenant",
+      "allTools": "Tous les outils ({count})",
+      "toolbox": "Boîte à outils →",
+      "filter": "Chercher parmi les {count} outils…",
+      "clearFilter": "Effacer la recherche",
+      "matches": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
+      "noMatch": "Aucun outil ne correspond à « {query} ».",
+      "needSetup": "{count, plural, one {# à configurer} other {# à configurer}}",
+      "outOfScope": "Hors de cette mission",
+      "autoRuns": "S'exécute seul chaque nuit : ses résultats arrivent dans le plan d'action sans l'ouvrir.",
+      "close": "Fermer"
     },
     "tabs": {
       "aria": "Sections du projet",

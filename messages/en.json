@@ -339,6 +339,11 @@
       "languageHint": "Language of the whole interface. French is the default.",
       "themeLabel": "Theme",
       "themeHint": "\"System\" follows your computer's light or dark setting.",
+      "fontSizeLabel": "Text size",
+      "fontSizeHint": "Makes the whole screen larger or smaller. Saved in this browser.",
+      "fontSize_small": "Small",
+      "fontSize_normal": "Normal",
+      "fontSize_large": "Large",
       "themeLight": "Light",
       "themeDark": "Dark",
       "themeSystem": "System",
@@ -1338,6 +1343,60 @@
     "stage_to_audit": "To audit",
     "stage_auditing": "Audit in progress",
     "stage_audited": "Audited"
+  },
+  "clientAccount": {
+    "description": "The company: its contact, its billing, the portal and {count, plural, one {its project} other {its # projects}}.",
+    "contact": {
+      "title": "Contact",
+      "description": "Who to reach at this client.",
+      "edit": "Edit",
+      "empty": "Not set",
+      "sheetTitle": "Client details",
+      "companyTitle": "1. The company",
+      "name": "Client name",
+      "nameHelp": "The company's name, as shown in the client list.",
+      "personTitle": "2. The person to contact",
+      "contactName": "Contact",
+      "contactNamePlaceholder": "First Last, role",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "addressHelp": "Billing address, on several lines if needed.",
+      "notes": "Notes",
+      "notesHelp": "Seen by the team only, never by the client.",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveClose": "Save and close",
+      "error_name": "The name is required.",
+      "error_email": "Invalid email address.",
+      "error_access": "You do not have access to this client.",
+      "error_other": "A field is too long or invalid."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "This client's sites, their stage, their score and the missions running."
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Invoices and quotes across all of this client's projects.",
+      "paid": "Collected",
+      "due": "Outstanding",
+      "dueHint": "Invoices sent or overdue, drafts and void invoices excluded.",
+      "invoices": "Invoices",
+      "proposals": "Quotes",
+      "project": "Project",
+      "noInvoices": "No invoices for this client.",
+      "noProposals": "No quotes for this client.",
+      "newProposal": "New quote"
+    },
+    "portal": {
+      "title": "Client portal",
+      "description": "Each project has its portal: the client follows results and accepts quotes there, no account needed. The link is created and revoked in the project's settings.",
+      "active": "On",
+      "inactive": "Off",
+      "open": "Open",
+      "manage": "Manage"
+    }
   },
   "audits": {
     "title": "Audits",
@@ -2828,6 +2887,20 @@
         "removeTitle": "Remove the scheduled report?",
         "removeBody": "The report will no longer go out on its own. You can still send it by hand."
       }
+    },
+    "tools": {
+      "title": "Project tools",
+      "featured": "Useful now",
+      "allTools": "All tools ({count})",
+      "toolbox": "Toolbox →",
+      "filter": "Search the {count} tools…",
+      "clearFilter": "Clear search",
+      "matches": "{count, plural, =0 {No match} one {# match} other {# matches}}",
+      "noMatch": "No tools match “{query}”.",
+      "needSetup": "{count, plural, one {# needs setup} other {# need setup}}",
+      "outOfScope": "Not in this engagement",
+      "autoRuns": "Runs on its own every night — findings appear in the action plan without you opening this.",
+      "close": "Close"
     },
     "tabs": {
       "aria": "Project sections",

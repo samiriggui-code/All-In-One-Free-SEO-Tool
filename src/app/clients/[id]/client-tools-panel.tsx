@@ -21,8 +21,11 @@ export function ClientToolsPanel({
   client,
   hasAiKey = false,
   surfaces,
+  featured,
   top,
 }: {
+  /** Tools put forward first (lib/project-tools.ts keys). */
+  featured?: string[];
   /** First in the rail's stack: the client action plan button. */
   top?: React.ReactNode;
   client: ClientToolsClient;
@@ -43,6 +46,7 @@ export function ClientToolsPanel({
         client={client}
         hasAiKey={hasAiKey}
         surfaces={surfaces}
+        featured={featured}
         top={top}
         onOpenTool={(t) => setOpenTool(t)}
       />

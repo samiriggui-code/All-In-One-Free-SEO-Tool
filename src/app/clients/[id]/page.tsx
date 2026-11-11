@@ -65,6 +65,7 @@ import { ClientActionPlan } from "./client-action-plan";
 import { ProjectTabs, parseProjectTab } from "./project-tabs";
 import { ProjectMissions } from "./project-missions";
 import { listMissions } from "@/lib/projects";
+import { featuredToolKeys } from "@/lib/project-tools";
 import { NextActionsPanel } from "@/components/next-actions-panel";
 import { nextActions } from "@/lib/next-actions";
 import { surfacesFor } from "@/lib/engagement-surfaces";
@@ -325,7 +326,8 @@ export default async function ClientDetailPage({
   // setup; this covers everything after it, and says which half the agent
   // will take.
   const ranked = await nextActions({ clientId, limit: 8 });
-  const missionCount = (await listMissions(clientId)).length;
+  const projectMissions = await listMissions(clientId);
+  const missionCount = projectMissions.length;
   const startHereLeft = startHereStepsLeft({
     auditDone: Boolean(latestCompleted),
     keywordCount,
@@ -394,6 +396,7 @@ export default async function ClientDetailPage({
           }}
           hasAiKey={ai.hasKey}
           surfaces={surfacesFor(client.surfacesJson, client.niche)}
+          featured={featuredToolKeys(tab, projectMissions)}
         />
 
         <div className="min-w-0 flex-1 space-y-6">
