@@ -143,6 +143,15 @@ export async function createClient(
     };
   }
 
+  // A new project of an existing client (/clients/new?account=…). Only an
+  // account the user can already see; otherwise the project gets its own
+  // account on the next read (lib/projects.ts, ensureAccounts).
+  const rawAccount = Number(formData.get("accountId"));
+  const accountId =
+    Number.isInteger(rawAccount) && rawAccount > 0
+      ? ((await (await import("@/lib/projects")).visibleAccount(rawAccount))?.id ?? null)
+      : null;
+
   let detectedStack: string[] | null = null;
   try {
     const detection = await detectTechStack(parsed.data.url);
@@ -174,6 +183,7 @@ export async function createClient(
       email: parsed.data.email ?? null,
       gbpUrl: parsed.data.gbpUrl ?? null,
       socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : null,
+      accountId,
     })
     .returning({ id: clients.id });
 
@@ -216,6 +226,15 @@ export async function createClient(
       await runAuditForClient(row.id);
     } catch {
       // Best-effort — re-runnable from the client page.
+    }
+    // Then the full audit, in the background: the quick one gives a first
+    // score within a minute or two, the full one is what a mission can be
+    // built on (lib/missions.ts, canCreateMission).
+    try {
+      const { runAuditForClient } = await import("@/app/audits/actions");
+      await runAuditForClient(row.id, "full");
+    } catch {
+      // Best-effort — re-runnable from the project's Missions tab.
     }
     try {
       const { runAiSiteAudit } = await import("@/lib/ai-site-audit");

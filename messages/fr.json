@@ -1322,7 +1322,7 @@
   },
   "clients": {
     "title": "Clients",
-    "description": "Sites gérés dans cet espace. Chacun a son tableau de bord, audits, tâches et rapports.",
+    "description": "Chaque client, ses projets (ses sites) et les missions en cours sur chacun.",
     "importGoogle": "Importer depuis Google",
     "exportCsv": "Exporter CSV",
     "addClient": "Ajouter un client",
@@ -1331,7 +1331,13 @@
     "relativeDaysAgo": "Il y a {count, plural, one {# jour} other {# jours}}",
     "relativeWeeksAgo": "Il y a {count, plural, one {# semaine} other {# semaines}}",
     "relativeMonthsAgo": "Il y a {count, plural, one {# mois} other {# mois}}",
-    "relativeYearsAgo": "Il y a {count, plural, one {# an} other {# ans}}"
+    "relativeYearsAgo": "Il y a {count, plural, one {# an} other {# ans}}",
+    "projectCount": "{count, plural, one {# projet} other {# projets}}",
+    "addProject": "Ajouter un projet",
+    "noMission": "Aucune mission",
+    "stage_to_audit": "À auditer",
+    "stage_auditing": "Audit en cours",
+    "stage_audited": "Audité"
   },
   "audits": {
     "title": "Audits",
@@ -2997,7 +3003,9 @@
     "addClient": "Ajouter le client",
     "cancel": "Annuler",
     "logo": "Logo",
-    "logoAlt": "Aperçu du logo du site"
+    "logoAlt": "Aperçu du logo du site",
+    "pageTitleProject": "Nouveau projet pour {client}",
+    "pageDescriptionProject": "Un autre site de ce client. Il est audité dès sa création : audit rapide, puis audit complet."
   },
   "serverMessages": {
     "quickAdd": {

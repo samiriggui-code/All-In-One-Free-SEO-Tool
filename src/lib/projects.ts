@@ -111,6 +111,12 @@ export async function listAccountsWithProjects(): Promise<AccountWithProjects[]>
   }));
 }
 
+/** The account, if the signed-in user may see at least one of its projects. */
+export async function visibleAccount(accountId: number): Promise<AccountWithProjects | null> {
+  if (!Number.isInteger(accountId)) return null;
+  return (await listAccountsWithProjects()).find((a) => a.id === accountId) ?? null;
+}
+
 export async function listMissions(projectId: number): Promise<Mission[]> {
   return db
     .select()

@@ -5,13 +5,16 @@ import { PageHeader } from "@/components/shell/page-header";
 import { NewClientForm } from "./new-client-form";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
 import { getSetting } from "@/lib/settings-store";
+import { visibleAccount } from "@/lib/projects";
 
 export default async function NewClientPage({
   searchParams,
 }: {
-  searchParams: Promise<{ url?: string; name?: string }>;
+  searchParams: Promise<{ url?: string; name?: string; account?: string }>;
 }) {
-  const { url, name } = await searchParams;
+  const { url, name, account: accountParam } = await searchParams;
+  // A new project for an existing client, when the link says which one.
+  const account = accountParam ? await visibleAccount(Number(accountParam)) : null;
   const t = await getTranslations("clientForm");
   const googleStatus = await getGoogleConnectionStatus();
   const googleClientId = await getSetting<string>("google.client_id");
@@ -25,8 +28,8 @@ export default async function NewClientPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title={t("pageTitle")}
-        description={t("pageDescription")}
+        title={account ? t("pageTitleProject", { client: account.name }) : t("pageTitle")}
+        description={account ? t("pageDescriptionProject") : t("pageDescription")}
         icon={Plus}
         accent="violet"
         crumbs={[{ label: t("crumbClients"), href: "/clients" }, { label: t("crumbNew") }]}
@@ -37,6 +40,7 @@ export default async function NewClientPage({
         <div className="pointer-events-none absolute -right-16 -bottom-16 size-48 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="relative p-6">
           <NewClientForm
+            accountId={account?.id}
             initialUrl={url}
             initialName={name}
             googleStatus={googleStatus}
