@@ -31,7 +31,11 @@ function parseLastSeen(raw: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-export function NotificationsBell() {
+/**
+ * `placement="up"`: the bell sits at the bottom of the sidebar
+ * (GsKnora layout), so its panel opens upwards and to the right.
+ */
+export function NotificationsBell({ placement = "down" }: { placement?: "down" | "up" } = {}) {
   const t = useTranslations("shell.notifications");
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[] | null>(null);
@@ -155,7 +159,7 @@ export function NotificationsBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-white/10 bg-card/95 shadow-2xl shadow-violet-500/10 backdrop-blur-xl">
+        <div className={`absolute z-50 w-80 overflow-hidden ${placement === "up" ? "bottom-full left-0 mb-2" : "right-0 top-full mt-2"} rounded-2xl border border-white/10 bg-card/95 shadow-2xl shadow-violet-500/10 backdrop-blur-xl`}>
           <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
             <div>
               <div className="text-sm font-semibold">{t("title")}</div>

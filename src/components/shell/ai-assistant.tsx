@@ -34,6 +34,13 @@ function pathToFriendly(path: string, t: T): string {
   return t("pages.other", { name: parts[0] ?? "" });
 }
 
+const OPEN_ASSISTANT_EVENT = "rf:open-assistant";
+
+/** Opens the assistant chat from anywhere (the sidebar footer uses it). */
+export function openAssistant() {
+  window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT));
+}
+
 export function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -47,6 +54,14 @@ export function AIAssistant() {
   const pageContext = pathToFriendly(pathname, t);
 
   // Scroll to bottom on new message
+  // The sidebar's assistant button (bottom of the rail on md+) opens the
+  // same chat through this event, so the chat and its state stay here.
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_ASSISTANT_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_ASSISTANT_EVENT, onOpen);
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -85,7 +100,9 @@ export function AIAssistant() {
         quick-action button shown when the conversation is empty.
       */}
       <div
-        className="fixed bottom-3 right-3 z-40 sm:bottom-5 sm:right-5"
+        // Phones only: from md up the sidebar is visible and its footer
+        // carries the assistant button, so nothing floats over the page.
+        className="fixed bottom-3 right-3 z-40 sm:bottom-5 sm:right-5 md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <button
