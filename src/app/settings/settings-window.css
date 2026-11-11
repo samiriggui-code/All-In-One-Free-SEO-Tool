@@ -1172,8 +1172,10 @@ button.gsk-card:focus-visible {
   box-shadow: none !important;
   backdrop-filter: none !important;
 }
+/* The tab already names the panel and counts its items: the panel's own
+   header (title, subtitle, "2 of 3 done", "7 ranked") would say it twice,
+   squeezed into the sheet's width. */
 .gsk-plain > section > header,
 .gsk-plain > div > section > header {
-  padding-left: 0;
-  padding-right: 0;
+  display: none;
 }

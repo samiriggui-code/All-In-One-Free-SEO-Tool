@@ -13,6 +13,9 @@
  * l'encre de l'interface avec la même transparence (un peu renforcée pour
  * les traits, qui sinon restent trop pâles sur blanc).
  *
+ * Couvre aussi bg-black/<alpha> jusqu'à 45 % (panneaux « en creux » du mode
+ * sombre), sauf les voiles en inset-0.
+ *
  * Usage : node scripts/gen-light-white-alpha.mjs
  * À relancer quand de nouvelles classes *-white/<alpha> apparaissent.
  */
@@ -26,6 +29,11 @@ const OUT = join(SRC, "app", "light-white-alpha.css");
 const RE =
   /(?<![\w:-])((?:hover|group-hover|open):)?(border(?:-[trblxy])?|bg|ring|divide)-white\/(\[[0-9.]+\]|[0-9]+)(?![\w-])/g;
 
+// Dark "inset" panels (bg-black/20 and friends) read as grey slabs on
+// white. Up to 45 %: above that, and on anything with inset-0, it is a
+// backdrop behind a dialog and stays as it is.
+const RE_BLACK = /(?<![\w:-])((?:hover):)?bg-black\/(\[[0-9.]+\]|[0-9]+)(?![\w-])/g;
+
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
@@ -38,6 +46,9 @@ const found = new Map();
 for (const file of walk(SRC)) {
   for (const m of readFileSync(file, "utf8").matchAll(RE)) {
     found.set(m[0], { variant: m[1] ?? "", kind: m[2], alpha: m[3] });
+  }
+  for (const m of readFileSync(file, "utf8").matchAll(RE_BLACK)) {
+    found.set(m[0], { variant: m[1] ?? "", kind: "bg-black", alpha: m[2] });
   }
 }
 
@@ -57,6 +68,13 @@ const esc = (cls) => cls.replace(/[:/[\].]/g, (c) => `\\${c}`);
 const rules = [];
 for (const [cls, { variant, kind, alpha }] of [...found].sort(([a], [b]) => a.localeCompare(b))) {
   const a = toAlpha(alpha);
+  if (kind === "bg-black") {
+    if (a > 0.45) continue;
+    const pct = Math.round(Math.min(Math.max(a * 0.2, 0.02), 0.05) * 1000) / 10;
+    const sel = `:where(:root:not(.dark)) .${esc(cls)}:not([class~=\"inset-0\"])${variant === "hover:" ? ":hover" : ""}`;
+    rules.push(`  ${sel} { background-color: color-mix(in oklab, var(--foreground) ${pct}%, transparent); }`);
+    continue;
+  }
   // Opaque white surfaces (bg-white/80, /95…) are intentional: leave them.
   if (a >= 0.5) continue;
 
