@@ -31,6 +31,7 @@ export function ResearchForm({
   clients: { id: number; name: string }[];
 }) {
   const t = useTranslations("keywords.research");
+  const tr = useTranslations("keywordsTab.keywords.research");
   const [state, formAction, pending] = useActionState<
     ResearchActionResult | null,
     FormData
@@ -182,13 +183,13 @@ export function ResearchForm({
                     <span
                       className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${intentTone[s.intent]} no-underline`}
                     >
-                      {s.intent}
+                      {tr(`intents.${s.intent}`)}
                     </span>
                   </Term>
                   {s.isLongTail && (
                     <Term term="long-tail">
                       <span className="inline-flex shrink-0 items-center rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10 no-underline">
-                        long-tail
+                        {tr("longTail")}
                       </span>
                     </Term>
                   )}

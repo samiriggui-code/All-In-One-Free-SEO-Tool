@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 import {
   AlertCircle,
@@ -29,6 +30,7 @@ export default async function PerClientContentGapPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("keywordsTab.contentGap");
 
   const result = await analyzeContentGap({ clientId });
 
@@ -36,8 +38,8 @@ export default async function PerClientContentGapPage({
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title={`Content gap · ${client.name}`}
-        description="Queries where this client is appearing in search but losing the click. Highest leverage content to refresh — Google already trusts you for these terms."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={GitCompare}
         accent="cyan"
       />
@@ -51,21 +53,21 @@ export default async function PerClientContentGapPage({
         <>
           <div className="grid gap-3 sm:grid-cols-3">
             <Tile
-              label="Total tracked queries"
+              label={t("tiles.tracked")}
               value={result.ourQueries.length}
               tone="violet"
             />
             <Tile
-              label="Gap opportunities"
+              label={t("tiles.gap")}
               value={result.gapKeywords.length}
               tone="rose"
-              hint="Pos 4-30, ≥100 impr, <5% CTR"
+              hint={t("tiles.gapHint")}
             />
             <Tile
-              label="Already winning"
+              label={t("tiles.winning")}
               value={result.sharedKeywords.length}
               tone="emerald"
-              hint="Top 3 with strong CTR"
+              hint={t("tiles.winningHint")}
             />
           </div>
 
@@ -74,22 +76,20 @@ export default async function PerClientContentGapPage({
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <Sparkles className="size-4 text-rose-300" />
-                  Gap opportunities ({result.gapKeywords.length})
+                  {t("gap.title", { count: result.gapKeywords.length })}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Queries you appear for, but searchers aren&apos;t clicking
-                  your result. Refresh the title/meta + improve the content
-                  to capture impressions you&apos;re already getting.
+                  {t("gap.body")}
                 </p>
               </header>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-5 py-3 text-left font-medium">Query</th>
-                    <th className="px-3 py-3 text-right font-medium">Impr.</th>
-                    <th className="px-3 py-3 text-right font-medium">Clicks</th>
-                    <th className="px-3 py-3 text-right font-medium">CTR</th>
-                    <th className="px-3 py-3 text-right font-medium">Pos</th>
+                    <th className="px-5 py-3 text-left font-medium">{t("col.query")}</th>
+                    <th className="px-3 py-3 text-right font-medium">{t("col.impressions")}</th>
+                    <th className="px-3 py-3 text-right font-medium">{t("col.clicks")}</th>
+                    <th className="px-3 py-3 text-right font-medium">{t("col.ctr")}</th>
+                    <th className="px-3 py-3 text-right font-medium">{t("col.position")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -120,11 +120,10 @@ export default async function PerClientContentGapPage({
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="flex items-center gap-2 text-base font-semibold">
                   <TrendingUp className="size-4 text-emerald-300" />
-                  Already winning ({result.sharedKeywords.length})
+                  {t("winning.title", { count: result.sharedKeywords.length })}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Don&apos;t change these pages — they&apos;re winning.
-                  Reference for the kind of result you want everywhere.
+                  {t("winning.body")}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -139,10 +138,10 @@ export default async function PerClientContentGapPage({
                         #{k.position.toFixed(1)}
                       </span>
                       <span className="text-muted-foreground tabular-nums">
-                        {(k.ctr * 100).toFixed(1)}% CTR
+                        {t("winning.ctr", { value: (k.ctr * 100).toFixed(1) })}
                       </span>
                       <span className="text-muted-foreground tabular-nums">
-                        {k.clicks} clicks
+                        {t("winning.clicks", { count: k.clicks })}
                       </span>
                     </div>
                   </li>

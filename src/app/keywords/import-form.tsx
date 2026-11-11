@@ -13,6 +13,7 @@ export function CsvImportExport({
   clients: { id: number; name: string }[];
 }) {
   const t = useTranslations("keywords");
+  const ti = useTranslations("keywordsTab.keywords.import");
   const [open, setOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [csv, setCsv] = useState("");
@@ -95,7 +96,7 @@ export function CsvImportExport({
                   name="csv"
                   value={csv}
                   onChange={(e) => setCsv(e.target.value)}
-                  placeholder="query,country,device&#10;best running shoes,US,desktop&#10;..."
+                  placeholder={ti("csvPlaceholder")}
                   rows={8}
                   required
                   className="flex w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 font-mono text-xs shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"

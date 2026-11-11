@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +17,12 @@ export function AddCompetitorForm({
     AddCompetitorResult | null,
     FormData
   >(addCompetitor, null);
+  const t = useTranslations("keywordsTab.competitors.form");
 
   if (clients.length === 0) {
     return (
       <div className="rounded-2xl border border-white/5 bg-card/40 p-5 text-sm text-muted-foreground backdrop-blur-md">
-        Add a client first, then you can track their competitors here.
+        {t("noClients")}
       </div>
     );
   }
@@ -32,7 +34,7 @@ export function AddCompetitorForm({
     >
       <div className="grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
         <div className="space-y-1.5">
-          <Label htmlFor="clientId">For client</Label>
+          <Label htmlFor="clientId">{t("client")}</Label>
           <select
             id="clientId"
             name="clientId"
@@ -47,12 +49,12 @@ export function AddCompetitorForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="name">Competitor name</Label>
-          <Input id="name" name="name" placeholder="Better Coffee Co." required />
+          <Label htmlFor="name">{t("name")}</Label>
+          <Input id="name" name="name" placeholder={t("namePlaceholder")} required />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="url">URL</Label>
-          <Input id="url" name="url" placeholder="bettercoffee.com" required />
+          <Label htmlFor="url">{t("url")}</Label>
+          <Input id="url" name="url" placeholder={t("urlPlaceholder")} required />
         </div>
         <Button
           type="submit"
@@ -60,7 +62,7 @@ export function AddCompetitorForm({
           className="shadow-lg shadow-violet-500/25 ring-1 ring-inset ring-white/15"
         >
           <Plus className="size-4" />
-          {pending ? "Adding…" : "Add"}
+          {pending ? t("adding") : t("add")}
         </Button>
       </div>
       {state && !state.ok && (

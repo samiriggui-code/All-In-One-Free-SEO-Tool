@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 import {
   AlertCircle,
@@ -37,14 +38,14 @@ export default async function PerClientCannibalizationPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("keywordsTab.cannibalization");
 
   if (!client.gscProperty) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertCircle className="mr-2 inline size-4" />
-          Connect Google Search Console first — cannibalization detection
-          requires real per-query, per-page click data.
+          {t("connectGsc")}
         </div>
       </div>
     );
@@ -61,16 +62,15 @@ export default async function PerClientCannibalizationPage({
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title={`Cannibalization · ${client.name}`}
-        description="Queries where two or more pages on your site compete in the SERP over the last 28 days. Sorted by severity, then by impressions."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={GitMerge}
         accent="rose"
       />
 
       {groups.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No cannibalization detected — every ranking query is dominated by a
-          single page on your site. Healthy.
+          {t("empty")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -85,29 +85,29 @@ export default async function PerClientCannibalizationPage({
                     <span
                       className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${sevTone[g.severity]}`}
                     >
-                      {g.severity}
+                      {t(`severity.${g.severity}`)}
                     </span>
                     <h3 className="truncate font-semibold">{g.query}</h3>
                   </div>
                   <div className="mt-0.5 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
                     <span>
-                      {g.totalClicks.toLocaleString()} clicks
+                      {t("clicks", { count: g.totalClicks })}
                     </span>
                     <span>
-                      {g.totalImpressions.toLocaleString()} impressions
+                      {t("impressions", { count: g.totalImpressions })}
                     </span>
-                    <span>{g.pages.length} pages competing</span>
+                    <span>{t("pagesCompeting", { count: g.pages.length })}</span>
                   </div>
                 </div>
               </header>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-5 py-2.5 text-left font-medium">Page</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Pos</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Clicks</th>
-                    <th className="px-3 py-2.5 text-right font-medium">Impr</th>
-                    <th className="px-3 py-2.5 text-right font-medium">CTR</th>
+                    <th className="px-5 py-2.5 text-left font-medium">{t("col.page")}</th>
+                    <th className="px-3 py-2.5 text-right font-medium">{t("col.position")}</th>
+                    <th className="px-3 py-2.5 text-right font-medium">{t("col.clicks")}</th>
+                    <th className="px-3 py-2.5 text-right font-medium">{t("col.impressions")}</th>
+                    <th className="px-3 py-2.5 text-right font-medium">{t("col.ctr")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.04]">
@@ -146,27 +146,15 @@ export default async function PerClientCannibalizationPage({
       )}
 
       <div className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
-        <h2 className="text-base font-semibold">How to fix cannibalization</h2>
+        <h2 className="text-base font-semibold">{t("fix.title")}</h2>
         <ol className="mt-2 space-y-1.5 text-muted-foreground">
-          <li>
-            <strong className="text-foreground">1. Pick the winner.</strong>{" "}
-            The page with the most clicks + best position wins. The others are
-            cannibalizing it.
-          </li>
-          <li>
-            <strong className="text-foreground">2. Decide:</strong> consolidate
-            (301-redirect losers into the winner, merge content) or
-            differentiate (rewrite each page to target a clearly distinct
-            query / intent).
-          </li>
-          <li>
-            <strong className="text-foreground">3. Update internal links</strong>{" "}
-            so they all point to the winner.
-          </li>
-          <li>
-            <strong className="text-foreground">4. Re-check in 30 days.</strong>{" "}
-            Google takes time to reconcile.
-          </li>
+          {(["step1", "step2", "step3", "step4"] as const).map((k) => (
+            <li key={k}>
+              {t.rich(`fix.${k}`, {
+                b: (c) => <strong className="text-foreground">{c}</strong>,
+              })}
+            </li>
+          ))}
         </ol>
       </div>
     </div>

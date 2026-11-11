@@ -32,22 +32,31 @@ export function AddMonitorForm({
       action={formAction}
       className="rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md"
     >
-      <div className="grid gap-3 md:grid-cols-[auto_1fr_1fr_auto] md:items-end">
-        <div className="space-y-1.5">
-          <Label htmlFor="clientId">{t("form.client")}</Label>
-          <select
-            id="clientId"
-            name="clientId"
-            defaultValue={clients[0].id}
-            className="flex h-9 min-w-[10rem] rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
-          >
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Inside a project (one client passed) the page already says which
+          site this is: no picker, the id rides along hidden. */}
+      {clients.length === 1 ? <input type="hidden" name="clientId" value={clients[0].id} /> : null}
+      <div
+        className={`grid gap-3 md:items-end ${
+          clients.length === 1 ? "md:grid-cols-[1fr_1fr_auto]" : "md:grid-cols-[auto_1fr_1fr_auto]"
+        }`}
+      >
+        {clients.length > 1 ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="clientId">{t("form.client")}</Label>
+            <select
+              id="clientId"
+              name="clientId"
+              defaultValue={clients[0].id}
+              className="flex h-9 min-w-[10rem] rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
+            >
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         <div className="space-y-1.5">
           <Label htmlFor="url">{t("form.url")}</Label>
           <Input

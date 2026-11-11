@@ -3465,5 +3465,143 @@
         "broken": "Cassée"
       }
     }
+  },
+  "keywordsTab": {
+    "keywords": {
+      "sparkline": {
+        "needsTwoChecks": "Au moins 2 vérifications nécessaires"
+      },
+      "research": {
+        "longTail": "longue traîne",
+        "intents": {
+          "informational": "informationnelle",
+          "commercial": "commerciale",
+          "transactional": "transactionnelle",
+          "navigational": "navigationnelle"
+        }
+      },
+      "import": {
+        "csvPlaceholder": "query,country,device\nchaussures de running,FR,desktop\n..."
+      }
+    },
+    "cannibalization": {
+      "title": "Cannibalisation · {name}",
+      "description": "Requêtes pour lesquelles au moins deux pages de votre site se concurrencent dans la SERP sur les 28 derniers jours. Triées par gravité, puis par impressions.",
+      "connectGsc": "Connectez d’abord Google Search Console : la détection de la cannibalisation s’appuie sur les vrais clics par requête et par page.",
+      "empty": "Aucune cannibalisation détectée : pour chaque requête positionnée, une seule page de votre site domine. Tout va bien.",
+      "severity": {
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible"
+      },
+      "clicks": "{count, plural, one {# clic} other {# clics}}",
+      "impressions": "{count, plural, one {# impression} other {# impressions}}",
+      "pagesCompeting": "{count, plural, one {# page en concurrence} other {# pages en concurrence}}",
+      "col": {
+        "page": "Page",
+        "position": "Pos.",
+        "clicks": "Clics",
+        "impressions": "Impr.",
+        "ctr": "CTR"
+      },
+      "fix": {
+        "title": "Comment corriger la cannibalisation",
+        "step1": "<b>1. Désignez la page gagnante.</b> C’est celle qui a le plus de clics et la meilleure position. Les autres la cannibalisent.",
+        "step2": "<b>2. Choisissez :</b> regrouper (rediriger en 301 les autres pages vers la gagnante et fusionner les contenus) ou différencier (réécrire chaque page pour qu’elle cible une requête ou une intention clairement distincte).",
+        "step3": "<b>3. Mettez à jour les liens internes</b> pour qu’ils pointent tous vers la page gagnante.",
+        "step4": "<b>4. Revérifiez dans 30 jours.</b> Google met du temps à prendre les changements en compte."
+      }
+    },
+    "competitors": {
+      "title": "Concurrents · {name}",
+      "description": "Suivez les sites face auxquels ce client se bat. Le recoupement des SERP et le suivi des contenus viendront s’y ajouter dans la v2.",
+      "emptyTitle": "Aucun concurrent suivi pour l’instant",
+      "emptyBody": "Ajoutez 3 à 5 concurrents ci-dessus pour comparer, pour ce client, les mots-clés en commun, l’écart de backlinks, le rythme de publication et la part de voix dans les SERP.",
+      "remove": "Retirer",
+      "forClient": "pour {name}",
+      "form": {
+        "noClients": "Ajoutez d’abord un client ; vous pourrez ensuite suivre ses concurrents ici.",
+        "client": "Client",
+        "name": "Nom du concurrent",
+        "namePlaceholder": "Better Coffee Co.",
+        "url": "URL",
+        "urlPlaceholder": "bettercoffee.com",
+        "add": "Ajouter",
+        "adding": "Ajout…"
+      }
+    },
+    "contentGap": {
+      "title": "Manques de contenu · {name}",
+      "description": "Requêtes sur lesquelles ce client apparaît dans les résultats mais perd le clic. Ce sont les contenus les plus rentables à retravailler : Google vous fait déjà confiance sur ces termes.",
+      "tiles": {
+        "tracked": "Requêtes suivies",
+        "gap": "Opportunités",
+        "gapHint": "Pos. 4-30, ≥ 100 impr., CTR < 5 %",
+        "winning": "Déjà gagnantes",
+        "winningHint": "Top 3 avec un bon CTR"
+      },
+      "gap": {
+        "title": "Opportunités ({count})",
+        "body": "Requêtes pour lesquelles vous apparaissez, mais où les internautes ne cliquent pas sur votre résultat. Retravaillez le title et la meta description, puis améliorez le contenu pour transformer en clics les impressions que vous obtenez déjà."
+      },
+      "col": {
+        "query": "Requête",
+        "impressions": "Impr.",
+        "clicks": "Clics",
+        "ctr": "CTR",
+        "position": "Pos."
+      },
+      "winning": {
+        "title": "Déjà gagnantes ({count})",
+        "body": "Ne touchez pas à ces pages : elles performent. Prenez-les comme modèle du résultat que vous visez partout.",
+        "ctr": "CTR {value} %",
+        "clicks": "{count, plural, one {# clic} other {# clics}}"
+      }
+    },
+    "metaRewrite": {
+      "title": "Balises meta · {name}",
+      "description": "Récupère les données GSC, repère les pages qui ont beaucoup d’impressions mais un CTR inférieur à l’attendu, fait réécrire le title et la meta description par l’IA puis, si WordPress est connecté, met en ligne la meilleure version en un clic.",
+      "flow": {
+        "find": "Trouver les pages à faible CTR et les réécrire avec l’IA",
+        "finding": "Recherche des pages à faible CTR…",
+        "wpNotConnected": "Le pont WordPress n’est pas connecté : copiez les réécritures à la main, ou <link>connectez WordPress</link> pour les publier en un clic.",
+        "stats": {
+          "position": "pos. {value}",
+          "impressions": "{count, plural, one {# impr.} other {# impr.}}",
+          "clicks": "{count, plural, one {# clic} other {# clics}}",
+          "ctr": "CTR {value} %"
+        },
+        "current": "Actuel",
+        "noTitle": "(aucun title)",
+        "noMeta": "(aucune meta description)",
+        "suggested": "Proposition ({index}/{total})",
+        "noSuggestion": "L’IA n’a pas pu proposer de réécriture : configurez un fournisseur d’IA dans les Réglages.",
+        "topQueries": "Requêtes principales :",
+        "push": "Publier sur WordPress",
+        "pushing": "Publication…",
+        "pushed": "Publié",
+        "pushedPost": "Publié #{id}"
+      }
+    }
+  },
+  "rankSource": {
+    "gsc": {
+      "label": "Search Console",
+      "base": "Google Search Console : la position moyenne vue par de vrais internautes",
+      "on": " le {date}",
+      "across": "{count, plural, one {, sur # impression.} other {, sur # impressions.}}",
+      "end": ".",
+      "thin": " L’échantillon est petit : la moyenne peut varier de quelques positions d’un jour à l’autre.",
+      "lag": " Les données de Search Console ont deux à trois jours de retard."
+    },
+    "live": {
+      "label": "Vérification en direct",
+      "title": "Vérifié en chargeant la page de résultats en direct. Plus récent que Search Console, mais c’est ce qu’un serveur a vu, pas vos visiteurs : comptez ±1 à 2 positions d’écart dues à la personnalisation et aux éléments changeants de la SERP. Connectez Search Console pour ce client afin d’avoir les chiffres de Google."
+    },
+    "nudge": {
+      "lead": "Ces positions viennent de vérifications de la SERP en direct.",
+      "body": "En connectant Search Console pour ce client, vous aurez les chiffres de Google : plus justes, ils couvrent toutes les requêtes sur lesquelles vous apparaissez, sans limite ni blocage.",
+      "cta": "La connecter"
+    }
   }
 }
