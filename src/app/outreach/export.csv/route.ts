@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, outreachContacts } from "@/db/schema";
 import { csvResponse } from "@/lib/csv-export";
+import { clientScope } from "@/lib/client-scope";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,8 @@ export async function GET() {
     })
     .from(outreachContacts)
     .leftJoin(clients, eq(outreachContacts.clientId, clients.id))
+    // Members and client viewers get their own projects only.
+    .where(await clientScope())
     .orderBy(desc(outreachContacts.createdAt));
 
   return csvResponse(

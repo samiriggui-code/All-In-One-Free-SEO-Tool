@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
+import { guardClientRequest } from "@/lib/admin-auth";
 import { audits } from "@/db/schema";
 import { renderLlmReport, renderMarkdownReport, type AuditResult } from "@/audit";
 
@@ -20,10 +21,15 @@ export async function GET(request: Request, { params }: Params) {
   }
 
   const [row] = await db
-    .select({ rawReport: audits.rawReport })
+    .select({ rawReport: audits.rawReport, clientId: audits.clientId })
     .from(audits)
     .where(eq(audits.id, auditId))
     .limit(1);
+
+  // Any signed-in user could read any project's audit by its id.
+  if (!row) notFound();
+  const forbidden = await guardClientRequest(request, row.clientId);
+  if (forbidden) return forbidden;
 
   // The engine's full result, stored with the audit. Audits from before the
   // engine ran (and failed ones) have none, so there is nothing to export.

@@ -1,5 +1,6 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
+import { guardClientRequest } from "@/lib/admin-auth";
 import { audits, clients, tasks } from "@/db/schema";
 import { generatePlanPdf } from "@/lib/plan-pdf";
 
@@ -11,7 +12,7 @@ import { generatePlanPdf } from "@/lib/plan-pdf";
  * so next month's report has something to be measured against.
  */
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
   const { id } = await ctx.params;
@@ -19,6 +20,9 @@ export async function GET(
   if (!Number.isInteger(clientId)) {
     return new Response("Not found", { status: 404 });
   }
+  // The layout guards the project's pages, not its route handlers.
+  const forbidden = await guardClientRequest(req, clientId);
+  if (forbidden) return forbidden;
 
   const [client] = await db
     .select({ name: clients.name, url: clients.url })
