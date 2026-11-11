@@ -28,6 +28,8 @@ export type AuditResult = {
   fetchedAt: Date;
   pagesCrawled: number;
   findings: AuditFinding[];
+  /** Every address the crawl read (requested and final), so a task can tell a fixed page from an unvisited one. */
+  crawledUrls?: string[];
   score: number;
 };
 
@@ -1728,6 +1730,7 @@ export async function runAudit(
     status: home.status,
     fetchedAt,
     pagesCrawled: pages.length,
+    crawledUrls: [...new Set(pages.flatMap((p) => [p.url, p.finalUrl]))],
     findings,
     score,
   };

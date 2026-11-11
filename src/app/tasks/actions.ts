@@ -3,12 +3,36 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { clients, tasks } from "@/db/schema";
 import { logActivity } from "@/lib/activity";
-import { currentUserId } from "@/lib/auth";
+import { currentUserId, requireClientAccess, requireEditor } from "@/lib/auth";
+import { mayAccessClient } from "@/lib/client-scope";
+import { allPagesDone, type TaskPage } from "@/lib/task-pages";
+
+/**
+ * The task ids, of those given, that the caller may change: an editor
+ * (not a read-only member) and assigned to the task's project.
+ *
+ * Every action here used to take any task id from any signed-in user, so
+ * a read-only member, or one limited to other clients, could finish,
+ * reschedule or delete another client's work by sending its number.
+ * Unknown and out-of-scope ids are dropped alike.
+ */
+async function editableTaskIds(ids: number[]): Promise<number[]> {
+  await requireEditor();
+  const valid = ids.filter((id) => Number.isFinite(id) && id > 0);
+  if (valid.length === 0) return [];
+  const rows = await db
+    .select({ id: tasks.id, clientId: tasks.clientId })
+    .from(tasks)
+    .where(inArray(tasks.id, valid));
+  const allowed: number[] = [];
+  for (const r of rows) if (await mayAccessClient(r.clientId)) allowed.push(r.id);
+  return allowed;
+}
 
 type Recur = "daily" | "weekly" | "monthly" | "quarterly";
 
@@ -27,7 +51,7 @@ export async function setTaskStatus(
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
   await requireSignedIn();
-  if (!Number.isFinite(taskId) || taskId <= 0) return;
+  if ((await editableTaskIds([taskId])).length === 0) return;
 
   const [existing] = await db
     .select()
@@ -87,7 +111,7 @@ export async function setTaskStatus(
 
 export async function deleteTask(taskId: number) {
   await requireSignedIn();
-  if (!Number.isFinite(taskId) || taskId <= 0) return;
+  if ((await editableTaskIds([taskId])).length === 0) return;
   await db.delete(tasks).where(eq(tasks.id, taskId));
   revalidatePath("/tasks");
   revalidatePath("/");
@@ -144,6 +168,7 @@ export async function createTask(
     .where(eq(clients.id, parsed.data.clientId))
     .limit(1);
   if (!client) return { ok: false, error: "Client not found." };
+  await requireClientAccess(client.id, { edit: true });
 
   const dueDate =
     typeof parsed.data.dueInDays === "number"
@@ -186,7 +211,7 @@ export async function setTaskRecurrence(
     | null,
 ) {
   await requireSignedIn();
-  if (!Number.isFinite(taskId) || taskId <= 0) return;
+  if ((await editableTaskIds([taskId])).length === 0) return;
   await db
     .update(tasks)
     .set({ recurringInterval, updatedAt: new Date() })
@@ -200,8 +225,8 @@ export async function logTaskTime(input: {
   minutes: number;
 }): Promise<{ ok: true; total: number } | { ok: false; error: string }> {
   await requireSignedIn();
-  if (!Number.isFinite(input.taskId) || input.taskId <= 0) {
-    return { ok: false, error: "Invalid task" };
+  if ((await editableTaskIds([input.taskId])).length === 0) {
+    return { ok: false, error: "Task not found" };
   }
   if (!Number.isFinite(input.minutes) || input.minutes === 0) {
     return { ok: false, error: "Enter minutes" };
@@ -227,7 +252,7 @@ export async function setTaskEstimate(
   estimatedMinutes: number | null,
 ): Promise<void> {
   await requireSignedIn();
-  if (!Number.isFinite(taskId) || taskId <= 0) return;
+  if ((await editableTaskIds([taskId])).length === 0) return;
   const v =
     estimatedMinutes === null || !Number.isFinite(estimatedMinutes)
       ? null
@@ -240,19 +265,14 @@ export async function setTaskEstimate(
   revalidatePath("/capacity");
 }
 
-// Bulk operations
-import { inArray } from "drizzle-orm";
-
-function validIds(ids: number[]): number[] {
-  return ids.filter((id) => Number.isFinite(id) && id > 0);
-}
+// Bulk operations: every id goes through editableTaskIds.
 
 export async function bulkSetTaskStatus(
   ids: number[],
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
   await requireSignedIn();
-  const valid = validIds(ids);
+  const valid = await editableTaskIds(ids);
   if (valid.length === 0) return;
   await db
     .update(tasks)
@@ -271,7 +291,7 @@ export async function bulkSetTaskPriority(
   priority: "high" | "medium" | "low",
 ) {
   await requireSignedIn();
-  const valid = validIds(ids);
+  const valid = await editableTaskIds(ids);
   if (valid.length === 0) return;
   await db
     .update(tasks)
@@ -283,7 +303,7 @@ export async function bulkSetTaskPriority(
 
 export async function bulkDeleteTasks(ids: number[]) {
   await requireSignedIn();
-  const valid = validIds(ids);
+  const valid = await editableTaskIds(ids);
   if (valid.length === 0) return;
   await db.delete(tasks).where(inArray(tasks.id, valid));
   revalidatePath("/tasks");
@@ -309,6 +329,7 @@ export async function applyPlaybookToClient(input: {
     .where(eq(clients.id, input.clientId))
     .limit(1);
   if (!client) return { ok: false, error: "Client not found" };
+  await requireClientAccess(client.id, { edit: true });
 
   const now = Date.now();
   const rows = pb.tasks.map((t) => ({
@@ -328,4 +349,50 @@ export async function applyPlaybookToClient(input: {
   revalidatePath("/tasks");
   revalidatePath("/");
   return { ok: true, created: rows.length };
+}
+
+/**
+ * Tick or untick one page of a task (tasks.pages_json, lib/task-pages.ts).
+ * When the last page is ticked the task is done; unticking one reopens a
+ * finished task, since its job is no longer complete.
+ */
+export async function setTaskPageDone(
+  taskId: number,
+  url: string,
+  done: boolean,
+): Promise<{ ok: true; pages: TaskPage[]; status: string } | { ok: false; error: string }> {
+  await requireSignedIn();
+  if ((await editableTaskIds([taskId])).length === 0) return { ok: false, error: "Task not found" };
+  const [task] = await db
+    .select({ pages: tasks.pages, status: tasks.status, title: tasks.title, clientId: tasks.clientId })
+    .from(tasks)
+    .where(eq(tasks.id, taskId))
+    .limit(1);
+  if (!task?.pages?.some((p) => p.url === url)) return { ok: false, error: "Page not found" };
+
+  const pages = task.pages.map((p) => (p.url === url ? { ...p, done } : p));
+  const finished = allPagesDone(pages);
+  const status =
+    finished && task.status !== "done" ? "done" : !finished && task.status === "done" ? "in_progress" : task.status;
+  await db
+    .update(tasks)
+    .set({
+      pages,
+      status,
+      ...(status !== task.status ? { completedByUserId: status === "done" ? await currentUserId() : null } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(tasks.id, taskId));
+  if (status === "done" && task.status !== "done") {
+    await logActivity({
+      kind: "task.completed",
+      message: `Completed task: ${task.title}`,
+      level: "success",
+      clientId: task.clientId,
+      entityType: "task",
+      entityId: taskId,
+    });
+  }
+  revalidatePath("/tasks");
+  return { ok: true, pages, status };
 }

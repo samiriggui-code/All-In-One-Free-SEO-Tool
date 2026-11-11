@@ -12,7 +12,8 @@
  * LLM call needed. Runs as part of onboarding's plan generation.
  */
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
+import { staggeredDueDates } from "./task-pages";
 import { db } from "@/db/client";
 import {
   audits,
@@ -192,37 +193,60 @@ export async function buildQuickWinTasks(opts: {
 
   const scored = rankQuickWins(issues);
 
-  // Dedupe: only one task per (type, url) pair so we don't spam if the
-  // same issue lands on a hundred URLs.
-  const seen = new Set<string>();
-  const planRef = `quick-wins-${start.toISOString().slice(0, 10)}`;
-  const out: QuickWinTask[] = [];
+  // One task per problem, with its pages as sub-items (lib/task-pages.ts).
+  // This used to be one task per (type, page): "Write a meta description
+  // for /", "… for /contact", "… for /blog" — sixty tasks on one client,
+  // most of them the same job.
+  const byType = new Map<string, { message: string; urls: string[] }>();
   for (const i of scored) {
-    if (out.length >= limit) break;
-    const cfg = QUICK_WIN_TYPES[i.type];
-    if (!cfg) continue;
-    const dedupeKey = `${i.type}::${i.url}`;
-    if (seen.has(dedupeKey)) continue;
-    seen.add(dedupeKey);
-    out.push({
+    if (!QUICK_WIN_TYPES[i.type]) continue;
+    const group = byType.get(i.type) ?? { message: i.message, urls: [] };
+    if (!group.urls.includes(i.url)) group.urls.push(i.url);
+    byType.set(i.type, group);
+  }
+
+  // A problem the audit already opened a task for (`audit:<type>`) is
+  // that task, not a second one under another name.
+  const openRows = await db
+    .select({ sourceRef: tasks.sourceRef })
+    .from(tasks)
+    .where(and(eq(tasks.clientId, opts.clientId), inArray(tasks.status, ["todo", "in_progress"])));
+  const coveredByAudit = new Set(
+    openRows.filter((r) => r.sourceRef?.startsWith("audit:")).map((r) => r.sourceRef!.slice("audit:".length)),
+  );
+
+  const groups = [...byType.entries()].filter(([type]) => !coveredByAudit.has(type)).slice(0, limit);
+  // Quick wins are the short jobs to do first (5 to 30 minutes each), so
+  // they do not queue behind the longer audit work: they start on day
+  // three and follow each other every two days.
+  const due = staggeredDueDates(
+    groups.map(() => "high" as const),
+    start,
+  );
+  const planRef = `quick-wins-${start.toISOString().slice(0, 10)}`;
+
+  return groups.map(([type, group], n) => {
+    const cfg = QUICK_WIN_TYPES[type]!;
+    const single = group.urls.length === 1;
+    return {
       clientId: opts.clientId,
-      title: cfg.title(i.message, i.url),
-      description: i.url,
+      // The titles take a place: a path for one page, "12 pages" for more.
+      title: cfg.title(single ? group.message : "", single ? group.urls[0]! : `${group.urls.length} pages`),
+      description: null,
       whyItMatters:
         "Quick win from the latest audit — high impact, low effort. Fix these first to unlock the bigger work.",
       priority: "high",
       status: "todo",
-      dueDate: new Date(start.getTime() + 86_400_000),
+      dueDate: due[n]!,
       recurringInterval: null,
-      estimatedMinutes: cfg.minutes,
+      estimatedMinutes: cfg.minutes * group.urls.length,
       actualMinutes: null,
       toolPath: "/keywords",
-    source: "quick_win",
+      source: "quick_win",
       sourceRef: planRef,
-    });
-  }
-
-  return out;
+      pages: group.urls.map((url) => ({ url, done: false })),
+    };
+  });
 }
 
 /**

@@ -4396,5 +4396,11 @@
         }
       }
     }
+  },
+  "taskPages": {
+    "progress": "{done}/{total} {total, plural, one {page} other {pages}}",
+    "markDone": "Marquer {page} comme corrigée",
+    "open": "Ouvrir {page}",
+    "error": "La page n’a pas pu être mise à jour."
   }
 }

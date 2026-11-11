@@ -432,6 +432,8 @@ export async function generateMonthlyCalendar(
       actualMinutes: null,
       source: "auto_calendar",
       sourceRef: planRef,
+      // A calendar step is not about a list of pages.
+      pages: null,
     }),
   );
 

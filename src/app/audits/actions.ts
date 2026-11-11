@@ -4,7 +4,8 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
-import { and, desc, eq, inArray, like, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, like, ne, or, sql } from "drizzle-orm";
+import { mergeTaskPages, staggeredDueDates } from "@/lib/task-pages";
 import { db } from "@/db/client";
 import { audits, auditIssues, auditRuleHistory, clients, tasks } from "@/db/schema";
 import { runAudit } from "@/lib/audit";
@@ -318,6 +319,52 @@ export async function runAuditForClient(
     );
 
     const generatedTasks = findingsToTasks(crawlFindings);
+    // The pages each open task is about, refreshed by this audit: flagged
+    // pages open, fixed ones ticked, unvisited ones left alone
+    // (lib/task-pages.ts). Runs before the "fresh" filter below, so a
+    // problem that already has its task gets an up-to-date list instead
+    // of nothing.
+    const crawled = result.crawledUrls ? new Set(result.crawledUrls) : null;
+    const urlsByType = new Map<string, string[]>();
+    for (const f of [...crawlFindings, ...engineFindings]) {
+      if (!f.url) continue;
+      const list = urlsByType.get(f.type) ?? [];
+      if (!list.includes(f.url)) list.push(f.url);
+      urlsByType.set(f.type, list);
+    }
+    const openWithPages = await db
+      .select({ id: tasks.id, sourceRef: tasks.sourceRef, pages: tasks.pages })
+      .from(tasks)
+      .where(
+        and(
+          eq(tasks.clientId, clientId),
+          inArray(tasks.status, ["todo", "in_progress"]),
+          or(like(tasks.sourceRef, "audit:%"), like(tasks.sourceRef, "seomator:%")),
+        ),
+      );
+    for (const t of openWithPages) {
+      const type = t.sourceRef!.startsWith("audit:") ? t.sourceRef!.slice("audit:".length) : t.sourceRef!;
+      const pages = mergeTaskPages(t.pages, urlsByType.get(type) ?? [], crawled);
+      if (pages.length === 0) continue;
+      await db.update(tasks).set({ pages, updatedAt: new Date() }).where(eq(tasks.id, t.id));
+    }
+    // Open work per priority, so new tasks queue behind it rather than
+    // all landing on the same day.
+    const planned = await db
+      .select({ priority: tasks.priority, n: sql<number>`count(*)` })
+      .from(tasks)
+      // Only work that has a date: a template task with no due date takes
+      // no slot in the calendar.
+      .where(
+        and(
+          eq(tasks.clientId, clientId),
+          inArray(tasks.status, ["todo", "in_progress"]),
+          isNotNull(tasks.dueDate),
+        ),
+      )
+      .groupBy(tasks.priority);
+    const alreadyPlanned = Object.fromEntries(planned.map((r) => [r.priority, r.n]));
+
     if (generatedTasks.length > 0) {
       // One open task per finding type, however many times the site is
       // audited. This inserted every blueprint again on every run and
@@ -340,26 +387,27 @@ export async function runAuditForClient(
         (t) => !alreadyOpen.has(`audit:${t.type}`),
       );
 
-      const now = Date.now();
-      const dayMs = 86_400_000;
       if (fresh.length > 0) {
+        const due = staggeredDueDates(fresh.map((t) => t.priority), new Date(), alreadyPlanned);
+        for (const t of fresh) alreadyPlanned[t.priority] = (alreadyPlanned[t.priority] ?? 0) + 1;
         await db.insert(tasks).values(
-          fresh.map((t) => ({
-            clientId,
-            title: t.title,
-            description: t.description,
-            whyItMatters: t.whyItMatters,
-            priority: t.priority,
-            toolPath: t.toolPath,
-            status: "todo" as const,
-            sourceRef: `audit:${t.type}`,
-            dueDate:
-              t.priority === "high"
-                ? new Date(now + 7 * dayMs)
-                : t.priority === "medium"
-                  ? new Date(now + 30 * dayMs)
-                  : null,
-          })),
+          fresh.map((t, n) => {
+            const urls = urlsByType.get(t.type) ?? [];
+            return {
+              clientId,
+              title: t.title,
+              // The pages are the sub-items now; the description keeps the
+              // finding's message for a single page only.
+              description: urls.length > 1 ? null : t.description,
+              whyItMatters: t.whyItMatters,
+              priority: t.priority,
+              toolPath: t.toolPath,
+              status: "todo" as const,
+              sourceRef: `audit:${t.type}`,
+              dueDate: due[n],
+              pages: urls.length > 0 ? urls.map((url) => ({ url, done: false })) : null,
+            };
+          }),
         );
       }
     }
@@ -380,27 +428,25 @@ export async function runAuditForClient(
         );
       const alreadyOpen = new Set(open.map((t) => t.sourceRef));
       const fresh = engineTasks.filter((t) => !alreadyOpen.has(t.type));
-      const now = Date.now();
-      const dayMs = 86_400_000;
       if (fresh.length > 0) {
+        const due = staggeredDueDates(fresh.map((t) => t.priority), new Date(), alreadyPlanned);
         await db.insert(tasks).values(
-          fresh.map((t) => ({
-            clientId,
-            title: t.title,
-            description: t.description,
-            whyItMatters: t.whyItMatters,
-            priority: t.priority,
-            toolPath: t.toolPath,
-            status: "todo" as const,
-            // The finding type is already `seomator:<rule id>`.
-            sourceRef: t.type,
-            dueDate:
-              t.priority === "high"
-                ? new Date(now + 7 * dayMs)
-                : t.priority === "medium"
-                  ? new Date(now + 30 * dayMs)
-                  : null,
-          })),
+          fresh.map((t, n) => {
+            const urls = urlsByType.get(t.type) ?? [];
+            return {
+              clientId,
+              title: t.title,
+              description: t.description,
+              whyItMatters: t.whyItMatters,
+              priority: t.priority,
+              toolPath: t.toolPath,
+              status: "todo" as const,
+              // The finding type is already `seomator:<rule id>`.
+              sourceRef: t.type,
+              dueDate: due[n],
+              pages: urls.length > 0 ? urls.map((url) => ({ url, done: false })) : null,
+            };
+          }),
         );
       }
     }
