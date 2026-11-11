@@ -15,7 +15,7 @@ test.describe("shell", () => {
     isMobile,
   }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/SEO Tool/i);
+    await expect(page).toHaveTitle(/rank_forge/i);
 
     if (isMobile) {
       // Desktop sidebar is hidden below md; the drawer is the nav.
@@ -24,7 +24,9 @@ test.describe("shell", () => {
     }
 
     const nav = isMobile ? page.getByRole("dialog") : page.locator("aside");
-    for (const label of ["Clients", "Audits", "Tasks", "All tools"]) {
+    // The entries that are always showing. Audits now sits in a section
+    // that is collapsed until opened, so it is no longer one of them.
+    for (const label of ["Dashboard", "Clients", "Tasks", "All tools"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
     }
   });
@@ -88,7 +90,7 @@ test.describe("shell", () => {
     // Grouped, not the old flat list of 11 hardcoded links.
     await expect(drawer.getByText("Essentials", { exact: true })).toBeVisible();
 
-    await drawer.getByLabel("Filter navigation").fill("report");
+    await drawer.getByRole("searchbox").fill("report");
     await expect(drawer.getByRole("link", { name: /Reports/ })).toBeVisible();
     await expect(drawer.getByRole("link", { name: "Clients" })).toHaveCount(0);
   });

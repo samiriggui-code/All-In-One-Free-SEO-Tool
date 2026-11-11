@@ -28,6 +28,24 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    // The specs assert on English copy, and the app now defaults to
+    // French. Pin the locale cookie so they read the screen they were
+    // written against, rather than failing on "Tâches" vs "Tasks".
+    storageState: {
+      cookies: [
+        {
+          name: "NEXT_LOCALE",
+          value: "en",
+          domain: "127.0.0.1",
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: false,
+          sameSite: "Lax",
+        },
+      ],
+      origins: [],
+    },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
