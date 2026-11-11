@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   ChevronRight,
@@ -14,6 +15,7 @@ import {
 import {
   buildClientToolGroups,
   CLIENT_TOOL_NEEDS_HINTS,
+  type ClientToolLink,
   type ClientToolsClient,
 } from "./client-tools-launcher";
 import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
@@ -23,6 +25,7 @@ import {
   groupsForSurfaces,
   type SurfaceId,
 } from "@/lib/engagement-surfaces";
+import { toolKey } from "@/lib/project-tools";
 import type { OpenToolState } from "./client-tools-panel";
 
 /**
@@ -30,12 +33,14 @@ import type { OpenToolState } from "./client-tools-panel";
  * sticky on desktop. Mobile collapses to a button + sheet so the main
  * content gets full width on phone-size viewports.
  *
+ * With `featured`, the rail shows those few tools (picked from the tab and
+ * the project's missions, lib/project-tools.ts) and folds the forty behind
+ * "All tools". Search still looks through all forty.
+ *
  * Design choices that took two iterations to land on:
  *  - 280px wide so 2-line titles + 2-line blurbs don't get crushed
  *  - Group "needs setup" surface as a small lock-icon hover-tooltip,
  *    not a chunky amber badge — the badge was dominating visual weight
- *  - Per-group colored dot + tool-count chip so the section list is
- *    scannable at a glance
  *  - Search input is sticky at the top of the scroll area so the user
  *    never has to scroll up to filter
  */
@@ -43,6 +48,7 @@ export function ClientToolsSidebar({
   client,
   hasAiKey = false,
   surfaces,
+  featured,
   onOpenTool,
   top,
 }: {
@@ -57,6 +63,8 @@ export function ClientToolsSidebar({
    * using a tool they want today.
    */
   surfaces?: SurfaceId[];
+  /** Tools put forward, as lib/project-tools.ts keys, in order. */
+  featured?: string[];
   /**
    * Whether this app can call a model — a provider key or Ollama. A
    * connected chat subscription is NOT this: MCP runs the other way
@@ -70,6 +78,7 @@ export function ClientToolsSidebar({
    */
   onOpenTool?: (tool: OpenToolState) => void;
 }) {
+  const t = useTranslations("clientPage.tools");
   const allGroups = buildClientToolGroups(client);
 
   // Scope order. Groups no surface claims — "Paid ads & growth" — keep
@@ -90,8 +99,20 @@ export function ClientToolsSidebar({
         return scoped.indexOf(a.label) - scoped.indexOf(b2.label);
       })
     : allGroups;
+
+  // The featured tools, in the order asked for. A key the rail does not
+  // have is skipped (lib/project-tools.test.ts keeps that from happening).
+  const byKey = new Map(
+    allGroups.flatMap((g) => g.tools).map((tool) => [toolKey(tool.href, client.id), tool] as const),
+  );
+  const featuredTools = (featured ?? [])
+    .map((k) => byKey.get(k))
+    .filter((tool): tool is ClientToolLink => Boolean(tool));
+  const hasFeatured = featuredTools.length > 0;
+
   const [query, setQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     // Out-of-scope groups start closed. Seeded once from the initial
     // scope rather than derived every render, so a user who opens one
@@ -112,21 +133,22 @@ export function ClientToolsSidebar({
         .map((g) => ({
           ...g,
           tools: g.tools.filter(
-            (t) =>
-              t.title.toLowerCase().includes(q) ||
-              t.blurb.toLowerCase().includes(q),
+            (tool) =>
+              tool.title.toLowerCase().includes(q) ||
+              tool.blurb.toLowerCase().includes(q),
           ),
         }))
         .filter((g) => g.tools.length > 0)
     : groups;
 
   const toolCount = groups.reduce((s, g) => s + g.tools.length, 0);
+  const shownCount = hasFeatured && !showAll ? featuredTools.length : toolCount;
   const blockedCount = groups.reduce(
     (s, g) =>
       s +
       g.tools.filter(
-        (t) =>
-          toolReadiness({ href: t.href, needs: t.needs, hasAiKey }).state ===
+        (tool) =>
+          toolReadiness({ href: tool.href, needs: tool.needs, hasAiKey }).state ===
           "blocked",
       ).length,
     0,
@@ -141,25 +163,153 @@ export function ClientToolsSidebar({
     });
   }
 
+  function toolItem(tool: ClientToolLink, accent: Accent) {
+    const Icon = tool.icon;
+    return (
+      <li key={tool.href}>
+        <Link
+          href={tool.href}
+          onClick={(e) => {
+            setMobileOpen(false);
+            // Only intercept plain left-click. Mod-click
+            // (ctrl / cmd / shift / middle) keeps the
+            // default behavior (new tab, etc.) so power
+            // users can still fan out the standalone view.
+            if (
+              onOpenTool &&
+              !e.metaKey &&
+              !e.ctrlKey &&
+              !e.shiftKey &&
+              !e.altKey
+            ) {
+              e.preventDefault();
+              onOpenTool({ url: tool.href, title: tool.title });
+            }
+          }}
+          className="group flex items-start gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-white/[0.05]"
+        >
+          <span
+            className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md ring-1 ring-inset ${accent.iconBg}`}
+          >
+            <Icon className={`size-3 ${accent.icon}`} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5">
+              {/* Same dot, same rule, as the main sidebar and the
+                  launcher cards: lib/tool-readiness.ts decides all of
+                  them, so a tool never gets two answers. */}
+              <ToolDot
+                href={tool.href}
+                needs={tool.needs}
+                hasAiKey={hasAiKey}
+                className="mt-px"
+              />
+              <span
+                className={`block flex-1 truncate text-[13px] font-medium leading-tight transition-colors ${accent.hoverText}`}
+              >
+                {tool.title}
+              </span>
+              {tool.autoRuns && (
+                /* This one already runs nightly. It stays
+                   openable — the point is that opening it
+                   is no longer how the check happens. */
+                <span
+                  title={t("autoRuns")}
+                  className="grid size-4 shrink-0 place-items-center rounded text-emerald-400/80"
+                >
+                  <Repeat className="size-3" />
+                </span>
+              )}
+              {tool.needs && (
+                <span
+                  title={CLIENT_TOOL_NEEDS_HINTS[tool.needs]}
+                  className="grid size-4 shrink-0 place-items-center rounded text-amber-300/80"
+                >
+                  <Lock className="size-3" />
+                </span>
+              )}
+            </span>
+            <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+              {tool.blurb}
+            </span>
+          </span>
+        </Link>
+      </li>
+    );
+  }
+
+  const groupList = (
+    <div className="space-y-2">
+      {filteredGroups.length === 0 && (
+        <p className="px-1 py-4 text-center text-xs text-muted-foreground">
+          {t("noMatch", { query })}
+        </p>
+      )}
+      {filteredGroups.map((g, gIdx) => {
+        const collapsed = !q && collapsedGroups.has(g.label);
+        // First group past the scope boundary gets the divider, so the
+        // client's agreed scope is visible here and not only in the PDF.
+        const firstOut =
+          outOfScope.has(g.label) &&
+          !filteredGroups
+            .slice(0, gIdx)
+            .some((prev) => outOfScope.has(prev.label));
+        return (
+          <section key={g.label}>
+            {firstOut && !q && (
+              <p className="mb-1 mt-3 flex items-center gap-2 px-1 text-[9px] uppercase tracking-wider text-muted-foreground/70">
+                <span className="h-px flex-1 bg-border" />
+                {t("outOfScope")}
+                <span className="h-px flex-1 bg-border" />
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => toggleGroup(g.label)}
+              className="group flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
+            >
+              <span className="flex-1 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80">
+                {g.label}
+              </span>
+              <span className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground">
+                {g.tools.length}
+              </span>
+              {collapsed ? (
+                <ChevronRight className="size-3 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="size-3 text-muted-foreground" />
+              )}
+            </button>
+            {!collapsed && (
+              <ul className="mt-1 space-y-px">
+                {g.tools.map((tool) => toolItem(tool, ACCENT))}
+              </ul>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
+
   // Inner list — re-used in both desktop sticky panel and mobile sheet
   const list = (
     <>
-      <div className="sticky top-0 z-10 -mx-2.5 -mt-2.5 mb-2 border-b border-white/[0.04] bg-card/95 px-2.5 py-2 backdrop-blur">
+      <div className="sticky top-0 z-10 -mx-2.5 -mt-2.5 mb-2 border-b border-border bg-card/95 px-2.5 py-2 backdrop-blur">
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter tools…"
-            className="h-9 w-full rounded-md border border-white/10 bg-background/60 pl-8 pr-8 text-xs placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
+            placeholder={t("filter", { count: toolCount })}
+            className="h-9 w-full rounded-md border border-border bg-background/60 pl-8 pr-8 text-xs placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
               className="absolute right-1.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-white/10 hover:text-foreground"
-              aria-label="Clear filter"
+              aria-label={t("clearFilter")}
             >
               <X className="size-3" />
             </button>
@@ -167,10 +317,9 @@ export function ClientToolsSidebar({
         </div>
         {q ? (
           <p className="mt-1.5 text-[10px] text-muted-foreground">
-            {filteredGroups.reduce((s, g) => s + g.tools.length, 0)} match
-            {filteredGroups.reduce((s, g) => s + g.tools.length, 0) === 1
-              ? ""
-              : "es"}
+            {t("matches", {
+              count: filteredGroups.reduce((s, g) => s + g.tools.length, 0),
+            })}
           </p>
         ) : (
           /* What the dots mean, in the one place you can't scroll past.
@@ -181,152 +330,42 @@ export function ClientToolsSidebar({
             {blockedCount > 0 && (
               <Link
                 href="/settings#ai"
-                className="text-[10px] text-amber-300/90 underline decoration-dotted underline-offset-2 hover:text-amber-200"
+                className="text-[10px] text-amber-600 underline decoration-dotted underline-offset-2 hover:text-amber-500 dark:text-amber-300/90"
               >
-                {blockedCount} need setup
+                {t("needSetup", { count: blockedCount })}
               </Link>
             )}
           </div>
         )}
       </div>
 
-      <div className="space-y-2">
-        {filteredGroups.length === 0 && (
-          <p className="px-1 py-4 text-center text-xs text-muted-foreground">
-            No tools match &ldquo;{query}&rdquo;.
+      {q || !hasFeatured ? (
+        groupList
+      ) : (
+        <>
+          <p className="px-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-foreground/80">
+            {t("featured")}
           </p>
-        )}
-        {filteredGroups.map((g, gIdx) => {
-          const collapsed = collapsedGroups.has(g.label);
-          const groupAccent = GROUP_ACCENTS[gIdx % GROUP_ACCENTS.length];
-          // First group past the scope boundary gets the divider, so the
-          // client's agreed scope is visible here and not only in the PDF.
-          const firstOut =
-            outOfScope.has(g.label) &&
-            !filteredGroups
-              .slice(0, gIdx)
-              .some((prev) => outOfScope.has(prev.label));
-          return (
-            <section key={g.label}>
-              {firstOut && !q && (
-                <p className="mb-1 mt-3 flex items-center gap-2 px-1 text-[9px] uppercase tracking-wider text-muted-foreground/70">
-                  <span className="h-px flex-1 bg-white/[0.06]" />
-                  Not in this engagement
-                  <span className="h-px flex-1 bg-white/[0.06]" />
-                </p>
-              )}
-              <button
-                type="button"
-                onClick={() => toggleGroup(g.label)}
-                className="group flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
-              >
-                <span
-                  className={`size-1.5 shrink-0 rounded-full ${groupAccent.dot}`}
-                />
-                <span className="flex-1 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80">
-                  {g.label}
-                </span>
-                <span className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground">
-                  {g.tools.length}
-                </span>
-                {collapsed ? (
-                  <ChevronRight className="size-3 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="size-3 text-muted-foreground" />
-                )}
-              </button>
-              {!collapsed && (
-                <ul className="mt-1 space-y-px">
-                  {g.tools.map((t) => {
-                    const Icon = t.icon;
-                    return (
-                      <li key={t.href}>
-                        <Link
-                          href={t.href}
-                          onClick={(e) => {
-                            setMobileOpen(false);
-                            // Only intercept plain left-click. Mod-click
-                            // (ctrl / cmd / shift / middle) keeps the
-                            // default behavior (new tab, etc.) so power
-                            // users can still fan out the standalone view.
-                            if (
-                              onOpenTool &&
-                              !e.metaKey &&
-                              !e.ctrlKey &&
-                              !e.shiftKey &&
-                              !e.altKey
-                            ) {
-                              e.preventDefault();
-                              onOpenTool({ url: t.href, title: t.title });
-                            }
-                          }}
-                          className="group flex items-start gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-white/[0.05]"
-                        >
-                          <span
-                            className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md ring-1 ring-inset ${groupAccent.iconBg}`}
-                          >
-                            <Icon className={`size-3 ${groupAccent.icon}`} />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="flex items-center gap-1.5">
-                              {/* Same dot, same rule, as the main
-                                  sidebar and the launcher cards. This
-                                  rail is where you actually pick a tool
-                                  for a client, and it was the one panel
-                                  that said nothing about whether the
-                                  tool would run when you got there. */}
-                              <ToolDot
-                                href={t.href}
-                                needs={t.needs}
-                                hasAiKey={hasAiKey}
-                                className="mt-px"
-                              />
-                              <span
-                                className={`block flex-1 truncate text-[13px] font-medium leading-tight transition-colors ${groupAccent.hoverText}`}
-                              >
-                                {t.title}
-                              </span>
-                              {t.autoRuns && (
-                                /* This one already runs nightly. It stays
-                                   openable — the point is that opening it
-                                   is no longer how the check happens. */
-                                <span
-                                  title="Runs on its own every night — findings appear in the ranked list without you opening this."
-                                  className="grid size-4 shrink-0 place-items-center rounded text-emerald-400/80"
-                                >
-                                  <Repeat className="size-3" />
-                                </span>
-                              )}
-                              {t.needs && (
-                                <span
-                                  title={CLIENT_TOOL_NEEDS_HINTS[t.needs]}
-                                  className="grid size-4 shrink-0 place-items-center rounded text-amber-300/80"
-                                >
-                                  <Lock className="size-3" />
-                                </span>
-                              )}
-                            </span>
-                            <span className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-                              {t.blurb}
-                            </span>
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          );
-        })}
-      </div>
+          <ul className="space-y-px">{featuredTools.map((tool) => toolItem(tool, ACCENT))}</ul>
+          <button
+            type="button"
+            onClick={() => setShowAll((v) => !v)}
+            aria-expanded={showAll}
+            className="mt-3 flex w-full items-center gap-2 rounded-md border-t border-border px-1 pb-1 pt-3 text-left text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {showAll ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+            <span className="flex-1">{t("allTools", { count: toolCount })}</span>
+          </button>
+          {showAll && <div className="mt-1">{groupList}</div>}
+        </>
+      )}
 
       <p className="mt-4 px-1 text-[10px] text-muted-foreground/70">
         <Link
           href="/tools"
           className="hover:text-foreground hover:underline"
         >
-          Browse all tools →
+          {t("toolbox")}
         </Link>
       </p>
     </>
@@ -340,10 +379,10 @@ export function ClientToolsSidebar({
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-violet-500/15 px-3 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary/10 px-3 text-xs font-medium text-primary ring-1 ring-inset ring-primary/30 hover:bg-primary/15"
         >
           <Wrench className="size-3.5" />
-          Tools for this client ({toolCount})
+          {t("title")} ({shownCount})
         </button>
         {mobileOpen && (
           <div
@@ -351,17 +390,18 @@ export function ClientToolsSidebar({
             onClick={() => setMobileOpen(false)}
           >
             <div
-              className="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] overflow-y-auto border-l border-white/10 bg-card p-3"
+              className="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] overflow-y-auto border-l border-border bg-card p-3"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-3 flex items-center justify-between px-1">
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
-                  <Wrench className="size-4 text-violet-300" />
-                  Tools for this client
+                  <Wrench className="size-4 text-primary" />
+                  {t("title")}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
+                  aria-label={t("close")}
                   className="grid size-7 place-items-center rounded text-muted-foreground hover:bg-white/10"
                 >
                   <X className="size-4" />
@@ -373,22 +413,23 @@ export function ClientToolsSidebar({
         )}
       </div>
 
-      {/* Desktop: sticky secondary sidebar */}
+      {/* Desktop: sticky secondary sidebar. Its height follows what it
+          shows, up to the viewport, so five tools are not a tall box. */}
       <div className="sticky top-4 hidden w-[280px] shrink-0 flex-col gap-3 md:flex">
       {top}
-      <aside className="flex h-[calc(100vh-6.5rem)] flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-md">
-        <header className="flex items-center gap-2 border-b border-white/[0.06] bg-violet-500/[0.04] px-3 py-2">
-          <Wrench className="size-3.5 shrink-0 text-violet-300" />
+      <aside className="flex max-h-[calc(100vh-6.5rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card">
+        <header className="flex items-center gap-2 border-b border-border px-3 py-2">
+          <Wrench className="size-3.5 shrink-0 text-primary" />
           <div className="min-w-0 flex-1">
             <h3 className="text-[13px] font-semibold leading-tight">
-              Tools for this client
+              {t("title")}
             </h3>
           </div>
-          <span className="rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
-            {toolCount}
+          <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+            {shownCount}
           </span>
         </header>
-        <div className="flex-1 overflow-y-auto px-2.5 pb-3 pt-2.5">{list}</div>
+        <div className="overflow-y-auto px-2.5 pb-3 pt-2.5">{list}</div>
       </aside>
       </div>
     </>
@@ -396,52 +437,14 @@ export function ClientToolsSidebar({
 }
 
 /**
- * Color rotation for group accents. 7 colors cycle through the ~8 groups
- * — enough variation to scan visually without overwhelming. Each entry
- * is pre-baked Tailwind so the JIT picks it up (dynamic class names
- * would silently fail).
+ * One accent for every tool, the brand's (docs/HANDOFF.md §C: a single
+ * accent colour, no per-group rainbow). Classes written out in full so
+ * Tailwind's JIT sees them.
  */
-const GROUP_ACCENTS = [
-  {
-    dot: "bg-violet-400",
-    iconBg: "bg-violet-500/10 ring-violet-500/20",
-    icon: "text-violet-300",
-    hoverText: "group-hover:text-violet-200",
-  },
-  {
-    dot: "bg-cyan-400",
-    iconBg: "bg-cyan-500/10 ring-cyan-500/20",
-    icon: "text-cyan-300",
-    hoverText: "group-hover:text-cyan-200",
-  },
-  {
-    dot: "bg-emerald-400",
-    iconBg: "bg-emerald-500/10 ring-emerald-500/20",
-    icon: "text-emerald-300",
-    hoverText: "group-hover:text-emerald-200",
-  },
-  {
-    dot: "bg-rose-400",
-    iconBg: "bg-rose-500/10 ring-rose-500/20",
-    icon: "text-rose-300",
-    hoverText: "group-hover:text-rose-200",
-  },
-  {
-    dot: "bg-amber-400",
-    iconBg: "bg-amber-500/10 ring-amber-500/20",
-    icon: "text-amber-300",
-    hoverText: "group-hover:text-amber-200",
-  },
-  {
-    dot: "bg-sky-400",
-    iconBg: "bg-sky-500/10 ring-sky-500/20",
-    icon: "text-sky-300",
-    hoverText: "group-hover:text-sky-200",
-  },
-  {
-    dot: "bg-fuchsia-400",
-    iconBg: "bg-fuchsia-500/10 ring-fuchsia-500/20",
-    icon: "text-fuchsia-300",
-    hoverText: "group-hover:text-fuchsia-200",
-  },
-] as const;
+const ACCENT = {
+  iconBg: "bg-primary/10 ring-primary/20",
+  icon: "text-primary",
+  hoverText: "group-hover:text-primary",
+} as const;
+
+type Accent = typeof ACCENT;

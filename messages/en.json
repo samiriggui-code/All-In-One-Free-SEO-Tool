@@ -2731,6 +2731,20 @@
       "footer": "Ranked by what it changes against how long it takes.",
       "close": "Close"
     },
+    "tools": {
+      "title": "Project tools",
+      "featured": "Useful now",
+      "allTools": "All tools ({count})",
+      "toolbox": "Toolbox →",
+      "filter": "Search the {count} tools…",
+      "clearFilter": "Clear search",
+      "matches": "{count, plural, =0 {No match} one {# match} other {# matches}}",
+      "noMatch": "No tools match “{query}”.",
+      "needSetup": "{count, plural, one {# needs setup} other {# need setup}}",
+      "outOfScope": "Not in this engagement",
+      "autoRuns": "Runs on its own every night — findings appear in the action plan without you opening this.",
+      "close": "Close"
+    },
     "tabs": {
       "aria": "Project sections",
       "overview": "Overview",
