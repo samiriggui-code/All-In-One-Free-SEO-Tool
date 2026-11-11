@@ -1,4 +1,6 @@
 "use client";
+import { TaskPagesList } from "./task-pages";
+import type { TaskPage } from "@/lib/task-pages";
 
 import { useState, useTransition, useMemo } from "react";
 import Link from "next/link";
@@ -66,6 +68,8 @@ export type BulkTask = {
   recurringInterval: string | null;
   clientId: number | null;
   clientName: string | null;
+  /** The pages this task is about, each with its own tick. */
+  pages?: TaskPage[] | null;
 };
 
 const statusConfig: Record<string, { className: string }> = {
@@ -436,6 +440,9 @@ function Row({
               {task.whyItMatters}
             </p>
           )}
+          {task.pages && task.pages.length > 0 ? (
+            <TaskPagesList taskId={task.id} pages={task.pages} />
+          ) : null}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
             {task.toolPath && task.status !== "done" && (
               // Carries the client, so the tool opens already pointed at

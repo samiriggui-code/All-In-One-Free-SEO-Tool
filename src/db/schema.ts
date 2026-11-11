@@ -301,6 +301,11 @@ export const tasks = sqliteTable("tasks", {
   source: text("source"),
   /** Identifier of the plan run that produced this task (date-stamp). */
   sourceRef: text("source_ref"),
+  /**
+   * The pages this task is about, each with its own tick: one task per
+   * problem rather than one per page. See lib/task-pages.ts.
+   */
+  pages: text("pages_json", { mode: "json" }).$type<import("../lib/task-pages").TaskPage[] | null>(),
   /** Who owns this task. Null on solo installs and on every pre-accounts row. */
   assignedUserId: integer("assigned_user_id").references(() => users.id, {
     onDelete: "set null",
