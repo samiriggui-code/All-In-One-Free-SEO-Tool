@@ -65,6 +65,9 @@ import { Dropdown } from "@/components/ui/dropdown";
 import { ClientToolsPanel } from "./client-tools-panel";
 import { StartHere, startHereStepsLeft } from "./start-here";
 import { ClientActionPlan } from "./client-action-plan";
+import { ProjectTabs, parseProjectTab } from "./project-tabs";
+import { ProjectMissions } from "./project-missions";
+import { listMissions } from "@/lib/projects";
 import { NextActionsPanel } from "@/components/next-actions-panel";
 import { nextActions } from "@/lib/next-actions";
 import { surfacesFor } from "@/lib/engagement-surfaces";
@@ -163,6 +166,7 @@ export default async function ClientDetailPage({
   if (!Number.isFinite(clientId)) notFound();
   const sp = (await searchParams) ?? {};
   const brandingNeeded = sp["branding-needed"] === "1";
+  const tab = parseProjectTab(sp.tab);
   const brandingTemplate =
     typeof sp.template === "string" ? sp.template : "executive";
 
@@ -325,6 +329,7 @@ export default async function ClientDetailPage({
   // setup; this covers everything after it, and says which half the agent
   // will take.
   const ranked = await nextActions({ clientId, limit: 8 });
+  const missionCount = (await listMissions(clientId)).length;
   const startHereLeft = startHereStepsLeft({
     auditDone: Boolean(latestCompleted),
     keywordCount,
@@ -831,6 +836,11 @@ export default async function ClientDetailPage({
         );
       })()}
 
+      <ProjectTabs projectId={client.id} active={tab} missionCount={missionCount} />
+
+      {tab === "overview" && (
+        <>
+
       {/* STATS — or inviting empty-state when this client has no data yet */}
       {latestCompleted || keywordCount > 0 || openTaskCount > 0 ? (
         (() => {
@@ -967,6 +977,13 @@ export default async function ClientDetailPage({
           </div>
         </section>
       )}
+        </>
+      )}
+
+      {tab === "missions" && <ProjectMissions projectId={client.id} />}
+
+      {tab === "settings" && (
+        <>
 
       {/* DAILY AUTOMATION ENTRY — schedules + queue, per client */}
       <DailyAutomationCard clientId={client.id} />
@@ -1013,6 +1030,10 @@ export default async function ClientDetailPage({
           />
         </div>
       </section>
+        </>
+      )}
+      {tab === "overview" && (
+        <>
 
       {/* LIVE GOOGLE DATA — only when properties are linked */}
       {googleStatus.configured && client.ga4PropertyId && (
@@ -1046,6 +1067,10 @@ export default async function ClientDetailPage({
       <Suspense fallback={null}>
         <SnapshotSparklines clientId={client.id} />
       </Suspense>
+        </>
+      )}
+      {tab === "settings" && (
+        <>
 
       {/* WP one-click bridge */}
       <WpBridgePanel
@@ -1228,6 +1253,10 @@ export default async function ClientDetailPage({
           </p>
         </div>
       </section>
+        </>
+      )}
+      {tab === "overview" && (
+        <>
 
       {/* RECENT AUDITS */}
       <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -1285,6 +1314,10 @@ export default async function ClientDetailPage({
           )}
         </div>
       </section>
+        </>
+      )}
+      {tab === "settings" && (
+        <>
 
       <ShareCard
         clientId={client.id}
@@ -1317,6 +1350,8 @@ export default async function ClientDetailPage({
           />
         </div>
       </section>
+        </>
+      )}
         </div>
       </div>
     </div>

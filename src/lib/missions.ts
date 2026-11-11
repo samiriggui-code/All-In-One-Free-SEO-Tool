@@ -6,7 +6,7 @@
  * and writes are in projects.ts.
  */
 
-import type { MissionKind } from "@/db/schema";
+import type { MissionKind } from "./mission-kinds";
 
 /** What the rules need to know about a project's audits. */
 export type AuditFacts = {

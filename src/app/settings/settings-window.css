@@ -1179,3 +1179,21 @@ button.gsk-card:focus-visible {
 .gsk-plain > div > section > header {
   display: none;
 }
+
+/* Tabs made of links (project page) */
+.gsk-tab[aria-current="page"] {
+  color: var(--gsk-text-1);
+}
+.gsk-tab[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--gsk-brand);
+}
+.gsk-card--selected {
+  border-color: var(--gsk-brand);
+}
