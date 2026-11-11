@@ -19,6 +19,7 @@
  */
 
 import type { AuditFinding, Severity } from "./audit";
+import { blueprintsFr, placeFr } from "./audit-to-task.fr";
 import { toolForFinding } from "./finding-tool-map";
 import { withoutInfrastructure } from "./infrastructure-urls";
 
@@ -114,6 +115,31 @@ const blueprints: Record<string, TaskBlueprint> = {
     whyItMatters:
       "Alt text helps screen readers, image search, and gives Google more context about the page's topic.",
   },
+  // Without a blueprint these used the finding's message as the title
+  // ("No /robots", "Page has only 27 words — …"), which reads as a
+  // diagnosis, not as something to do.
+  missing_schema: {
+    title: (where) => `Add structured data (JSON-LD) to ${where}`,
+    whyItMatters: "Schema markup makes the page eligible for rich results in search and helps AI answers cite it.",
+  },
+  thin_content: {
+    title: (where) => `Expand the content on ${where}`,
+    whyItMatters:
+      "Pages with very little text are often treated as thin content by Google and rarely rank for anything.",
+  },
+  missing_robots_txt: {
+    title: () => "Add a robots.txt file",
+    whyItMatters: "robots.txt tells crawlers what to read and where the sitemap is. Its absence leaves both to guesswork.",
+  },
+  missing_sitemap: {
+    title: () => "Create and submit a sitemap.xml",
+    whyItMatters: "A sitemap helps Google find every page, including the ones few links point to.",
+  },
+  missing_security_headers: {
+    title: () => "Add the missing security headers",
+    whyItMatters:
+      "Headers such as HSTS and X-Frame-Options protect visitors and are read as a trust signal. Usually a one-line server setting each.",
+  },
 };
 
 const severityToPriority: Record<Severity, "high" | "medium" | "low"> = {
@@ -160,7 +186,9 @@ export function placeOf(urls: readonly string[]): string {
   }
 }
 
-export function findingsToTasks(findings: AuditFinding[]): GeneratedTask[] {
+/** `locale`: the workspace language; French texts live in audit-to-task.fr.ts. */
+export function findingsToTasks(findings: AuditFinding[], locale: "fr" | "en" = "en"): GeneratedTask[] {
+  const fr = locale === "fr";
   // Infrastructure first, low severity second. One task per finding
   // type, not per page: "Write a meta description for 34 pages" is a job
   // somebody picks up, and thirty-four separate tasks is a backlog nobody
@@ -176,7 +204,7 @@ export function findingsToTasks(findings: AuditFinding[]): GeneratedTask[] {
     const worst = list.reduce((a, b) =>
       severityRank(b.severity) > severityRank(a.severity) ? b : a,
     );
-    const blueprint = blueprints[type];
+    const blueprint = (fr ? blueprintsFr[type] : undefined) ?? blueprints[type];
     // With several pages the description lists them, so the task says
     // which pages rather than leaving the reader to re-run the audit.
     const description =
@@ -188,7 +216,7 @@ export function findingsToTasks(findings: AuditFinding[]): GeneratedTask[] {
         : worst.message;
 
     if (!blueprint) {
-      const note = list.length > 1 ? ` (affects ${list.length} pages)` : "";
+      const note = list.length > 1 ? (fr ? ` (${list.length} pages)` : ` (affects ${list.length} pages)`) : "";
       return {
         type,
         title: (worst.message.split(".")[0] ?? type) + note,
@@ -203,7 +231,7 @@ export function findingsToTasks(findings: AuditFinding[]): GeneratedTask[] {
     }
     return {
       type,
-      title: blueprint.title(placeOf(list.map((f) => f.url))),
+      title: blueprint.title((fr ? placeFr : placeOf)(list.map((f) => f.url))),
       description,
       whyItMatters: blueprint.whyItMatters,
       priority: severityToPriority[worst.severity],

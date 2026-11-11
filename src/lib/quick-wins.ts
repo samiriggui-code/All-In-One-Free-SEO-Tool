@@ -14,6 +14,8 @@
 
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { staggeredDueDates } from "./task-pages";
+import { quickWinTitlesFr, quickWinWhyFr } from "./audit-to-task.fr";
+import { getReportLocale } from "./report-i18n";
 import { db } from "@/db/client";
 import {
   audits,
@@ -158,8 +160,11 @@ export async function buildQuickWinTasks(opts: {
   startDate?: Date;
   /** Cap the number of quick-wins to keep the "Fix today" list short. */
   limit?: number;
+  /** Language of the task texts; the workspace language when omitted. */
+  locale?: "fr" | "en";
 }): Promise<QuickWinTask[]> {
   const limit = opts.limit ?? 10;
+  const fr = (opts.locale ?? (await getReportLocale())) === "fr";
   const start = opts.startDate ?? new Date();
 
   const [latest] = await db
@@ -228,13 +233,17 @@ export async function buildQuickWinTasks(opts: {
   return groups.map(([type, group], n) => {
     const cfg = QUICK_WIN_TYPES[type]!;
     const single = group.urls.length === 1;
+    const frTitle = fr ? quickWinTitlesFr[type] : undefined;
     return {
       clientId: opts.clientId,
       // The titles take a place: a path for one page, "12 pages" for more.
-      title: cfg.title(single ? group.message : "", single ? group.urls[0]! : `${group.urls.length} pages`),
+      title: frTitle
+        ? frTitle(single ? pathOf(group.urls[0]!) : `${group.urls.length} pages`)
+        : cfg.title(single ? group.message : "", single ? group.urls[0]! : `${group.urls.length} pages`),
       description: null,
-      whyItMatters:
-        "Quick win from the latest audit — high impact, low effort. Fix these first to unlock the bigger work.",
+      whyItMatters: fr
+        ? quickWinWhyFr
+        : "Quick win from the latest audit — high impact, low effort. Fix these first to unlock the bigger work.",
       priority: "high",
       status: "todo",
       dueDate: due[n]!,
@@ -258,16 +267,19 @@ export async function applyQuickWins(opts: {
   limit?: number;
 }): Promise<{ created: number }> {
   const newTasks = await buildQuickWinTasks(opts);
-  if (newTasks.length === 0) return { created: 0 };
 
-  // Wipe prior open quick-wins so re-running is idempotent
+  // Replace the previous quick wins nobody has started. This ran only
+  // when there were new ones, so once the audit's own tasks covered every
+  // quick-win problem the old per-page tasks stayed forever. Started,
+  // timed or assigned ones are left alone.
   const { sql } = await import("drizzle-orm");
   await db
     .delete(tasks)
     .where(
-      sql`${tasks.clientId} = ${opts.clientId} AND ${tasks.source} = 'quick_win' AND ${tasks.status} = 'todo'`,
+      sql`${tasks.clientId} = ${opts.clientId} AND ${tasks.source} = 'quick_win' AND ${tasks.status} = 'todo' AND coalesce(${tasks.actualMinutes}, 0) = 0 AND ${tasks.assignedUserId} IS NULL`,
     );
 
+  if (newTasks.length === 0) return { created: 0 };
   await db.insert(tasks).values(newTasks);
 
   await logActivity({

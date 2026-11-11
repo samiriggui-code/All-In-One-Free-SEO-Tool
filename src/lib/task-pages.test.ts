@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allPagesDone, mergeTaskPages, pageProgress, staggeredDueDates } from "./task-pages";
+import { allPagesDone, mergeTaskPages, pageProgress, spreadSameDayDueDates, staggeredDueDates } from "./task-pages";
 
 const A = "https://site.fr/";
 const B = "https://site.fr/contact";
@@ -61,6 +61,35 @@ describe("pageProgress and allPagesDone", () => {
     expect(allPagesDone(pages.map((p) => ({ ...p, done: true })))).toBe(true);
     expect(allPagesDone([])).toBe(false);
     expect(pageProgress(null)).toEqual({ done: 0, total: 0 });
+  });
+});
+
+describe("spreadSameDayDueDates", () => {
+  const d = (day: number) => new Date(Date.UTC(2026, 10, day, 9));
+  it("moves only the tasks that share a day, by the priority's pace", () => {
+    const moved = spreadSameDayDueDates([
+      { id: 1, priority: "high", dueDate: d(18) },
+      { id: 2, priority: "high", dueDate: d(18) },
+      { id: 3, priority: "high", dueDate: d(18) },
+      { id: 4, priority: "medium", dueDate: d(18) },
+      { id: 5, priority: "low", dueDate: null },
+    ]);
+    expect([...moved.entries()].map(([id, date]) => [id, date.getUTCDate()])).toEqual([
+      [2, 20],
+      [3, 22],
+    ]);
+  });
+
+  it("skips days already taken and changes nothing the second time", () => {
+    const first = [
+      { id: 1, priority: "high" as const, dueDate: d(18) },
+      { id: 2, priority: "high" as const, dueDate: d(18) },
+      { id: 3, priority: "high" as const, dueDate: d(20) },
+    ];
+    const moved = spreadSameDayDueDates(first);
+    expect(moved.get(2)?.getUTCDate()).toBe(22);
+    const after = first.map((t) => ({ ...t, dueDate: moved.get(t.id) ?? t.dueDate }));
+    expect(spreadSameDayDueDates(after).size).toBe(0);
   });
 });
 

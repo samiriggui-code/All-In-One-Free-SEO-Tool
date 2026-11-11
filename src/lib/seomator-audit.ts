@@ -14,6 +14,8 @@ import type {
   RuleResult,
 } from "@/audit";
 import { fetchPageWithPlaywright } from "@/audit/crawler/playwright-fetcher";
+import { engineTitleFr, engineWhyFr, placeFr } from "./audit-to-task.fr";
+import { ruleNamesFr } from "./rule-names.fr";
 import type { AuditFinding, Severity } from "./audit";
 import { runEngine, type AuditMode } from "@/lib/audit-engine";
 import {
@@ -224,6 +226,8 @@ function taskPriorityFromPlan(p: ActionPriority): "high" | "medium" | "low" {
 export function seomatorFindingsToTasks(
   findings: SeomatorFinding[],
   limit = 25,
+  /** The workspace language (audit-to-task.fr.ts for the French texts). */
+  locale: "fr" | "en" = "en",
 ): SeomatorGeneratedTask[] {
   const actionable = findings.filter(
     (f) => f.severity === "critical" || f.severity === "high",
@@ -264,14 +268,18 @@ export function seomatorFindingsToTasks(
   const tasks: SeomatorGeneratedTask[] = [];
   for (const { type, group, sample, planPriority } of ranked) {
     if (tasks.length >= limit) break;
-    const where =
-      group.length === 1
+    const fr = locale === "fr";
+    const where = fr
+      ? placeFr(group.map((g) => g.url))
+      : group.length === 1
         ? sample.url
         : `${group.length} pages (e.g. ${sample.url})`;
     const effort = effortForPriority(planPriority);
     tasks.push({
       type,
-      title: `[${planPriority}] ${sample.ruleName}: fix on ${where}`,
+      title: fr
+        ? engineTitleFr(planPriority, ruleNamesFr[type.replace(/^seomator:/, "")] ?? sample.ruleName, where)
+        : `[${planPriority}] ${sample.ruleName}: fix on ${where}`,
       description: [
         sample.message,
         sample.fixSteps,
@@ -279,8 +287,9 @@ export function seomatorFindingsToTasks(
       ]
         .filter(Boolean)
         .join("\n\n"),
-      whyItMatters:
-        "Technical audit rule. High-severity issues block crawlability, indexability or trust — fix before content work.",
+      whyItMatters: fr
+        ? engineWhyFr
+        : "Technical audit rule. High-severity issues block crawlability, indexability or trust — fix before content work.",
       priority: taskPriorityFromPlan(planPriority),
       planPriority,
       toolPath: "/audits",
