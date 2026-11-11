@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -96,6 +96,20 @@ export function ProjectSettings({ projectId, google, wordpress, reports }: Proje
       <ReportsBlock projectId={projectId} reports={reports} />
     </div>
   );
+}
+
+/**
+ * Submits a sheet form to its action without React 19 resetting it: with
+ * action={…} the form is cleared once the action returns, so a rejected
+ * value (a bad key, an invalid recipient) also wiped everything else the
+ * user had just typed.
+ */
+function submitKeepingFields(dispatch: (data: FormData) => void) {
+  return (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    startTransition(() => dispatch(data));
+  };
 }
 
 function Block({ children }: { children: React.ReactNode }) {
@@ -522,7 +536,7 @@ function WordPressConnectSheet({
       closeLabel={t("cancel")}
       onClose={onClose}
     >
-      <form action={formAction} className="gsk-sheet-form">
+      <form className="gsk-sheet-form" onSubmit={submitKeepingFields(formAction)}>
         <input type="hidden" name="clientId" value={projectId} />
         <div className="gsk-drawer__body">
           <div className="gsk-sheet-section">
@@ -610,7 +624,7 @@ function WordPressFixSheet({ projectId, onClose }: { projectId: number; onClose:
       closeLabel={t("close")}
       onClose={onClose}
     >
-      <form action={formAction} className="gsk-sheet-form">
+      <form className="gsk-sheet-form" onSubmit={submitKeepingFields(formAction)}>
         <input type="hidden" name="clientId" value={projectId} />
         <div className="gsk-drawer__body">
           <div className="gsk-sheet-section">
@@ -818,7 +832,7 @@ function ReportSheet({
       closeLabel={t("cancel")}
       onClose={onClose}
     >
-      <form action={formAction} className="gsk-sheet-form">
+      <form className="gsk-sheet-form" onSubmit={submitKeepingFields(formAction)}>
         <input type="hidden" name="clientId" value={projectId} />
         <div className="gsk-drawer__body">
           <div className="gsk-sheet-section">
