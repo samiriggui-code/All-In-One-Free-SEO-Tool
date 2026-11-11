@@ -52,9 +52,12 @@
      (offline self-host, corporate network blocking fonts.googleapis.com).
      Without these fallbacks Tailwind's font-sans resolved to the
      browser default, which is Times New Roman on Windows. */
+  /* One family for text and headings: Inter, then GsKnora's system stack.
+     Inter first because Chrome on Linux resolves -apple-system / Segoe UI
+     to Liberation Sans through fontconfig. Monospace for code only. */
   --font-sans: var(--font-geist-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: var(--font-geist-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-heading: var(--font-geist-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", var(--font-geist-mono), monospace;
+  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -149,6 +152,102 @@
   --color-indigo-800: oklch(0.424 0.15 257);
   --color-indigo-900: oklch(0.379 0.12 258);
   --color-indigo-950: oklch(0.282 0.087 260);
+
+  /* One accent, three status colours.
+     Decorative hues (cyan, sky, blue, teal, pink) were used side by side
+     for icons, pills and buttons and turned every screen into a rainbow.
+     They all follow the brand blue now, like violet/purple/fuchsia/indigo
+     above. Status colours keep their meaning: emerald/green = done,
+     amber/yellow/orange = needs attention, red/rose = problem. Lime joins
+     green and orange joins amber so each status has a single hue. */
+  --color-cyan-50: var(--color-violet-50);
+  --color-cyan-100: var(--color-violet-100);
+  --color-cyan-200: var(--color-violet-200);
+  --color-cyan-300: var(--color-violet-300);
+  --color-cyan-400: var(--color-violet-400);
+  --color-cyan-500: var(--color-violet-500);
+  --color-cyan-600: var(--color-violet-600);
+  --color-cyan-700: var(--color-violet-700);
+  --color-cyan-800: var(--color-violet-800);
+  --color-cyan-900: var(--color-violet-900);
+  --color-cyan-950: var(--color-violet-950);
+  --color-sky-50: var(--color-violet-50);
+  --color-sky-100: var(--color-violet-100);
+  --color-sky-200: var(--color-violet-200);
+  --color-sky-300: var(--color-violet-300);
+  --color-sky-400: var(--color-violet-400);
+  --color-sky-500: var(--color-violet-500);
+  --color-sky-600: var(--color-violet-600);
+  --color-sky-700: var(--color-violet-700);
+  --color-sky-800: var(--color-violet-800);
+  --color-sky-900: var(--color-violet-900);
+  --color-sky-950: var(--color-violet-950);
+  --color-blue-50: var(--color-violet-50);
+  --color-blue-100: var(--color-violet-100);
+  --color-blue-200: var(--color-violet-200);
+  --color-blue-300: var(--color-violet-300);
+  --color-blue-400: var(--color-violet-400);
+  --color-blue-500: var(--color-violet-500);
+  --color-blue-600: var(--color-violet-600);
+  --color-blue-700: var(--color-violet-700);
+  --color-blue-800: var(--color-violet-800);
+  --color-blue-900: var(--color-violet-900);
+  --color-blue-950: var(--color-violet-950);
+  --color-teal-50: var(--color-violet-50);
+  --color-teal-100: var(--color-violet-100);
+  --color-teal-200: var(--color-violet-200);
+  --color-teal-300: var(--color-violet-300);
+  --color-teal-400: var(--color-violet-400);
+  --color-teal-500: var(--color-violet-500);
+  --color-teal-600: var(--color-violet-600);
+  --color-teal-700: var(--color-violet-700);
+  --color-teal-800: var(--color-violet-800);
+  --color-teal-900: var(--color-violet-900);
+  --color-teal-950: var(--color-violet-950);
+  --color-pink-50: var(--color-violet-50);
+  --color-pink-100: var(--color-violet-100);
+  --color-pink-200: var(--color-violet-200);
+  --color-pink-300: var(--color-violet-300);
+  --color-pink-400: var(--color-violet-400);
+  --color-pink-500: var(--color-violet-500);
+  --color-pink-600: var(--color-violet-600);
+  --color-pink-700: var(--color-violet-700);
+  --color-pink-800: var(--color-violet-800);
+  --color-pink-900: var(--color-violet-900);
+  --color-pink-950: var(--color-violet-950);
+  --color-lime-50: var(--color-green-50);
+  --color-lime-100: var(--color-green-100);
+  --color-lime-200: var(--color-green-200);
+  --color-lime-300: var(--color-green-300);
+  --color-lime-400: var(--color-green-400);
+  --color-lime-500: var(--color-green-500);
+  --color-lime-600: var(--color-green-600);
+  --color-lime-700: var(--color-green-700);
+  --color-lime-800: var(--color-green-800);
+  --color-lime-900: var(--color-green-900);
+  --color-lime-950: var(--color-green-950);
+  --color-orange-50: var(--color-amber-50);
+  --color-orange-100: var(--color-amber-100);
+  --color-orange-200: var(--color-amber-200);
+  --color-orange-300: var(--color-amber-300);
+  --color-orange-400: var(--color-amber-400);
+  --color-orange-500: var(--color-amber-500);
+  --color-orange-600: var(--color-amber-600);
+  --color-orange-700: var(--color-amber-700);
+  --color-orange-800: var(--color-amber-800);
+  --color-orange-900: var(--color-amber-900);
+  --color-orange-950: var(--color-amber-950);
+  --color-yellow-50: var(--color-amber-50);
+  --color-yellow-100: var(--color-amber-100);
+  --color-yellow-200: var(--color-amber-200);
+  --color-yellow-300: var(--color-amber-300);
+  --color-yellow-400: var(--color-amber-400);
+  --color-yellow-500: var(--color-amber-500);
+  --color-yellow-600: var(--color-amber-600);
+  --color-yellow-700: var(--color-amber-700);
+  --color-yellow-800: var(--color-amber-800);
+  --color-yellow-900: var(--color-amber-900);
+  --color-yellow-950: var(--color-amber-950);
 }
 
 /* Light theme.
@@ -408,91 +507,32 @@
  * No overrides needed; the natural scale at 16px base is correct. */
 
 @layer utilities {
-  /* Gradient headings.
-     The stops below are the LIGHT-mode values; `.dark` overrides them
-     just after. The originals ran at 0.75-0.92 lightness, which is
-     near-invisible on a white canvas — the single biggest thing that
-     broke when the light theme became reachable, because these are used
-     on almost every page title. */
-  .text-gradient-brand {
-    background: linear-gradient(
-      135deg,
-      oklch(0.46 0.12 238),
-      oklch(0.5 0.14 228),
-      oklch(0.52 0.12 205)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .dark .text-gradient-brand {
-    background: linear-gradient(
-      135deg,
-      oklch(0.93 0.05 220),
-      oklch(0.8 0.15 225),
-      oklch(0.86 0.13 205)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-  .text-gradient-violet {
-    background: linear-gradient(
-      135deg,
-      oklch(0.52 0.15 232),
-      oklch(0.44 0.15 245)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .dark .text-gradient-violet {
-    background: linear-gradient(
-      135deg,
-      oklch(0.86 0.12 215),
-      oklch(0.68 0.17 238)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
+  /* Formerly gradient headings and numbers (brand, violet, cyan, amber,
+     emerald, rose). Gradient text read as a rainbow next to each other;
+     they are plain colours now: neutral for brand/violet/cyan, and the
+     status colour only where the class carries a meaning. */
+  .text-gradient-brand,
+  .text-gradient-violet,
   .text-gradient-cyan {
-    background: linear-gradient(
-      135deg,
-      oklch(0.85 0.16 200),
-      oklch(0.7 0.18 220)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--foreground);
   }
   .text-gradient-amber {
-    background: linear-gradient(
-      135deg,
-      oklch(0.88 0.16 80),
-      oklch(0.75 0.21 50)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-amber-600);
   }
   .text-gradient-emerald {
-    background: linear-gradient(
-      135deg,
-      oklch(0.88 0.16 160),
-      oklch(0.7 0.2 155)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-emerald-600);
   }
   .text-gradient-rose {
-    background: linear-gradient(
-      135deg,
-      oklch(0.85 0.16 20),
-      oklch(0.66 0.24 15)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-rose-600);
+  }
+  .dark .text-gradient-amber {
+    color: var(--color-amber-400);
+  }
+  .dark .text-gradient-emerald {
+    color: var(--color-emerald-400);
+  }
+  .dark .text-gradient-rose {
+    color: var(--color-rose-400);
   }
 
   /* shadcn-admin card style — these class names are kept for backwards
@@ -531,67 +571,31 @@
   .stagger-4 { animation-delay: 120ms; }
   .stagger-5 { animation-delay: 150ms; }
 
-  /* Hover-lift utility for interactive cards */
+  /* Hover state for interactive cards: a stronger border, no glow. */
   .lift-on-hover {
-    transition:
-      transform 0.18s ease-out,
-      box-shadow 0.18s ease-out,
-      border-color 0.18s ease-out;
+    transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
   }
   .lift-on-hover:hover {
-    transform: translateY(-1px);
-    border-color: oklch(1 0 0 / 0.13);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.07),
-      0 2px 4px oklch(0 0 0 / 0.55),
-      0 12px 32px -12px oklch(0.66 0.15 232 / 0.35);
+    border-color: color-mix(in oklab, var(--foreground) 22%, transparent);
   }
 
-  /* Accent glow shadows */
-  .glow-violet {
-    box-shadow:
-      0 0 0 1px oklch(0.66 0.15 232 / 0.25),
-      0 8px 32px -8px oklch(0.66 0.15 232 / 0.6);
-  }
-  .glow-cyan {
-    box-shadow:
-      0 0 0 1px oklch(0.78 0.17 200 / 0.25),
-      0 8px 32px -8px oklch(0.78 0.17 200 / 0.55);
-  }
-  .glow-amber {
-    box-shadow:
-      0 0 0 1px oklch(0.82 0.18 80 / 0.25),
-      0 8px 32px -8px oklch(0.82 0.18 80 / 0.55);
-  }
+  /* Formerly coloured glow shadows; a plain hairline now. */
+  .glow-violet,
+  .glow-cyan,
+  .glow-amber,
   .glow-emerald {
-    box-shadow:
-      0 0 0 1px oklch(0.78 0.18 160 / 0.25),
-      0 8px 32px -8px oklch(0.78 0.18 160 / 0.55);
+    box-shadow: 0 0 0 1px var(--border);
   }
 
-  /* Premium primary button — used on the main CTAs */
+  /* Main call to action: one flat brand-colour button. */
   .btn-premium {
-    background: linear-gradient(
-      135deg,
-      oklch(0.66 0.15 232),
-      oklch(0.56 0.15 240)
-    );
-    border: 1px solid oklch(1 0 0 / 0.18);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.18),
-      0 4px 12px -4px oklch(0.66 0.15 232 / 0.55),
-      0 1px 2px oklch(0 0 0 / 0.5);
-    color: oklch(0.99 0 0);
-    transition:
-      transform 0.15s ease-out,
-      box-shadow 0.15s ease-out;
+    background: var(--primary);
+    border: 1px solid transparent;
+    color: var(--primary-foreground);
+    transition: background-color 0.15s ease-out;
   }
   .btn-premium:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.22),
-      0 6px 20px -4px oklch(0.66 0.15 232 / 0.65),
-      0 2px 4px oklch(0 0 0 / 0.5);
+    background: color-mix(in oklab, var(--primary) 88%, black);
   }
 
   .ring-gradient {

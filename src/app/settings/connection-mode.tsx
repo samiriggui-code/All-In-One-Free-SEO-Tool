@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy, KeyRound, MessageSquare } from "lucide-react";
 import {
   AI_TOOL_COUNT,
@@ -17,7 +18,7 @@ import {
   revokeMcpToken,
 } from "./connection-mode-actions";
 import { McpSetup } from "./mcp-setup";
-import { ModePreview } from "./mode-preview";
+import { GskSheet } from "./gsk-sheet";
 
 /**
  * Two things you can connect, not three options to pick between.
@@ -30,22 +31,24 @@ import { ModePreview } from "./mode-preview";
  * connected, so the screen cannot disagree with reality.
  */
 
-function StatusDot({ status }: { status: AiConnectionStatus }) {
+// getAiConnectionStatus returns English labels; shown translated here.
+const STATUS_KEYS: Record<string, string> = {
+  Connected: "status_connected",
+  "Pick a model": "status_pickModel",
+  "Not connected": "status_notConnected",
+  "Waiting for your chat app": "status_waiting",
+  "Not set up": "status_notSetUp",
+};
+
+function StatusTag({ status }: { status: AiConnectionStatus }) {
+  const t = useTranslations("settings.connection");
+  const key = STATUS_KEYS[status.label];
   return (
     <span
       title={status.detail}
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${
-        status.ok
-          ? "bg-emerald-500/10 text-emerald-300 ring-emerald-400/25"
-          : "bg-white/[0.04] text-muted-foreground ring-white/10"
-      }`}
+      className={status.ok ? "gsk-tag gsk-tag--success" : "gsk-tag gsk-tag--default"}
     >
-      <span
-        className={`size-1.5 rounded-full ${
-          status.ok ? "bg-emerald-400" : "bg-muted-foreground/50"
-        }`}
-      />
-      {status.label}
+      {key ? t(key) : status.label}
     </span>
   );
 }
@@ -59,34 +62,30 @@ function CopyRow({
   value: string;
   secret?: boolean;
 }) {
+  const t = useTranslations("settings.connection");
   const [done, setDone] = useState(false);
   const shown =
-    secret && value.length > 22
-      ? `${value.slice(0, 14)}…${value.slice(-6)}`
-      : value;
+    secret && value.length > 22 ? `${value.slice(0, 14)}…${value.slice(-6)}` : value;
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="w-20 shrink-0 text-[11px] text-muted-foreground">
-        {label}
-      </span>
-      <code className="min-w-0 flex-1 truncate rounded border border-border bg-muted px-2 py-1 text-[11px] text-foreground">
-        {shown}
-      </code>
-      <button
-        type="button"
-        aria-label={`Copy ${label}`}
-        onClick={() => {
-          void navigator.clipboard.writeText(value).then(() => {
-            setDone(true);
-            setTimeout(() => setDone(false), 1800);
-          });
-        }}
-        className="inline-flex shrink-0 items-center gap-1 rounded border border-border px-2 py-1 text-[11px] hover:border-foreground/25"
-      >
-        {done ? <Check className="size-3" /> : <Copy className="size-3" />}
-        {done ? "Copied" : "Copy"}
-      </button>
+    <div>
+      <span className="gsk-field-label">{label}</span>
+      <div className="flex gap-2">
+        <input readOnly value={shown} className="gsk-input gsk-mono" aria-label={label} />
+        <button
+          type="button"
+          className="gsk-btn"
+          onClick={() => {
+            void navigator.clipboard.writeText(value).then(() => {
+              setDone(true);
+              setTimeout(() => setDone(false), 1800);
+            });
+          }}
+        >
+          {done ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {done ? t("copied") : t("copy")}
+        </button>
+      </div>
     </div>
   );
 }
@@ -100,7 +99,8 @@ export function ConnectionModePicker({
   platform,
   nodePath,
   mcpToolCount,
-  mcpToolNames,
+  // Listed by the old "what this gets you" box; kept for callers.
+  mcpToolNames: _mcpToolNames,
 }: {
   /** Derived from what is connected — see getConnectionMode. */
   mode: ConnectionMode;
@@ -116,7 +116,7 @@ export function ConnectionModePicker({
   const [pending, start] = useTransition();
   // Open by default only when there is something left to finish: a token
   // exists but nothing has connected with it yet.
-  const [openChat, setOpenChat] = useState(mcp.enabled && !mcp.connected);
+  const [openChat, setOpenChat] = useState(false);
 
   const remoteUrl = `${origin}/api/mcp`;
   const isLocalUrl =
@@ -124,180 +124,128 @@ export function ConnectionModePicker({
     origin.includes("localhost") ||
     origin.includes("127.0.0.1");
 
+  const t = useTranslations("settings.connection");
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-medium">AI connection</h3>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          {FREE_TOOL_COUNT} of the {TOTAL_TOOL_COUNT} tools need no AI and
-          already work. These two cover the other {AI_TOOL_COUNT}. They do
-          different jobs — you can have either, or both.
+    <section className="gsk-block">
+      <div className="gsk-block-head">
+        <h2 className="gsk-block-title">{t("title")}</h2>
+        <p className="gsk-block-description">
+          {t("intro", { free: FREE_TOOL_COUNT, total: TOTAL_TOOL_COUNT, ai: AI_TOOL_COUNT })}
         </p>
       </div>
 
-      {mode === "both" && (
-        <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] leading-relaxed text-emerald-900 dark:text-emerald-100/90">
-          <strong>Both connected — nothing is missing.</strong> The AI tools in
-          here run on your key, and your chat app can work with your SEO data
-          directly.
-        </p>
-      )}
-
-      <ModePreview
-        mode={mode}
-        mcpToolCount={mcpToolCount}
-        mcpToolNames={mcpToolNames}
-      />
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <section className="space-y-2 rounded-xl border border-white/10 bg-white/[0.02] p-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <KeyRound className="size-3.5 text-amber-300" />
-            <p className="text-sm font-medium">An API key</p>
-            <StatusDot status={status.api} />
+      <div className="gsk-card-grid">
+        <div className={status.api.ok ? "gsk-card gsk-card--on items-start" : "gsk-card items-start"}>
+          <span className="gsk-card__badge" aria-hidden>
+            <KeyRound className="size-4" />
+          </span>
+          <div className="gsk-card__body">
+            <div className="gsk-card__header">
+              <span className="gsk-card__title">{t("apiTitle")}</span>
+              <StatusTag status={status.api} />
+            </div>
+            <p className="gsk-card__subtitle">{t("apiBody", { ai: AI_TOOL_COUNT })}</p>
           </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Makes the {AI_TOOL_COUNT} AI tools in this app work — the
-            assistant, executive summaries, content writer — and keeps them
-            running overnight. Gemini and Groq have free tiers.
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Providers are listed below.
-          </p>
-        </section>
+        </div>
 
-        <section className="space-y-2 rounded-xl border border-white/10 bg-white/[0.02] p-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <MessageSquare className="size-3.5 text-violet-300" />
-            <p className="text-sm font-medium">Your Claude / ChatGPT app</p>
-            <StatusDot status={status.mcp} />
+        <div className={status.mcp.ok ? "gsk-card gsk-card--on items-start" : "gsk-card items-start"}>
+          <span className="gsk-card__badge" aria-hidden>
+            <MessageSquare className="size-4" />
+          </span>
+          <div className="gsk-card__body">
+            <div className="gsk-card__header">
+              <span className="gsk-card__title">{t("chatTitle")}</span>
+              <StatusTag status={status.mcp} />
+            </div>
+            <p className="gsk-card__subtitle">{t("chatBody", { count: mcpToolCount })}</p>
+            {mcp.connected && mcp.lastSeenLabel ? (
+              <p className="gsk-card__subtitle">
+                {mcp.lastClient
+                  ? t("lastUsedBy", { when: mcp.lastSeenLabel, client: mcp.lastClient })
+                  : t("lastUsed", { when: mcp.lastSeenLabel })}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setOpenChat(true)}
+              className="gsk-btn gsk-btn--sm mt-2"
+            >
+              {mcp.connected ? t("changeSetup") : mcp.enabled ? t("finishSetup") : t("setUp")}
+            </button>
           </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Lets Claude or ChatGPT read and act on your SEO data through{" "}
-            {mcpToolCount} tools, using the subscription you already pay for.
-            It works in that app, not in this one.
-          </p>
-          {mcp.connected && mcp.lastSeenLabel && (
-            <p className="text-[11px] text-muted-foreground">
-              Last used{" "}
-              <span className="text-foreground">{mcp.lastSeenLabel}</span>
-              {mcp.lastClient && (
-                <>
-                  {" "}
-                  by <span className="text-foreground">{mcp.lastClient}</span>
-                </>
-              )}
-              .
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={() => setOpenChat((v) => !v)}
-            className="text-[11px] text-violet-300 underline decoration-dotted underline-offset-2 hover:decoration-solid"
-          >
-            {openChat
-              ? "Hide setup"
-              : mcp.connected
-                ? "Change setup"
-                : "Set this up"}
-          </button>
-        </section>
+        </div>
       </div>
 
-      {openChat && (
-        <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">How this one works.</strong>{" "}
-            Your chat app connects to this tool and calls it, so it answers in
-            that app while you&apos;re at the keyboard. It does not power the
-            AI pages in here, and nothing is charged per use.
-          </p>
+      {mode === "both" ? <p className="gsk-help gsk-status-ok">{t("both")}</p> : null}
 
-          <div className="space-y-2 rounded-lg border border-border bg-card/60 p-3">
-            <p className="text-xs font-medium">Endpoint and tokens</p>
-            {mcp.enabled && <CopyRow label="Server URL" value={remoteUrl} />}
+      {openChat ? (
+        <GskSheet
+          title={t("chatTitle")}
+          subtitle={t("sheetSubtitle")}
+          icon={<MessageSquare className="size-4" />}
+          closeLabel={t("close")}
+          onClose={() => setOpenChat(false)}
+        >
+        <div className="gsk-drawer__body">
+          <p className="m-0 text-[13px] leading-relaxed text-[var(--gsk-text-2)]">{t("howItWorks")}</p>
+
+          <div className="space-y-3">
+            <h4 className="gsk-section-title">{t("endpointTitle")}</h4>
+            {mcp.enabled ? <CopyRow label={t("serverUrl")} value={remoteUrl} /> : null}
 
             {/* The read-only token first: it is the one almost everyone
                 should be pasting into a chat app. */}
             {mcp.readOnlyToken ? (
               <>
-                <CopyRow
-                  label="Read-only token"
-                  value={mcp.readOnlyToken}
-                  secret
-                />
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  Reads everything, changes nothing — it cannot run the agent or
-                  apply a fix. This is the one to give a chat app.
-                </p>
+                <CopyRow label={t("readOnlyToken")} value={mcp.readOnlyToken} secret />
+                <p className="gsk-help">{t("readOnlyHint")}</p>
                 <button
                   type="button"
+                  className="gsk-btn gsk-btn--danger-text"
                   onClick={() => start(() => void revokeMcpReadOnlyToken())}
-                  className="text-[11px] text-rose-300 underline decoration-dotted underline-offset-2 hover:decoration-solid"
                 >
-                  Revoke the read-only token
+                  {t("revokeReadOnly")}
                 </button>
               </>
             ) : (
               <button
                 type="button"
+                className="gsk-btn gsk-btn--primary"
                 disabled={pending}
                 onClick={() => start(() => void generateMcpReadOnlyToken())}
-                className="inline-flex h-8 items-center rounded-lg bg-violet-500/15 px-3 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
               >
-                Generate a read-only token
+                {t("generateReadOnly")}
               </button>
             )}
 
             {mcp.token ? (
               <>
-                <CopyRow label="Full-access token" value={mcp.token} secret />
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  Anyone who can reach that URL with this token can read every
-                  client and change live websites — treat it like a password.
-                </p>
-                {isLocalUrl && (
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    <strong className="text-foreground">
-                      This is a local address.
-                    </strong>{" "}
-                    Right for Claude Code, Claude Desktop and Cursor. claude.ai
-                    and ChatGPT cannot reach it — start a tunnel, then open this
-                    page on the tunnel address and this row will show the URL to
-                    paste.
-                  </p>
-                )}
+                <CopyRow label={t("fullToken")} value={mcp.token} secret />
+                <p className="gsk-help">{t("fullTokenHint")}</p>
+                {isLocalUrl ? <p className="gsk-help">{t("localAddress")}</p> : null}
                 <button
                   type="button"
+                  className="gsk-btn gsk-btn--danger-text"
                   onClick={() => start(() => void revokeMcpToken())}
-                  className="text-[11px] text-rose-300 underline decoration-dotted underline-offset-2 hover:decoration-solid"
                 >
-                  Revoke the full-access token
+                  {t("revokeFull")}
                 </button>
               </>
             ) : (
               <>
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  A full-access token also lets a connected app run the agent
-                  and apply fixes, within your autonomy setting. Only generate
-                  one if you want that from a chat.
-                </p>
+                <p className="gsk-help">{t("fullTokenWhy")}</p>
                 <button
                   type="button"
+                  className="gsk-btn"
                   disabled={pending}
                   onClick={() => start(() => void generateMcpToken())}
-                  className="inline-flex h-8 items-center rounded-lg bg-white/5 px-3 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground disabled:opacity-50"
                 >
-                  Generate a full-access token
+                  {t("generateFull")}
                 </button>
               </>
             )}
-            {!mcp.enabled && (
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
-                The endpoint stays closed until one of these exists. Requests
-                are capped per token.
-              </p>
-            )}
+            {!mcp.enabled ? <p className="gsk-help">{t("closedUntil")}</p> : null}
           </div>
 
           <McpSetup
@@ -310,7 +258,14 @@ export function ConnectionModePicker({
             connectedClient={mcp.connected ? mcp.lastClient : null}
           />
         </div>
-      )}
-    </div>
+        <footer className="gsk-drawer__footer">
+          <span />
+          <button type="button" className="gsk-btn gsk-btn--primary" onClick={() => setOpenChat(false)}>
+            {t("done")}
+          </button>
+        </footer>
+        </GskSheet>
+      ) : null}
+    </section>
   );
 }

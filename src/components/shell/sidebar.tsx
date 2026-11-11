@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, LayoutGroup } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Search, PanelLeftClose, PanelLeftOpen, ChevronDown, ChevronRight } from "lucide-react";
@@ -15,6 +15,7 @@ import { navItemMessageKey } from "@/i18n/nav";
 import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
 import { useStoredState } from "@/components/use-stored-state";
 import { ProductMark, ProductWordmark } from "@/components/brand/product-logo";
+import { LAST_PAGE_KEY } from "@/app/settings/settings-overlay";
 
 /**
  * Per-group accent. Pre-baked Tailwind class strings so the JIT picks
@@ -78,15 +79,9 @@ export function Sidebar({
   uiMode = "guided",
   hasAiKey = false,
   userRole = null,
-  user = null,
-  authMode = "open",
 }: {
   unreadByHref?: Record<string, number>;
   userRole?: string | null;
-  /** Who is signed in, for the account block at the bottom of the rail. */
-  user?: { name: string | null; email: string } | null;
-  /** How this install authenticates; decides what the account block says. */
-  authMode?: "accounts" | "password" | "open";
   /**
    * Whether an AI key is configured. Decides if the amber "needs a key"
    * dot is worth showing — once a key exists nothing is blocked, so the
@@ -102,32 +97,17 @@ export function Sidebar({
   uiMode?: "guided" | "pro";
 } = {}) {
   const groups = navGroupsForRole(userRole);
-  const tAccount = useTranslations("nav.account");
   const tShell = useTranslations("shell.sidebar");
-  // The account block used to say "Local user · Single-user mode" on
-  // every install, including agency installs with real accounts, which
-  // made a signed-in owner look like they had been dropped into a local
-  // session. It now names whoever is actually signed in.
-  const accountName = user
-    ? user.name || user.email
-    : authMode === "password"
-      ? tAccount("sharedName")
-      : tAccount("localName");
-  const accountDetail = user
-    ? userRole
-      ? tAccount(`roles.${userRole}`)
-      : user.email
-    : authMode === "password"
-      ? tAccount("sharedMode")
-      : tAccount("localMode");
-  const accountInitials =
-    accountName
-      .split(/[\s@.]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]!.toUpperCase())
-      .join("") || "SE";
   const pathname = usePathname();
+  // Closing the settings window goes back to the page it was opened from.
+  useEffect(() => {
+    if (pathname.startsWith("/settings")) return;
+    try {
+      sessionStorage.setItem(LAST_PAGE_KEY, pathname);
+    } catch {
+      // private mode / storage blocked: the window falls back to "/"
+    }
+  }, [pathname]);
   const t = useTranslations("nav");
   const tItems = useTranslations("nav.items");
   const tGroups = useTranslations("nav.groups");
@@ -161,7 +141,7 @@ export function Sidebar({
   // via `guided: true`. Pinned groups stay visible even after filtering
   // (Essentials + Account) so the rail always has anchors at top + bottom;
   // non-pinned groups with no surviving items are hidden entirely.
-  const visibleGroups: NavGroup[] =
+  const visibleGroups: NavGroup[] = (
     uiMode === "pro"
       ? groups
       : groups
@@ -169,7 +149,12 @@ export function Sidebar({
             ...g,
             items: g.items.filter((it: NavItem) => it.guided),
           }))
-          .filter((g) => g.pinned || g.items.length > 0);
+          .filter((g) => g.pinned || g.items.length > 0)
+  )
+    // Get started, settings, docs, learn and knowledge live in the account
+    // menu of the top bar now (profile-menu.tsx); the search palette still
+    // finds them through NAV_ITEMS.
+    .filter((g) => g.id !== "account");
 
   // Auto-open the group containing the current route — even if the user
   // had it collapsed — so navigation context is always visible. We
@@ -462,76 +447,6 @@ export function Sidebar({
         <ToolDotLegend className="border-t border-sidebar-border px-3 py-2" />
       )}
 
-      {/* User block + live status — shadcn-admin pattern */}
-      <div className="border-t border-sidebar-border">
-        {/* User block */}
-        <Link
-          href="/settings"
-          title={collapsed ? tShell("accountSettings") : undefined}
-          className={`flex items-center gap-2 transition-colors hover:bg-sidebar-accent ${
-            collapsed ? "h-12 justify-center" : "h-14 px-3"
-          }`}
-        >
-          <div className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 text-xs font-semibold text-white">
-            {accountInitials}
-          </div>
-          {!collapsed && (
-            <>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium leading-none text-sidebar-foreground">
-                  {accountName}
-                </div>
-                <div className="mt-1 truncate text-xs text-sidebar-foreground/60">
-                  {accountDetail}
-                </div>
-              </div>
-              <ChevronRight className="size-4 text-sidebar-foreground/40" />
-            </>
-          )}
-        </Link>
-        {/* Guided/Pro mode toggle. In guided mode the rail is filtered
-            down to ~15 essentials; switching to pro reveals all 80+
-            entries. Persisted via the ui.mode workspace setting so the
-            choice survives reloads. */}
-        {!collapsed && (
-          <form
-            action="/api/ui-mode/toggle"
-            method="POST"
-            className="border-t border-sidebar-border px-3 py-2"
-          >
-            <button
-              type="submit"
-              className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-xs text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-              title={
-                uiMode === "guided"
-                  ? tShell("revealAllTitle")
-                  : tShell("guidedTitle")
-              }
-            >
-              <span className="inline-flex items-center gap-2">
-                {uiMode === "guided" ? (
-                  <PanelLeftOpen className="size-3.5" />
-                ) : (
-                  <PanelLeftClose className="size-3.5" />
-                )}
-                <span>{uiMode === "guided" ? t("showAllTools") : t("guidedMode")}</span>
-              </span>
-              <span className="rounded bg-sidebar-accent/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/80">
-                {uiMode === "guided" ? tShell("pro") : tShell("easy")}
-              </span>
-            </button>
-          </form>
-        )}
-        {/* Live status pill */}
-        <div
-          className={`flex items-center gap-2 border-t border-sidebar-border py-2 text-xs text-sidebar-foreground/60 ${
-            collapsed ? "justify-center px-2" : "px-3"
-          }`}
-        >
-          <span className="size-1.5 rounded-full bg-emerald-400" />
-          {!collapsed && <span>{tShell("selfHosted")}</span>}
-        </div>
-      </div>
     </aside>
   );
 }

@@ -21,7 +21,10 @@ export function ClientToolsPanel({
   client,
   hasAiKey = false,
   surfaces,
+  top,
 }: {
+  /** First in the rail's stack: the client action plan button. */
+  top?: React.ReactNode;
   client: ClientToolsClient;
   /** The engagement's agreed scope, which orders the rail. */
   surfaces?: SurfaceId[];
@@ -40,6 +43,7 @@ export function ClientToolsPanel({
         client={client}
         hasAiKey={hasAiKey}
         surfaces={surfaces}
+        top={top}
         onOpenTool={(t) => setOpenTool(t)}
       />
       {openTool && (

@@ -29,6 +29,8 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
 import "./globals.css";
+// GsKnora window and sheet styles (settings window, side sheets).
+import "./settings/settings-window.css";
 
 // Inter is warmer + more readable at small sizes than Geist's precise grotesk.
 // Same web-safe quality; same variable-weight support.
@@ -184,14 +186,6 @@ export default async function RootLayout({
                       uiMode={uiMode}
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
-                      user={me ? { name: me.name, email: me.email } : null}
-                      authMode={
-                        accountsEnabled()
-                          ? "accounts"
-                          : process.env.APP_PASSWORD
-                            ? "password"
-                            : "open"
-                      }
                     />
                     <div className="flex h-full min-w-0 flex-1 flex-col">
                       <TopBar

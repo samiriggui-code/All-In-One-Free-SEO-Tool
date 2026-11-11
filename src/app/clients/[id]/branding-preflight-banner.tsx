@@ -57,21 +57,21 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
   }
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-amber-100 shadow">
-      <Palette className="mt-0.5 size-5 shrink-0 text-amber-300" />
+    <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-foreground">
+      <Palette className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
       <div className="flex-1 space-y-2">
         <div>
-          <h3 className="text-sm font-semibold text-amber-200">
+          <h3 className="text-sm font-semibold text-foreground">
             {t("title")}
           </h3>
-          <p className="mt-0.5 text-xs text-amber-100/80">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {t("body")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/settings?brand-return=${clientId}&template=${template}#brand`}
-            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/25 px-3 py-1.5 text-xs font-medium text-amber-100 ring-1 ring-inset ring-amber-500/40 hover:bg-amber-500/35"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Palette className="size-3.5" />
             {t("setNow")}
@@ -80,7 +80,7 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
             type="button"
             onClick={skipForThisClient}
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-transparent px-3 py-1.5 text-xs text-amber-200 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-accent disabled:opacity-50"
           >
             {busy ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -95,7 +95,7 @@ export function BrandingPreflightBanner({ clientId, template }: Props) {
         type="button"
         onClick={() => setDismissed(true)}
         aria-label={t("dismiss")}
-        className="grid size-6 shrink-0 place-items-center rounded text-amber-300/70 transition-colors hover:bg-amber-500/15 hover:text-amber-100"
+        className="grid size-6 shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
       >
         <X className="size-3.5" />
       </button>

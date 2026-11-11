@@ -4,14 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Settings,
-  HelpCircle,
-  RefreshCw,
-  Info,
-  LogOut,
+  BookOpen,
   ExternalLink,
+  GraduationCap,
   Heart,
+  HelpCircle,
+  Library,
+  LogIn,
+  LogOut,
+  Palette,
+  RefreshCw,
+  Settings,
+  Sparkles,
   Users2,
+  Workflow,
+  type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { REPO_URL } from "@/lib/repo";
@@ -22,11 +29,16 @@ type AuthStatus = {
   user: { id: number; name: string | null; email: string; role: string } | null;
 };
 
-
 /**
- * Profile dropdown — replaces the previous static "P" avatar that did
- * nothing on click. Hosts Settings, About, Update, Help, Team, and (when
- * there is anything to sign out of) Sign out.
+ * The one account menu. Who you are, the shortcuts into the settings
+ * window, help and resources, sign out.
+ *
+ * Account things used to be spread over four places: this menu (seven
+ * settings links, most with the same icon), a user block at the bottom of
+ * the sidebar that also opened settings, a guided/pro switch under it that
+ * duplicated the one in this top bar, and an "Account" group in the
+ * sidebar (get started, settings, docs, learn, knowledge). They are all
+ * here now, grouped the way GsKnora's user menu groups them.
  */
 export function ProfileMenu() {
   const pathname = usePathname();
@@ -67,17 +79,23 @@ export function ProfileMenu() {
   // be the owner.
   const isOwner = status !== null && !signedOut && (!me || me.role === "owner");
   const isViewer = me?.role === "viewer";
+  const canOpenSettings = isOwner || (me !== null && !isViewer);
   const initial = (me?.name || me?.email || "P").trim().charAt(0).toUpperCase();
 
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
     };
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   async function signOut() {
@@ -87,167 +105,187 @@ export function ProfileMenu() {
     window.location.href = "/login";
   }
 
+  const close = () => setOpen(false);
+
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={t("menu")}
-        className="relative size-8 rounded-full bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 grid place-items-center text-xs font-semibold text-white shadow-lg shadow-violet-500/40 ring-1 ring-inset ring-white/30 transition-transform hover:scale-105"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm ring-2 ring-transparent transition hover:ring-primary/30"
       >
-        <span className="relative">{initial}</span>
-        <span className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent opacity-50" />
+        {initial}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 z-50 w-60 overflow-hidden rounded-xl border border-white/10 bg-card/95 shadow-2xl shadow-violet-500/10 backdrop-blur-xl">
-          <div className="border-b border-white/[0.06] px-4 py-3">
-            <p className="truncate text-xs font-semibold">
-              {me?.name || me?.email || t("appName")}
-            </p>
-            <p className="truncate text-[10px] text-muted-foreground">
-              {me
-                ? `${me.email} · ${tRoles.has(me.role) ? tRoles(me.role) : me.role}`
-                : status?.mode === "accounts"
-                  ? onLoginScreen
-                    ? t("signInBelow")
-                    : t("notSignedIn")
-                  : status?.mode === "password"
-                    ? t("sharedPassword")
-                    : t("localSingleUser")}
-            </p>
-          </div>
-          <div className="flex flex-col py-1">
-            {isOwner ? (
-              <>
-                <Link
-                  href="/settings/team"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Users2 className="size-3.5 text-muted-foreground" />
-                  {me ? t("team") : t("setUpTeam")}
-                </Link>
-                <Link
-                  href="/settings"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Settings className="size-3.5 text-muted-foreground" />
-                  {t("settings")}
-                </Link>
-                <Link
-                  href="/settings#ai"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Settings className="size-3.5 text-muted-foreground" />
-                  {t("aiKeys")}
-                </Link>
-                <Link
-                  href="/settings#update"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <RefreshCw className="size-3.5 text-muted-foreground" />
-                  {t("updates")}
-                </Link>
-                <Link
-                  href="/settings/health"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Settings className="size-3.5 text-muted-foreground" />
-                  {t("health")}
-                </Link>
-                <Link
-                  href="/settings/errors"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Settings className="size-3.5 text-muted-foreground" />
-                  {t("errors")}
-                </Link>
-                <Link
-                  href="/settings/backup"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-                >
-                  <Settings className="size-3.5 text-muted-foreground" />
-                  {t("backup")}
-                </Link>
-              </>
-            ) : me && !isViewer ? (
-              <Link
-                href="/settings"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-              >
-                <Settings className="size-3.5 text-muted-foreground" />
-                {t("settings")}
-              </Link>
-            ) : me ? null : onLoginScreen ? (
-              <p className="px-3 py-2 text-[11px] text-muted-foreground">
-                {t("adminAfterSignIn")}
+        <div
+          role="menu"
+          className="absolute right-0 top-10 z-50 max-h-[calc(100dvh-4rem)] w-72 overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-xl"
+        >
+          {/* Who */}
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+              {initial}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">
+                {me?.name || me?.email || t("appName")}
               </p>
-            ) : (
-              // A plain link on purpose: the sign-in page has its own frame,
-              // and a client-side navigation would keep the app shell.
-              <a
-                href="/login"
-                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-              >
-                <Settings className="size-3.5 text-muted-foreground" />
-                {t("signIn")}
-              </a>
-            )}
-            <Link
-              href="/seo-chat/capabilities"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <HelpCircle className="size-3.5 text-muted-foreground" />
+              <p className="truncate text-xs text-muted-foreground">
+                {me
+                  ? `${me.email} · ${tRoles.has(me.role) ? tRoles(me.role) : me.role}`
+                  : status?.mode === "accounts"
+                    ? onLoginScreen
+                      ? t("signInBelow")
+                      : t("notSignedIn")
+                    : status?.mode === "password"
+                      ? t("sharedPassword")
+                      : t("localSingleUser")}
+              </p>
+            </div>
+          </div>
+          <p className="flex items-center gap-1.5 border-b border-border px-4 pb-2.5 text-[11px] text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-emerald-500" />
+            {t("selfHosted")}
+          </p>
+
+          {/* Settings */}
+          {canOpenSettings ? (
+            <MenuGroup>
+              <MenuLink href="/settings" icon={Settings} onClick={close}>
+                {t("settings")}
+              </MenuLink>
+              {isOwner ? (
+                <>
+                  <MenuLink href="/settings/ai" icon={Sparkles} onClick={close}>
+                    {t("aiConnection")}
+                  </MenuLink>
+                  <MenuLink href="/settings/team" icon={Users2} onClick={close}>
+                    {me ? t("team") : t("setUpTeam")}
+                  </MenuLink>
+                  <MenuLink href="/settings/brand" icon={Palette} onClick={close}>
+                    {t("brand")}
+                  </MenuLink>
+                  <MenuLink href="/settings/updates" icon={RefreshCw} onClick={close}>
+                    {t("updates")}
+                  </MenuLink>
+                </>
+              ) : null}
+            </MenuGroup>
+          ) : !me && onLoginScreen ? (
+            <p className="border-b border-border px-4 py-2.5 text-[11px] text-muted-foreground">
+              {t("adminAfterSignIn")}
+            </p>
+          ) : null}
+
+          {/* Help and resources */}
+          <MenuGroup label={t("helpGroup")}>
+            <MenuLink href="/welcome" icon={Sparkles} onClick={close}>
+              {t("getStarted")}
+            </MenuLink>
+            <MenuLink href="/docs" icon={BookOpen} onClick={close}>
+              {t("docs")}
+            </MenuLink>
+            <MenuLink href="/learn" icon={GraduationCap} onClick={close}>
+              {t("learn")}
+            </MenuLink>
+            <MenuLink href="/knowledge" icon={Library} onClick={close}>
+              {t("knowledge")}
+            </MenuLink>
+            <MenuLink href="/seo-chat/capabilities" icon={HelpCircle} onClick={close}>
               {t("chatCapabilities")}
-            </Link>
-            <Link
-              href="/automations/overview"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Info className="size-3.5 text-muted-foreground" />
+            </MenuLink>
+            <MenuLink href="/automations/overview" icon={Workflow} onClick={close}>
               {t("automated")}
-            </Link>
-            <div className="my-1 border-t border-white/[0.06]" />
-            <Link
-              href="/about"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
-            >
-              <Heart className="size-3.5 text-rose-300" />
+            </MenuLink>
+          </MenuGroup>
+
+          {/* About */}
+          <MenuGroup>
+            <MenuLink href="/about" icon={Heart} onClick={close}>
               {t("about")}
-            </Link>
+            </MenuLink>
             <a
               href={REPO_URL}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5"
+              role="menuitem"
+              className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground/85 transition-colors hover:bg-accent hover:text-foreground"
             >
-              <ExternalLink className="size-3.5 text-muted-foreground" />
+              <ExternalLink className="size-4 text-muted-foreground" />
               {t("repo")}
             </a>
-            {authEnabled && (
+          </MenuGroup>
+
+          {/* Session */}
+          {signedOut && !onLoginScreen ? (
+            <div className="py-1">
+              {/* A plain link on purpose: the sign-in page has its own frame,
+                  and a client-side navigation would keep the app shell. */}
+              <a
+                href="/login"
+                role="menuitem"
+                className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors hover:bg-accent"
+              >
+                <LogIn className="size-4 text-muted-foreground" />
+                {t("signIn")}
+              </a>
+            </div>
+          ) : authEnabled ? (
+            <div className="py-1">
               <button
                 type="button"
+                role="menuitem"
                 onClick={signOut}
-                className="flex items-center gap-2 px-3 py-2 text-xs text-rose-300 hover:bg-rose-500/10"
+                className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
               >
-                <LogOut className="size-3.5" />
+                <LogOut className="size-4" />
                 {me ? t("signOut") : t("signOutPassword")}
               </button>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       )}
     </div>
+  );
+}
+
+function MenuGroup({ label, children }: { label?: string; children: React.ReactNode }) {
+  return (
+    <div className="border-b border-border py-1 last:border-b-0">
+      {label ? (
+        <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+      ) : null}
+      {children}
+    </div>
+  );
+}
+
+function MenuLink({
+  href,
+  icon: Icon,
+  onClick,
+  children,
+}: {
+  href: string;
+  icon: LucideIcon;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      role="menuitem"
+      className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground/85 transition-colors hover:bg-accent hover:text-foreground"
+    >
+      <Icon className="size-4 text-muted-foreground" />
+      {children}
+    </Link>
   );
 }

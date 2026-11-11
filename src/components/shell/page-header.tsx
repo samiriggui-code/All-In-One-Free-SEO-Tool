@@ -7,13 +7,14 @@ type Crumb = { href?: string; label: string };
 
 type Accent = "violet" | "cyan" | "amber" | "rose" | "emerald" | "fuchsia";
 
+// Page icons used to take one of six hues per page; one brand colour now.
 const accentText: Record<Accent, string> = {
-  violet: "text-violet-300",
-  cyan: "text-cyan-300",
-  amber: "text-amber-300",
-  rose: "text-rose-300",
-  emerald: "text-emerald-300",
-  fuchsia: "text-fuchsia-300",
+  violet: "text-primary",
+  cyan: "text-primary",
+  amber: "text-primary",
+  rose: "text-primary",
+  emerald: "text-primary",
+  fuchsia: "text-primary",
 };
 
 type PageHeaderProps = {
@@ -39,10 +40,10 @@ export function PageHeader({
   noHelp,
 }: PageHeaderProps) {
   return (
-    <section className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+    <section className="page-header flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
       <div className="min-w-0 flex-1 space-y-1">
         {crumbs && crumbs.length > 0 && (
-          <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+          <nav className="page-header-crumbs flex items-center gap-1 text-xs text-muted-foreground">
             {crumbs.map((c, i) => (
               <span key={i} className="flex items-center gap-1">
                 {i > 0 && (
@@ -65,7 +66,7 @@ export function PageHeader({
 
         <div className="flex items-center gap-2">
           {Icon && (
-            <Icon className={cn("h-5 w-5 shrink-0", accentText[accent])} />
+            <Icon className={cn("page-header-icon h-5 w-5 shrink-0", accentText[accent])} />
           )}
           <h1 className="pro-mode-marker text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             {title}

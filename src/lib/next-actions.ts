@@ -37,6 +37,8 @@ import { openToolFindings } from "./tool-findings";
 import { findContentDecay, getGscQuickWins } from "./google-data";
 import { planProgress } from "./plan-tasks";
 import { loadActionableToolFindings } from "./agent/tool-finding-map";
+import { getReportLocale } from "./report-i18n";
+import { nextActionStrings, type NextActionStrings } from "./next-actions-i18n";
 
 export type ActionOwner = "agent" | "you";
 
@@ -130,6 +132,9 @@ export async function nextActions(opts: {
 
   const out: NextAction[] = [];
   const now = Date.now();
+  // The workspace language (Settings -> General), as for reports.
+  const S = nextActionStrings(await getReportLocale());
+  const sev = (x: string) => S.severity[x] ?? x;
 
   for (const c of clientRows) {
     const add = (a: Omit<NextAction, "clientId" | "clientName">) =>
@@ -155,13 +160,13 @@ export async function nextActions(opts: {
     if (!latest) {
       add({
         id: `audit-first-${c.id}`,
-        title: "Run the first audit",
-        why: "Nothing else here has anything to work from until the site has been crawled once.",
+        title: S.firstAuditTitle,
+        why: S.firstAuditWhy,
         score: blocking(100, 5),
         minutes: 5,
         owner: "agent",
         href: `/audits?clientId=${c.id}`,
-        because: "no completed audit for this client",
+        because: S.firstAuditBecause,
       });
       // Everything below reads from an audit. No point ranking it.
       continue;
@@ -174,13 +179,13 @@ export async function nextActions(opts: {
     if (ageDays > 30) {
       add({
         id: `audit-stale-${c.id}`,
-        title: `Re-crawl — the last audit is ${ageDays} days old`,
-        why: "Findings older than a month describe a site that may already have changed, and acting on them means fixing problems that are gone.",
+        title: S.recrawlTitle(ageDays),
+        why: S.recrawlWhy,
         score: rank(60, 5),
         minutes: 5,
         owner: "agent",
         href: `/audits?clientId=${c.id}`,
-        because: `last audit ${ageDays} days ago`,
+        because: S.recrawlBecause(ageDays),
       });
     }
 
@@ -217,13 +222,13 @@ export async function nextActions(opts: {
     if (unreachable) {
       add({
         id: `unreachable-${c.id}`,
-        title: "The site could not be reached at all",
-        why: "The last crawl fetched no pages, so every number on this client is describing nothing. Usually a wrong URL, a site that is down, or a firewall blocking us.",
+        title: S.unreachableTitle,
+        why: S.unreachableWhy,
         score: blocking(100, 10),
         minutes: 10,
         owner: "you",
         href: `/clients/${c.id}`,
-        because: unreachable.message || "the crawler fetched zero pages",
+        because: unreachable.message || S.unreachableBecause,
       });
     }
 
@@ -251,17 +256,19 @@ export async function nextActions(opts: {
     if (agentFixable > 0 && !unreachable) {
       add({
         id: `agent-queue-${c.id}`,
-        title: `${agentFixable} findings the agent can fix itself`,
-        why: "These need no decision from you. Turn the agent on for this client and they get done overnight, with an undo on every change.",
+        title: S.agentFixTitle(agentFixable),
+        why: S.agentFixWhy,
         score: rank(80, 10),
         minutes: 10,
         owner: "you",
         href: `/agent/c/${c.id}`,
                 because:
           agentActionableFromTools.length > 0
-            ? `${agentFixable - agentActionableFromTools.length} from the crawl and ` +
-              `${agentActionableFromTools.length} from the tools match a fixable type`
-            : `${agentFixable} open findings match a fixable type`,
+            ? S.agentFixBecauseSplit(
+                agentFixable - agentActionableFromTools.length,
+                agentActionableFromTools.length,
+              )
+            : S.agentFixBecause(agentFixable),
       });
     }
 
@@ -274,13 +281,13 @@ export async function nextActions(opts: {
     if (worst) {
       add({
         id: `human-${c.id}-${worst.type}`,
-        title: describeIssue(worst),
-        why: "The agent has no way to do this one — it needs a decision, a server change, or a person who knows the business.",
+        title: describeIssue(worst, S),
+        why: S.worstWhy,
         score: rank(worst.severity === "critical" ? 75 : 55, 45),
         minutes: 45,
         owner: "you",
         href: `/audits?clientId=${c.id}`,
-        because: `${worst.count} open ${worst.severity} findings of one type`,
+        because: S.worstBecause(worst.count, sev(worst.severity)),
       });
     }
 
@@ -288,13 +295,13 @@ export async function nextActions(opts: {
     if (!c.gscProperty) {
       add({
         id: `gsc-${c.id}`,
-        title: "Connect Search Console",
-        why: "Free, ten minutes, and it is the only source of what people actually searched to reach this site. Half the tools here stay guesses without it.",
+        title: S.gscTitle,
+        why: S.gscWhy,
         score: rank(90, 10),
         minutes: 10,
         owner: "you",
         href: "/settings/google",
-        because: "no Search Console property connected",
+        because: S.gscBecause,
       });
     }
 
@@ -312,13 +319,13 @@ export async function nextActions(opts: {
     if ((kw?.n ?? 0) > 0 && (ranked?.n ?? 0) === 0) {
       add({
         id: `ranks-${c.id}`,
-        title: `Check where ${kw.n} tracked keyword${kw.n === 1 ? "" : "s"} actually rank${kw.n === 1 ? "s" : ""}`,
-        why: "They have been tracked since onboarding and never once checked, so every report about them is currently blank.",
+        title: S.rankCheckTitle(kw.n),
+        why: S.rankCheckWhy,
         score: rank(70, 5),
         minutes: 5,
         owner: "agent",
         href: `/keywords/c/${c.id}`,
-        because: `${kw.n} keywords tracked, 0 rank checks recorded`,
+        because: S.rankCheckBecause(kw.n),
       });
     }
 
@@ -347,13 +354,13 @@ export async function nextActions(opts: {
       const worstDrop = dropped[0];
       add({
         id: `drops-${c.id}`,
-        title: `${dropped.length} keyword${dropped.length === 1 ? "" : "s"} lost ground in search`,
-        why: "A page that was ranking and now is not is the cheapest traffic to win back — it already had whatever it needed once.",
+        title: S.droppedTitle(dropped.length),
+        why: S.droppedWhy,
         score: rank(85, 30),
         minutes: 30,
         owner: "you",
         href: `/keywords/c/${c.id}`,
-        because: `worst: "${worstDrop.query}" ${describeMove(worstDrop)}`,
+        because: S.droppedBecause(worstDrop.query, describeMove(worstDrop, S)),
       });
     }
 
@@ -371,13 +378,13 @@ export async function nextActions(opts: {
     if ((overdue?.n ?? 0) >= 5) {
       add({
         id: `overdue-${c.id}`,
-        title: `${overdue.n} tasks are past their due date`,
-        why: "A plan nobody is following is worse than no plan — it hides the things that do still matter. Clear them or move the dates.",
+        title: S.overdueTitle(overdue.n),
+        why: S.overdueWhy,
         score: rank(40, 20),
         minutes: 20,
         owner: "you",
         href: `/tasks?client=${c.id}`,
-        because: `${overdue.n} todo tasks past due`,
+        because: S.overdueBecause(overdue.n),
       });
     }
 
@@ -394,7 +401,7 @@ export async function nextActions(opts: {
       add({
         id: `tools-${c.id}`,
         title: worstTool.title,
-        why: "Found by one of the tools rather than the crawl, and serious enough to be worth a look before anything cosmetic.",
+        why: S.toolWhy,
         score: rank(worstTool.severity === "critical" ? 80 : 60, 20),
         minutes: 20,
         owner: "you",
@@ -405,8 +412,8 @@ export async function nextActions(opts: {
         href: `/findings/c/${c.id}`,
         because:
           bad.length === 1
-            ? `1 open ${worstTool.severity} finding from ${worstTool.toolId}`
-            : `${bad.length} open critical/high findings across the tools`,
+            ? S.toolBecauseOne(sev(worstTool.severity), worstTool.toolId)
+            : S.toolBecauseMany(bad.length),
       });
     }
 
@@ -438,13 +445,13 @@ export async function nextActions(opts: {
           )[0];
           add({
             id: `striking-${c.id}`,
-            title: `${close.length} keyword${close.length === 1 ? "" : "s"} sitting just off page one`,
-            why: "These already rank and already get impressions. Moving one from 11 to 8 is a title and a few internal links, not a new page.",
+            title: S.closeTitle(close.length),
+            why: S.closeWhy,
             score: rank(85, 45),
             minutes: 45,
             owner: "you",
             href: `/keywords/c/${c.id}`,
-            because: `best opportunity: "${best.query}" at #${Math.round(best.position)} on ${best.impressions} impressions`,
+            because: S.closeBecause(best.query, Math.round(best.position), best.impressions),
           });
         }
       } catch {
@@ -459,13 +466,13 @@ export async function nextActions(opts: {
           const top = worth[0];
           add({
             id: `decay-${c.id}`,
-            title: `${worth.length} page${worth.length === 1 ? "" : "s"} losing traffic they used to earn`,
-            why: "A page that ranked and slipped is the cheapest traffic to win back — it already had whatever it needed once.",
+            title: S.decayTitle(worth.length),
+            why: S.decayWhy,
             score: rank(80, 60),
             minutes: 60,
             owner: "you",
             href: `/tools/refresh?clientId=${c.id}`,
-            because: `worst: ${top.page} down ${Math.abs(Math.round(top.deltaPct))}% from ${top.priorClicks} clicks`,
+            because: S.decayBecause(top.page, Math.abs(Math.round(top.deltaPct)), top.priorClicks),
           });
         }
       } catch {
@@ -486,15 +493,15 @@ export async function nextActions(opts: {
     if (plan && plan.overdue > 0) {
       add({
         id: `plan-behind-${c.id}`,
-        title: `${plan.overdue} item${plan.overdue === 1 ? "" : "s"} of the approved plan overdue`,
-        why: "This is the work the client signed off, and the monthly report will say whether it happened. Slipping quietly is how an engagement ends.",
+        title: S.planOverdueTitle(plan.overdue),
+        why: S.planOverdueWhy,
         // High impact and not optional, but it is a session of work
         // rather than a click.
         score: rank(90, 60),
         minutes: 60,
         owner: "you",
         href: `/tasks?client=${c.id}`,
-        because: `week ${plan.currentWeek} of ${plan.totalWeeks}${plan.phase ? ` · ${plan.phase}` : ""} — ${plan.done} of ${plan.total} done`,
+        because: S.planOverdueBecause(plan.currentWeek, plan.totalWeeks, plan.phase ?? null, plan.done, plan.total),
       });
     }
 
@@ -513,13 +520,13 @@ export async function nextActions(opts: {
     if ((lost?.n ?? 0) > 0) {
       add({
         id: `lost-links-${c.id}`,
-        title: `${lost.n} backlink${lost.n === 1 ? "" : "s"} disappeared`,
-        why: "Someone already agreed to link to this site once, so asking why it went is a far shorter conversation than earning a new one.",
+        title: S.lostLinksTitle(lost.n),
+        why: S.lostLinksWhy,
         score: rank(70, 30),
         minutes: 30,
         owner: "you",
         href: `/backlinks?clientId=${c.id}&status=lost`,
-        because: `${lost.n} link${lost.n === 1 ? "" : "s"} checked and no longer found on the source page`,
+        because: S.lostLinksBecause(lost.n),
       });
     }
 
@@ -534,24 +541,24 @@ export async function nextActions(opts: {
     if (!doc) {
       add({
         id: `doc-${c.id}`,
-        title: "Write the plan this client signs off",
-        why: "One document with what we found, where their keywords stand and what happens in which week. It also freezes the starting numbers, so next month has something to be measured against.",
+        title: S.writePlanTitle,
+        why: S.writePlanWhy,
         score: rank(65, 15),
         minutes: 15,
         owner: "you",
         href: `/clients/${c.id}/onboarding`,
-        because: "no approval document exists for this client",
+        because: S.writePlanBecause,
       });
     } else if (doc.status === "draft") {
       add({
         id: `doc-send-${c.id}`,
-        title: "Send the plan — it is still a draft",
-        why: "It is written and the client has not seen it. Work agreed in writing is work you do not have to justify later.",
+        title: S.sendPlanTitle,
+        why: S.sendPlanWhy,
         score: rank(55, 5),
         minutes: 5,
         owner: "you",
         href: `/proposals`,
-        because: "approval document exists but status is draft",
+        because: S.sendPlanBecause,
       });
     }
   }
@@ -573,11 +580,14 @@ export async function nextActions(opts: {
  * is short enough to be a label, and fall back to the type only for the
  * rows whose message is a paragraph of explanation.
  */
-export function describeIssue(worst: {
-  type: string;
-  count: number;
-  message: string;
-}): string {
+export function describeIssue(
+  worst: {
+    type: string;
+    count: number;
+    message: string;
+  },
+  S: NextActionStrings = nextActionStrings("en"),
+): string {
   // Most messages are "what is wrong. what to do about it." — the first
   // sentence is the label and the rest belongs in the why. Taking the
   // whole thing pushed good messages over the length cap and back to the
@@ -595,7 +605,9 @@ export function describeIssue(worst: {
   // for the same thing and trusts neither.
   const saysItsOwnCount = /\b\d+\s+(pages?|images?|links?|headings?)\b/i.test(what);
   return worst.count > 1 && !saysItsOwnCount
-    ? `${what} — on ${worst.count} pages`
+    ? S === nextActionStrings("en")
+      ? `${what} — on ${worst.count} pages`
+      : S.onPages(what, worst.count)
     : what;
 }
 
@@ -671,10 +683,8 @@ export function detectDrops(
 }
 
 /** "#4 → off the results" or "#4 → #22". */
-export function describeMove(d: Drop): string {
-  return d.to >= OFF_RESULTS
-    ? `fell from #${d.from} out of the results entirely`
-    : `fell from #${d.from} to #${d.to}`;
+export function describeMove(d: Drop, S: NextActionStrings = nextActionStrings("en")): string {
+  return d.to >= OFF_RESULTS ? S.moveOut(d.from) : S.moveTo(d.from, d.to);
 }
 
 /**

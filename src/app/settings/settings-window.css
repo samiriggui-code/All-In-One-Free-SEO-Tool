@@ -1,0 +1,1181 @@
+/*
+ * The settings window, copied from GsKnora's SettingsModalShell
+ * (gsms-template/frontend/src/components/SettingsModalShell.vue and
+ * components/css/settings-section.less): same sizes, greys, type scale
+ * and spacing. Brand colour = the app's --primary.
+ *
+ * The app tokens (--background, --card, --border, --muted-foreground…) are
+ * redefined inside the window, so the forms it hosts pick up GsKnora's
+ * neutrals without being rewritten one by one.
+ */
+
+/* GsKnora tokens, app-wide: the sheets (gsk-sheet.tsx) are also used
+   outside the settings window, on client pages. */
+:root {
+  --gsk-bg: #ffffff;
+  --gsk-rail: #f9f9f9;
+  --gsk-stroke: #e7e7e7;
+  --gsk-border: #dcdcdc;
+  --gsk-hover: #f3f3f3;
+  --gsk-active: #f3f3f3;
+  --gsk-text-1: rgba(0, 0, 0, 0.9);
+  --gsk-text-2: rgba(0, 0, 0, 0.6);
+  --gsk-text-3: rgba(0, 0, 0, 0.4);
+  --gsk-brand: var(--primary);
+}
+.dark {
+  --gsk-bg: #242424;
+  --gsk-rail: #181818;
+  --gsk-stroke: #383838;
+  --gsk-border: #5e5e5e;
+  --gsk-hover: #2c2c2c;
+  --gsk-active: #2c2c2c;
+  --gsk-text-1: #ffffff;
+  --gsk-text-2: rgba(255, 255, 255, 0.55);
+  --gsk-text-3: rgba(255, 255, 255, 0.35);
+}
+
+.gsk-overlay {
+  --gsk-bg: #ffffff;
+  --gsk-rail: #f9f9f9;
+  --gsk-stroke: #e7e7e7;
+  --gsk-border: #dcdcdc;
+  --gsk-hover: #f3f3f3;
+  --gsk-active: #f3f3f3;
+  --gsk-text-1: rgba(0, 0, 0, 0.9);
+  --gsk-text-2: rgba(0, 0, 0, 0.6);
+  --gsk-text-3: rgba(0, 0, 0, 0.4);
+  --gsk-brand: var(--primary);
+  --gsk-shadow:
+    0 6px 30px 5px rgba(0, 0, 0, 0.05),
+    0 16px 24px 2px rgba(0, 0, 0, 0.04),
+    0 8px 10px -5px rgba(0, 0, 0, 0.08);
+
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  overscroll-behavior: none;
+}
+
+.dark .gsk-overlay {
+  --gsk-bg: #242424;
+  --gsk-rail: #181818;
+  --gsk-stroke: #383838;
+  --gsk-border: #5e5e5e;
+  --gsk-hover: #2c2c2c;
+  --gsk-active: #2c2c2c;
+  --gsk-text-1: #ffffff;
+  --gsk-text-2: rgba(255, 255, 255, 0.55);
+  --gsk-text-3: rgba(255, 255, 255, 0.35);
+}
+
+.gsk-modal {
+  /* App tokens, re-pointed at GsKnora's neutrals for everything inside. */
+  --background: var(--gsk-bg);
+  --card: var(--gsk-bg);
+  --popover: var(--gsk-bg);
+  --foreground: var(--gsk-text-1);
+  --card-foreground: var(--gsk-text-1);
+  --popover-foreground: var(--gsk-text-1);
+  --muted: var(--gsk-hover);
+  --muted-foreground: var(--gsk-text-2);
+  --accent: var(--gsk-hover);
+  --accent-foreground: var(--gsk-text-1);
+  --secondary: var(--gsk-hover);
+  --secondary-foreground: var(--gsk-text-1);
+  --border: var(--gsk-stroke);
+  --input: var(--gsk-border);
+
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 1080px;
+  height: 780px;
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  box-shadow: var(--gsk-shadow);
+  font-size: 14px;
+}
+
+.gsk-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--gsk-text-2);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.gsk-close:hover {
+  background: var(--gsk-hover);
+  color: var(--gsk-text-1);
+}
+
+/* Rail */
+.gsk-sidebar {
+  display: flex;
+  width: 208px;
+  flex-shrink: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--gsk-stroke);
+  background: var(--gsk-rail);
+}
+.gsk-sidebar-header {
+  flex-shrink: 0;
+  padding: 16px 14px 12px;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-sidebar-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gsk-text-1);
+}
+.gsk-nav {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 8px 12px;
+}
+.gsk-nav-group-title {
+  padding: 8px 14px 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--gsk-text-3);
+}
+.gsk-nav > .gsk-nav-group-title:first-child {
+  padding-top: 2px;
+}
+.gsk-nav-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--gsk-text-1);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  user-select: none;
+}
+.gsk-nav-item:hover {
+  background: var(--gsk-hover);
+}
+.gsk-nav-item[aria-current="page"] {
+  background: var(--gsk-active);
+  color: var(--gsk-brand);
+  font-weight: 500;
+}
+.gsk-nav-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 9px;
+  flex-shrink: 0;
+}
+
+/* Content */
+.gsk-content {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--gsk-bg);
+}
+.gsk-body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+.gsk-content-wrapper {
+  width: 100%;
+  min-width: 0;
+  padding: 40px 48px;
+}
+.gsk-nav::-webkit-scrollbar,
+.gsk-body::-webkit-scrollbar {
+  width: 6px;
+}
+.gsk-nav::-webkit-scrollbar-thumb,
+.gsk-body::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: #c5c5c5;
+}
+.dark .gsk-nav::-webkit-scrollbar-thumb,
+.dark .gsk-body::-webkit-scrollbar-thumb {
+  background: #4b4b4b;
+}
+
+/* Section header: settings-section-header() */
+.gsk-section-header {
+  margin-bottom: 28px;
+  padding-right: 40px;
+}
+.gsk-section-header h1 {
+  margin: 0 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  color: var(--gsk-text-1);
+}
+.gsk-section-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+
+/* A group of settings */
+.gsk-block + .gsk-block {
+  margin-top: 32px;
+}
+.gsk-block-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gsk-text-1);
+}
+.gsk-block-description {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-block-head {
+  margin-bottom: 8px;
+}
+
+/* setting-row(), setting-info(), setting-control() */
+.gsk-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-row:last-child {
+  border-bottom: none;
+}
+.gsk-row-info {
+  min-width: 0;
+  max-width: 65%;
+  flex: 1;
+}
+.gsk-row-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--gsk-text-1);
+}
+.gsk-row-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-row-control {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Status tag: small, solid, like GsKnora's t-tag */
+.gsk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+}
+.gsk-tag--success {
+  background: #e8f8f2;
+  color: #078d5c;
+}
+.gsk-tag--default {
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+}
+.dark .gsk-tag--success {
+  background: rgba(0, 168, 112, 0.18);
+  color: #48c79c;
+}
+
+/* Segmented control (language, theme): GsKnora radio-button group */
+.gsk-segmented {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--gsk-border);
+  border-radius: 6px;
+}
+.gsk-segmented button {
+  min-width: 64px;
+  padding: 5px 14px;
+  font-size: 14px;
+  color: var(--gsk-text-1);
+  background: var(--gsk-bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.gsk-segmented button + button {
+  border-left: 1px solid var(--gsk-border);
+}
+.gsk-segmented button:hover:not(:disabled) {
+  background: var(--gsk-hover);
+}
+.gsk-segmented button[aria-pressed="true"] {
+  background: var(--gsk-brand);
+  color: #fff;
+}
+.gsk-segmented button:disabled {
+  opacity: 0.6;
+}
+
+.gsk-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--gsk-brand);
+}
+.gsk-link:hover {
+  text-decoration: underline;
+}
+
+.gsk-note {
+  border-radius: 6px;
+  padding: 12px 16px;
+  background: var(--gsk-hover);
+  font-size: 13px;
+  color: var(--gsk-text-2);
+}
+
+/* Phones: full-screen sheet, rail as a scrolling row */
+.gsk-tabs {
+  display: none;
+}
+@media (max-width: 767px) {
+  .gsk-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+  .gsk-modal {
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    flex-direction: column;
+    border-radius: 0;
+  }
+  .gsk-sidebar {
+    width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--gsk-stroke);
+  }
+  .gsk-nav {
+    display: none;
+  }
+  .gsk-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 8px;
+  }
+  .gsk-tabs .gsk-nav-item {
+    flex-shrink: 0;
+    margin: 0;
+    white-space: nowrap;
+  }
+  .gsk-content-wrapper {
+    padding: 24px 16px 32px;
+  }
+  .gsk-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .gsk-row-info {
+    max-width: none;
+  }
+  .gsk-row-control {
+    justify-content: flex-start;
+  }
+}
+
+/* The shared PageHeader, when a settings page uses it: same look as
+   SectionHeader. No coloured icon, no PRO badge, no breadcrumb (the rail
+   already says where you are). */
+.gsk-modal .page-header {
+  margin-bottom: 28px;
+  padding-right: 40px;
+}
+.gsk-modal .page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: 0;
+}
+.gsk-modal .page-header p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.gsk-modal .page-header-icon,
+.gsk-modal .page-header-crumbs {
+  display: none;
+}
+/* The PRO marker is drawn by a mode-scoped rule in globals.css. */
+.gsk-modal .pro-mode-marker::after {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------------ *
+ * Form controls, from GsKnora's TDesign theme: 32px controls, #dcdcdc
+ * border, 3px radius, brand outline on focus.
+ * ------------------------------------------------------------------ */
+.gsk-input,
+.gsk-select,
+.gsk-textarea {
+  width: 100%;
+  border: 1px solid var(--gsk-border);
+  border-radius: 3px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.gsk-input,
+.gsk-select {
+  height: 32px;
+  padding: 0 8px;
+}
+.gsk-textarea {
+  min-height: 88px;
+  padding: 6px 8px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.gsk-input::placeholder,
+.gsk-textarea::placeholder {
+  color: var(--gsk-text-3);
+}
+.gsk-input:hover,
+.gsk-select:hover,
+.gsk-textarea:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 60%, var(--gsk-border));
+}
+.gsk-input:focus,
+.gsk-select:focus,
+.gsk-textarea:focus {
+  outline: none;
+  border-color: var(--gsk-brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gsk-brand) 20%, transparent);
+}
+.gsk-mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.gsk-w-280 {
+  width: 280px;
+  max-width: 100%;
+}
+
+.gsk-btn {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 15px;
+  border: 1px solid var(--gsk-border);
+  border-radius: 3px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.gsk-btn:hover:not(:disabled) {
+  border-color: var(--gsk-brand);
+  color: var(--gsk-brand);
+}
+.gsk-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.gsk-btn--primary {
+  border-color: var(--gsk-brand);
+  background: var(--gsk-brand);
+  color: #fff;
+}
+.gsk-btn--primary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--gsk-brand) 85%, white);
+  background: color-mix(in srgb, var(--gsk-brand) 85%, white);
+  color: #fff;
+}
+.gsk-btn--text {
+  border-color: transparent;
+  background: transparent;
+  padding: 0 8px;
+}
+.gsk-btn--text:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-1);
+}
+.gsk-btn--danger-text {
+  border-color: transparent;
+  background: transparent;
+  color: #d54941;
+  padding: 0 8px;
+}
+.gsk-btn--danger-text:hover:not(:disabled) {
+  border-color: transparent;
+  background: #fdecee;
+  color: #c9353f;
+}
+.dark .gsk-btn--danger-text:hover:not(:disabled) {
+  background: rgba(227, 77, 89, 0.15);
+}
+.gsk-btn--sm {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+/* TDesign switch (input[type=checkbox].gsk-switch) */
+.gsk-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  appearance: none;
+  border-radius: 999px;
+  background: var(--gsk-border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.gsk-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+.gsk-switch:checked {
+  background: var(--gsk-brand);
+}
+.gsk-switch:checked::after {
+  transform: translateX(16px);
+}
+.gsk-switch:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: 2px;
+}
+.gsk-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gsk-help {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gsk-text-3);
+}
+.gsk-tag--brand {
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-tag--warning {
+  background: #fef3e6;
+  color: #d35a21;
+}
+.dark .gsk-tag--warning {
+  background: rgba(237, 123, 47, 0.18);
+  color: #f2995f;
+}
+.gsk-status-ok {
+  color: #078d5c;
+}
+.gsk-status-error {
+  color: #d54941;
+}
+.dark .gsk-status-ok {
+  color: #48c79c;
+}
+.dark .gsk-status-error {
+  color: #f78d94;
+}
+
+/* Sticky save bar at the bottom of a section: GsKnora's settings-footer */
+.gsk-form-footer {
+  position: sticky;
+  bottom: -40px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 24px -48px -40px;
+  padding: 12px 48px;
+  border-top: 1px solid var(--gsk-stroke);
+  background: var(--gsk-bg);
+}
+.gsk-form-footer__note {
+  margin-right: auto;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--gsk-text-2);
+}
+
+/* ------------------------------------------------------------------ *
+ * Provider cards (provider-card.less + ModelSettings .model-grid)
+ * ------------------------------------------------------------------ */
+.gsk-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 10px;
+}
+.gsk-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+  background: var(--gsk-bg);
+  text-align: left;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+button.gsk-card {
+  cursor: pointer;
+}
+button.gsk-card:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 40%, var(--gsk-stroke));
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gsk-text-1) 6%, transparent);
+}
+button.gsk-card:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: 2px;
+}
+.gsk-card__badge {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.gsk-card--on .gsk-card__badge {
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-card__body {
+  min-width: 0;
+  flex: 1;
+}
+.gsk-card__header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+.gsk-card__title {
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gsk-text-1);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gsk-card__subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-card__sep {
+  color: var(--gsk-text-3);
+}
+.gsk-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gsk-border);
+}
+.gsk-dot--on {
+  background: #00a870;
+}
+
+/* Tabs above a card grid (ModelSettings .model-tabbar) */
+.gsk-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-tab {
+  position: relative;
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gsk-text-2);
+}
+.gsk-tab:hover {
+  color: var(--gsk-text-1);
+}
+.gsk-tab[aria-selected="true"] {
+  color: var(--gsk-text-1);
+}
+.gsk-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--gsk-brand);
+}
+.gsk-tab__count {
+  display: inline-flex;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Side drawer (SettingDrawer.vue)
+ * ------------------------------------------------------------------ */
+.gsk-drawer-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(0, 0, 0, 0.3);
+}
+.gsk-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 71;
+  display: flex;
+  width: min(560px, 100vw);
+  flex-direction: column;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+}
+.gsk-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-drawer__icon {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gsk-brand) 10%, transparent);
+  color: var(--gsk-brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.gsk-drawer__title {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gsk-drawer__subtitle {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--gsk-text-2);
+}
+.gsk-drawer__body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding: 18px;
+}
+.gsk-drawer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--gsk-stroke);
+  box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.04);
+}
+.gsk-drawer__footer-right {
+  display: flex;
+  gap: 12px;
+}
+/* Section title with GsKnora's leading bar */
+.gsk-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gsk-text-1);
+}
+.gsk-section-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--gsk-brand);
+}
+.gsk-field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--gsk-text-1);
+}
+.gsk-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gsk-steps li {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-steps__index {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 12px;
+}
+.gsk-code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--gsk-hover);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.gsk-result {
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: var(--gsk-hover);
+}
+
+/* Inside the window, the old dark-first "inset" panels (bg-black/20…)
+   read as grey slabs on white: same tone as the rail instead. */
+.gsk-modal [class*="bg-black/"] {
+  background-color: var(--gsk-rail);
+}
+
+/* A row whose control needs the full width (textareas, lists) */
+.gsk-row--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.gsk-row--stacked .gsk-row-info {
+  max-width: none;
+}
+.gsk-row--stacked .gsk-row-control {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* Sheet internals */
+.gsk-drawer__close {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--gsk-text-2);
+}
+.gsk-drawer__close:hover {
+  background: var(--gsk-hover);
+  color: var(--gsk-text-1);
+}
+.gsk-sheet-form {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+.gsk-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gsk-sheet-section + .gsk-sheet-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--gsk-stroke);
+}
+.gsk-sheet-field {
+  display: flex;
+  flex-direction: column;
+}
+.gsk-sheet-field .gsk-help {
+  margin-top: 4px;
+}
+.gsk-sheet-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+}
+.gsk-sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Read-only values in the window */
+.gsk-value {
+  font-size: 14px;
+  color: var(--gsk-text-1);
+}
+.gsk-value--muted {
+  color: var(--gsk-text-3);
+}
+.gsk-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--gsk-stroke);
+  vertical-align: middle;
+}
+/* Section header with an action on the right (ModelSettings header) */
+.gsk-block-head--action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Table (GsKnora's member / invitation tables) */
+.gsk-table {
+  overflow: hidden;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+}
+.gsk-table__head,
+.gsk-table__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 70px 130px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+.gsk-table__head {
+  height: 44px;
+  border-bottom: 1px solid var(--gsk-stroke);
+  font-size: 13px;
+  color: var(--gsk-text-2);
+}
+.gsk-table__row {
+  width: 100%;
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gsk-stroke);
+  background: var(--gsk-bg);
+  font-size: 14px;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+.gsk-table__row:hover {
+  background: var(--gsk-hover);
+}
+.gsk-table__row:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: -2px;
+}
+.gsk-table__foot {
+  padding: 10px 16px;
+  background: var(--gsk-rail);
+  font-size: 12px;
+  color: var(--gsk-text-2);
+}
+@media (max-width: 767px) {
+  .gsk-table__head {
+    display: none;
+  }
+  .gsk-table__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .gsk-table__row > :nth-child(2),
+  .gsk-table__row > :nth-child(4) {
+    display: none;
+  }
+}
+
+/* Definition list and code block inside a sheet */
+.gsk-dl {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+.gsk-dl dt {
+  color: var(--gsk-text-2);
+}
+.gsk-dl dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--gsk-text-1);
+}
+.gsk-pre {
+  max-height: 280px;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 3px;
+  padding: 10px 12px;
+  background: var(--gsk-rail);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--gsk-text-2);
+  white-space: pre;
+}
+
+/* "Plan d'action" button at the top of the client tools rail */
+.gsk-plan-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.gsk-plan-button:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 40%, var(--gsk-stroke));
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gsk-text-1) 6%, transparent);
+}
+.gsk-plan-button__icon {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-plan-button__count {
+  display: inline-flex;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gsk-brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Page panels shown inside a sheet: drop their own card chrome */
+.gsk-plain > section,
+.gsk-plain > div > section {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+/* The tab already names the panel and counts its items: the panel's own
+   header (title, subtitle, "2 of 3 done", "7 ranked") would say it twice,
+   squeezed into the sheet's width. */
+.gsk-plain > section > header,
+.gsk-plain > div > section > header {
+  display: none;
+}

@@ -849,12 +849,16 @@ const tools = [
   },
 ];
 
+// The per-tool accent was decorative (green, amber and rose tiles side by
+// side, none of them a status), so every tile now uses the brand tint.
+// The `accent` field stays on each tool in case a meaning is given back.
+const BRAND_TILE = "bg-primary/10 text-primary ring-primary/20";
 const accentMap: Record<string, string> = {
-  violet: "bg-violet-500/15 text-violet-300 ring-violet-400/30",
-  cyan: "bg-cyan-500/15 text-cyan-300 ring-cyan-400/30",
-  emerald: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30",
-  amber: "bg-amber-500/15 text-amber-300 ring-amber-400/30",
-  rose: "bg-rose-500/15 text-rose-300 ring-rose-400/30",
+  violet: BRAND_TILE,
+  cyan: BRAND_TILE,
+  emerald: BRAND_TILE,
+  amber: BRAND_TILE,
+  rose: BRAND_TILE,
 };
 
 // Green reads as "costs you nothing", which is the question people are

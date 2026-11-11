@@ -3,6 +3,12 @@
    mode sombre) passent sur l'encre de l'interface. */
 @layer utilities {
 @media all {
+  :where(:root:not(.dark)) .bg-black\/\[0\.02\]:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .bg-black\/10:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .bg-black\/20:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 4%, transparent); }
+  :where(:root:not(.dark)) .bg-black\/30:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .bg-black\/40:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .bg-black\/45:not([class~="inset-0"]) { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
   :where(:root:not(.dark)) .bg-white\/\[0\.01\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
   :where(:root:not(.dark)) .bg-white\/\[0\.015\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
   :where(:root:not(.dark)) .bg-white\/\[0\.02\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }

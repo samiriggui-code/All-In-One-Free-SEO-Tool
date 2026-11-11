@@ -63,7 +63,8 @@ import {
 } from "@/db/schema";
 import { Dropdown } from "@/components/ui/dropdown";
 import { ClientToolsPanel } from "./client-tools-panel";
-import { StartHere } from "./start-here";
+import { StartHere, startHereStepsLeft } from "./start-here";
+import { ClientActionPlan } from "./client-action-plan";
 import { NextActionsPanel } from "@/components/next-actions-panel";
 import { nextActions } from "@/lib/next-actions";
 import { surfacesFor } from "@/lib/engagement-surfaces";
@@ -324,6 +325,12 @@ export default async function ClientDetailPage({
   // setup; this covers everything after it, and says which half the agent
   // will take.
   const ranked = await nextActions({ clientId, limit: 8 });
+  const startHereLeft = startHereStepsLeft({
+    auditDone: Boolean(latestCompleted),
+    keywordCount,
+    proposalStatus: approvalDoc?.status ?? null,
+    onboardingDone: client.onboardingStep === "completed",
+  });
   const [scheduleRow] = await db
     .select()
     .from(reportSchedules)
@@ -349,26 +356,33 @@ export default async function ClientDetailPage({
         Below md the sidebar collapses to a button + sheet so the main
         content gets full width.
       */}
-      {/* The order to do things in, before the wall of tools. */}
-      <StartHere
-        clientId={client.id}
-        auditDone={Boolean(latestCompleted)}
-        auditFindings={latestCompleted?.issuesCount ?? null}
-        keywordCount={keywordCount}
-        proposalId={approvalDoc?.id ?? null}
-        proposalStatus={approvalDoc?.status ?? null}
-        onboardingDone={client.onboardingStep === "completed"}
-      />
-
-      <NextActionsPanel
-        items={ranked}
-        heading={t("nextActionsHeading")}
-        emptyNote={t("nextActionsEmpty")}
-        showClient={false}
-      />
-
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         <ClientToolsPanel
+          top={
+            <ClientActionPlan
+              setupLeft={startHereLeft}
+              recommendationCount={ranked.length}
+              startHere={
+                <StartHere
+                  clientId={client.id}
+                  auditDone={Boolean(latestCompleted)}
+                  auditFindings={latestCompleted?.issuesCount ?? null}
+                  keywordCount={keywordCount}
+                  proposalId={approvalDoc?.id ?? null}
+                  proposalStatus={approvalDoc?.status ?? null}
+                  onboardingDone={client.onboardingStep === "completed"}
+                />
+              }
+              recommendations={
+                <NextActionsPanel
+                  items={ranked}
+                  heading={t("nextActionsHeading")}
+                  emptyNote={t("nextActionsEmpty")}
+                  showClient={false}
+                />
+              }
+            />
+          }
           client={{
             id: client.id,
             url: client.url,

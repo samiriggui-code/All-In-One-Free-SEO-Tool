@@ -18,6 +18,8 @@
 
 import { callAIResult } from "./ai-call";
 import type { AiFailure } from "./ai-error";
+import type { Locale } from "@/i18n/config";
+import { getReportLocale, reportFormat, reportStrings, type ReportStrings } from "./report-i18n";
 
 export type ExecSummaryDataPoint = {
   /** Short label, e.g. "Health score", "Organic sessions (28d)". */
@@ -65,6 +67,8 @@ export type ExecSummaryInput = {
   organicSessionsDeltaPct?: number | null;
   topQueries?: { query: string; clicks: number; position: number }[];
   quickWinsCount?: number;
+  /** Language of the summary; defaults to the workspace language. */
+  locale?: Locale;
 };
 
 const SYSTEM_PROMPT = `You write SEO executive summaries for monthly reports.
@@ -81,11 +85,15 @@ Strict rules:
 export async function generateExecSummary(
   input: ExecSummaryInput,
 ): Promise<ExecSummaryResult> {
+  const locale = input.locale ?? (await getReportLocale());
+  const S = reportStrings(locale).summary;
   const userPrompt = buildUserPrompt(input);
-  const dataPoints = collectDataPoints(input);
+  const dataPoints = collectDataPoints(input, locale);
 
   const result = await callAIResult({
-    system: SYSTEM_PROMPT,
+    // The prompt stays in English (models follow it best); the answer is
+    // asked for in the report's language.
+    system: `${SYSTEM_PROMPT}\n- ${S.aiLanguage}`,
     user: userPrompt,
     maxTokens: 500,
     temperature: 0.4,
@@ -99,7 +107,7 @@ export async function generateExecSummary(
     return { prose: result.text.trim(), dataPoints, source: "ai" };
   }
   return {
-    prose: templateSummary(input),
+    prose: templateSummary(input, reportStrings(locale)),
     dataPoints,
     source: "template",
     // "No provider configured" is a deliberate choice, not a fault —
@@ -116,40 +124,45 @@ export async function generateExecSummary(
  * line for each non-null piece of evidence. The same input always
  * produces the same dataPoints list — no model in the loop.
  */
-function collectDataPoints(input: ExecSummaryInput): ExecSummaryDataPoint[] {
+function collectDataPoints(input: ExecSummaryInput, locale: Locale): ExecSummaryDataPoint[] {
+  const S = reportStrings(locale).summary;
+  const F = reportFormat(locale);
+  const sev = (x: string) => S.severity[x] ?? x;
   const out: ExecSummaryDataPoint[] = [];
 
   if (input.score !== null) {
     if (input.prevScore !== null) {
       const delta = input.score - input.prevScore;
-      const sign = delta > 0 ? "+" : "";
       out.push({
-        label: "Health score",
-        value: `${input.score} / 100 (${sign}${delta} vs last audit, was ${input.prevScore})`,
+        label: S.dpHealth,
+        value: S.dpHealthDelta(input.score, F.signed(delta), input.prevScore),
       });
     } else {
-      out.push({
-        label: "Health score",
-        value: `${input.score} / 100 (first measurement)`,
-      });
+      out.push({ label: S.dpHealth, value: S.dpHealthFirst(input.score) });
     }
   }
 
   out.push({
-    label: "Tasks",
-    value: `${input.doneTasks} done / ${input.openTasks} open / ${input.totalTasks} total`,
+    label: S.dpTasks,
+    value: S.dpTasksValue(input.doneTasks, input.openTasks, input.totalTasks),
   });
 
   if (input.topIssues.length > 0) {
     const top = input.topIssues[0];
     out.push({
-      label: `Top issue (${top.severity})`,
-      value: `${top.type} — ${top.message}`,
+      label: S.dpTopIssue(sev(top.severity)),
+      value: `${top.type} - ${top.message}`,
     });
     if (input.topIssues.length > 1) {
+      // Distinct names: several findings of one rule used to read
+      // "rule-a, rule-a, rule-a".
+      const names = [...new Set(input.topIssues.slice(1).map((i) => i.type))];
       out.push({
-        label: "Other issues surfaced",
-        value: `${input.topIssues.length - 1} more (${input.topIssues.slice(1, 4).map((i) => i.type).join(", ")}${input.topIssues.length > 4 ? ", …" : ""})`,
+        label: S.dpOtherIssues,
+        value: S.dpOtherIssuesValue(
+          input.topIssues.length - 1,
+          `${names.slice(0, 3).join(", ")}${names.length > 3 ? ", ..." : ""}`,
+        ),
       });
     }
   }
@@ -157,38 +170,29 @@ function collectDataPoints(input: ExecSummaryInput): ExecSummaryDataPoint[] {
   if (typeof input.organicSessions === "number") {
     const trend =
       typeof input.organicSessionsDeltaPct === "number"
-        ? ` (${input.organicSessionsDeltaPct > 0 ? "+" : ""}${input.organicSessionsDeltaPct}% vs prior 28d)`
+        ? S.dpSessionsTrend(F.pct(input.organicSessionsDeltaPct))
         : "";
-    out.push({
-      label: "Organic sessions (last 28d)",
-      value: `${input.organicSessions.toLocaleString()}${trend}`,
-    });
+    out.push({ label: S.dpSessions, value: `${F.num(input.organicSessions)}${trend}` });
   }
 
   if (input.topQueries && input.topQueries.length > 0) {
     const q = input.topQueries[0];
     out.push({
-      label: "Top organic query",
-      value: `"${q.query}" — ${q.clicks} clicks @ position ${q.position.toFixed(1)}`,
+      label: S.dpTopQuery,
+      value: S.dpTopQueryValue(q.query, q.clicks, F.dec(q.position)),
     });
   }
 
   if (typeof input.quickWinsCount === "number" && input.quickWinsCount > 0) {
-    out.push({
-      label: "Quick-win keywords (positions 4-15)",
-      value: String(input.quickWinsCount),
-    });
+    out.push({ label: S.dpQuickWins, value: String(input.quickWinsCount) });
   }
 
   if (input.techStack && input.techStack.length > 0) {
-    out.push({
-      label: "Detected tech stack",
-      value: input.techStack.join(", "),
-    });
+    out.push({ label: S.dpTech, value: input.techStack.join(", ") });
   }
 
   if (input.niche) {
-    out.push({ label: "Niche", value: input.niche });
+    out.push({ label: S.dpNiche, value: input.niche });
   }
 
   return out;
@@ -257,45 +261,30 @@ function buildUserPrompt(input: ExecSummaryInput): string {
  * Template-based fallback when no API key is configured.
  * Same formula CLAUDE.md spec'd: [Direction] + [Win] + [Priority].
  */
-function templateSummary(input: ExecSummaryInput): string {
+function templateSummary(input: ExecSummaryInput, L: ReportStrings): string {
+  const S = L.summary;
+  const c = input.clientName;
   const parts: string[] = [];
 
   if (input.score !== null && input.prevScore !== null) {
     const delta = input.score - input.prevScore;
-    if (Math.abs(delta) < 2) {
-      parts.push(
-        `${input.clientName}'s health score held steady at ${input.score}/100 this period.`,
-      );
-    } else if (delta > 0) {
-      parts.push(
-        `${input.clientName}'s health score improved by ${delta} points this period to ${input.score}/100.`,
-      );
-    } else {
-      parts.push(
-        `${input.clientName}'s health score dropped ${Math.abs(delta)} points this period to ${input.score}/100.`,
-      );
-    }
+    if (Math.abs(delta) < 2) parts.push(S.steady(c, input.score));
+    else if (delta > 0) parts.push(S.up(c, delta, input.score));
+    else parts.push(S.down(c, Math.abs(delta), input.score));
   } else if (input.score !== null) {
-    parts.push(
-      `${input.clientName} now has a baseline health score of ${input.score}/100 — first measurement.`,
-    );
+    parts.push(S.baseline(c, input.score));
   } else {
-    parts.push(`${input.clientName} has no completed audit yet.`);
+    parts.push(S.none(c));
   }
 
-  if (input.doneTasks > 0) {
-    parts.push(
-      `We closed ${input.doneTasks} of ${input.totalTasks} open SEO tasks.`,
-    );
-  } else if (input.totalTasks > 0) {
-    parts.push(
-      `${input.totalTasks} SEO tasks are queued — no completions logged yet.`,
-    );
-  }
+  if (input.doneTasks > 0) parts.push(S.closed(input.doneTasks, input.totalTasks));
+  else if (input.totalTasks > 0) parts.push(S.queued(input.totalTasks));
 
   const top = input.topIssues[0];
   if (top) {
-    parts.push(`Next focus: ${top.message.toLowerCase()}`);
+    // The rule name, not its message: the message is engine output, in
+    // English, and often a whole sentence with URLs in it.
+    parts.push(S.next(top.type));
   }
 
   return parts.join(" ");

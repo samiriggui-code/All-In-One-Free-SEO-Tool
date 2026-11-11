@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import { ArrowLeft, Brain, Sparkles, Zap } from "lucide-react";
+import { Brain, Sparkles, Zap } from "lucide-react";
 import { db } from "@/db/client";
 import { aiFeedback, aiPreferences, clients } from "@/db/schema";
 import { count, desc, asc } from "drizzle-orm";
@@ -53,12 +52,6 @@ export default async function AiLearningPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" /> Back to settings
-      </Link>
 
       <PageHeader
         title="AI learning"
