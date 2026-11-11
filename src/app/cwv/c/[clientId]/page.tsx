@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq } from "drizzle-orm";
 import { Gauge } from "lucide-react";
 import { db } from "@/db/client";
@@ -24,6 +25,7 @@ export default async function PerClientCwvPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("auditTab.cwv");
 
   const reports = (await db
     .select()
@@ -36,8 +38,8 @@ export default async function PerClientCwvPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Core Web Vitals · ${client.name}`}
-        description="Free PageSpeed Insights scans. Run on the homepage + key landing pages, then drop the wins into your task list."
+        title={t("page.title", { name: client.name })}
+        description={t("page.description")}
         icon={Gauge}
         accent="cyan"
       />

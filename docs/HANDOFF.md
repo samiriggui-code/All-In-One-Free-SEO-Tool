@@ -30,6 +30,13 @@ pnpm dev                                    # migrations puis Next sur :3000
 | #42 | **Modèle Client → Projet → Mission** en base (migration `0080`), voir §D |
 | #43 | **Menu de gauche à 8 entrées** ; les anciennes rubriques sont sur la page Boîte à outils (`/tools`) |
 | #44 | **Fiche projet en onglets** (Vue d'ensemble, Missions, Réglages du projet) avec création de mission |
+| #45 | Liste `/clients` par client avec ses projets ; « Ajouter un projet » dans un client existant ; audit rapide puis complet à la création |
+| #46 | Fiche projet : la colonne n'affiche que 3 à 5 outils « Utiles maintenant » selon l'onglet et les missions (`src/lib/project-tools.ts`, tables `BY_MISSION` / `BY_TAB`) ; les 40 restent derrière « Tous les outils » |
+| #47 | Réglages du projet (Google, WordPress, rapports programmés) en « valeurs + panneau latéral » (`project-settings.tsx`). Corrigés : envoi hebdomadaire impossible à enregistrer, contrôle d'accès des actions Google, confirmations affichées sous les panneaux, formulaires vidés après une erreur (React 19) |
+| #48 | **Page du client** `/clients/accounts/[id]` : contact (panneau latéral), projets, facturation (factures et devis de tous ses projets), portail |
+| #49 | Faille corrigée : `/findings/c/[id]` sans contrôle d'accès, `markFindingStatus` sans vérification du client ni du droit d'écriture. Test `client-scope-layouts.test.ts` |
+| #50 | **Cadre façon GsKnora** : compte et cloche en bas de la barre latérale, assistant, thème et serveur au-dessus ; plus de boutons flottants sur ordinateur ; Guidé / Pro retiré ; **taille du texte** Petite / Normale / Grande (Paramètres → Apparence, cookie `rf-font-size`, `zoom` sur `<html>`, hauteurs plein écran compensées) |
+| #51 | **Navigation du projet** sur ses 29 pages (`src/lib/project-nav.ts`, dessinée par `client-scope-layout`) : fil d'Ariane, onglets, pages de l'onglet ; « Local » masqué si le projet n'est pas local ; ancien en-tête « Tous les clients » retiré |
 
 Hors code : la PR #45 ouverte par erreur chez l'auteur d'origine est fermée, et l'issue #59 lui propose nos améliorations (mise à jour Next, moteur 373 règles, navigation). Sans réponse au 11/11. Il s'était dit intéressé par deux PR séparées : la landing publique sans marque, et les traductions françaises seules.
 
@@ -58,30 +65,28 @@ Constat (détaillé dans `docs/AUDIT-UX.md`, écrit le 24/10 et toujours vrai) :
 - **Réglages à trois étages** : application (fenêtre Paramètres), client (contact, portail, équipe), projet (Search Console, Analytics, WordPress : onglet « Réglages du projet »).
 - **Refonte** : suivi léger pour commencer (devis, étapes, tâches, contrôles SEO avant et après), plus un cahier des charges généré depuis l'audit. Pas de gestion de projet complète.
 
-**Fait** : modèle en base (#42), menu à 8 entrées (#43), fiche projet en onglets avec missions (#44), liste `/clients` par client avec ses projets et création d'un projet dans un client existant (#45, vérifiée à l'écran le 11/11 sur Windows : les deux audits se lancent, le score affiché est celui de l'audit complet).
+**Fait** : modèle en base (#42), menu à 8 entrées (#43), fiche projet en onglets (#44), liste des clients et projets (#45), outils utiles par mission (#46), réglages du projet en panneaux (#47), page du client (#48), navigation du projet (#51), Guidé / Pro retiré (#50). Détail en §B.
 
-**Fiche projet, colonne des outils** (branche `feat/outils-du-projet`) : la colonne n'affiche plus que 3 à 5 outils « Utiles maintenant », choisis selon l'onglet et les missions actives ou proposées (`src/lib/project-tools.ts`, règle pure et testée). Les 40 outils restent derrière « Tous les outils » et dans la recherche. Une seule couleur d'accent. Pour changer les outils proposés : tables `BY_MISSION` et `BY_TAB` ; le test vérifie que chaque outil cité existe dans la colonne.
+**Onglets du projet (décidé avec samir le 11/11)** : Vue d'ensemble (+ agent) · Audit · Mots-clés et contenu · Liens · Local · IA et marque · Rapports · Missions · Réglages. « Local » n'apparaît que si le projet a le secteur « local » ou une fiche Google Business (`isLocalProject`). Les adresses `/x/c/[id]` ne changent pas. Une nouvelle page par client doit être ajoutée à `PAGES` dans `src/lib/project-nav.ts` : `project-nav.test.ts` échoue sinon.
 
 **Reste à faire, dans l'ordre**
 
-1. ~~Vérifier et fusionner `feat/clients-projets-liste`.~~ Fait (#45).
-2. ~~Fiche projet : 3 à 5 outils utiles selon l'onglet et les missions.~~ Fait (`feat/outils-du-projet`). Les noms des outils sont encore en anglais.
-3. Réglages du projet : les passer en « valeurs + panneau latéral » (Google, WordPress, envoi des rapports), comme les Paramètres.
-4. Page du client (l'entreprise) : contact, facturation, portail, liste des projets.
-5. Rattacher les 28 pages `/x/c/[clientId]` (audits, mots-clés, contenu, liens…) à des onglets du projet.
-6. Tâches : une tâche par problème et par projet, avec les adresses en sous-cases (aujourd'hui 60 tâches pour ND Prestige) ; échéances réalistes.
-7. Tableau de bord portefeuille ; vues globales Audits et Rapports.
-8. Retirer le bouton Guidé/Pro de l'en-tête (il ne filtre plus le menu).
-9. Mission « refonte » : cahier des charges généré depuis l'audit.
+1. Point 5, lots suivants : un onglet à la fois, titres et textes en français, style harmonisé (§C). Onglet Audit en cours (branche `feat/onglet-audit`), puis Mots-clés et contenu, Liens, Local, IA et marque, Rapports.
+2. Tâches : une tâche par problème et par projet, avec les adresses en sous-cases (aujourd'hui 60 tâches pour ND Prestige) ; échéances réalistes.
+3. Tableau de bord portefeuille ; vues globales Audits et Rapports.
+4. Mission « refonte » : cahier des charges généré depuis l'audit.
 
 ## E. Problèmes ouverts
 
 - **Boucle de rechargement en mode développement.** `pnpm dev` (Next 16.4.6, Turbopack) envoie par moments `{"type":"reloadPage","data":"HMR hash mismatch"}` en continu : toutes les pages se rechargent en boucle. Observé trois fois le 11/11, y compris sur `main` et avec un seul onglet neuf ; à d'autres moments le même code ne boucle pas. Cause non identifiée (aucun fichier ne change sur le disque pendant la boucle). La version de production n'est pas touchée : pour utiliser l'app, faire `pnpm build` puis `pnpm exec next start -p 3000`. Pistes non explorées : désactiver Turbopack, version de Next.
   - 11/11 sur Windows : reproduite (46 rechargements en 20 s, aucun fichier modifié). Le serveur répond `restart` à chaque abonnement au fichier d'entrée de Next (react-dom, client Next), puis `reloadPage: HMR hash mismatch`. **Arrêter `pnpm dev`, supprimer `.next/dev`, relancer** a suffi : plus aucune boucle ensuite. C'est donc le cache de Turbopack, pas le code de l'app.
 - **Deux liens morts** : « Build from scratch » dans `/automations` (`/automations/new` n'existe pas) et l'outil « content attack brief » du panneau d'outils (`client-tools-launcher.tsx`, `/tools/content-attack-brief`).
-- **Erreur réelle depuis le 22/10** dans le journal : « Functions cannot be passed directly to Client Components » sur `/audits/c/[clientId]` et `/keywords/c/[clientId]`.
+- **Erreur du 22/10** « Functions cannot be passed directly to Client Components » sur `/audits/c/[clientId]` et `/keywords/c/[clientId]` : plus reproductible le 11/11 sur `main` (pages chargées avec et sans données). La cause probable, l'ancien en-tête `ClientToolHeader` commun à ces pages, a été retirée par #51. À surveiller dans le journal des erreurs.
+- **Messages d'erreur des actions serveur encore en anglais** (par exemple « No valid email addresses found » pour les destinataires d'un rapport, ou la réponse brute du serveur quand la connexion WordPress échoue).
 - **Tests navigateur (Playwright)** : pas relancés depuis le menu à 8 entrées ; ceux qui décrivent l'ancienne barre latérale sont à ajuster.
-- **Encore en anglais** : les noms et messages des 373 règles d'audit (visibles dans les rapports PDF et les recommandations), les étapes des fournisseurs IA (`api-providers.ts`), les sous-pages Sauvegarde, Santé, Edge, Équipe, Consommation IA, Apprentissage IA, Installer l'application, et les blocs de l'onglet « Réglages du projet ».
+- **Encore en anglais** : les noms et messages des 373 règles d'audit (visibles dans les rapports PDF et les recommandations), les étapes des fournisseurs IA (`api-providers.ts`), les sous-pages Sauvegarde, Santé, Edge, Équipe, Consommation IA, Apprentissage IA, Installer l'application, les noms des 40 outils de la colonne du projet, et la plupart des pages des onglets du projet (traduites onglet par onglet, voir §D).
+- **Windows** : `core.autocrlf=true` met les `.md` en CRLF au checkout, et `methodology-loader.test.ts` échoue (seul test en échec sur ce poste). `action-guard.test.ts` dépasse parfois 5 s : lancer `pnpm test --testTimeout=60000`.
+- **Fichiers générés** : ajouter une page ou changer les imports d'une page modifie `tool-capabilities.generated.ts` (`pnpm gen:capabilities`). Deux PR qui le régénèrent entrent en conflit : le régénérer après fusion.
 - **Rapport PDF** : une même règle est répétée une fois par page touchée (75 fois « Canonical Pointing to Homepage ») ; à regrouper en une ligne par règle avec le nombre de pages.
 - **API et webhooks** (Paramètres) : la création de clés ne passe pas encore par un panneau latéral.
 - **PostgreSQL** : la migration 0080 n'a été jouée que sur SQLite.

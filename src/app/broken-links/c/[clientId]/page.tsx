@@ -12,6 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,7 @@ export default function PerClientBrokenLinks({
   params: Promise<{ clientId: string }>;
 }) {
   const { clientId } = use(params);
+  const t = useTranslations("auditTab.brokenLinks");
 
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
@@ -45,7 +47,7 @@ export default function PerClientBrokenLinks({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All clients
+        {t("allClients")}
       </Link>
 
       <header className="space-y-2">
@@ -54,35 +56,35 @@ export default function PerClientBrokenLinks({
             <Unlink className="size-5 text-rose-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Broken link finder</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Client #{clientId} · Paste any page URL — we&apos;ll fetch, extract every link, and check status codes in parallel (max ~200 links per scan).
+          {t("intro", { clientId })}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="blurl">Page URL to scan</Label>
+            <Label htmlFor="blurl">{t("urlLabel")}</Label>
             <Input
               id="blurl"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://yoursite.com/blog/post"
+              placeholder={t("urlPlaceholder")}
             />
           </div>
           <Button onClick={run} disabled={pending || !url.trim()}>
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Checking…
+                {t("checking")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Scan
+                {t("scan")}
               </>
             )}
           </Button>
@@ -99,17 +101,17 @@ export default function PerClientBrokenLinks({
       {result?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Tile label="Total links" value={result.totalLinks} tone="violet" />
+            <Tile label={t("tiles.total")} value={result.totalLinks} tone="violet" />
             <Tile
-              label="Broken"
+              label={t("tiles.broken")}
               value={result.broken.length}
               tone={result.broken.length === 0 ? "emerald" : "rose"}
             />
-            <Tile label="OK" value={result.ok_links.length} tone="emerald" />
+            <Tile label={t("tiles.ok")} value={result.ok_links.length} tone="emerald" />
           </div>
 
           {result.broken.length > 0 && (
-            <Section title={`Broken (${result.broken.length})`} accent="rose">
+            <Section title={t("brokenSection", { count: result.broken.length })} accent="rose">
               <LinkList rows={result.broken} />
             </Section>
           )}
@@ -117,7 +119,7 @@ export default function PerClientBrokenLinks({
           {result.broken.length === 0 && result.totalLinks > 0 && (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
               <CheckCircle2 className="mr-2 inline size-4" />
-              No broken links on this page. Run the scan on more URLs to cover the whole site.
+              {t("noBroken")}
             </div>
           )}
         </>
@@ -147,6 +149,7 @@ function Section({
 }
 
 function LinkList({ rows }: { rows: LinkCheck[] }) {
+  const t = useTranslations("auditTab.brokenLinks");
   return (
     <ul className="divide-y divide-white/[0.04]">
       {rows.map((r, i) => (
@@ -176,7 +179,7 @@ function LinkList({ rows }: { rows: LinkCheck[] }) {
                     : "bg-cyan-500/10 text-cyan-300 ring-cyan-500/30"
                 }`}
               >
-                {r.scope}
+                {t(`scope.${r.scope}`)}
               </span>
               <a
                 href={r.href}
@@ -190,7 +193,7 @@ function LinkList({ rows }: { rows: LinkCheck[] }) {
             </div>
             {r.anchor && (
               <div className="text-[11px] text-muted-foreground">
-                Anchor: &ldquo;{r.anchor}&rdquo;
+                {t("anchor", { anchor: r.anchor })}
               </div>
             )}
             {r.error && (

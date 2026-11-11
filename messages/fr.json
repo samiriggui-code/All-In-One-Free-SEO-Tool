@@ -3290,5 +3290,180 @@
       "missions": "Missions",
       "settings": "Réglages"
     }
+  },
+  "auditTab": {
+    "findings": {
+      "title": "Ce que les outils ont trouvé",
+      "description": "Constats ouverts pour {name}, issus des vérifications automatiques et de celles que vous avez lancées vous-même. Si vous en marquez un comme résolu ou ignoré ici, c’est définitif : la prochaine analyse ne le signalera plus.",
+      "backTo": "Retour à {name}",
+      "empty": "Aucun constat ouvert. Soit les vérifications n’ont pas encore tourné pour ce client, soit tout ce qu’elles ont trouvé a déjà été traité.",
+      "openCount": "{count, plural, one {# ouvert} other {# ouverts}}",
+      "foundAcross": "sur {total, plural, one {# constat} other {# constats}} trouvés par {tools, plural, one {# outil} other {# outils}}",
+      "runAgain": "relancer",
+      "resolvedUndo": "Résolu — annuler",
+      "ignoredUndo": "Ignoré — annuler",
+      "fixed": "Corrigé",
+      "notAProblem": "Pas un problème ici",
+      "ignoreHint": "La vérification a raison sur les faits, mais ils n’ont pas d’importance sur ce site. Ce constat ne sera plus signalé.",
+      "severity": {
+        "critical": "critique",
+        "high": "élevée",
+        "medium": "moyenne",
+        "low": "faible"
+      }
+    },
+    "landingPerf": {
+      "connectGsc": "Connectez d’abord Google Search Console : les données de clics par page proviennent de GSC.",
+      "title": "Performance des pages d’atterrissage · {name}",
+      "description": "Pages triées par « score de correction » : beaucoup de clics et un faible taux de conversion = le meilleur retour sur investissement. Faites une passe UX/CRO sur les 5 premières.",
+      "noGa4": "GA4 n’est pas connecté : seuls les clics GSC sont affichés. Connectez GA4 pour voir les conversions et le chiffre d’affaires par page.",
+      "empty": "GSC n’a renvoyé aucune donnée par page. Le site est peut-être trop récent ou a trop peu de trafic pour que GSC produise des rapports par page.",
+      "tableTitle": "Pages par score de correction ({count})",
+      "tableHint": "Plus le score est élevé, plus le trafic perdu est important. À traiter en priorité.",
+      "colPage": "Page",
+      "colClicks": "Clics",
+      "colSessions": "Sess.",
+      "colConversions": "Conv.",
+      "colRate": "Taux",
+      "colRevenue": "CA",
+      "colFixScore": "Score de correction"
+    },
+    "monitor": {
+      "page": {
+        "title": "Surveillance de pages · {name}",
+        "description": "Suit chaque jour le code HTTP, le title, la meta description, le H1, la canonical, les directives robots et les données structurées des pages clés. Une page qui répond en erreur, passe en noindex ou perd sa canonical, son title, son H1 ou ses données structurées est signalée comme critique.",
+        "empty": "Aucune page surveillée pour l'instant. Ajoutez-en quelques-unes ci-dessus pour commencer à suivre les changements.",
+        "answeringHttp": "répond HTTP {status}",
+        "lastTitle": "Title : {title}",
+        "lastRobots": "Robots : {robots}",
+        "lastChecked": "Dernière vérification : {date}",
+        "pause": "suspendre",
+        "resume": "reprendre",
+        "remove": "Retirer",
+        "recentChanges": "Changements récents",
+        "recentChangesHint": "Les {count} derniers changements détectés sur les pages de ce client."
+      },
+      "status": {
+        "active": "active",
+        "paused": "suspendue"
+      },
+      "severity": {
+        "critical": "critique",
+        "warning": "attention",
+        "info": "info"
+      },
+      "field": {
+        "status": "code HTTP",
+        "title": "title",
+        "description": "meta description",
+        "h1": "H1",
+        "canonical": "canonical",
+        "robots": "robots",
+        "schema": "données structurées",
+        "content": "contenu"
+      },
+      "form": {
+        "noClients": "Ajoutez d'abord un client : vous pourrez ensuite surveiller ses pages clés ici.",
+        "client": "Client",
+        "url": "URL de la page",
+        "urlPlaceholder": "https://acmecoffee.com/products/dark-roast",
+        "label": "Libellé (facultatif)",
+        "labelPlaceholder": "Page produit principale",
+        "adding": "Ajout…",
+        "submit": "Surveiller",
+        "hint": "Nous récupérons la page tout de suite pour en prendre un instantané de référence. Les vérifications suivantes comparent le title, la meta description, le H1, la canonical et le contenu, et préviennent votre webhook dès que l'un d'eux change."
+      },
+      "buttons": {
+        "checkNow": "Vérifier",
+        "checkingAll": "Vérification en cours…",
+        "checkAll": "Vérifier toutes les pages"
+      }
+    },
+    "cwv": {
+      "page": {
+        "title": "Core Web Vitals · {name}",
+        "description": "Analyses PageSpeed Insights gratuites. Lancez-les sur la page d'accueil et les pages d'atterrissage clés, puis ajoutez les gains à votre liste de tâches."
+      },
+      "runner": {
+        "enterUrl": "Saisissez une URL.",
+        "success": "Performance {score}/100 · {verdict}",
+        "newScan": "Nouvelle analyse",
+        "newScanHint": "Interroge PageSpeed Insights (25 000 requêtes gratuites par jour). Comptez 30 à 60 s par URL.",
+        "url": "URL",
+        "urlPlaceholder": "https://example.com/page-importante",
+        "mobile": "Mobile",
+        "desktop": "Ordinateur",
+        "scanning": "Analyse en cours…",
+        "run": "Lancer l'analyse",
+        "empty": "Aucune analyse pour l'instant. Essayez la page d'accueil ci-dessus et choisissez un appareil."
+      },
+      "overall": {
+        "pass": "réussi",
+        "needs_improvement": "à améliorer",
+        "fail": "échec",
+        "scanned": "analysé"
+      },
+      "report": {
+        "delete": "Supprimer",
+        "perf": "Perf",
+        "a11y": "Access.",
+        "best": "Bonnes prat.",
+        "topOpportunities": "Principales pistes d'amélioration",
+        "save": "Gain {seconds} s"
+      }
+    },
+    "brokenLinks": {
+      "allClients": "Tous les clients",
+      "title": "Détecteur de liens cassés",
+      "intro": "Client n° {clientId} · Collez l'URL de n'importe quelle page : nous la récupérons, extrayons tous ses liens et vérifions leurs codes HTTP en parallèle (environ 200 liens maximum par analyse).",
+      "urlLabel": "URL de la page à analyser",
+      "urlPlaceholder": "https://votresite.com/blog/article",
+      "checking": "Vérification…",
+      "scan": "Analyser",
+      "tiles": {
+        "total": "Liens au total",
+        "broken": "Cassés",
+        "ok": "OK"
+      },
+      "brokenSection": "{count, plural, one {# lien cassé} other {# liens cassés}}",
+      "noBroken": "Aucun lien cassé sur cette page. Lancez l'analyse sur d'autres URL pour couvrir l'ensemble du site.",
+      "scope": {
+        "internal": "interne",
+        "external": "externe"
+      },
+      "anchor": "Ancre : « {anchor} »"
+    },
+    "imageAudit": {
+      "allClients": "Tous les clients",
+      "title": "Audit SEO des images",
+      "intro": "Extrait toutes les images de la page, puis vérifie la taille et le format de chacune par une requête HEAD. Signale 9 problèmes SEO distincts par fichier.",
+      "urlLabel": "URL de la page",
+      "urlPlaceholder": "https://exemple.com/blog/article",
+      "auditing": "Audit en cours…",
+      "audit": "Auditer",
+      "tiles": {
+        "total": "Images au total",
+        "withIssues": "Avec problèmes",
+        "clean": "Sans problème"
+      },
+      "noImages": "Aucune image trouvée sur cette page.",
+      "imagesHeading": "Images",
+      "sizeKb": "{size} Ko",
+      "altLabel": "Alt :",
+      "altNone": "(absent)",
+      "altEmpty": "(vide)",
+      "cleanBadge": "Sans problème",
+      "issues": {
+        "missing_alt": "Sans alt",
+        "empty_alt": "Alt vide",
+        "alt_too_long": "Alt > 125",
+        "alt_is_filename": "Alt = nom de fichier",
+        "no_dimensions": "Sans dimensions",
+        "no_lazy_loading": "Sans chargement différé",
+        "legacy_format": "JPG/PNG",
+        "oversize": "Trop lourde",
+        "broken": "Cassée"
+      }
+    }
   }
 }

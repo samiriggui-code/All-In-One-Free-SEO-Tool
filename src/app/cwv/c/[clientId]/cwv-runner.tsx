@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   CheckCircle2,
@@ -51,6 +52,7 @@ export function CwvRunner({
   defaultUrl: string;
   reports: CwvRow[];
 }) {
+  const t = useTranslations("auditTab.cwv");
   const [url, setUrl] = useState(defaultUrl);
   const [strategy, setStrategy] = useState<"mobile" | "desktop">("mobile");
   const [pending, startTransition] = useTransition();
@@ -61,7 +63,7 @@ export function CwvRunner({
 
   function run() {
     if (!url.trim()) {
-      setMsg({ tone: "error", text: "Enter a URL." });
+      setMsg({ tone: "error", text: t("runner.enterUrl") });
       return;
     }
     setMsg(null);
@@ -73,7 +75,14 @@ export function CwvRunner({
       }
       setMsg({
         tone: "success",
-        text: `Performance ${r.performance}/100 · ${r.overall ?? "scanned"}`,
+        text: t("runner.success", {
+          score: r.performance === null ? "—" : String(r.performance),
+          verdict: r.overall
+            ? t.has(`overall.${r.overall}`)
+              ? t(`overall.${r.overall}`)
+              : r.overall
+            : t("overall.scanned"),
+        }),
       });
       setTimeout(() => setMsg(null), 5000);
     });
@@ -85,22 +94,21 @@ export function CwvRunner({
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Zap className="size-4 text-cyan-300" />
-            New scan
+            {t("runner.newScan")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Calls PageSpeed Insights — free 25k requests/day. Takes ~30-60s per
-            URL.
+            {t("runner.newScanHint")}
           </p>
         </header>
         <div className="space-y-3 p-5">
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="cwv-url">URL</Label>
+              <Label htmlFor="cwv-url">{t("runner.url")}</Label>
               <Input
                 id="cwv-url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://example.com/important-page"
+                placeholder={t("runner.urlPlaceholder")}
               />
             </div>
             <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
@@ -114,7 +122,7 @@ export function CwvRunner({
                 }`}
               >
                 <Smartphone className="size-3.5" />
-                Mobile
+                {t("runner.mobile")}
               </button>
               <button
                 type="button"
@@ -126,19 +134,19 @@ export function CwvRunner({
                 }`}
               >
                 <Monitor className="size-3.5" />
-                Desktop
+                {t("runner.desktop")}
               </button>
             </div>
             <Button onClick={run} disabled={pending}>
               {pending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Scanning…
+                  {t("runner.scanning")}
                 </>
               ) : (
                 <>
                   <Zap className="size-4" />
-                  Run scan
+                  {t("runner.run")}
                 </>
               )}
             </Button>
@@ -164,7 +172,7 @@ export function CwvRunner({
 
       {reports.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No scans yet. Try the homepage above and pick a strategy.
+          {t("runner.empty")}
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -178,6 +186,7 @@ export function CwvRunner({
 }
 
 function ReportCard({ r, clientId }: { r: CwvRow; clientId: number }) {
+  const t = useTranslations("auditTab.cwv");
   const [pending, startTransition] = useTransition();
   return (
     <article className="glass-apple relative overflow-hidden rounded-2xl">
@@ -204,7 +213,7 @@ function ReportCard({ r, clientId }: { r: CwvRow; clientId: number }) {
         </div>
         <button
           type="button"
-          aria-label="Delete"
+          aria-label={t("report.delete")}
           disabled={pending}
           onClick={() =>
             startTransition(async () => {
@@ -223,9 +232,9 @@ function ReportCard({ r, clientId }: { r: CwvRow; clientId: number }) {
         <div className="space-y-4 p-5">
           {/* 4 Lighthouse scores */}
           <div className="grid grid-cols-4 gap-2">
-            <ScoreBubble label="Perf" score={r.performance} />
-            <ScoreBubble label="A11y" score={r.accessibility} />
-            <ScoreBubble label="Best" score={r.bestPractices} />
+            <ScoreBubble label={t("report.perf")} score={r.performance} />
+            <ScoreBubble label={t("report.a11y")} score={r.accessibility} />
+            <ScoreBubble label={t("report.best")} score={r.bestPractices} />
             <ScoreBubble label="SEO" score={r.seo} />
           </div>
 
@@ -266,7 +275,7 @@ function ReportCard({ r, clientId }: { r: CwvRow; clientId: number }) {
           {r.opportunities && r.opportunities.length > 0 && (
             <div>
               <div className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Top opportunities
+                {t("report.topOpportunities")}
               </div>
               <ul className="space-y-1.5">
                 {r.opportunities.slice(0, 5).map((o) => (
@@ -277,7 +286,9 @@ function ReportCard({ r, clientId }: { r: CwvRow; clientId: number }) {
                     <span className="truncate">{o.title}</span>
                     {o.savingsMs !== null && (
                       <span className="shrink-0 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                        Save {Math.round(o.savingsMs / 100) / 10}s
+                        {t("report.save", {
+                          seconds: Math.round(o.savingsMs / 100) / 10,
+                        })}
                       </span>
                     )}
                   </li>

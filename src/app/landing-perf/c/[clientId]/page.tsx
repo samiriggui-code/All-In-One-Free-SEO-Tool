@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 import { AlertCircle, ExternalLink, Target } from "lucide-react";
 import { db } from "@/db/client";
@@ -23,6 +24,7 @@ export default async function PerClientLandingPerfPage({
     .where(eq(clients.id, clientId))
     .limit(1);
   if (!client) notFound();
+  const t = await getTranslations("auditTab.landingPerf");
 
 
   if (!client.gscProperty) {
@@ -30,8 +32,7 @@ export default async function PerClientLandingPerfPage({
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertCircle className="mr-2 inline size-4" />
-          Connect Google Search Console first — the page-level click data
-          comes from GSC.
+          {t("connectGsc")}
         </div>
       </div>
     );
@@ -48,45 +49,43 @@ export default async function PerClientLandingPerfPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Landing-page performance · ${client.name}`}
-        description="Pages sorted by 'fix score' — high clicks + low conversion rate = best ROI to fix. Run a UX/CRO pass on the top 5."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Target}
         accent="emerald"
       />
 
       {!client.ga4PropertyId && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-          GA4 not connected — showing GSC clicks only. Connect GA4 to see
-          conversions + revenue per page.
+          {t("noGa4")}
         </div>
       )}
 
       {perf.length === 0 ? (
         <div className="glass-apple rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No page-level GSC data returned. The site may be too new or have
-          too little traffic for GSC to surface page reports.
+          {t("empty")}
         </div>
       ) : (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              Pages by fix-score ({perf.length})
+              {t("tableTitle", { count: perf.length })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Higher score = more wasted traffic. Targets first.
+              {t("tableHint")}
             </p>
           </header>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="px-5 py-3 text-left font-medium">Page</th>
-                  <th className="px-3 py-3 text-right font-medium">Clicks</th>
-                  <th className="px-3 py-3 text-right font-medium">Sess.</th>
-                  <th className="px-3 py-3 text-right font-medium">Conv.</th>
-                  <th className="px-3 py-3 text-right font-medium">CR</th>
-                  <th className="px-3 py-3 text-right font-medium">$</th>
-                  <th className="px-3 py-3 text-right font-medium">Fix score</th>
+                  <th className="px-5 py-3 text-left font-medium">{t("colPage")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colClicks")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colSessions")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colConversions")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colRate")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colRevenue")}</th>
+                  <th className="px-3 py-3 text-right font-medium">{t("colFixScore")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
