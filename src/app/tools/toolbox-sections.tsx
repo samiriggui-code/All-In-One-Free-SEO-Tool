@@ -1,14 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { toolboxGroups } from "@/components/shell/nav-items";
 import { navItemMessageKey } from "@/i18n/nav";
 
 /**
  * The pages that used to fill the sidebar, grouped as they were there.
  * The sidebar keeps eight entries; this is where the rest is reached from.
+ *
+ * A client component on purpose: nav-items is the sidebar's module, and
+ * importing it from a server component as well put it in both graphs,
+ * which sent Turbopack dev into a recompile-and-reload loop on every page.
  */
-export async function ToolboxSections() {
-  const t = await getTranslations("nav");
+export function ToolboxSections() {
+  const t = useTranslations("nav");
   const groups = toolboxGroups();
 
   return (

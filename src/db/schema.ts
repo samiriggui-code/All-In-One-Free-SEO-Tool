@@ -9,6 +9,13 @@ import type {
   StyleProfile,
 } from "../lib/content-studio/types";
 
+import {
+  MISSION_KINDS,
+  MISSION_STATUSES,
+  type MissionKind,
+  type MissionStatus,
+} from "../lib/mission-kinds";
+
 const timestamps = {
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
@@ -2717,10 +2724,10 @@ export const clientAccounts = sqliteTable("client_accounts", {
   ...timestamps,
 });
 
-export const MISSION_KINDS = ["audit", "monitoring", "full", "redesign", "other"] as const;
-export type MissionKind = (typeof MISSION_KINDS)[number];
-export const MISSION_STATUSES = ["proposed", "active", "paused", "done", "cancelled"] as const;
-export type MissionStatus = (typeof MISSION_STATUSES)[number];
+// Defined in lib/mission-kinds.ts (no database import) so client
+// components can list them without pulling the schema into the browser.
+export { MISSION_KINDS, MISSION_STATUSES };
+export type { MissionKind, MissionStatus };
 
 export const missions = sqliteTable("missions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
