@@ -26,6 +26,7 @@ import {
   difficultyEffortHint,
   difficultyTone,
 } from "@/lib/backlink-difficulty";
+import { getTranslations } from "next-intl/server";
 import { ClientLinkBuildingHub } from "./hub";
 
 export default async function ClientLinkBuildingPage({
@@ -94,6 +95,7 @@ export default async function ClientLinkBuildingPage({
     );
   const totalLive = tracked.filter((t) => t.status === "live").length;
   const totalActive = tracked.length;
+  const t = await getTranslations("linksTab.linkBuilding.page");
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -101,33 +103,33 @@ export default async function ClientLinkBuildingPage({
         href="/link-building"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to global link-building
+        <ArrowLeft className="size-3" /> {t("back")}
       </Link>
 
       <PageHeader
-        title={`Link building — ${client.name}`}
-        description="AI-matched prospects for this client's niche, city, and business type. Track each link as you build it. Live URLs are auto-recorded with the build date."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Link2}
         accent="emerald"
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <CheckCircle2 className="size-3" />
-              {totalLive} live links
+              {t("liveLinks", { count: totalLive })}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 text-violet-300 ring-1 ring-inset ring-violet-500/30">
               <Sparkles className="size-3" />
-              {recentLive.length} built last 30d
+              {t("builtLast30d", { count: recentLive.length })}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              {totalActive} on tracker
+              {t("onTracker", { count: totalActive })}
             </span>
             <Link
               href={`/guest-posts/c/${clientId}`}
               className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/20"
             >
               <Compass className="size-3" />
-              Guest post composer
+              {t("guestPostComposer")}
             </Link>
           </div>
         }
@@ -145,18 +147,19 @@ export default async function ClientLinkBuildingPage({
   );
 }
 
-function ClientStaticHelp({ ranked }: { ranked: ScoredProspect[] }) {
+async function ClientStaticHelp({ ranked }: { ranked: ScoredProspect[] }) {
+  const t = await getTranslations("linksTab.linkBuilding.page");
   const easy = ranked.filter((r) => r.difficulty === "easy").length;
   const medium = ranked.filter((r) => r.difficulty === "medium").length;
   const hard = ranked.filter((r) => r.difficulty === "hard").length;
 
   return (
     <section className="rounded-2xl border border-white/5 bg-card/40 p-5 backdrop-blur-md">
-      <h3 className="text-sm font-semibold">How difficulty is scored</h3>
+      <h3 className="text-sm font-semibold">{t("difficultyTitle")}</h3>
       <div className="mt-3 grid gap-3 text-xs sm:grid-cols-3">
-        <Tone label="Easy" diff="easy" count={easy} />
-        <Tone label="Medium" diff="medium" count={medium} />
-        <Tone label="Hard" diff="hard" count={hard} />
+        <Tone label={t("difficulty.easy")} diff="easy" count={easy} />
+        <Tone label={t("difficulty.medium")} diff="medium" count={medium} />
+        <Tone label={t("difficulty.hard")} diff="hard" count={hard} />
       </div>
     </section>
   );

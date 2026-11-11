@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { AlertCircle, ExternalLink } from "lucide-react";
 import { hasGmailScope } from "@/lib/gmail-scope";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
@@ -25,6 +26,7 @@ export async function GmailScopeBanner() {
     scopeOk = true; // don't show the banner on a transient error
   }
   if (scopeOk) return null;
+  const t = await getTranslations("gmailScope.banner");
 
   return (
     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
@@ -32,18 +34,16 @@ export async function GmailScopeBanner() {
         <AlertCircle className="mt-0.5 size-4 shrink-0" />
         <div className="space-y-1">
           <p className="font-medium">
-            Reply auto-detection is off — Gmail scope wasn&apos;t granted.
+            {t("title")}
           </p>
           <p className="text-amber-200/80">
-            The daily-agent uses Gmail (read-only) to flip outreach contacts
-            to &quot;replied&quot; when the recipient writes back. To turn it
-            on, reconnect Google and tick the Gmail permission.
+            {t("body")}
           </p>
           <Link
             href="/settings/google"
             className="inline-flex items-center gap-1 text-amber-100 underline hover:no-underline"
           >
-            Reconnect Google
+            {t("reconnect")}
             <ExternalLink className="size-3" />
           </Link>
         </div>

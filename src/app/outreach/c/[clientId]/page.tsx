@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq } from "drizzle-orm";
 import { Send, ExternalLink, X, FileText } from "lucide-react";
 import { db } from "@/db/client";
@@ -57,13 +58,16 @@ export default async function PerClientOutreachPage({
     getSmtpConfig(),
   ]);
   const smtpConfigured = Boolean(smtp);
+  const t = await getTranslations("linksTab.outreach");
+  const statusLabel = (s: string) =>
+    t.has(`status.${s}`) ? t(`status.${s}`) : s;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Outreach · ${client.name}`}
-        description="Manage the outreach pipeline: prospects, contacted, replied, won, lost."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Send}
         accent="violet"
         meta={
@@ -72,22 +76,23 @@ export default async function PerClientOutreachPage({
             className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1.5 text-xs text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
           >
             <FileText className="size-3.5" />
-            Manage templates
+            {t("manageTemplates")}
           </Link>
         }
       />
 
       {!smtpConfigured && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-          SMTP isn&apos;t configured yet — you can add contacts now, but
-          sending email is disabled until you{" "}
-          <Link
-            href="/settings#smtp"
-            className="underline hover:text-amber-100"
-          >
-            connect SMTP in settings
-          </Link>
-          .
+          {t.rich("smtpMissing", {
+            link: (chunks) => (
+              <Link
+                href="/settings#smtp"
+                className="underline hover:text-amber-100"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </div>
       )}
 
@@ -114,8 +119,8 @@ export default async function PerClientOutreachPage({
         <div className="glass-apple relative overflow-hidden rounded-2xl">
           <EmptyState
             icon={Send}
-            title="No outreach contacts yet"
-            body="Add prospects above to start tracking your link-building / guest-post / digital-PR pipeline. Templates, status, and click-tracking included."
+            title={t("empty.title")}
+            body={t("empty.body")}
           />
         </div>
       ) : (
@@ -135,7 +140,7 @@ export default async function PerClientOutreachPage({
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${statusTone[c.status]}`}
                         >
-                          {c.status}
+                          {statusLabel(c.status)}
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
@@ -189,7 +194,7 @@ export default async function PerClientOutreachPage({
                               type="submit"
                               className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                             >
-                              → {s}
+                              {t("moveTo", { status: statusLabel(s) })}
                             </button>
                           </form>
                         );
@@ -197,7 +202,7 @@ export default async function PerClientOutreachPage({
                       <form action={removeAction}>
                         <button
                           type="submit"
-                          aria-label="Remove"
+                          aria-label={t("remove")}
                           className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                         >
                           <X className="size-3.5" />

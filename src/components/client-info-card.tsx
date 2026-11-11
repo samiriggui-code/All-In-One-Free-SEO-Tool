@@ -13,6 +13,7 @@ import {
   Calendar,
   AtSign,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 /**
  * Quick-copy card showing every NAP / brand field a freelancer needs while
@@ -40,22 +41,22 @@ export type ClientInfo = {
 
 const FIELDS: {
   key: keyof ClientInfo;
-  label: string;
   icon: typeof Building;
 }[] = [
-  { key: "name", label: "Business name", icon: Building },
-  { key: "url", label: "Website", icon: Globe },
-  { key: "email", label: "Email", icon: Mail },
-  { key: "phone", label: "Phone", icon: Phone },
-  { key: "address", label: "Address", icon: MapPin },
-  { key: "city", label: "City", icon: MapPin },
-  { key: "country", label: "Country", icon: MapPin },
-  { key: "businessType", label: "Business type", icon: User },
-  { key: "shortDescription", label: "Tagline", icon: AtSign },
-  { key: "description", label: "Full description", icon: Calendar },
+  { key: "name", icon: Building },
+  { key: "url", icon: Globe },
+  { key: "email", icon: Mail },
+  { key: "phone", icon: Phone },
+  { key: "address", icon: MapPin },
+  { key: "city", icon: MapPin },
+  { key: "country", icon: MapPin },
+  { key: "businessType", icon: User },
+  { key: "shortDescription", icon: AtSign },
+  { key: "description", icon: Calendar },
 ];
 
 export function ClientInfoCard({ info }: { info: ClientInfo }) {
+  const t = useTranslations("clientInfoCard.card");
   const fields = FIELDS.map((f) => ({
     ...f,
     value: (info[f.key] as string | null | undefined) ?? "",
@@ -66,18 +67,17 @@ export function ClientInfoCard({ info }: { info: ClientInfo }) {
       <header className="border-b border-white/[0.06] px-5 py-3">
         <h2 className="text-sm font-semibold flex items-center gap-2">
           <Copy className="size-4 text-cyan-300" />
-          Quick-copy fields
+          {t("title")}
         </h2>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          Click the copy button on any row to use these in directory
-          submissions, outreach emails, or citation forms.
+          {t("intro")}
         </p>
       </header>
       <ul className="divide-y divide-white/[0.04]">
         {fields.map((f) => (
           <CopyRow
             key={f.key}
-            label={f.label}
+            label={t(`fields.${f.key}`)}
             value={f.value}
             icon={f.icon}
           />
@@ -99,6 +99,7 @@ function CopyRow({
   value: string;
   icon: typeof Building;
 }) {
+  const t = useTranslations("clientInfoCard.card");
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -132,12 +133,12 @@ function CopyRow({
         {copied ? (
           <>
             <Check className="size-3" />
-            Copied
+            {t("copied")}
           </>
         ) : (
           <>
             <Copy className="size-3" />
-            Copy
+            {t("copy")}
           </>
         )}
       </button>
@@ -146,6 +147,7 @@ function CopyRow({
 }
 
 function CopyAllNapButton({ info }: { info: ClientInfo }) {
+  const t = useTranslations("clientInfoCard.card");
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -170,12 +172,12 @@ function CopyAllNapButton({ info }: { info: ClientInfo }) {
       {copied ? (
         <>
           <Check className="size-3" />
-          NAP block copied
+          {t("napCopied")}
         </>
       ) : (
         <>
           <Copy className="size-3" />
-          Copy full NAP block (multi-line)
+          {t("napCopy")}
         </>
       )}
     </button>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Database, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { NeedsConnection } from "@/components/ui/needs-connection";
 import { importBingBacklinksAction } from "./bing-actions";
@@ -23,6 +24,7 @@ export function BingBacklinkImport({
   hasKey: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations("linksTab.backlinks.bingImport");
   const [pending, start] = useTransition();
   const [result, setResult] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -31,17 +33,14 @@ export function BingBacklinkImport({
     <section className="glass-apple rounded-xl p-4">
       <h2 className="flex items-center gap-2 text-sm font-medium">
         <Database className="size-4 text-emerald-300" />
-        Import from Bing Webmaster Tools
+        {t("title")}
       </h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        Microsoft shares their own link graph for sites you&apos;ve verified,
-        free. It&apos;s the best backlink data a self-hosted tool can get —
-        with three honest limits: it only covers{" "}
-        <strong className="font-medium text-foreground">your</strong> verified
-        sites, not competitors; it&apos;s Bing&apos;s index rather than
-        Google&apos;s, so the two overlap without matching; and Bing
-        publishes no authority score, so that column stays empty rather than
-        being filled with a number we made up.
+        {t.rich("intro", {
+          strong: (c) => (
+            <strong className="font-medium text-foreground">{c}</strong>
+          ),
+        })}
       </p>
 
       {!hasKey ? (
@@ -51,7 +50,7 @@ export function BingBacklinkImport({
         <div className="mt-3">
           <NeedsConnection
             id="bing"
-            because="You'll need a Bing Webmaster Tools key for this."
+            because={t("needsKey")}
           />
         </div>
       ) : (
@@ -66,16 +65,19 @@ export function BingBacklinkImport({
                 const r = await importBingBacklinksAction(clientId);
                 if (!r.ok) {
                   setFailed(true);
-                  setResult(r.error ?? "The import failed.");
+                  setResult(r.error ?? t("failed"));
                   return;
                 }
                 const parts: string[] = [];
-                if (r.added) parts.push(`${r.added} new`);
-                if (r.updated) parts.push(`${r.updated} refreshed`);
+                if (r.added) parts.push(t("added", { count: r.added }));
+                if (r.updated) parts.push(t("updated", { count: r.updated }));
                 setResult(
                   (parts.length
-                    ? `${parts.join(", ")} — from ${r.scannedPages} page${r.scannedPages === 1 ? "" : "s"} checked.`
-                    : "Nothing new.") + (r.note ? ` ${r.note}` : ""),
+                    ? t("summary", {
+                        parts: parts.join(", "),
+                        count: r.scannedPages,
+                      })
+                    : t("nothingNew")) + (r.note ? ` ${r.note}` : ""),
                 );
                 router.refresh();
               })
@@ -86,11 +88,10 @@ export function BingBacklinkImport({
             ) : (
               <Database className="size-3.5" />
             )}
-            Import backlinks
+            {t("submit")}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Safe to re-run — existing links are refreshed, not duplicated, and
-            anything you edited by hand is left alone.
+            {t("safeToRerun")}
           </span>
         </div>
       )}

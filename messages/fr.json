@@ -3603,5 +3603,352 @@
       "body": "En connectant Search Console pour ce client, vous aurez les chiffres de Google : plus justes, ils couvrent toutes les requêtes sur lesquelles vous apparaissez, sans limite ni blocage.",
       "cta": "La connecter"
     }
+  },
+  "linksTab": {
+    "backlinks": {
+      "title": "Backlinks · {name}",
+      "description": "Suivez les liens entrants. Marquez-les comme perdus ou à désavouer, puis exportez un fichier de désaveu pour Google Search Console.",
+      "disavowFile": "Fichier de désaveu ({count})",
+      "tiles": {
+        "active": "Actifs",
+        "lost": "Perdus",
+        "disavowed": "Désavoués"
+      },
+      "empty": {
+        "title": "Aucun backlink suivi pour l'instant",
+        "body": "Ajoutez-en ci-dessus, connectez Google Search Console pour une récupération automatique, ou utilisez l'import CSV Ahrefs WMT pour une couverture plus complète.",
+        "connectGsc": "Connecter GSC",
+        "ahrefsImport": "Import Ahrefs WMT"
+      },
+      "table": {
+        "source": "Source",
+        "anchor": "Ancre",
+        "da": "DA",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "actif",
+        "lost": "perdu",
+        "disavow": "à désavouer"
+      },
+      "remove": "supprimer",
+      "addForm": {
+        "noClients": "Ajoutez d'abord un client, vous pourrez ensuite enregistrer ses backlinks ici.",
+        "client": "Client",
+        "sourceUrl": "URL source (la page qui fait le lien)",
+        "sourceUrlPlaceholder": "techcrunch.com/un-article",
+        "targetUrl": "Page cible (facultatif)",
+        "targetUrlPlaceholder": "https://votresite.com/page",
+        "anchorText": "Texte d'ancre",
+        "anchorTextPlaceholder": "meilleurs widgets",
+        "domainAuthority": "DA / DR (0–100)",
+        "notes": "Notes",
+        "notesPlaceholder": "Comment vous l'avez obtenu, contexte, etc.",
+        "adding": "Ajout…",
+        "submit": "Ajouter le backlink"
+      },
+      "bingImport": {
+        "title": "Importer depuis Bing Webmaster Tools",
+        "intro": "Microsoft partage gratuitement son propre graphe de liens pour les sites que vous avez validés. Ce sont les meilleures données de backlinks qu'un outil auto-hébergé puisse obtenir, avec trois limites assumées : elles ne couvrent que <strong>vos</strong> sites validés, pas ceux des concurrents ; il s'agit de l'index de Bing et non de celui de Google, les deux se recoupent sans coïncider ; et Bing ne publie aucun score d'autorité, donc cette colonne reste vide plutôt que d'être remplie avec un chiffre inventé.",
+        "needsKey": "Il vous faut une clé Bing Webmaster Tools pour cela.",
+        "failed": "L'import a échoué.",
+        "added": "{count, plural, one {# nouveau} other {# nouveaux}}",
+        "updated": "{count, plural, one {# actualisé} other {# actualisés}}",
+        "summary": "{parts} — sur {count, plural, one {# page vérifiée} other {# pages vérifiées}}.",
+        "nothingNew": "Rien de nouveau.",
+        "submit": "Importer les backlinks",
+        "safeToRerun": "Vous pouvez relancer sans risque : les liens existants sont actualisés et non dupliqués, et tout ce que vous avez modifié à la main reste intact."
+      },
+      "logLink": {
+        "title": "Enregistrer un lien obtenu",
+        "intro": "Les liens enregistrés apparaissent dans le rapport client du mois et dans le fil d'activité. Remplissez ce que vous avez : seule l'URL source est obligatoire.",
+        "sourceUrl": "URL source (où se trouve le lien)",
+        "sourceUrlPlaceholder": "https://blog.example.com/article",
+        "targetUrl": "URL cible (votre page vers laquelle il pointe)",
+        "targetUrlPlaceholder": "https://votresite.com/page",
+        "anchorText": "Texte d'ancre",
+        "anchorTextPlaceholder": "meilleures recettes vegan",
+        "method": "Méthode",
+        "methods": {
+          "guest_post": "Article invité",
+          "outreach": "Prospection par e-mail",
+          "citation": "Citation / annuaire",
+          "broken_link": "Remplacement de lien cassé",
+          "resource_page": "Page de ressources",
+          "directory": "Annuaire sectoriel",
+          "social_profile": "Profil social",
+          "podcast": "Podcast / interview",
+          "interview": "Citation / interview",
+          "other": "Autre"
+        },
+        "rel": "Rel",
+        "relUnknown": "Inconnu",
+        "domainAuthority": "Autorité de domaine (0-100)",
+        "placedAt": "Date de mise en ligne",
+        "notes": "Notes",
+        "notesPlaceholder": "Obtenu grâce à la campagne de prospection du vendredi, réponse en 4 h",
+        "logged": "Enregistré. Il figure dans le rapport du mois.",
+        "logging": "Enregistrement…",
+        "submit": "Enregistrer ce lien"
+      }
+    },
+    "linkBuilding": {
+      "page": {
+        "back": "Retour au netlinking global",
+        "title": "Netlinking · {name}",
+        "description": "Prospects choisis par l'IA selon la niche, la ville et le type d'activité de ce client. Suivez chaque lien au fil de sa création. Les URL en ligne sont enregistrées automatiquement avec leur date d'obtention.",
+        "liveLinks": "{count, plural, one {# lien en ligne} other {# liens en ligne}}",
+        "builtLast30d": "{count, plural, one {# obtenu sur 30 j} other {# obtenus sur 30 j}}",
+        "onTracker": "{count, plural, one {# dans le suivi} other {# dans le suivi}}",
+        "guestPostComposer": "Rédacteur d'articles invités",
+        "difficultyTitle": "Comment la difficulté est évaluée",
+        "difficulty": {
+          "easy": "Facile",
+          "medium": "Moyenne",
+          "hard": "Difficile"
+        }
+      },
+      "hub": {
+        "tabs": {
+          "aiMatched": "Suggestions IA ({count})",
+          "tracker": "Suivi ({count})",
+          "bespoke": "Idées sur mesure (IA)"
+        },
+        "difficulty": {
+          "easy": "facile",
+          "medium": "moyenne",
+          "hard": "difficile",
+          "paid": "payant"
+        },
+        "status": {
+          "pending": "à faire",
+          "submitted": "soumis",
+          "live": "en ligne",
+          "rejected": "refusé",
+          "lost": "perdu"
+        },
+        "ideaType": {
+          "directory": "annuaire",
+          "podcast": "podcast",
+          "community": "communauté",
+          "blog": "blog",
+          "newsletter": "newsletter",
+          "association": "association",
+          "review_site": "site d'avis",
+          "forum": "forum",
+          "tool_marketplace": "place de marché d'outils",
+          "course_marketplace": "place de marché de formations"
+        },
+        "trackEasyWins": "{count, plural, one {Suivre le # gain rapide} other {Suivre les # gains rapides}}",
+        "noProspects": "Aucun prospect ne correspond. Essayez un autre filtre de difficulté.",
+        "da": "DA {value}",
+        "track": "Suivre",
+        "stats": {
+          "pending": "À faire",
+          "submitted": "Soumis",
+          "live": "En ligne",
+          "lost": "Perdus"
+        },
+        "emptyTracker": "Rien n'est suivi pour l'instant. Choisissez des prospects dans l'onglet « Suggestions IA » et cliquez sur <strong>Suivre</strong>.",
+        "healthCheck": {
+          "run": "Vérifier les liens",
+          "needLive": "(Marquez des liens comme en ligne pour l'activer.)",
+          "result": "{checked, plural, one {# vérifié} other {# vérifiés}} · {lost, plural, one {# perdu} other {# perdus}} · {errors, plural, one {# en erreur} other {# en erreur}}"
+        },
+        "row": {
+          "statusOn": "· {status} ({date})",
+          "expand": "Déplier",
+          "livePlaceholder": "Collez ici l'URL du backlink en ligne",
+          "markLive": "Marquer en ligne",
+          "markSubmitted": "Marquer soumis",
+          "rejected": "Refusé",
+          "lost": "Perdu",
+          "remove": "Retirer",
+          "confirmTitle": "Retirer du suivi ?",
+          "confirmDescription": "Le prospect est retiré de la liste de ce client. Vous pourrez l'ajouter à nouveau plus tard.",
+          "confirmLabel": "Retirer"
+        },
+        "bespoke": {
+          "intro": "Demande à l'IA jusqu'à 10 idées de prospects adaptées à la niche, à la localisation et au type d'activité de <strong>{name}</strong>. Elles complètent (sans la remplacer) la base sélectionnée ci-dessus.",
+          "generating": "Génération…",
+          "generate": "Générer des idées sur mesure",
+          "action": "Action :",
+          "added": "Ajouté",
+          "trackThis": "Suivre"
+        },
+        "filterAll": "toutes"
+      }
+    },
+    "outreach": {
+      "title": "Prospection · {name}",
+      "description": "Gérez votre pipeline de prospection : prospects, contactés, ont répondu, gagnés, perdus.",
+      "manageTemplates": "Gérer les modèles",
+      "smtpMissing": "Le SMTP n’est pas encore configuré : vous pouvez déjà ajouter des contacts, mais l’envoi d’e-mails reste désactivé tant que vous n’avez pas <link>connecté le SMTP dans les réglages</link>.",
+      "empty": {
+        "title": "Aucun contact de prospection pour l’instant",
+        "body": "Ajoutez des prospects ci-dessus pour suivre votre pipeline de netlinking, d’articles invités et de relations presse digitales. Modèles, statuts et suivi des clics inclus."
+      },
+      "status": {
+        "prospect": "Prospect",
+        "contacted": "Contacté",
+        "replied": "A répondu",
+        "won": "Gagné",
+        "lost": "Perdu"
+      },
+      "moveTo": "→ {status}",
+      "remove": "Supprimer",
+      "addForm": {
+        "noClients": "Ajoutez d’abord un client, puis suivez ici ses prospects.",
+        "client": "Client",
+        "name": "Nom du contact / du site",
+        "namePlaceholder": "Jane @ TechCrunch",
+        "email": "E-mail",
+        "emailPlaceholder": "jane@...",
+        "website": "Site",
+        "websitePlaceholder": "techcrunch.com",
+        "adding": "Ajout…",
+        "add": "Ajouter",
+        "notes": "Argumentaire / contexte (facultatif)",
+        "notesPlaceholder": "Recherche un article invité sur le café durable"
+      },
+      "compose": {
+        "setupSmtpTitle": "Configurez le SMTP dans les réglages pour activer l’envoi",
+        "setupSmtp": "Configurer le SMTP",
+        "send": "Envoyer",
+        "sendTo": "Envoyer à {name}",
+        "template": "Partir d’un modèle (facultatif)",
+        "blank": "— vide —",
+        "subject": "Objet",
+        "body": "Message",
+        "variablesHint": "Les variables comme {variable} sont remplacées avant l’envoi. Aperçu : « {preview} »",
+        "cancel": "Annuler",
+        "sending": "Envoi…",
+        "sendEmail": "Envoyer l’e-mail",
+        "close": "Fermer"
+      }
+    },
+    "guestPosts": {
+      "backLink": "Retour au netlinking de {name}",
+      "title": "Articles invités · {name}",
+      "description": "Choisissez une plateforme cible, indiquez un sujet et un mot-clé cible. L'IA rédige un brouillon adapté au style maison de cette plateforme : rythme varié, exemples concrets, sans bourrage de mots-clés, sources E-E-A-T. Les brouillons sont enregistrés pour que vous puissiez les retravailler, les envoyer sur WordPress ou les coller tels quels.",
+      "composer": {
+        "titles": {
+          "heading": "En panne de titre ? L'IA vous en propose 6.",
+          "hint": "Adaptés au style maison de {site} et à la niche de votre client.",
+          "keywordPlaceholder": "Mot-clé cible (ex. : onboarding saas)",
+          "contextPlaceholder": "Contexte supplémentaire facultatif (audience, angle…)",
+          "generating": "Génération…",
+          "submit": "Proposer 6 titres",
+          "pickHint": "Cliquez sur un titre pour l'utiliser comme sujet"
+        },
+        "tabs": {
+          "new": "Nouveau brouillon",
+          "saved": "Brouillons enregistrés ({count})"
+        },
+        "platform": {
+          "heading": "Choisissez une plateforme",
+          "description": "Les recommandations adaptées à la niche de <strong>{name}</strong> apparaissent en premier. Chaque plateforme a son propre style : l'IA écrira spécifiquement pour elle.",
+          "recommended": "Recommandées pour votre niche",
+          "others": "Autres plateformes"
+        },
+        "site": {
+          "writingFor": "Rédaction pour {name} ({domain})",
+          "tone": "Ton :",
+          "length": "Longueur visée :",
+          "lengthValue": "{ideal, plural, one {# mot} other {# mots}} ({min}–{max})",
+          "links": "Liens :",
+          "difficulty": "Difficulté :",
+          "da": "· DA ~{value}"
+        },
+        "policy": {
+          "dofollow": "Dofollow",
+          "nofollow": "Nofollow",
+          "mixed": "Mixte"
+        },
+        "difficulty": {
+          "easy": "facile",
+          "medium": "moyenne",
+          "hard": "difficile",
+          "paid": "payant"
+        },
+        "form": {
+          "topic": "Sujet *",
+          "topicPlaceholder": "ex. : comment nous avons réduit l'onboarding SaaS de 12 jours à 2",
+          "keyword": "Mot-clé cible *",
+          "keywordPlaceholder": "ex. : parcours d'onboarding saas",
+          "supporting": "Mots-clés secondaires (facultatif)",
+          "supportingPlaceholder": "activation des utilisateurs, conversion de l'essai gratuit",
+          "authorName": "Nom de l'auteur (signature)",
+          "authorNamePlaceholder": "Votre nom",
+          "authorBio": "Bio de l'auteur (1 à 2 phrases pour le pied d'article)",
+          "authorBioPlaceholder": "Fondateur d'Acme. 12 ans à développer des SaaS de 0 à 10 M$ d'ARR.",
+          "writing": "Rédaction… (~30-90 s)",
+          "submit": "Rédiger l'article invité",
+          "footnote": "L'IA respecte le style maison de la plateforme, varie la longueur des phrases, cite ses sources et limite la densité du mot-clé cible."
+        },
+        "preview": {
+          "heading": "Brouillon pour {site}",
+          "words": "{count, plural, one {# mot} other {# mots}}",
+          "headings": "{count, plural, one {# intertitre} other {# intertitres}}",
+          "keywordUsed": "mot-clé utilisé {count}×",
+          "saved": "Enregistré",
+          "save": "Enregistrer les modifications",
+          "copied": "Copié",
+          "copy": "Copier le markdown",
+          "qa": "Remarques de contrôle qualité",
+          "back": "← Retour au hub backlinks"
+        },
+        "list": {
+          "empty": "Aucun brouillon pour l'instant. Générez-en un dans l'onglet « Nouveau brouillon ».",
+          "meta": "{site} · cible : {keyword} · créé le {date}",
+          "live": "en ligne",
+          "view": "Afficher",
+          "delete": "Supprimer",
+          "deleteTitle": "Supprimer ce brouillon ?",
+          "deleteDescription": "Le brouillon d'article invité et son historique seront supprimés.",
+          "deleteConfirm": "Supprimer le brouillon",
+          "markPitched": "Marquer comme proposé",
+          "liveUrlPlaceholder": "collez l'URL en ligne",
+          "markPublished": "Marquer comme publié"
+        },
+        "status": {
+          "draft": "brouillon",
+          "pitched": "proposé",
+          "accepted": "accepté",
+          "published": "publié",
+          "rejected": "refusé"
+        }
+      }
+    }
+  },
+  "clientInfoCard": {
+    "card": {
+      "title": "Champs à copier",
+      "intro": "Cliquez sur le bouton de copie d'une ligne pour réutiliser ces informations dans vos inscriptions en annuaire, e-mails de prospection ou formulaires de citation.",
+      "fields": {
+        "name": "Nom de l'entreprise",
+        "url": "Site web",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "city": "Ville",
+        "country": "Pays",
+        "businessType": "Type d'activité",
+        "shortDescription": "Accroche",
+        "description": "Description complète"
+      },
+      "copy": "Copier",
+      "copied": "Copié",
+      "napCopy": "Copier le bloc NAP complet (multiligne)",
+      "napCopied": "Bloc NAP copié"
+    }
+  },
+  "gmailScope": {
+    "banner": {
+      "title": "La détection automatique des réponses est désactivée : l’accès Gmail n’a pas été accordé.",
+      "body": "L’agent quotidien utilise Gmail (en lecture seule) pour passer les contacts de prospection en « A répondu » quand le destinataire répond. Pour l’activer, reconnectez Google et cochez l’autorisation Gmail.",
+      "reconnect": "Reconnecter Google"
+    }
   }
 }

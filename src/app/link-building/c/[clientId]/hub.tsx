@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useActionState } from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   ChevronDown,
@@ -68,6 +69,7 @@ export function ClientLinkBuildingHub({
   tracked: TrackedRow[];
   clientName: string;
 }) {
+  const t = useTranslations("linksTab.linkBuilding.hub");
   const [tab, setTab] = useState<Tab>("ai-matched");
   const [diffFilter, setDiffFilter] = useState<Difficulty | "all">("all");
   const [pending, startTransition] = useTransition();
@@ -97,21 +99,21 @@ export function ClientLinkBuildingHub({
           onClick={() => setTab("ai-matched")}
           className={tabClass(tab === "ai-matched")}
         >
-          AI-matched ({ranked.length})
+          {t("tabs.aiMatched", { count: ranked.length })}
         </button>
         <button
           type="button"
           onClick={() => setTab("tracker")}
           className={tabClass(tab === "tracker")}
         >
-          Tracker ({tracked.length})
+          {t("tabs.tracker", { count: tracked.length })}
         </button>
         <button
           type="button"
           onClick={() => setTab("bespoke")}
           className={tabClass(tab === "bespoke")}
         >
-          AI bespoke ideas
+          {t("tabs.bespoke")}
         </button>
       </div>
 
@@ -130,7 +132,7 @@ export function ClientLinkBuildingHub({
                     : "bg-white/5 text-muted-foreground ring-white/10 hover:bg-white/10"
                 }`}
               >
-                {d}
+                {d === "all" ? t("filterAll") : t(`difficulty.${d}`)}
               </button>
             ))}
             {easyIds.length > 0 && (
@@ -149,7 +151,7 @@ export function ClientLinkBuildingHub({
                 ) : (
                   <Plus className="size-3" />
                 )}
-                Track all {easyIds.length} easy wins
+                {t("trackEasyWins", { count: easyIds.length })}
               </button>
             )}
           </div>
@@ -157,7 +159,7 @@ export function ClientLinkBuildingHub({
           <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
             {visibleRanked.length === 0 ? (
               <li className="px-5 py-8 text-center text-xs text-muted-foreground">
-                No prospects match. Try a different difficulty filter.
+                {t("noProspects")}
               </li>
             ) : (
               visibleRanked.map((p) => (
@@ -179,14 +181,14 @@ export function ClientLinkBuildingHub({
                       <span
                         className={`rounded-full px-1.5 py-0.5 ring-1 ring-inset ${difficultyTone(p.difficulty)}`}
                       >
-                        {p.difficulty}
+                        {t(`difficulty.${p.difficulty}`)}
                       </span>
                       <span className="rounded-md bg-white/5 px-1.5 py-0.5 ring-1 ring-inset ring-white/10">
                         {CATEGORY_LABELS[p.resource.category] ??
                           p.resource.category}
                       </span>
                       {p.resource.da !== null && (
-                        <span>DA {p.resource.da}</span>
+                        <span>{t("da", { value: p.resource.da })}</span>
                       )}
                       <span className="opacity-70">· {p.reason}</span>
                     </div>
@@ -206,7 +208,7 @@ export function ClientLinkBuildingHub({
                     ) : (
                       <Plus className="size-3" />
                     )}
-                    Track
+                    {t("track")}
                   </button>
                 </li>
               ))
@@ -218,17 +220,18 @@ export function ClientLinkBuildingHub({
       {tab === "tracker" && (
         <>
           <div className="grid gap-2 text-[11px] sm:grid-cols-4">
-            <Stat label="Pending" value={counts.pending} tone="white" />
-            <Stat label="Submitted" value={counts.submitted} tone="violet" />
-            <Stat label="Live" value={counts.live} tone="emerald" />
-            <Stat label="Lost" value={counts.lost} tone="amber" />
+            <Stat label={t("stats.pending")} value={counts.pending} tone="white" />
+            <Stat label={t("stats.submitted")} value={counts.submitted} tone="violet" />
+            <Stat label={t("stats.live")} value={counts.live} tone="emerald" />
+            <Stat label={t("stats.lost")} value={counts.lost} tone="amber" />
           </div>
           <HealthCheckButton clientId={clientId} hasLive={counts.live > 0} />
 
           {tracked.length === 0 ? (
             <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-8 text-center text-xs text-muted-foreground backdrop-blur-md">
-              Nothing tracked yet. Pick prospects from the AI-matched tab and
-              click <strong>Track</strong>.
+              {t.rich("emptyTracker", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           ) : (
             <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -254,6 +257,7 @@ function HealthCheckButton({
   clientId: number;
   hasLive: boolean;
 }) {
+  const t = useTranslations("linksTab.linkBuilding.hub.healthCheck");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<{
     checked: number;
@@ -279,21 +283,31 @@ function HealthCheckButton({
         ) : (
           <CheckCircle2 className="size-3" />
         )}
-        Run health check
+        {t("run")}
       </button>
       {!hasLive && (
         <span className="text-muted-foreground">
-          (Mark links live to enable.)
+          {t("needLive")}
         </span>
       )}
       {result && (
         <span className="text-muted-foreground">
-          Checked {result.checked} · {result.lost} lost ·{" "}
-          {result.errors} errored
+          {t("result", {
+            checked: result.checked,
+            lost: result.lost,
+            errors: result.errors,
+          })}
         </span>
       )}
     </div>
   );
+}
+
+function statusLabel(
+  t: ReturnType<typeof useTranslations<"linksTab.linkBuilding.hub">>,
+  status: string,
+): string {
+  return t.has(`status.${status}`) ? t(`status.${status}`) : status;
 }
 
 function tabClass(active: boolean): string {
@@ -338,6 +352,7 @@ function TrackerRow({
   clientId: number;
   row: TrackedRow;
 }) {
+  const t = useTranslations("linksTab.linkBuilding.hub");
   const [expanded, setExpanded] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -358,16 +373,19 @@ function TrackerRow({
           ) : (
             <Send className="size-2.5" />
           )}
-          {row.status}
+          {statusLabel(t, row.status)}
         </span>
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="font-medium">{row.domain ?? "—"}</div>
           <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground">
             <span>{CATEGORY_LABELS[row.category ?? ""] ?? row.category}</span>
-            {row.da !== null && <span>· DA {row.da}</span>}
+            {row.da !== null && <span>· {t("da", { value: row.da })}</span>}
             {row.submittedAt && (
               <span>
-                · {row.status} {row.submittedAt.toLocaleDateString()}
+                {t("row.statusOn", {
+                  status: statusLabel(t, row.status),
+                  date: row.submittedAt.toLocaleDateString(),
+                })}
               </span>
             )}
           </div>
@@ -386,7 +404,7 @@ function TrackerRow({
           type="button"
           onClick={() => setExpanded((e) => !e)}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/10"
-          aria-label="Expand"
+          aria-label={t("row.expand")}
         >
           {expanded ? (
             <ChevronUp className="size-3.5" />
@@ -405,7 +423,7 @@ function TrackerRow({
             <input
               name="submittedUrl"
               defaultValue={row.submittedUrl ?? ""}
-              placeholder="Paste the live backlink URL here"
+              placeholder={t("row.livePlaceholder")}
               className="h-8 flex-1 rounded-md border border-white/10 bg-card/60 px-2.5 text-xs"
             />
             <button
@@ -413,7 +431,7 @@ function TrackerRow({
               className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-3 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
             >
               <CheckCircle2 className="size-3" />
-              Mark live
+              {t("row.markLive")}
             </button>
           </form>
           <div className="flex flex-wrap items-center justify-end gap-1">
@@ -428,7 +446,7 @@ function TrackerRow({
                 }}
                 className="rounded-md bg-violet-500/15 px-2 py-1 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
               >
-                Mark submitted
+                {t("row.markSubmitted")}
               </button>
             )}
             <button
@@ -441,7 +459,7 @@ function TrackerRow({
               }}
               className="rounded-md bg-rose-500/10 px-2 py-1 text-[10px] font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20 disabled:opacity-50"
             >
-              Rejected
+              {t("row.rejected")}
             </button>
             <button
               type="button"
@@ -453,17 +471,16 @@ function TrackerRow({
               }}
               className="rounded-md bg-amber-500/10 px-2 py-1 text-[10px] font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/20 disabled:opacity-50"
             >
-              Lost
+              {t("row.lost")}
             </button>
             <button
               type="button"
               disabled={pending}
               onClick={async () => {
                 const ok = await confirmDialog({
-                  title: "Remove from tracker?",
-                  description:
-                    "The prospect is removed from this client's list. You can re-add it later.",
-                  confirmLabel: "Remove",
+                  title: t("row.confirmTitle"),
+                  description: t("row.confirmDescription"),
+                  confirmLabel: t("row.confirmLabel"),
                   destructive: true,
                 });
                 if (!ok) return;
@@ -472,7 +489,7 @@ function TrackerRow({
                 });
               }}
               className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-              aria-label="Remove"
+              aria-label={t("row.remove")}
             >
               <Trash2 className="size-3" />
             </button>
@@ -494,6 +511,7 @@ function BespokePanel({
     fetchBespokeIdeas,
     null,
   );
+  const t = useTranslations("linksTab.linkBuilding.hub");
   const [tracking, startTransition] = useTransition();
   const [trackedSet, setTrackedSet] = useState<Set<string>>(new Set());
 
@@ -505,9 +523,10 @@ function BespokePanel({
       >
         <input type="hidden" name="clientId" value={clientId} />
         <p className="text-xs text-muted-foreground">
-          Asks the AI for up to 10 prospect ideas tuned to{" "}
-          <strong>{clientName}</strong>&apos;s niche, location and business type.
-          These supplement (not replace) the curated DB above.
+          {t.rich("bespoke.intro", {
+            name: clientName,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
         <button
           type="submit"
@@ -517,12 +536,12 @@ function BespokePanel({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Generating…
+              {t("bespoke.generating")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-3" />
-              Generate bespoke ideas
+              {t("bespoke.generate")}
             </>
           )}
         </button>
@@ -551,15 +570,17 @@ function BespokePanel({
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${difficultyTone(idea.difficulty)}`}
                 >
-                  {idea.difficulty}
+                  {t(`difficulty.${idea.difficulty}`)}
                 </span>
                 <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                  {idea.type.replace(/_/g, " ")}
+                  {t.has(`ideaType.${idea.type}`)
+                    ? t(`ideaType.${idea.type}`)
+                    : idea.type.replace(/_/g, " ")}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">{idea.rationale}</p>
               <p className="text-[11px]">
-                <span className="font-medium text-amber-300">Action:</span>{" "}
+                <span className="font-medium text-amber-300">{t("bespoke.action")}</span>{" "}
                 <span className="text-foreground/90">{idea.actionStep}</span>
               </p>
               <button
@@ -576,12 +597,12 @@ function BespokePanel({
                 {trackedSet.has(idea.url) ? (
                   <>
                     <CheckCircle2 className="size-3" />
-                    Added
+                    {t("bespoke.added")}
                   </>
                 ) : (
                   <>
                     <Plus className="size-3" />
-                    Track this
+                    {t("bespoke.trackThis")}
                   </>
                 )}
               </button>

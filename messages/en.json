@@ -3603,5 +3603,352 @@
       "body": "Connecting Search Console for this client gives you Google's own numbers instead — more accurate, they cover every query you actually appear for, and they can't be rate-limited or blocked.",
       "cta": "Connect it"
     }
+  },
+  "linksTab": {
+    "backlinks": {
+      "title": "Backlinks · {name}",
+      "description": "Track inbound links. Mark lost or disavow, then export a disavow file for Google Search Console.",
+      "disavowFile": "Disavow file ({count})",
+      "tiles": {
+        "active": "Active",
+        "lost": "Lost",
+        "disavowed": "Disavowed"
+      },
+      "empty": {
+        "title": "No backlinks tracked yet",
+        "body": "Add some above, connect Google Search Console for auto-pull, or use the Ahrefs WMT CSV import for fuller coverage.",
+        "connectGsc": "Connect GSC",
+        "ahrefsImport": "Ahrefs WMT import"
+      },
+      "table": {
+        "source": "Source",
+        "anchor": "Anchor",
+        "da": "DA",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "active",
+        "lost": "lost",
+        "disavow": "disavow"
+      },
+      "remove": "remove",
+      "addForm": {
+        "noClients": "Add a client first, then you can log their backlinks here.",
+        "client": "For client",
+        "sourceUrl": "Source URL (the linking page)",
+        "sourceUrlPlaceholder": "techcrunch.com/some-article",
+        "targetUrl": "Target page (optional)",
+        "targetUrlPlaceholder": "https://yoursite.com/page",
+        "anchorText": "Anchor text",
+        "anchorTextPlaceholder": "best widgets",
+        "domainAuthority": "DA / DR (0–100)",
+        "notes": "Notes",
+        "notesPlaceholder": "How you got it, context, etc.",
+        "adding": "Adding…",
+        "submit": "Add backlink"
+      },
+      "bingImport": {
+        "title": "Import from Bing Webmaster Tools",
+        "intro": "Microsoft shares their own link graph for sites you've verified, free. It's the best backlink data a self-hosted tool can get — with three honest limits: it only covers <strong>your</strong> verified sites, not competitors; it's Bing's index rather than Google's, so the two overlap without matching; and Bing publishes no authority score, so that column stays empty rather than being filled with a number we made up.",
+        "needsKey": "You'll need a Bing Webmaster Tools key for this.",
+        "failed": "The import failed.",
+        "added": "{count} new",
+        "updated": "{count} refreshed",
+        "summary": "{parts} — from {count, plural, one {# page} other {# pages}} checked.",
+        "nothingNew": "Nothing new.",
+        "submit": "Import backlinks",
+        "safeToRerun": "Safe to re-run — existing links are refreshed, not duplicated, and anything you edited by hand is left alone."
+      },
+      "logLink": {
+        "title": "Log a built link",
+        "intro": "Logged links appear in this month's client report and the activity feed. Fill what you have — only the source URL is required.",
+        "sourceUrl": "Source URL (where the link sits)",
+        "sourceUrlPlaceholder": "https://blog.example.com/post",
+        "targetUrl": "Target URL (your page it points to)",
+        "targetUrlPlaceholder": "https://yoursite.com/page",
+        "anchorText": "Anchor text",
+        "anchorTextPlaceholder": "best vegan recipes",
+        "method": "Method",
+        "methods": {
+          "guest_post": "Guest post",
+          "outreach": "Email outreach",
+          "citation": "Citation / directory",
+          "broken_link": "Broken-link replacement",
+          "resource_page": "Resource page",
+          "directory": "Industry directory",
+          "social_profile": "Social profile",
+          "podcast": "Podcast / interview",
+          "interview": "Quote / interview",
+          "other": "Other"
+        },
+        "rel": "Rel",
+        "relUnknown": "Unknown",
+        "domainAuthority": "Domain authority (0-100)",
+        "placedAt": "Date placed",
+        "notes": "Notes",
+        "notesPlaceholder": "Won via Friday outreach campaign — replied within 4h",
+        "logged": "Logged. It's in this month's report.",
+        "logging": "Logging…",
+        "submit": "Log this link"
+      }
+    },
+    "linkBuilding": {
+      "page": {
+        "back": "Back to global link-building",
+        "title": "Link building — {name}",
+        "description": "AI-matched prospects for this client's niche, city, and business type. Track each link as you build it. Live URLs are auto-recorded with the build date.",
+        "liveLinks": "{count, plural, one {# live link} other {# live links}}",
+        "builtLast30d": "{count} built last 30d",
+        "onTracker": "{count} on tracker",
+        "guestPostComposer": "Guest post composer",
+        "difficultyTitle": "How difficulty is scored",
+        "difficulty": {
+          "easy": "Easy",
+          "medium": "Medium",
+          "hard": "Hard"
+        }
+      },
+      "hub": {
+        "tabs": {
+          "aiMatched": "AI-matched ({count})",
+          "tracker": "Tracker ({count})",
+          "bespoke": "AI bespoke ideas"
+        },
+        "difficulty": {
+          "easy": "easy",
+          "medium": "medium",
+          "hard": "hard",
+          "paid": "paid"
+        },
+        "status": {
+          "pending": "pending",
+          "submitted": "submitted",
+          "live": "live",
+          "rejected": "rejected",
+          "lost": "lost"
+        },
+        "ideaType": {
+          "directory": "directory",
+          "podcast": "podcast",
+          "community": "community",
+          "blog": "blog",
+          "newsletter": "newsletter",
+          "association": "association",
+          "review_site": "review site",
+          "forum": "forum",
+          "tool_marketplace": "tool marketplace",
+          "course_marketplace": "course marketplace"
+        },
+        "trackEasyWins": "Track all {count} easy wins",
+        "noProspects": "No prospects match. Try a different difficulty filter.",
+        "da": "DA {value}",
+        "track": "Track",
+        "stats": {
+          "pending": "Pending",
+          "submitted": "Submitted",
+          "live": "Live",
+          "lost": "Lost"
+        },
+        "emptyTracker": "Nothing tracked yet. Pick prospects from the AI-matched tab and click <strong>Track</strong>.",
+        "healthCheck": {
+          "run": "Run health check",
+          "needLive": "(Mark links live to enable.)",
+          "result": "Checked {checked} · {lost} lost · {errors} errored"
+        },
+        "row": {
+          "statusOn": "· {status} {date}",
+          "expand": "Expand",
+          "livePlaceholder": "Paste the live backlink URL here",
+          "markLive": "Mark live",
+          "markSubmitted": "Mark submitted",
+          "rejected": "Rejected",
+          "lost": "Lost",
+          "remove": "Remove",
+          "confirmTitle": "Remove from tracker?",
+          "confirmDescription": "The prospect is removed from this client's list. You can re-add it later.",
+          "confirmLabel": "Remove"
+        },
+        "bespoke": {
+          "intro": "Asks the AI for up to 10 prospect ideas tuned to <strong>{name}</strong>'s niche, location and business type. These supplement (not replace) the curated DB above.",
+          "generating": "Generating…",
+          "generate": "Generate bespoke ideas",
+          "action": "Action:",
+          "added": "Added",
+          "trackThis": "Track this"
+        },
+        "filterAll": "all"
+      }
+    },
+    "outreach": {
+      "title": "Outreach · {name}",
+      "description": "Manage the outreach pipeline: prospects, contacted, replied, won, lost.",
+      "manageTemplates": "Manage templates",
+      "smtpMissing": "SMTP isn't configured yet — you can add contacts now, but sending email is disabled until you <link>connect SMTP in settings</link>.",
+      "empty": {
+        "title": "No outreach contacts yet",
+        "body": "Add prospects above to start tracking your link-building / guest-post / digital-PR pipeline. Templates, status, and click-tracking included."
+      },
+      "status": {
+        "prospect": "prospect",
+        "contacted": "contacted",
+        "replied": "replied",
+        "won": "won",
+        "lost": "lost"
+      },
+      "moveTo": "→ {status}",
+      "remove": "Remove",
+      "addForm": {
+        "noClients": "Add a client first, then track their outreach prospects here.",
+        "client": "Client",
+        "name": "Contact / site name",
+        "namePlaceholder": "Jane @ TechCrunch",
+        "email": "Email",
+        "emailPlaceholder": "jane@...",
+        "website": "Site",
+        "websitePlaceholder": "techcrunch.com",
+        "adding": "Adding…",
+        "add": "Add",
+        "notes": "Pitch / context (optional)",
+        "notesPlaceholder": "Looking for guest post on coffee sustainability"
+      },
+      "compose": {
+        "setupSmtpTitle": "Configure SMTP in Settings to enable sending",
+        "setupSmtp": "Set up SMTP",
+        "send": "Send",
+        "sendTo": "Send to {name}",
+        "template": "Start from a template (optional)",
+        "blank": "— blank —",
+        "subject": "Subject",
+        "body": "Body",
+        "variablesHint": "Variables like {variable} get replaced before sending. Preview: \"{preview}\"",
+        "cancel": "Cancel",
+        "sending": "Sending…",
+        "sendEmail": "Send email",
+        "close": "Close"
+      }
+    },
+    "guestPosts": {
+      "backLink": "Back to link building for {name}",
+      "title": "Guest posts — {name}",
+      "description": "Pick a target platform, give a topic and target keyword. AI writes a draft tuned to that platform's house style — varied cadence, real examples, anti-keyword-stuffing, E-E-A-T citations. Drafts are saved so you can iterate, push to WP, or paste straight in.",
+      "composer": {
+        "titles": {
+          "heading": "Stuck on a title? Let AI propose 6.",
+          "hint": "Tailored to {site}'s house style + your client's niche.",
+          "keywordPlaceholder": "Target keyword (e.g. saas onboarding)",
+          "contextPlaceholder": "Optional extra context (audience, angle hint…)",
+          "generating": "Generating…",
+          "submit": "Suggest 6 titles",
+          "pickHint": "Click a title to use it as the topic"
+        },
+        "tabs": {
+          "new": "New draft",
+          "saved": "Saved drafts ({count})"
+        },
+        "platform": {
+          "heading": "Pick a platform",
+          "description": "Tuned recommendations for <strong>{name}</strong>'s niche sit on top. Each platform has its own style — the AI will write specifically for it.",
+          "recommended": "Recommended for your niche",
+          "others": "Other platforms"
+        },
+        "site": {
+          "writingFor": "Writing for {name} ({domain})",
+          "tone": "Tone:",
+          "length": "Length target:",
+          "lengthValue": "{ideal, plural, one {# word} other {# words}} ({min}–{max})",
+          "links": "Links:",
+          "difficulty": "Difficulty:",
+          "da": "· DA ~{value}"
+        },
+        "policy": {
+          "dofollow": "Dofollow",
+          "nofollow": "Nofollow",
+          "mixed": "Mixed"
+        },
+        "difficulty": {
+          "easy": "easy",
+          "medium": "medium",
+          "hard": "hard",
+          "paid": "paid"
+        },
+        "form": {
+          "topic": "Topic *",
+          "topicPlaceholder": "e.g. how we cut SaaS onboarding from 12 days to 2",
+          "keyword": "Target keyword *",
+          "keywordPlaceholder": "e.g. saas onboarding flow",
+          "supporting": "Supporting keywords (optional)",
+          "supportingPlaceholder": "user activation, free trial conversion",
+          "authorName": "Author name (byline)",
+          "authorNamePlaceholder": "Your name",
+          "authorBio": "Author bio (1-2 sentences for footer)",
+          "authorBioPlaceholder": "Founder of Acme. 12 years building SaaS at $0-$10M ARR.",
+          "writing": "Writing… (~30-90s)",
+          "submit": "Write guest post",
+          "footnote": "The AI matches the platform's house style, varies sentence length, includes citations, and limits target-keyword density."
+        },
+        "preview": {
+          "heading": "Draft for {site}",
+          "words": "{count, plural, one {# word} other {# words}}",
+          "headings": "{count, plural, one {# heading} other {# headings}}",
+          "keywordUsed": "keyword used {count}×",
+          "saved": "Saved",
+          "save": "Save edits",
+          "copied": "Copied",
+          "copy": "Copy markdown",
+          "qa": "QA notes",
+          "back": "← Back to backlink hub"
+        },
+        "list": {
+          "empty": "No drafts yet. Generate one in the \"New draft\" tab.",
+          "meta": "{site} · target: {keyword} · created {date}",
+          "live": "live",
+          "view": "View",
+          "delete": "Delete",
+          "deleteTitle": "Delete this draft?",
+          "deleteDescription": "The guest-post draft and its history are removed.",
+          "deleteConfirm": "Delete draft",
+          "markPitched": "Mark pitched",
+          "liveUrlPlaceholder": "paste live URL",
+          "markPublished": "Mark published"
+        },
+        "status": {
+          "draft": "draft",
+          "pitched": "pitched",
+          "accepted": "accepted",
+          "published": "published",
+          "rejected": "rejected"
+        }
+      }
+    }
+  },
+  "clientInfoCard": {
+    "card": {
+      "title": "Quick-copy fields",
+      "intro": "Click the copy button on any row to use these in directory submissions, outreach emails, or citation forms.",
+      "fields": {
+        "name": "Business name",
+        "url": "Website",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "city": "City",
+        "country": "Country",
+        "businessType": "Business type",
+        "shortDescription": "Tagline",
+        "description": "Full description"
+      },
+      "copy": "Copy",
+      "copied": "Copied",
+      "napCopy": "Copy full NAP block (multi-line)",
+      "napCopied": "NAP block copied"
+    }
+  },
+  "gmailScope": {
+    "banner": {
+      "title": "Reply auto-detection is off — Gmail scope wasn't granted.",
+      "body": "The daily-agent uses Gmail (read-only) to flip outreach contacts to \"replied\" when the recipient writes back. To turn it on, reconnect Google and tick the Gmail permission.",
+      "reconnect": "Reconnect Google"
+    }
   }
 }

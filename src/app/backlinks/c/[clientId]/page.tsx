@@ -14,6 +14,7 @@ import { ClientInfoCard } from "@/components/client-info-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BingBacklinkImport } from "@/app/backlinks/bing-import";
 import { getBingApiKey } from "@/lib/bing-webmaster";
+import { getTranslations } from "next-intl/server";
 
 const statusTone: Record<string, string> = {
   active: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
@@ -53,6 +54,7 @@ export default async function PerClientBacklinksPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("linksTab.backlinks");
 
   const rows = await db
     .select()
@@ -70,8 +72,8 @@ export default async function PerClientBacklinksPage({
     <div className="mx-auto max-w-7xl space-y-6">
 
       <PageHeader
-        title={`Backlinks · ${client.name}`}
-        description="Track inbound links. Mark lost or disavow, then export a disavow file for Google Search Console."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Link2}
         accent="emerald"
         actions={
@@ -81,7 +83,7 @@ export default async function PerClientBacklinksPage({
               className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
             >
               <FileDown className="size-3.5" />
-              Disavow file ({summary.disavow})
+              {t("disavowFile", { count: summary.disavow })}
             </Link>
           ) : undefined
         }
@@ -112,19 +114,19 @@ export default async function PerClientBacklinksPage({
       <AddBacklinkForm clients={[{ id: client.id, name: client.name }]} />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Tile label="Active" value={summary.active} tone="emerald" />
-        <Tile label="Lost" value={summary.lost} tone="amber" />
-        <Tile label="Disavowed" value={summary.disavow} tone="rose" />
+        <Tile label={t("tiles.active")} value={summary.active} tone="emerald" />
+        <Tile label={t("tiles.lost")} value={summary.lost} tone="amber" />
+        <Tile label={t("tiles.disavowed")} value={summary.disavow} tone="rose" />
       </div>
 
       {rows.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl">
           <EmptyState
             icon={Link2}
-            title="No backlinks tracked yet"
-            body="Add some above, connect Google Search Console for auto-pull, or use the Ahrefs WMT CSV import for fuller coverage."
-            primary={{ href: "/settings/google", label: "Connect GSC" }}
-            secondary={{ href: "/backlinks", label: "Ahrefs WMT import" }}
+            title={t("empty.title")}
+            body={t("empty.body")}
+            primary={{ href: "/settings/google", label: t("empty.connectGsc") }}
+            secondary={{ href: "/backlinks", label: t("empty.ahrefsImport") }}
           />
         </div>
       ) : (
@@ -132,11 +134,11 @@ export default async function PerClientBacklinksPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Source</th>
-                <th className="px-3 py-3 text-left font-medium">Anchor</th>
-                <th className="px-3 py-3 text-center font-medium">DA</th>
-                <th className="px-3 py-3 text-left font-medium">Status</th>
-                <th className="px-3 py-3 text-right font-medium">Actions</th>
+                <th className="px-5 py-3 text-left font-medium">{t("table.source")}</th>
+                <th className="px-3 py-3 text-left font-medium">{t("table.anchor")}</th>
+                <th className="px-3 py-3 text-center font-medium">{t("table.da")}</th>
+                <th className="px-3 py-3 text-left font-medium">{t("table.status")}</th>
+                <th className="px-3 py-3 text-right font-medium">{t("table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -173,7 +175,7 @@ export default async function PerClientBacklinksPage({
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusTone[b.status]}`}
                       >
-                        {b.status}
+                        {t(`status.${b.status as "active" | "lost" | "disavow"}`)}
                       </span>
                     </td>
                     <td className="px-3 py-3 text-right">
@@ -188,7 +190,7 @@ export default async function PerClientBacklinksPage({
                                   type="submit"
                                   className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                                 >
-                                  → {s}
+                                  → {t(`status.${s}`)}
                                 </button>
                               </form>
                             );
@@ -198,7 +200,7 @@ export default async function PerClientBacklinksPage({
                             type="submit"
                             className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                           >
-                            remove
+                            {t("remove")}
                           </button>
                         </form>
                       </div>

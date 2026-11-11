@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +17,12 @@ export function AddBacklinkForm({
     AddBacklinkResult | null,
     FormData
   >(addBacklink, null);
+  const t = useTranslations("linksTab.backlinks.addForm");
 
   if (clients.length === 0) {
     return (
       <div className="rounded-2xl border border-white/5 bg-card/40 p-5 text-sm text-muted-foreground backdrop-blur-md">
-        Add a client first, then you can log their backlinks here.
+        {t("noClients")}
       </div>
     );
   }
@@ -32,7 +34,7 @@ export function AddBacklinkForm({
     >
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-1.5">
-          <Label htmlFor="clientId">For client</Label>
+          <Label htmlFor="clientId">{t("client")}</Label>
           <select
             id="clientId"
             name="clientId"
@@ -47,28 +49,28 @@ export function AddBacklinkForm({
           </select>
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="sourceUrl">Source URL (the linking page)</Label>
+          <Label htmlFor="sourceUrl">{t("sourceUrl")}</Label>
           <Input
             id="sourceUrl"
             name="sourceUrl"
-            placeholder="techcrunch.com/some-article"
+            placeholder={t("sourceUrlPlaceholder")}
             required
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="targetUrl">Target page (optional)</Label>
+          <Label htmlFor="targetUrl">{t("targetUrl")}</Label>
           <Input
             id="targetUrl"
             name="targetUrl"
-            placeholder="https://yoursite.com/page"
+            placeholder={t("targetUrlPlaceholder")}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="anchorText">Anchor text</Label>
-          <Input id="anchorText" name="anchorText" placeholder="best widgets" />
+          <Label htmlFor="anchorText">{t("anchorText")}</Label>
+          <Input id="anchorText" name="anchorText" placeholder={t("anchorTextPlaceholder")} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="domainAuthority">DA / DR (0–100)</Label>
+          <Label htmlFor="domainAuthority">{t("domainAuthority")}</Label>
           <Input
             id="domainAuthority"
             name="domainAuthority"
@@ -79,8 +81,8 @@ export function AddBacklinkForm({
           />
         </div>
         <div className="space-y-1.5 md:col-span-3">
-          <Label htmlFor="notes">Notes</Label>
-          <Input id="notes" name="notes" placeholder="How you got it, context, etc." />
+          <Label htmlFor="notes">{t("notes")}</Label>
+          <Input id="notes" name="notes" placeholder={t("notesPlaceholder")} />
         </div>
       </div>
       <div className="mt-4 flex items-center gap-3">
@@ -90,7 +92,7 @@ export function AddBacklinkForm({
           className="shadow-lg shadow-violet-500/25 ring-1 ring-inset ring-white/15"
         >
           <Plus className="size-4" />
-          {pending ? "Adding…" : "Add backlink"}
+          {pending ? t("adding") : t("submit")}
         </Button>
         {state && !state.ok && (
           <span className="text-xs text-rose-300">{state.error}</span>
