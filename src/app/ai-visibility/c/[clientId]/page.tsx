@@ -1,12 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { desc, eq, asc, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, keywords, aiVisibilityChecks } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { configuredProviders, PROVIDER_CATALOG } from "@/lib/api-keys";
 import { getSetting } from "@/lib/settings-store";
 import {
@@ -14,7 +13,6 @@ import {
   CheckOneButton,
 } from "@/app/ai-visibility/check-buttons";
 import { BrowserModeAiToggle } from "@/app/ai-visibility/browser-mode-toggle";
-import { clientScope } from "@/lib/client-scope";
 
 const providerLabel: Record<string, string> = {
   openai: "ChatGPT",
@@ -44,11 +42,6 @@ export default async function PerClientAIVisibilityPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const { ids: configured } = await configuredProviders();
 
@@ -87,18 +80,6 @@ export default async function PerClientAIVisibilityPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/ai-visibility/c"
-        toolLabel="AI visibility"
-        icon={Sparkles}
-      />
 
       <PageHeader
         title={`AI visibility · ${client.name}`}

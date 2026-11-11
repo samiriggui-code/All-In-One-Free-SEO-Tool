@@ -2,19 +2,17 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { desc, eq, asc, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { Search, X, Camera, Activity } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients, keywords, keywordRankings } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { ResearchForm } from "@/app/keywords/research-form";
 import { CsvImportExport } from "@/app/keywords/import-form";
 import { CheckRankButton, CheckAllRanksButton } from "@/app/keywords/rank-buttons";
 import { ScanSerpButton } from "@/app/keywords/serp-button";
 import { untrackKeyword } from "@/app/keywords/actions";
-import { clientScope } from "@/lib/client-scope";
 import {
   ConnectGscNudge,
   RankSourceBadge,
@@ -123,11 +121,6 @@ export default async function PerClientKeywordsPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const tracked = await db
     .select()
@@ -200,18 +193,6 @@ export default async function PerClientKeywordsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/keywords/c"
-        toolLabel={t("toolLabel")}
-        icon={Search}
-      />
 
       <PageHeader
         title={t("clientTitle", { name: client.name })}

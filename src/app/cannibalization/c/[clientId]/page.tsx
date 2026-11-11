@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   AlertCircle,
   ExternalLink,
@@ -10,8 +10,6 @@ import {
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
-import { clientScope } from "@/lib/client-scope";
 import {
   detectKeywordCannibalization,
   type CannibalizationGroup,
@@ -39,27 +37,10 @@ export default async function PerClientCannibalizationPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   if (!client.gscProperty) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
-        <ClientToolHeader
-          current={{
-            id: client.id,
-            name: client.name,
-            url: client.url,
-            logoUrl: client.logoUrl,
-          }}
-          allClients={allClients}
-          basePath="/cannibalization/c"
-          toolLabel="Keyword cannibalization"
-          icon={GitMerge}
-        />
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertCircle className="mr-2 inline size-4" />
           Connect Google Search Console first — cannibalization detection
@@ -78,18 +59,6 @@ export default async function PerClientCannibalizationPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/cannibalization/c"
-        toolLabel="Keyword cannibalization"
-        icon={GitMerge}
-      />
 
       <PageHeader
         title={`Cannibalization · ${client.name}`}

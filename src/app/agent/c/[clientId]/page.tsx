@@ -1,14 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Bot } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, aiSuggestions } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { configuredProviders, getActiveProvider } from "@/lib/api-keys";
-import { clientScope } from "@/lib/client-scope";
 import {
   SuggestionsList,
   type SuggestionRow,
@@ -30,11 +28,6 @@ export default async function PerClientAgentPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const rows = await db
     .select()
@@ -72,18 +65,6 @@ export default async function PerClientAgentPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/agent/c"
-        toolLabel="AI agent"
-        icon={Bot}
-      />
 
       <PageHeader
         title={`AI agent · ${client.name}`}

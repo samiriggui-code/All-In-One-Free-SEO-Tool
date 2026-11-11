@@ -1,13 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { eq, asc, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { Map } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, localGridChecks } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
-import { clientScope } from "@/lib/client-scope";
 import { GridForm } from "./grid-form";
 import { GridHistory } from "./grid-history";
 import { ScheduleList } from "./schedule-list";
@@ -30,11 +28,6 @@ export default async function PerClientLocalGridPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const [recentGrids, schedules] = await Promise.all([
     db
@@ -48,18 +41,6 @@ export default async function PerClientLocalGridPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/local-grid/c"
-        toolLabel="Local heatmap"
-        icon={Map}
-      />
 
       <PageHeader
         title={`Local-pack heatmap · ${client.name}`}

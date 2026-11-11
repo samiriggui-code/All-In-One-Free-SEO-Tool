@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { desc, eq, asc, and } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import {
   ArrowUpRight,
@@ -22,9 +22,7 @@ import {
   tasks,
 } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { getSmtpConfig } from "@/lib/mailer";
-import { clientScope } from "@/lib/client-scope";
 import { SummaryPreview } from "./summary-preview";
 
 type Template =
@@ -86,11 +84,6 @@ export default async function PerClientReportsPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const [latest] = await db
     .select()
@@ -128,18 +121,6 @@ export default async function PerClientReportsPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/reports/c"
-        toolLabel={t("toolLabel")}
-        icon={FileText}
-      />
 
       <PageHeader
         title={t("clientTitle", { name: client.name })}

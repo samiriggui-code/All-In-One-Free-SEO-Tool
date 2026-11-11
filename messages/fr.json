@@ -3244,5 +3244,51 @@
     "agentNote": "Aucune décision à prendre.",
     "youLabel": "À faire par vous",
     "youNote": "Une décision, une connexion, ou quelqu'un qui connaît l'activité."
+  },
+  "projectNav": {
+    "aria": "Navigation du projet",
+    "clients": "Clients",
+    "groups": {
+      "overview": "Vue d’ensemble",
+      "audit": "Audit",
+      "keywords": "Mots-clés et contenu",
+      "links": "Liens",
+      "local": "Local",
+      "ai": "IA et marque",
+      "reports": "Rapports",
+      "missions": "Missions",
+      "settings": "Réglages du projet"
+    },
+    "pages": {
+      "overview": "Vue d’ensemble",
+      "agent": "Agent",
+      "audits": "Audits",
+      "findings": "Constats",
+      "monitor": "Surveillance",
+      "cwv": "Core Web Vitals",
+      "landingPerf": "Pages d’atterrissage",
+      "brokenLinks": "Liens cassés",
+      "images": "Images",
+      "keywords": "Mots-clés",
+      "cannibalization": "Cannibalisation",
+      "competitors": "Concurrents",
+      "contentGap": "Manques de contenu",
+      "content": "Rédaction",
+      "metaRewrite": "Balises meta",
+      "backlinks": "Backlinks",
+      "linkBuilding": "Netlinking",
+      "outreach": "Prospection",
+      "guestPosts": "Articles invités",
+      "gbp": "Fiche Google",
+      "citations": "Citations",
+      "localGrid": "Grille locale",
+      "localRank": "Positions locales",
+      "aiVisibility": "Visibilité IA",
+      "brandMonitor": "Veille de marque",
+      "geoSwot": "SWOT GEO",
+      "reports": "Rapports",
+      "missions": "Missions",
+      "settings": "Réglages"
+    }
   }
 }

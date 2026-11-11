@@ -2,12 +2,11 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Send, ExternalLink, X, FileText } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, outreachContacts } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { AddOutreachForm } from "@/app/outreach/add-form";
 import { ComposeButton } from "@/app/outreach/compose-button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,7 +18,6 @@ import {
 import { getSmtpConfig } from "@/lib/mailer";
 import { ClientInfoCard } from "@/components/client-info-card";
 import { GmailScopeBanner } from "@/components/gmail-scope-banner";
-import { clientScope } from "@/lib/client-scope";
 
 const statusTone: Record<string, string> = {
   prospect: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
@@ -47,11 +45,6 @@ export default async function PerClientOutreachPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const rows = await db
     .select()
@@ -67,18 +60,6 @@ export default async function PerClientOutreachPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/outreach/c"
-        toolLabel="Outreach"
-        icon={Send}
-      />
 
       <PageHeader
         title={`Outreach · ${client.name}`}

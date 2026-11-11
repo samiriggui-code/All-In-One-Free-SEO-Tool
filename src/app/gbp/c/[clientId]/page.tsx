@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   ArrowLeft,
   Building,
@@ -14,13 +14,11 @@ import {
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { GbpRunner } from "./gbp-runner";
 import { GbpPostComposer } from "./post-composer";
 import { GbpPostIdeas } from "./post-ideas";
 import { playbookFor, scoreGbpProfile } from "@/lib/gbp-playbook";
 import { ClientInfoCard } from "@/components/client-info-card";
-import { clientScope } from "@/lib/client-scope";
 import {
   getCompletionsForClient,
   togglePlaybookItem,
@@ -42,11 +40,6 @@ export default async function PerClientGbpPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   if (!client.gbpUrl) {
     return (
@@ -106,18 +99,6 @@ export default async function PerClientGbpPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/gbp/c"
-        toolLabel="GBP"
-        icon={Building}
-      />
 
       <PageHeader
         title={`GBP · ${client.name}`}

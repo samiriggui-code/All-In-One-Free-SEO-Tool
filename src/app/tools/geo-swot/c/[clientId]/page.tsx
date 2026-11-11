@@ -3,14 +3,12 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { Target } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { generateGeoSwot } from "@/lib/geo-swot";
 import { configuredProviders } from "@/lib/api-keys";
-import { clientScope } from "@/lib/client-scope";
 
 /**
  * Per-client GEO SWOT report. Runs generateGeoSwot() on the current
@@ -39,11 +37,6 @@ export default async function PerClientGeoSwotPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const { ids: providersConfigured } = await configuredProviders();
   const hasAiProvider = providersConfigured.length > 0;
@@ -54,18 +47,6 @@ export default async function PerClientGeoSwotPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/tools/geo-swot/c"
-        toolLabel={t("title")}
-        icon={Target}
-      />
 
       <PageHeader
         title={t("clientTitle", { name: client.name })}

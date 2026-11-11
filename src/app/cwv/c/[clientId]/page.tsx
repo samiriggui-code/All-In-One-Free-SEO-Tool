@@ -1,13 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Gauge } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, cwvReports } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
-import { clientScope } from "@/lib/client-scope";
 import { CwvRunner, type CwvRow } from "./cwv-runner";
 
 export default async function PerClientCwvPage({
@@ -26,11 +24,6 @@ export default async function PerClientCwvPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const reports = (await db
     .select()
@@ -41,18 +34,6 @@ export default async function PerClientCwvPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/cwv/c"
-        toolLabel="Core Web Vitals"
-        icon={Gauge}
-      />
 
       <PageHeader
         title={`Core Web Vitals · ${client.name}`}

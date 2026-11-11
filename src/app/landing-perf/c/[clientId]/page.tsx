@@ -1,14 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { AlertCircle, ExternalLink, Target } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { loadLandingPagePerf } from "@/lib/landing-page-perf";
-import { clientScope } from "@/lib/client-scope";
 
 export default async function PerClientLandingPerfPage({
   params,
@@ -26,27 +24,10 @@ export default async function PerClientLandingPerfPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   if (!client.gscProperty) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
-        <ClientToolHeader
-          current={{
-            id: client.id,
-            name: client.name,
-            url: client.url,
-            logoUrl: client.logoUrl,
-          }}
-          allClients={allClients}
-          basePath="/landing-perf/c"
-          toolLabel="Landing perf"
-          icon={Target}
-        />
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
           <AlertCircle className="mr-2 inline size-4" />
           Connect Google Search Console first — the page-level click data
@@ -65,18 +46,6 @@ export default async function PerClientLandingPerfPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/landing-perf/c"
-        toolLabel="Landing perf"
-        icon={Target}
-      />
 
       <PageHeader
         title={`Landing-page performance · ${client.name}`}
