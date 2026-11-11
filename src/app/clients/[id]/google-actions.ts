@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -49,6 +50,9 @@ export async function saveGoogleProperties(opts: {
   if (!Number.isFinite(opts.clientId) || opts.clientId < 1) {
     return { ok: false, error: "Invalid client" };
   }
+  // Which Search Console and Analytics a project reads is an edit of that
+  // project: same check as the WordPress and report-schedule actions.
+  await requireClientAccess(opts.clientId, { edit: true });
   await db
     .update(clients)
     .set({

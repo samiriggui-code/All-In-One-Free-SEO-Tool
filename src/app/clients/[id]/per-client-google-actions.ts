@@ -1,6 +1,7 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/action-guard";
+import { requireClientAccess } from "@/lib/auth";
 
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -13,6 +14,7 @@ export async function disconnectPerClientGoogle(
 ): Promise<void> {
   await requireSignedIn();
   if (!Number.isFinite(clientId) || clientId <= 0) return;
+  await requireClientAccess(clientId, { edit: true });
   await db
     .update(clients)
     .set({

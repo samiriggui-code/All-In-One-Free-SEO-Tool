@@ -41,14 +41,11 @@ import {
   runAuditForClient,
 } from "@/app/audits/actions";
 import { ShareCard } from "./share-card";
-import { ClientGooglePanel } from "./google-panel";
-import { PerClientGoogleConnect } from "./per-client-google";
 import { GscKeywordsPanel } from "./gsc-keywords-panel";
 import { QuickWinsPanel } from "./quick-wins-panel";
 import { SnapshotSparklines } from "@/components/snapshot-sparklines";
-import { WpBridgePanel } from "./wp-bridge-panel";
 import { OrganicTrafficPanel } from "./organic-traffic-panel";
-import { ReportScheduleCard } from "./report-schedule-card";
+import { ProjectSettings } from "./project-settings";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
 import { getSetting } from "@/lib/settings-store";
 import { getSmtpConfig } from "@/lib/mailer";
@@ -77,7 +74,6 @@ import { DailyAutomationCard } from "./daily-automation-card";
 import { inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Suspense } from "react";
-import { Mail, Plug } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 type T = Awaited<ReturnType<typeof getTranslations<"clientPage">>>;
@@ -985,51 +981,48 @@ export default async function ClientDetailPage({
       {tab === "settings" && (
         <>
 
+      {/* GOOGLE, WORDPRESS, SCHEDULED REPORTS: values here, changes in a sheet */}
+      <ProjectSettings
+        projectId={client.id}
+        google={{
+          status: googleStatus,
+          redirectUri: googleRedirectUri,
+          oauthClientId: googleClientId,
+          hasSecret: Boolean(googleClientSecret),
+          hasWorkspaceCreds: !!googleClientId && !!googleClientSecret,
+          projectEmail: client.googleConnectedEmail,
+          gsc: client.gscProperty,
+          ga4: client.ga4PropertyId,
+        }}
+        wordpress={{
+          connected: Boolean(client.wpEndpoint && client.wpKey),
+          endpoint: client.wpEndpoint ?? null,
+          looksLikeWordPress: (client.techStack ?? []).some((s) =>
+            String(s).toLowerCase().includes("wordpress"),
+          ),
+        }}
+        reports={{
+          smtpConfigured,
+          schedule: scheduleRow
+            ? {
+                id: scheduleRow.id,
+                template: scheduleRow.template,
+                frequency: scheduleRow.frequency,
+                dayOfMonth: scheduleRow.dayOfMonth,
+                dayOfWeek: scheduleRow.dayOfWeek,
+                hourOfDay: scheduleRow.hourOfDay,
+                recipients: scheduleRow.recipients,
+                enabled: scheduleRow.enabled,
+                lastSentAt: scheduleRow.lastSentAt,
+                nextSendAt: scheduleRow.nextSendAt,
+              }
+            : null,
+        }}
+      />
+
       {/* DAILY AUTOMATION ENTRY — schedules + queue, per client */}
       <DailyAutomationCard clientId={client.id} />
 
-      {/* GOOGLE INTEGRATION */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
-        <div className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-violet-500/15 blur-3xl" />
-        <header className="relative flex items-center justify-between border-b border-white/5 px-5 py-4">
-          <div>
-            <h2 className="flex items-center gap-2 text-base font-semibold">
-              <Plug className="size-4 text-violet-300" />
-              {t("google.title")}
-              {client.gscProperty || client.ga4PropertyId ? (
-                <span className="ml-1 inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                  {t("google.linked")}
-                </span>
-              ) : (
-                <span className="ml-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                  {t("optional")}
-                </span>
-              )}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {t("google.body")}
-            </p>
-          </div>
-        </header>
-        <div className="relative p-5 space-y-4">
-          <ClientGooglePanel
-            clientId={client.id}
-            initialGsc={client.gscProperty}
-            initialGa4={client.ga4PropertyId}
-            status={googleStatus}
-            redirectUri={googleRedirectUri}
-            initialClientId={googleClientId}
-            hasSecret={Boolean(googleClientSecret)}
-          />
-          <PerClientGoogleConnect
-            clientId={client.id}
-            connectedEmail={client.googleConnectedEmail}
-            hasWorkspaceCreds={
-              !!googleClientId && !!googleClientSecret
-            }
-          />
-        </div>
-      </section>
         </>
       )}
       {tab === "overview" && (
@@ -1071,63 +1064,6 @@ export default async function ClientDetailPage({
       )}
       {tab === "settings" && (
         <>
-
-      {/* WP one-click bridge */}
-      <WpBridgePanel
-        clientId={client.id}
-        isConnected={Boolean(client.wpEndpoint && client.wpKey)}
-        endpoint={client.wpEndpoint ?? null}
-        looksLikeWordPress={(client.techStack ?? []).some((t) =>
-          String(t).toLowerCase().includes("wordpress"),
-        )}
-      />
-
-      {/* SCHEDULED REPORTS */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
-        <div className="pointer-events-none absolute -left-12 -bottom-12 size-40 rounded-full bg-cyan-500/10 blur-3xl" />
-        <header className="relative flex items-center justify-between border-b border-white/5 px-5 py-4">
-          <div>
-            <h2 className="flex items-center gap-2 text-base font-semibold">
-              <Mail className="size-4 text-cyan-300" />
-              {t("schedule.title")}
-              {scheduleRow ? (
-                <span className="ml-1 inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                  {t("schedule.active")}
-                </span>
-              ) : (
-                <span className="ml-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-                  {t("optional")}
-                </span>
-              )}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {t("schedule.body")}
-            </p>
-          </div>
-        </header>
-        <div className="relative p-5">
-          <ReportScheduleCard
-            clientId={client.id}
-            smtpConfigured={smtpConfigured}
-            schedule={
-              scheduleRow
-                ? {
-                    id: scheduleRow.id,
-                    template: scheduleRow.template,
-                    frequency: scheduleRow.frequency,
-                    dayOfMonth: scheduleRow.dayOfMonth,
-                    dayOfWeek: scheduleRow.dayOfWeek,
-                    hourOfDay: scheduleRow.hourOfDay,
-                    recipients: scheduleRow.recipients,
-                    enabled: scheduleRow.enabled,
-                    lastSentAt: scheduleRow.lastSentAt,
-                    nextSendAt: scheduleRow.nextSendAt,
-                  }
-                : null
-            }
-          />
-        </div>
-      </section>
 
       {/* TECH STACK */}
       <section className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
