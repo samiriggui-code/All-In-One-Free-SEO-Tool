@@ -11,6 +11,7 @@
 
 import { useState } from "react";
 import { Loader2, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { chooseLocation, listLocationChoices, type LocationChoices } from "./actions";
 
 export function LocationPicker({
@@ -20,6 +21,7 @@ export function LocationPicker({
   clientId: number;
   selected: string | null;
 }) {
+  const t = useTranslations("localTab.reviews.picker");
   const [choices, setChoices] = useState<LocationChoices | null>(null);
   const [busy, setBusy] = useState(false);
   const [current, setCurrent] = useState(selected);
@@ -36,10 +38,10 @@ export function LocationPicker({
         <div className="min-w-0">
           <h2 className="flex items-center gap-1.5 text-sm font-semibold">
             <MapPin className="size-3.5" />
-            Which listing
+            {t("title")}
           </h2>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {current ?? "Not chosen yet. Reviews cannot be pulled until it is."}
+            {current ?? t("notChosen")}
           </p>
         </div>
         <button
@@ -48,7 +50,7 @@ export function LocationPicker({
           className="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1.5 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10 disabled:opacity-40"
         >
           {busy && <Loader2 className="size-3.5 animate-spin" />}
-          {current ? "Change" : "Find my listings"}
+          {current ? t("change") : t("find")}
         </button>
       </div>
 
@@ -58,8 +60,7 @@ export function LocationPicker({
           {choices.scopeMissing && (
             <>
               {" "}
-              Reconnect Google in Settings and grant the Business Profile
-              permission. Reviews cannot be read or answered without it.
+              {t("scopeMissing")}
             </>
           )}
         </p>
@@ -69,7 +70,7 @@ export function LocationPicker({
         <ul className="mt-3 space-y-1.5">
           {choices.locations.length === 0 && (
             <li className="text-xs text-muted-foreground">
-              The connected Google account manages no listings.
+              {t("noListings")}
             </li>
           )}
           {choices.locations.map((loc) => (

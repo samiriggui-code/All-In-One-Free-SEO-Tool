@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarClock, Pause, Play, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   deleteGridSchedule,
   toggleGridSchedule,
@@ -19,6 +20,7 @@ type Schedule = {
 };
 
 export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
+  const t = useTranslations("localTab.localGrid.scheduleList");
   if (schedules.length === 0) {
     return null;
   }
@@ -28,11 +30,10 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <CalendarClock className="size-4 text-violet-300" />
-          Auto-scheduled grids ({schedules.length})
+          {t("title", { count: schedules.length })}
         </h2>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          The daily-agent re-runs these on the cadence below. No SERP API
-          needed — uses the same browser-mode rank checker.
+          {t("description")}
         </p>
       </header>
       <ul className="divide-y divide-white/[0.05]">
@@ -44,12 +45,12 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
             <div className="min-w-0 flex-1">
               <div className="font-medium">{s.query}</div>
               <div className="mt-0.5 flex flex-wrap gap-2 text-[10px] text-muted-foreground">
-                <span>{s.cadence}</span>
+                <span>{t.has(`cadence.${s.cadence}`) ? t(`cadence.${s.cadence}`) : s.cadence}</span>
                 <span>· {s.gridSize}×{s.gridSize}</span>
                 <span>· {s.spacingM}m</span>
                 <span>· ({(s.centerLat / 1_000_000).toFixed(4)}, {(s.centerLng / 1_000_000).toFixed(4)})</span>
                 {s.lastRanAt && (
-                  <span>· last ran {new Date(s.lastRanAt).toLocaleDateString()}</span>
+                  <span>· {t("lastRan", { date: new Date(s.lastRanAt).toLocaleDateString() })}</span>
                 )}
               </div>
             </div>
@@ -61,12 +62,12 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
                 {s.enabled ? (
                   <>
                     <Pause className="size-3" />
-                    Pause
+                    {t("pause")}
                   </>
                 ) : (
                   <>
                     <Play className="size-3" />
-                    Resume
+                    {t("resume")}
                   </>
                 )}
               </button>
@@ -74,7 +75,7 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
             <form action={deleteGridSchedule.bind(null, s.id)}>
               <button
                 type="submit"
-                aria-label="Delete schedule"
+                aria-label={t("delete")}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
               >
                 <X className="size-3.5" />

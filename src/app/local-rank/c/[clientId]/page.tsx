@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useTransition, use } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
-  ArrowLeft,
   ExternalLink,
   Loader2,
   Map,
@@ -24,6 +23,7 @@ export default function PerClientLocalRank({
 }) {
   const { clientId: cidStr } = use(params);
   const clientId = Number(cidStr);
+  const t = useTranslations("localTab.localRank");
 
   const [query, setQuery] = useState("");
   const [citiesText, setCitiesText] = useState("");
@@ -40,7 +40,7 @@ export default function PerClientLocalRank({
       .map((c) => c.trim())
       .filter(Boolean);
     if (cities.length === 0) {
-      setError("Add at least one city");
+      setError(t("addCity"));
       return;
     }
     startTransition(async () => {
@@ -55,13 +55,6 @@ export default function PerClientLocalRank({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/local-rank"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        All clients
-      </Link>
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">
@@ -69,28 +62,27 @@ export default function PerClientLocalRank({
             <MapPin className="size-5 text-emerald-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Local rank tracker</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Check the same keyword across multiple cities to find geographic
-          weak spots. Browser-mode (Playwright). ~10s per city.
+          {t("description")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-4 p-5">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="lq">Keyword</Label>
+            <Label htmlFor="lq">{t("keyword")}</Label>
             <Input
               id="lq"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="best plumber"
+              placeholder={t("keywordPlaceholder")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="lcountry">Country</Label>
+            <Label htmlFor="lcountry">{t("country")}</Label>
             <Input
               id="lcountry"
               value={country}
@@ -101,13 +93,13 @@ export default function PerClientLocalRank({
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="lcities">Cities (comma or newline separated, max 8)</Label>
+          <Label htmlFor="lcities">{t("cities")}</Label>
           <textarea
             id="lcities"
             value={citiesText}
             onChange={(e) => setCitiesText(e.target.value)}
             rows={3}
-            placeholder="Chicago, IL&#10;Los Angeles, CA&#10;Miami, FL"
+            placeholder={t("citiesPlaceholder")}
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-[15px] shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
@@ -116,12 +108,12 @@ export default function PerClientLocalRank({
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Checking…
+                {t("checking")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Check ranks
+                {t("check")}
               </>
             )}
           </Button>
@@ -138,16 +130,16 @@ export default function PerClientLocalRank({
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              Ranks for &ldquo;{rows[0].query}&rdquo;
+              {t("ranksFor", { query: rows[0].query })}
             </h2>
           </header>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">City</th>
-                <th className="px-3 py-3 text-center font-medium">Position</th>
-                <th className="px-3 py-3 text-center font-medium">Map pack</th>
-                <th className="px-5 py-3 text-left font-medium">Ranking URL</th>
+                <th className="px-5 py-3 text-left font-medium">{t("colCity")}</th>
+                <th className="px-3 py-3 text-center font-medium">{t("colPosition")}</th>
+                <th className="px-3 py-3 text-center font-medium">{t("colMapPack")}</th>
+                <th className="px-5 py-3 text-left font-medium">{t("colRankingUrl")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
@@ -161,7 +153,7 @@ export default function PerClientLocalRank({
                     {r.mapPackPresent ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
                         <Map className="size-3" />
-                        Yes
+                        {t("yes")}
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
@@ -180,7 +172,7 @@ export default function PerClientLocalRank({
                       </a>
                     ) : (
                       <span className="text-muted-foreground">
-                        Not in top 50
+                        {t("notInTop50")}
                       </span>
                     )}
                     {r.error && (

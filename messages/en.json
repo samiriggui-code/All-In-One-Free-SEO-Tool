@@ -3950,5 +3950,309 @@
       "body": "The daily-agent uses Gmail (read-only) to flip outreach contacts to \"replied\" when the recipient writes back. To turn it on, reconnect Google and tick the Gmail permission.",
       "reconnect": "Reconnect Google"
     }
+  },
+  "localTab": {
+    "gbp": {
+      "title": "GBP · {name}",
+      "description": "Pull the public Google Business Profile, see recent reviews, draft AI replies you can paste into GBP.",
+      "allClients": "All clients",
+      "open": "Open →",
+      "noUrl": {
+        "description": "Add the Google Maps share link in client settings to enable scraping.",
+        "empty": "No Google Business Profile URL on this client yet.",
+        "addLink": "Add it on the edit page"
+      },
+      "reviewDesk": {
+        "title": "Review desk",
+        "noLink": "No share link needed. If you have connected Google with the Business Profile permission, reviews can be read and answered from here.",
+        "connected": "Every review, which ones still need an answer, and replies sent straight to Google. Needs the Business Profile permission on your Google connection."
+      },
+      "playbook": {
+        "title": "GBP optimization playbook ({done}/{total} done · {pct}%)",
+        "description": "Profile signal score: {score}/100. Tick items as you finish them — once-only items stay ticked, recurring items reset for the next period.",
+        "markDone": "Mark done",
+        "markNotDone": "Mark not done",
+        "action": "Action:",
+        "openTool": "Open tool →",
+        "cadence": {
+          "once": "once",
+          "weekly": "weekly",
+          "monthly": "monthly",
+          "quarterly": "quarterly"
+        }
+      },
+      "postTypes": {
+        "offer": "offer",
+        "event": "event",
+        "update": "update",
+        "product": "product",
+        "story": "story"
+      },
+      "runner": {
+        "scraping": "Scraping…",
+        "refresh": "Refresh",
+        "pull": "Pull GBP profile",
+        "profile": "Profile",
+        "fields": {
+          "name": "Name",
+          "rating": "Rating",
+          "address": "Address",
+          "phone": "Phone",
+          "website": "Website",
+          "source": "Source"
+        },
+        "ratingValue": "★ {rating} ({count, plural, one {# review} other {# reviews}})",
+        "recentReviews": "Recent reviews ({count})",
+        "reviewsHelp": "Click <strong>Generate AI reply</strong> on any review — we draft a personalized response. Copy + paste into GBP's reply box manually.",
+        "noReviews": "No reviews were found on the public page.",
+        "openDesk": "Open the review desk →",
+        "drafting": "Drafting…",
+        "generateReply": "Generate AI reply",
+        "aiDraft": "AI-drafted reply",
+        "copied": "Copied",
+        "copyReply": "Copy reply",
+        "pasteHint": "Paste into the reply box on GBP, or use the official posting flow if your Google account has GBP scope."
+      },
+      "composer": {
+        "title": "GBP post composer",
+        "description": "Draft a Google Business post in under 30 seconds. Pick a type, give an angle, copy-paste into GBP. Posts appear under your listing for ~7 days and signal an active business.",
+        "types": {
+          "offer": "Offer / promo",
+          "event": "Event",
+          "update": "Update / news",
+          "product": "Product spotlight",
+          "story": "Customer story"
+        },
+        "angle": "Angle / what to say",
+        "anglePlaceholder": "20% off all services this week / new vegan menu launching Tuesday / celebrating 5 years in town…",
+        "ctaUrl": "CTA URL (optional)",
+        "ctaPlaceholder": "https://yoursite.com/book",
+        "drafting": "Drafting…",
+        "draftPost": "Draft post",
+        "draft": "Draft",
+        "copied": "Copied",
+        "copyPost": "Copy post",
+        "pasteHint": "Paste into Google Business Profile → New post → {type}."
+      },
+      "ideas": {
+        "title": "7-day GBP post calendar",
+        "description": "AI-generated post ideas for the upcoming week. Use them as starting points — feed any one back into the composer above to draft full copy.",
+        "drafting": "Drafting…",
+        "regenerate": "Regenerate week",
+        "generate": "Generate 7-day plan",
+        "cta": "CTA:",
+        "copied": "Copied",
+        "copy": "Copy"
+      }
+    },
+    "reviews": {
+      "back": "Business profile",
+      "title": "Reviews · {name}",
+      "description": "Every review, which ones still need an answer, and the replies — drafted here, sent to Google when you say so.",
+      "pickFirst": "Pick the Business Profile listing above, then pull the reviews.",
+      "picker": {
+        "title": "Which listing",
+        "notChosen": "Not chosen yet. Reviews cannot be pulled until it is.",
+        "change": "Change",
+        "find": "Find my listings",
+        "scopeMissing": "Reconnect Google in Settings and grant the Business Profile permission. Reviews cannot be read or answered without it.",
+        "noListings": "The connected Google account manages no listings."
+      },
+      "desk": {
+        "neverSynced": "No reviews have been pulled yet, so every number below would be zero for the wrong reason. Press <b>Pull reviews</b> to fetch them from Google.",
+        "stats": {
+          "unanswered": "Need a reply",
+          "unansweredNegative": "Of those, 3 stars or less",
+          "drafted": "Drafted, not sent",
+          "sentByUs": "Replied by this tool",
+          "answeredElsewhere": "Replied elsewhere",
+          "averageRating": "Average rating"
+        },
+        "held": "{count, plural, one {# review} other {# reviews}} held · last pulled {when}",
+        "sync": "Pull reviews",
+        "syncDone": "Pulled: {added} new, {updated} updated",
+        "syncRemoved": ", {count} gone",
+        "syncIncomplete": ". Stopped at the page cap, so nothing was marked as gone.",
+        "draftNext": "Draft the next 10",
+        "draftDone": "Drafted {count}.",
+        "draftFailed": "{count} could not be written: {error}",
+        "draftNothingSent": "Nothing has been sent — read them first.",
+        "sendAll": "Send all {count} drafts",
+        "publishDone": "Sent {count}.",
+        "publishFailed": "{count} failed: {error}",
+        "filters": {
+          "unanswered": "Needs a reply",
+          "drafted": "Drafted, not sent",
+          "answered": "Answered",
+          "all": "Everything"
+        },
+        "emptyNeverSynced": "Nothing here yet.",
+        "emptyAllAnswered": "Every review has a reply.",
+        "emptyFilter": "Nothing matches this filter.",
+        "noRating": "no rating",
+        "ratingLabel": "{rating} out of 5",
+        "when": {
+          "today": "today",
+          "yesterday": "yesterday",
+          "days": "{count} days ago",
+          "months": "{count} months ago",
+          "years": "{count} years ago"
+        },
+        "card": {
+          "anonymous": "Anonymous",
+          "repliedElsewhere": "replied outside this tool",
+          "repliedByUs": "replied by this tool",
+          "removed": "no longer on Google",
+          "noComment": "A rating with no written review.",
+          "liveReply": "The reply live on Google",
+          "placeholder": "Write the reply, or press 'Draft the next 10' above.",
+          "save": "Save draft",
+          "send": "Send to Google",
+          "sent": "Sent. It is on Google now.",
+          "rejected": "Google rejected it.",
+          "answerFirst": "Answer this one first"
+        }
+      }
+    },
+    "citations": {
+      "title": "Citations · {name}",
+      "description": "Submit consistent NAP info across local citation directories. Tracking which submissions are live + spotting NAP inconsistencies.",
+      "nap": {
+        "heading": "NAP profile",
+        "intro": "Consistent name, address, phone is the #1 ranking factor for local SEO. Use these exact values everywhere.",
+        "complete": "{score}% complete",
+        "name": "Name",
+        "address": "Address",
+        "phone": "Phone",
+        "website": "Website",
+        "email": "Email",
+        "missing": "(missing)",
+        "copyTitle": "Triple-click to select",
+        "copyLabel": "select to copy"
+      },
+      "recommended": {
+        "heading": "Recommended directories for {country}",
+        "yourCountry": "your country",
+        "intro": "Country-specific listings ranked by typical SEO impact. The high-importance ones (★★★★+) are usually worth getting first."
+      },
+      "directoryCategory": {
+        "core_global": "core global",
+        "maps": "maps",
+        "review_platform": "review platform",
+        "general_directory": "general directory",
+        "industry_directory": "industry directory",
+        "local_chamber": "local chamber",
+        "social": "social"
+      },
+      "resourceCategory": {
+        "local-citation": "Local citation",
+        "directory-submission": "Directory submission",
+        "business-networking": "Business networking",
+        "profile-creation": "Profile creation"
+      },
+      "status": {
+        "pending": "pending",
+        "submitted": "submitted",
+        "live": "live",
+        "rejected": "rejected",
+        "lost": "lost"
+      },
+      "tracked": {
+        "heading": "Tracked submissions",
+        "intro": "All citations you've queued or submitted for {name}.",
+        "liveUrl": "live: {url}",
+        "remove": "remove"
+      },
+      "browse": {
+        "heading": "Browse directories",
+        "intro": "Pre-loaded catalog from your SEO resources. Click + to track a submission.",
+        "empty": "No directories left in this category — you've tracked them all. Pick another tab.",
+        "track": "Track for this client"
+      }
+    },
+    "localGrid": {
+      "title": "Local-pack heatmap · {name}",
+      "description": "Pick a query and a centre point. The tool samples ranking from a grid of locations and shows where you appear in the 3-pack.",
+      "form": {
+        "queryLabel": "Search query",
+        "queryPlaceholder": "vegan bakery near me",
+        "centerLat": "Centre latitude",
+        "centerLng": "Centre longitude",
+        "gridLabel": "Grid (3-7)",
+        "size3": "3×3 (9 points, fast)",
+        "size5": "5×5 (25 points)",
+        "size7": "7×7 (49 points, slow)",
+        "spacing": "Spacing (metres)",
+        "running": "Running…",
+        "run": "Run grid",
+        "tip": "Tip: drop a Google Maps pin on the centre of your service area, copy the coordinates from the URL.",
+        "resultTitle": "Result: \"{query}\"",
+        "resultSummary": "In-pack at <strong>{pct}%</strong> of cells · avg position <strong>{avg}</strong>",
+        "notRanked": "(not ranked)"
+      },
+      "history": {
+        "title": "Recent grid runs ({count})",
+        "spacing": "{spacing}m spacing",
+        "inPack": "{pct}% in pack",
+        "avg": "avg #{avg}"
+      },
+      "heatmap": {
+        "empty": "No cells to display.",
+        "notRanked": "not ranked",
+        "was": " · was {prior}",
+        "new": "new",
+        "lost": "lost",
+        "legendInPack": "1-3 (in pack)",
+        "legendNotRanked": "Not ranked"
+      },
+      "scheduleForm": {
+        "title": "Schedule recurring grid",
+        "description": "The daily-agent re-runs scheduled grids automatically. Useful for weekly local-rank monitoring without re-clicking the form.",
+        "query": "Query",
+        "queryPlaceholder": "vegan bakery near me",
+        "centerLat": "Centre lat",
+        "centerLng": "Centre lng",
+        "cadence": "Cadence",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "grid": "Grid",
+        "spacing": "Spacing (m)",
+        "saving": "Saving…",
+        "save": "Save schedule",
+        "scheduled": "✓ Scheduled."
+      },
+      "scheduleList": {
+        "title": "Auto-scheduled grids ({count})",
+        "description": "The daily-agent re-runs these on the cadence below. No SERP API needed — uses the same browser-mode rank checker.",
+        "cadence": {
+          "weekly": "weekly",
+          "monthly": "monthly"
+        },
+        "lastRan": "last ran {date}",
+        "pause": "Pause",
+        "resume": "Resume",
+        "delete": "Delete schedule"
+      }
+    },
+    "localRank": {
+      "allClients": "All clients",
+      "title": "Local rank tracker",
+      "description": "Check the same keyword across multiple cities to find geographic weak spots. Browser-mode (Playwright). ~10s per city.",
+      "keyword": "Keyword",
+      "keywordPlaceholder": "best plumber",
+      "country": "Country",
+      "cities": "Cities (comma or newline separated, max 8)",
+      "citiesPlaceholder": "Chicago, IL\nLos Angeles, CA\nMiami, FL",
+      "checking": "Checking…",
+      "check": "Check ranks",
+      "addCity": "Add at least one city",
+      "ranksFor": "Ranks for “{query}”",
+      "colCity": "City",
+      "colPosition": "Position",
+      "colMapPack": "Map pack",
+      "colRankingUrl": "Ranking URL",
+      "yes": "Yes",
+      "notInTop50": "Not in top 50"
+    }
   }
 }

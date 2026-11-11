@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import {
   AlertCircle,
@@ -58,7 +59,13 @@ export default async function PerClientCitationsPage({
     .where(eq(clients.id, clientId))
     .limit(1);
   if (!client) notFound();
-
+  const t = await getTranslations("localTab.citations");
+  const statusLabel = (st: string) =>
+    t.has(`status.${st}`) ? t(`status.${st}`) : st;
+  const categoryLabel = (cat: string) =>
+    t.has(`resourceCategory.${cat}`)
+      ? t(`resourceCategory.${cat}`)
+      : (CATEGORY_LABELS[cat] ?? cat);
 
   const activeCategory = CITATION_CATEGORIES.includes(catParam ?? "")
     ? (catParam as string)
@@ -110,25 +117,25 @@ export default async function PerClientCitationsPage({
 
   const napScore = napCompleteness(client);
   const napFields = [
-    { label: "Name", value: client.name, ok: Boolean(client.name) },
+    { label: t("nap.name"), value: client.name, ok: Boolean(client.name) },
     {
-      label: "Address",
-      value: client.address ?? "(missing)",
+      label: t("nap.address"),
+      value: client.address ?? t("nap.missing"),
       ok: Boolean(client.address),
     },
     {
-      label: "Phone",
-      value: client.phone ?? "(missing)",
+      label: t("nap.phone"),
+      value: client.phone ?? t("nap.missing"),
       ok: Boolean(client.phone),
     },
     {
-      label: "Website",
+      label: t("nap.website"),
       value: client.url,
       ok: Boolean(client.url),
     },
     {
-      label: "Email",
-      value: client.email ?? "(missing)",
+      label: t("nap.email"),
+      value: client.email ?? t("nap.missing"),
       ok: Boolean(client.email),
     },
   ];
@@ -137,8 +144,8 @@ export default async function PerClientCitationsPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Citations · ${client.name}`}
-        description="Submit consistent NAP info across local citation directories. Tracking which submissions are live + spotting NAP inconsistencies."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={MapPin}
         accent="emerald"
       />
@@ -149,11 +156,10 @@ export default async function PerClientCitationsPage({
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <CheckCircle2 className="size-4 text-emerald-300" />
-              NAP profile
+              {t("nap.heading")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Consistent name, address, phone is the #1 ranking factor for
-              local SEO. Use these exact values everywhere.
+              {t("nap.intro")}
             </p>
           </div>
           <div
@@ -165,7 +171,7 @@ export default async function PerClientCitationsPage({
                   : "bg-rose-500/10 text-rose-300 ring-rose-500/30"
             }`}
           >
-            {napScore}% complete
+            {t("nap.complete", { score: napScore })}
           </div>
         </header>
         <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -175,6 +181,8 @@ export default async function PerClientCitationsPage({
               label={f.label}
               value={f.value}
               ok={f.ok}
+              copyTitle={t("nap.copyTitle")}
+              copyLabel={t("nap.copyLabel")}
             />
           ))}
         </div>
@@ -201,12 +209,12 @@ export default async function PerClientCitationsPage({
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="text-base font-semibold flex items-center gap-2">
             <ExternalLink className="size-4 text-cyan-300" />
-            Recommended directories for{" "}
-            {client.country ?? "your country"}
+            {t("recommended.heading", {
+              country: client.country ?? t("recommended.yourCountry"),
+            })}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Country-specific listings ranked by typical SEO impact. The
-            high-importance ones (★★★★+) are usually worth getting first.
+            {t("recommended.intro")}
           </p>
         </header>
         <ul className="divide-y divide-white/[0.04]">
@@ -238,7 +246,9 @@ export default async function PerClientCitationsPage({
                 {"★".repeat(c.importance)}
               </span>
               <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                {c.category.replace(/_/g, " ")}
+                {t.has(`directoryCategory.${c.category}`)
+                  ? t(`directoryCategory.${c.category}`)
+                  : c.category.replace(/_/g, " ")}
               </span>
               {c.notes && (
                 <span className="basis-full pl-1 text-[11px] text-muted-foreground">
@@ -254,9 +264,9 @@ export default async function PerClientCitationsPage({
       {submissions.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Tracked submissions</h2>
+            <h2 className="text-base font-semibold">{t("tracked.heading")}</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              All citations you&apos;ve queued or submitted for {client.name}.
+              {t("tracked.intro", { name: client.name })}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.04]">
@@ -268,7 +278,7 @@ export default async function PerClientCitationsPage({
                 <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${statusTone[s.status]}`}
                 >
-                  {s.status}
+                  {statusLabel(s.status)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <a
@@ -281,9 +291,10 @@ export default async function PerClientCitationsPage({
                     <ExternalLink className="size-3 text-muted-foreground" />
                   </a>
                   <div className="text-[11px] text-muted-foreground">
-                    {CATEGORY_LABELS[s.category ?? ""] ?? s.category}
+                    {s.category ? categoryLabel(s.category) : s.category}
                     {s.da !== null && ` · DA ${s.da}`}
-                    {s.submittedUrl && ` · live: ${s.submittedUrl}`}
+                    {s.submittedUrl &&
+                      ` · ${t("tracked.liveUrl", { url: s.submittedUrl })}`}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -295,7 +306,7 @@ export default async function PerClientCitationsPage({
                           type="submit"
                           className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                         >
-                          → {st}
+                          → {statusLabel(st)}
                         </button>
                       </form>
                     );
@@ -305,7 +316,7 @@ export default async function PerClientCitationsPage({
                       type="submit"
                       className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                     >
-                      remove
+                      {t("tracked.remove")}
                     </button>
                   </form>
                 </div>
@@ -318,10 +329,9 @@ export default async function PerClientCitationsPage({
       {/* Add directories */}
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
-          <h2 className="text-base font-semibold">Browse directories</h2>
+          <h2 className="text-base font-semibold">{t("browse.heading")}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Pre-loaded catalog from your SEO resources. Click + to track a
-            submission.
+            {t("browse.intro")}
           </p>
           <div className="mt-3 flex flex-wrap gap-1 text-xs">
             {CITATION_CATEGORIES.map((cat) => (
@@ -334,15 +344,14 @@ export default async function PerClientCitationsPage({
                     : "bg-white/5 text-muted-foreground ring-white/10 hover:bg-white/10 hover:text-foreground"
                 }`}
               >
-                {CATEGORY_LABELS[cat] ?? cat} ({(catCounts.get(cat) ?? 0).toLocaleString()})
+                {categoryLabel(cat)} ({(catCounts.get(cat) ?? 0).toLocaleString()})
               </a>
             ))}
           </div>
         </header>
         {availableDirectories.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-            No directories left in this category — you&apos;ve tracked them
-            all. Pick another tab.
+            {t("browse.empty")}
           </div>
         ) : (
           <ul className="divide-y divide-white/[0.04]">
@@ -371,7 +380,7 @@ export default async function PerClientCitationsPage({
                   <form action={trackAction}>
                     <button
                       type="submit"
-                      title="Track for this client"
+                      title={t("browse.track")}
                       className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-emerald-500/15 hover:text-emerald-300"
                     >
                       <Plus className="size-3.5" />
@@ -403,10 +412,14 @@ function NapField({
   label,
   value,
   ok,
+  copyTitle,
+  copyLabel,
 }: {
   label: string;
   value: string;
   ok: boolean;
+  copyTitle: string;
+  copyLabel: string;
 }) {
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-3">
@@ -426,21 +439,33 @@ function NapField({
         {value}
       </div>
       {ok && (
-        <CopyValueButton value={value} />
+        <CopyValueButton
+          value={value}
+          title={copyTitle}
+          label={copyLabel}
+        />
       )}
     </div>
   );
 }
 
-function CopyValueButton({ value }: { value: string }) {
+function CopyValueButton({
+  value,
+  title,
+  label,
+}: {
+  value: string;
+  title: string;
+  label: string;
+}) {
   // Server-side, render a simple anchor that selects on triple-click
   return (
     <div
       className="mt-1.5 inline-flex items-center gap-1 rounded text-[10px] uppercase tracking-wider text-muted-foreground"
-      title="Triple-click to select"
+      title={title}
     >
       <Copy className="size-2.5" />
-      {value.length > 0 ? "select to copy" : ""}
+      {value.length > 0 ? label : ""}
     </div>
   );
 }

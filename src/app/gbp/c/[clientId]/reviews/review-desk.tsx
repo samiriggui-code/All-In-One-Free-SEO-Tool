@@ -19,6 +19,7 @@
  */
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertTriangle,
   Check,
@@ -49,11 +50,12 @@ const FILTERS: { id: QueueFilter; label: string }[] = [
 ];
 
 function Stars({ rating }: { rating: number | null }) {
+  const t = useTranslations("localTab.reviews.desk");
   if (rating == null) {
-    return <span className="text-[10px] text-muted-foreground">no rating</span>;
+    return <span className="text-[10px] text-muted-foreground">{t("noRating")}</span>;
   }
   return (
-    <span className="inline-flex items-center gap-0.5" aria-label={`${rating} out of 5`}>
+    <span className="inline-flex items-center gap-0.5" aria-label={t("ratingLabel", { rating })}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
@@ -64,16 +66,18 @@ function Stars({ rating }: { rating: number | null }) {
   );
 }
 
-function when(d: Date | string | null): string {
+type WhenT = (key: string, values?: Record<string, number>) => string;
+
+function when(d: Date | string | null, t: WhenT): string {
   if (!d) return "";
   const date = typeof d === "string" ? new Date(d) : d;
   if (Number.isNaN(date.getTime())) return "";
   const days = Math.floor((Date.now() - date.getTime()) / 86_400_000);
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 30) return `${days} days ago`;
-  if (days < 365) return `${Math.floor(days / 30)} months ago`;
-  return `${Math.floor(days / 365)} years ago`;
+  if (days <= 0) return t("when.today");
+  if (days === 1) return t("when.yesterday");
+  if (days < 30) return t("when.days", { count: days });
+  if (days < 365) return t("when.months", { count: Math.floor(days / 30) });
+  return t("when.years", { count: Math.floor(days / 365) });
 }
 
 export function ReviewDesk({
@@ -83,6 +87,7 @@ export function ReviewDesk({
   clientId: number;
   initial: ReviewDeskState;
 }) {
+  const t = useTranslations("localTab.reviews.desk");
   const [state, setState] = useState(initial);
   const [pending, startTransition] = useTransition();
   const [busy, setBusy] = useState<string | null>(null);
@@ -115,27 +120,25 @@ export function ReviewDesk({
       <section className="glass-apple rounded-2xl px-5 py-4">
         {state.neverSynced ? (
           <p className="text-sm text-muted-foreground">
-            No reviews have been pulled yet, so every number below would be
-            zero for the wrong reason. Press <strong>Pull reviews</strong> to
-            fetch them from Google.
+            {t.rich("neverSynced", { b: (chunks) => <strong>{chunks}</strong> })}
           </p>
         ) : (
           <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-            <Stat label="Need a reply" value={c.unanswered} tone={c.unanswered > 0 ? "warn" : "ok"} />
+            <Stat label={t("stats.unanswered")} value={c.unanswered} tone={c.unanswered > 0 ? "warn" : "ok"} />
             <Stat
-              label="Of those, 3 stars or less"
+              label={t("stats.unansweredNegative")}
               value={c.unansweredNegative}
               tone={c.unansweredNegative > 0 ? "bad" : "ok"}
             />
-            <Stat label="Drafted, not sent" value={draftedCount} />
-            <Stat label="Replied by this tool" value={c.sentByUs} />
+            <Stat label={t("stats.drafted")} value={draftedCount} />
+            <Stat label={t("stats.sentByUs")} value={c.sentByUs} />
             {/* Named precisely. A reply the owner typed into Google is
                 still a reply, and claiming it would make "we answered
                 everything" impossible to check. */}
-            <Stat label="Replied elsewhere" value={c.answeredElsewhere} />
-            <Stat label="Average rating" value={c.averageRating ?? "—"} />
+            <Stat label={t("stats.answeredElsewhere")} value={c.answeredElsewhere} />
+            <Stat label={t("stats.averageRating")} value={c.averageRating ?? "—"} />
             <span className="text-[11px] text-muted-foreground">
-              {c.total} reviews held · last pulled {when(state.lastSynced)}
+              {t("held", { count: c.total, when: when(state.lastSynced, t) })}
             </span>
           </div>
         )}
@@ -152,11 +155,11 @@ export function ReviewDesk({
                   ? {
                       tone: "ok",
                       text:
-                        `Pulled: ${res.added} new, ${res.updated} updated` +
-                        (res.removed ? `, ${res.removed} gone` : "") +
+                        t("syncDone", { added: res.added, updated: res.updated }) +
+                        (res.removed ? t("syncRemoved", { count: res.removed }) : "") +
                         (res.complete
                           ? ""
-                          : ". Stopped at the page cap, so nothing was marked as gone."),
+                          : t("syncIncomplete")),
                     }
                   : { tone: "bad", text: res.error },
               );
@@ -166,7 +169,7 @@ export function ReviewDesk({
           busy={busy === "sync"}
           icon={RefreshCw}
         >
-          Pull reviews
+          {t("sync")}
         </Button>
 
         <Button
@@ -184,12 +187,12 @@ export function ReviewDesk({
                 // negative review goes unanswered for months.
                 tone: failed.length > 0 ? "bad" : "ok",
                 text:
-                  `Drafted ${drafted.length}.` +
+                  t("draftDone", { count: drafted.length }) +
                   (failed.length
-                    ? ` ${failed.length} could not be written: ${failed[0].error}`
+                    ? ` ${t("draftFailed", { count: failed.length, error: failed[0].error })}`
                     : "") +
                   (stoppedEarly ? ` ${stoppedEarly}` : "") +
-                  " Nothing has been sent — read them first.",
+                  ` ${t("draftNothingSent")}`,
               });
               reload("drafted");
             })
@@ -198,7 +201,7 @@ export function ReviewDesk({
           icon={Sparkles}
           disabled={c.unanswered === 0}
         >
-          Draft the next 10
+          {t("draftNext")}
         </Button>
 
         {draftedCount > 0 && (
@@ -209,9 +212,9 @@ export function ReviewDesk({
                 setMessage({
                   tone: res.failed.length > 0 ? "bad" : "ok",
                   text:
-                    `Sent ${res.sent}.` +
+                    t("publishDone", { count: res.sent }) +
                     (res.failed.length
-                      ? ` ${res.failed.length} failed: ${res.failed[0].error}`
+                      ? ` ${t("publishFailed", { count: res.failed.length, error: res.failed[0].error })}`
                       : ""),
                 });
                 reload();
@@ -221,7 +224,7 @@ export function ReviewDesk({
             icon={Send}
             tone="primary"
           >
-            Send all {draftedCount} drafts
+            {t("sendAll", { count: draftedCount })}
           </Button>
         )}
       </div>
@@ -250,7 +253,7 @@ export function ReviewDesk({
                 : "bg-white/[0.03] text-muted-foreground ring-white/10 hover:text-foreground"
             }`}
           >
-            {f.label}
+            {t.has(`filters.${f.id}`) ? t(`filters.${f.id}`) : f.label}
           </button>
         ))}
         {pending && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
@@ -260,10 +263,10 @@ export function ReviewDesk({
       {state.rows.length === 0 ? (
         <p className="rounded-xl bg-white/[0.02] px-5 py-8 text-center text-sm text-muted-foreground">
           {state.neverSynced
-            ? "Nothing here yet."
+            ? t("emptyNeverSynced")
             : state.filter === "unanswered"
-              ? "Every review has a reply."
-              : "Nothing matches this filter."}
+              ? t("emptyAllAnswered")
+              : t("emptyFilter")}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -359,6 +362,7 @@ function ReviewCard({
   onSaved: () => void;
   onMessage: (m: { tone: "ok" | "bad"; text: string }) => void;
 }) {
+  const t = useTranslations("localTab.reviews.desk");
   const [busy, setBusy] = useState<"save" | "send" | null>(null);
   const answered = Boolean(row.replyComment);
   const bySomeoneElse = answered && !row.sentAt;
@@ -366,10 +370,10 @@ function ReviewCard({
   return (
     <li className="glass-apple rounded-xl px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-sm font-medium">{row.reviewerName ?? "Anonymous"}</span>
+        <span className="text-sm font-medium">{row.reviewerName ?? t("card.anonymous")}</span>
         <Stars rating={row.starRating} />
         <span className="text-[11px] text-muted-foreground">
-          {when(row.createTime)}
+          {when(row.createTime, t)}
         </span>
         {answered && (
           <span
@@ -380,19 +384,19 @@ function ReviewCard({
             }`}
           >
             {/* The distinction, in the one place a user reads it. */}
-            {bySomeoneElse ? "replied outside this tool" : "replied by this tool"}
+            {bySomeoneElse ? t("card.repliedElsewhere") : t("card.repliedByUs")}
           </span>
         )}
         {row.removedAt && (
           <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] text-rose-300 ring-1 ring-inset ring-rose-500/30">
-            no longer on Google
+            {t("card.removed")}
           </span>
         )}
       </div>
 
       <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
         {row.comment?.trim() || (
-          <span className="italic">A rating with no written review.</span>
+          <span className="italic">{t("card.noComment")}</span>
         )}
       </p>
 
@@ -400,7 +404,7 @@ function ReviewCard({
         <div className="mt-3 rounded-lg bg-white/[0.03] px-3 py-2">
           <div className="mb-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <MessageSquare className="size-3" />
-            The reply live on Google
+            {t("card.liveReply")}
           </div>
           <p className="whitespace-pre-wrap text-sm">{row.replyComment}</p>
         </div>
@@ -410,7 +414,7 @@ function ReviewCard({
             value={draft}
             onChange={(e) => onDraftChange(e.target.value)}
             rows={3}
-            placeholder="Write the reply, or press 'Draft the next 10' above."
+            placeholder={t("card.placeholder")}
             className="w-full resize-y rounded-lg bg-black/20 px-3 py-2 text-sm ring-1 ring-inset ring-white/10 placeholder:text-muted-foreground focus:outline-none focus:ring-cyan-500/40"
           />
           <div className="flex flex-wrap items-center gap-2">
@@ -425,7 +429,7 @@ function ReviewCard({
                 onSaved();
               }}
             >
-              Save draft
+              {t("card.save")}
             </Button>
             <Button
               icon={Send}
@@ -442,18 +446,18 @@ function ReviewCard({
                 setBusy(null);
                 onMessage(
                   res.ok
-                    ? { tone: "ok", text: "Sent. It is on Google now." }
-                    : { tone: "bad", text: res.error ?? "Google rejected it." },
+                    ? { tone: "ok", text: t("card.sent") }
+                    : { tone: "bad", text: res.error ?? t("card.rejected") },
                 );
                 onSaved();
               }}
             >
-              Send to Google
+              {t("card.send")}
             </Button>
             {row.starRating != null && row.starRating <= 3 && (
               <span className="inline-flex items-center gap-1 text-[11px] text-amber-300">
                 <AlertTriangle className="size-3" />
-                Answer this one first
+                {t("card.answerFirst")}
               </span>
             )}
           </div>

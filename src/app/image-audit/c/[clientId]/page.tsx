@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useTransition, use } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ExternalLink,
   Image as ImageIcon,
@@ -52,13 +50,6 @@ export default function PerClientImageAudit({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/image-audit"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {t("allClients")}
-      </Link>
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

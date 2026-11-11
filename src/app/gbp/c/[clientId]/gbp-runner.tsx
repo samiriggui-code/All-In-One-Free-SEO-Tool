@@ -12,6 +12,7 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
@@ -31,6 +32,7 @@ export function GbpRunner({
   const [pending, startTransition] = useTransition();
   const [report, setReport] = useState<GbpReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("localTab.gbp.runner");
 
   function run() {
     setError(null);
@@ -51,12 +53,12 @@ export function GbpRunner({
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Scraping…
+              {t("scraping")}
             </>
           ) : (
             <>
               <RefreshCw className="size-4" />
-              {report ? "Refresh" : "Pull GBP profile"}
+              {report ? t("refresh") : t("pull")}
             </>
           )}
         </Button>
@@ -75,31 +77,31 @@ export function GbpRunner({
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="flex items-center gap-2 text-base font-semibold">
                 <Building className="size-4 text-cyan-300" />
-                Profile
+                {t("profile")}
               </h2>
             </header>
             <div className="grid gap-4 p-5 md:grid-cols-2">
-              <Field label="Name" value={report.name} />
+              <Field label={t("fields.name")} value={report.name} />
               <Field
-                label="Rating"
+                label={t("fields.rating")}
                 value={
                   report.rating !== null
-                    ? `★ ${report.rating} (${report.reviewCount ?? 0} reviews)`
+                    ? t("ratingValue", { rating: report.rating, count: report.reviewCount ?? 0 })
                     : "—"
                 }
               />
-              <Field label="Address" value={report.address} />
-              <Field label="Phone" value={report.phone} />
+              <Field label={t("fields.address")} value={report.address} />
+              <Field label={t("fields.phone")} value={report.phone} />
               {report.website && (
                 <Field
-                  label="Website"
+                  label={t("fields.website")}
                   value={report.website}
                   href={report.website}
                 />
               )}
               {report.finalUrl && (
                 <Field
-                  label="Source"
+                  label={t("fields.source")}
                   value={report.finalUrl}
                   href={report.finalUrl}
                 />
@@ -112,12 +114,12 @@ export function GbpRunner({
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold">
-                  Recent reviews ({report.reviews.length})
+                  {t("recentReviews", { count: report.reviews.length })}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Click <strong>Generate AI reply</strong> on any review — we
-                  draft a personalized response. Copy + paste into GBP&apos;s
-                  reply box manually.
+                  {t.rich("reviewsHelp", {
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
                 </p>
               </header>
               <ul className="divide-y divide-white/[0.04]">
@@ -141,14 +143,14 @@ export function GbpRunner({
               {report.couldNotRead.length > 0 ? (
                 report.couldNotRead.map((note) => <p key={note}>{note}</p>)
               ) : (
-                <p>No reviews were found on the public page.</p>
+                <p>{t("noReviews")}</p>
               )}
               {report.limitedView && (
                 <a
                   href={`/gbp/c/${clientId}/reviews`}
                   className="inline-block text-cyan-300 hover:underline"
                 >
-                  Open the review desk →
+                  {t("openDesk")}
                 </a>
               )}
             </div>
@@ -172,6 +174,7 @@ function ReviewRow({
   const [reply, setReply] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("localTab.gbp.runner");
 
   function generate() {
     setError(null);
@@ -242,12 +245,12 @@ function ReviewRow({
               {pending ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  Drafting…
+                  {t("drafting")}
                 </>
               ) : (
                 <>
                   <Sparkles className="size-3.5" />
-                  Generate AI reply
+                  {t("generateReply")}
                 </>
               )}
             </Button>
@@ -261,7 +264,7 @@ function ReviewRow({
           {reply && (
             <div className="mt-2 space-y-2 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm">
               <div className="text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
-                AI-drafted reply
+                {t("aiDraft")}
               </div>
               <div className="whitespace-pre-wrap text-foreground/90">
                 {reply}
@@ -274,7 +277,7 @@ function ReviewRow({
                   onClick={copy}
                 >
                   <Copy className="size-3.5" />
-                  {copied ? "Copied" : "Copy reply"}
+                  {copied ? t("copied") : t("copyReply")}
                 </Button>
                 <AiFeedback
                   feature="review_reply"
@@ -284,8 +287,7 @@ function ReviewRow({
                 />
                 <AiDisclaimer variant="inline" />
                 <span className="text-[11px] text-muted-foreground">
-                  Paste into the reply box on GBP, or use the official
-                  posting flow if your Google account has GBP scope.
+                  {t("pasteHint")}
                 </span>
               </div>
             </div>
