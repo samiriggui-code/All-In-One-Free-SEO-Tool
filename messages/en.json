@@ -1875,11 +1875,7 @@
       "team": "Team",
       "setUpTeam": "Set up team accounts",
       "settings": "Settings",
-      "aiKeys": "AI provider keys",
-      "updates": "Check for updates",
-      "health": "System health",
-      "errors": "Error log",
-      "backup": "Backup & restore",
+      "updates": "Updates",
       "adminAfterSignIn": "Admin links appear after you sign in.",
       "signIn": "Sign in",
       "chatCapabilities": "What the AI chat can do",
@@ -1887,7 +1883,15 @@
       "about": "About & support the developer",
       "repo": "GitHub repo",
       "signOut": "Sign out",
-      "signOutPassword": "Sign out (clears password cookie)"
+      "signOutPassword": "Sign out (clears password cookie)",
+      "selfHosted": "Self-hosted · your data stays on your server",
+      "aiConnection": "AI connection",
+      "brand": "Brand identity",
+      "helpGroup": "Help & resources",
+      "getStarted": "Get started",
+      "docs": "Documentation",
+      "learn": "Learn SEO",
+      "knowledge": "Knowledge hub"
     },
     "nextStep": {
       "ai": {

@@ -184,14 +184,6 @@ export default async function RootLayout({
                       uiMode={uiMode}
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
-                      user={me ? { name: me.name, email: me.email } : null}
-                      authMode={
-                        accountsEnabled()
-                          ? "accounts"
-                          : process.env.APP_PASSWORD
-                            ? "password"
-                            : "open"
-                      }
                     />
                     <div className="flex h-full min-w-0 flex-1 flex-col">
                       <TopBar

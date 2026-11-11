@@ -68,7 +68,9 @@ export function MobileNav({
   const baseGroups = useMemo(() => navGroupsForRole(userRole), [userRole]);
 
   const groups = useMemo(() => {
-    if (!q) return baseGroups;
+    // The "account" group lives in the top bar's account menu; it still
+    // shows up here when the filter matches one of its pages.
+    if (!q) return baseGroups.filter((g) => g.id !== "account");
     return baseGroups.map((g) => ({
       ...g,
       items: g.items.filter((it: NavItem) => {

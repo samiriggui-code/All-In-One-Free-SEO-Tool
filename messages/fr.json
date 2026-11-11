@@ -1875,11 +1875,7 @@
       "team": "Équipe",
       "setUpTeam": "Créer des comptes d’équipe",
       "settings": "Paramètres",
-      "aiKeys": "Clés des fournisseurs IA",
-      "updates": "Rechercher des mises à jour",
-      "health": "État du système",
-      "errors": "Journal des erreurs",
-      "backup": "Sauvegarde et restauration",
+      "updates": "Mises à jour",
       "adminAfterSignIn": "Les liens d’administration apparaissent après la connexion.",
       "signIn": "Se connecter",
       "chatCapabilities": "Ce que le chat IA sait faire",
@@ -1887,7 +1883,15 @@
       "about": "À propos et soutenir le développeur",
       "repo": "Dépôt GitHub",
       "signOut": "Se déconnecter",
-      "signOutPassword": "Se déconnecter (efface le cookie du mot de passe)"
+      "signOutPassword": "Se déconnecter (efface le cookie du mot de passe)",
+      "selfHosted": "Auto-hébergé · vos données restent sur votre serveur",
+      "aiConnection": "Connexion IA",
+      "brand": "Identité de marque",
+      "helpGroup": "Aide et ressources",
+      "getStarted": "Bien démarrer",
+      "docs": "Documentation",
+      "learn": "Apprendre le SEO",
+      "knowledge": "Base de connaissances"
     },
     "nextStep": {
       "ai": {

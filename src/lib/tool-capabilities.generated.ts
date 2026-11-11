@@ -3,7 +3,7 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 232 routes · 103 need AI · 73 use a browser.
+// 241 routes · 103 need AI · 73 use a browser.
 // 92 are /tools/* · 33 need AI · 92 carry copy.
 
 export const TOOL_CAPABILITIES = [
@@ -128,16 +128,25 @@ export const TOOL_CAPABILITIES = [
   { route: "/seo-chat", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/seo-chat/capabilities", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/serp-scans", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/settings", needsAI: true, aiUsage: "required", usesBrowser: true },
+  { route: "/settings", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/ai", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/settings/ai-learning", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/settings/ai-usage", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/api", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/backup", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/brand", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/browser", needsAI: false, aiUsage: "none", usesBrowser: true },
+  { route: "/settings/data", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/edge", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/email", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/errors", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/google", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/health", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/install", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/notifications", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/privacy", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/settings/team", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/settings/updates", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/shortcuts", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/snapshots", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/snapshots/compare", needsAI: false, aiUsage: "none", usesBrowser: false },
