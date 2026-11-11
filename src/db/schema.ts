@@ -83,6 +83,13 @@ export const clients = sqliteTable("clients", {
   // workspace-wide via OAuth. Each is the property identifier the user picks.
   // gscProperty: "sc-domain:example.com" or "https://example.com/"
   // ga4PropertyId: numeric e.g. "123456789"
+  /**
+   * The company this site belongs to (client_accounts). A row of this
+   * table is one site, which the interface calls a project; the account is
+   * what it calls the client. Null only between an insert and the next
+   * read, which backfills it (lib/projects.ts, ensureAccounts).
+   */
+  accountId: integer("account_id"),
   gscProperty: text("gsc_property"),
   ga4PropertyId: text("ga4_property_id"),
   // WordPress bridge credentials — set when the SEO Tool Bridge plugin
@@ -2689,3 +2696,53 @@ export const gbpReviews = sqliteTable(
   ],
 );
 export type GbpReviewRow = typeof gbpReviews.$inferSelect;
+
+/**
+ * Client -> Project -> Mission (migration 0080).
+ *
+ * `clients` rows are sites, so they are the projects. `clientAccounts` is
+ * the company above them: one client, several sites. `missions` is what
+ * was agreed on a project: an audit only, monthly SEO, the whole circuit,
+ * a redesign. Indexes and the clients.account_id foreign key live in the
+ * SQL file, as everywhere in this schema.
+ */
+export const clientAccounts = sqliteTable("client_accounts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  contactName: text("contact_name"),
+  email: text("email"),
+  phone: text("phone"),
+  address: text("address"),
+  notes: text("notes"),
+  ...timestamps,
+});
+
+export const MISSION_KINDS = ["audit", "monitoring", "full", "redesign", "other"] as const;
+export type MissionKind = (typeof MISSION_KINDS)[number];
+export const MISSION_STATUSES = ["proposed", "active", "paused", "done", "cancelled"] as const;
+export type MissionStatus = (typeof MISSION_STATUSES)[number];
+
+export const missions = sqliteTable("missions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  /** The project (a `clients` row, i.e. one site). */
+  clientId: integer("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  kind: text("kind", { enum: MISSION_KINDS }).notNull(),
+  title: text("title").notNull(),
+  status: text("status", { enum: MISSION_STATUSES }).notNull().default("proposed"),
+  /** Ids of the service_offers that make up an SEO mission. */
+  offersJson: text("offers_json", { mode: "json" }).$type<number[] | null>(),
+  /** Redesign missions: the stack the client asked for. */
+  targetStack: text("target_stack"),
+  notes: text("notes"),
+  proposalId: integer("proposal_id").references(() => proposals.id, {
+    onDelete: "set null",
+  }),
+  startedAt: integer("started_at", { mode: "timestamp" }),
+  endedAt: integer("ended_at", { mode: "timestamp" }),
+  ...timestamps,
+});
+
+export type ClientAccount = typeof clientAccounts.$inferSelect;
+export type Mission = typeof missions.$inferSelect;
