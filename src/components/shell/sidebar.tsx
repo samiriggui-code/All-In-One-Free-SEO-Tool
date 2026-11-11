@@ -43,91 +43,19 @@ const NEUTRAL_ACCENT: GroupAccent = {
   openBg: "bg-sidebar-accent/30",
 };
 
+/* One brand accent for every group. Each group used to carry its own hue
+   (violet, cyan, rose, emerald, amber, fuchsia), which turned the rail into
+   a rainbow and, in light mode, left the icons hard to read. The coloured
+   dots that remain mean something (ready / needs setup). */
+const BRAND_ACCENT: GroupAccent = {
+  icon: "text-primary/70",
+  iconActive: "text-primary",
+  dot: "bg-primary",
+  borderLeft: "border-l-2 border-l-primary/40",
+  openBg: "bg-primary/[0.06]",
+};
+
 const GROUP_ACCENTS: Record<string, GroupAccent> = {
-  essentials: {
-    icon: "text-violet-300/70",
-    iconActive: "text-violet-200",
-    dot: "bg-violet-400",
-    borderLeft: "border-l-2 border-l-violet-500/40",
-    openBg: "bg-violet-500/[0.08]",
-  },
-  agency: {
-    icon: "text-cyan-300/70",
-    iconActive: "text-cyan-200",
-    dot: "bg-cyan-400",
-    borderLeft: "border-l-2 border-l-cyan-500/40",
-    openBg: "bg-cyan-500/[0.08]",
-  },
-  content: {
-    icon: "text-violet-300/70",
-    iconActive: "text-violet-200",
-    dot: "bg-violet-400",
-    borderLeft: "border-l-2 border-l-violet-500/40",
-    openBg: "bg-violet-500/[0.06]",
-  },
-  strategy: {
-    icon: "text-cyan-300/70",
-    iconActive: "text-cyan-200",
-    dot: "bg-cyan-400",
-    borderLeft: "border-l-2 border-l-cyan-500/40",
-    openBg: "bg-cyan-500/[0.06]",
-  },
-  "paid-ads": {
-    icon: "text-rose-300/70",
-    iconActive: "text-rose-200",
-    dot: "bg-rose-400",
-    borderLeft: "border-l-2 border-l-rose-500/40",
-    openBg: "bg-rose-500/[0.06]",
-  },
-  backlinks: {
-    icon: "text-emerald-300/70",
-    iconActive: "text-emerald-200",
-    dot: "bg-emerald-400",
-    borderLeft: "border-l-2 border-l-emerald-500/40",
-    openBg: "bg-emerald-500/[0.06]",
-  },
-  local: {
-    icon: "text-amber-300/70",
-    iconActive: "text-amber-200",
-    dot: "bg-amber-400",
-    borderLeft: "border-l-2 border-l-amber-500/40",
-    openBg: "bg-amber-500/[0.06]",
-  },
-  prospecting: {
-    icon: "text-cyan-300/70",
-    iconActive: "text-cyan-200",
-    dot: "bg-cyan-400",
-    borderLeft: "border-l-2 border-l-cyan-500/40",
-    openBg: "bg-cyan-500/[0.06]",
-  },
-  audit: {
-    icon: "text-fuchsia-300/70",
-    iconActive: "text-fuchsia-200",
-    dot: "bg-fuchsia-400",
-    borderLeft: "border-l-2 border-l-fuchsia-500/40",
-    openBg: "bg-fuchsia-500/[0.06]",
-  },
-  monitoring: {
-    icon: "text-amber-300/70",
-    iconActive: "text-amber-200",
-    dot: "bg-amber-400",
-    borderLeft: "border-l-2 border-l-amber-500/40",
-    openBg: "bg-amber-500/[0.06]",
-  },
-  onboarding: {
-    icon: "text-emerald-300/70",
-    iconActive: "text-emerald-200",
-    dot: "bg-emerald-400",
-    borderLeft: "border-l-2 border-l-emerald-500/40",
-    openBg: "bg-emerald-500/[0.06]",
-  },
-  delivery: {
-    icon: "text-cyan-300/70",
-    iconActive: "text-cyan-200",
-    dot: "bg-cyan-400",
-    borderLeft: "border-l-2 border-l-cyan-500/40",
-    openBg: "bg-cyan-500/[0.06]",
-  },
   account: NEUTRAL_ACCENT,
 };
 
@@ -375,7 +303,7 @@ export function Sidebar({
           const hasActiveChild = group.items.some((it) =>
             isActive(pathname, it.href),
           );
-          const accent = GROUP_ACCENTS[group.id] ?? NEUTRAL_ACCENT;
+          const accent = GROUP_ACCENTS[group.id] ?? BRAND_ACCENT;
           return (
             <div
               key={group.id}

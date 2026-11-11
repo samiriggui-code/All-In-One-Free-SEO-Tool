@@ -1,0 +1,55 @@
+/* Généré par scripts/gen-light-white-alpha.mjs — ne pas modifier à la main.
+   Mode clair : les cadres et fonds en blanc transparent (pensés pour le
+   mode sombre) passent sur l'encre de l'interface. */
+@layer utilities {
+@media all {
+  :where(:root:not(.dark)) .bg-white\/\[0\.01\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.015\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.02\] { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.03\] { background-color: color-mix(in oklab, var(--foreground) 3%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.04\] { background-color: color-mix(in oklab, var(--foreground) 4%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.05\] { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.06\] { background-color: color-mix(in oklab, var(--foreground) 6%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/\[0\.08\] { background-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/10 { background-color: color-mix(in oklab, var(--foreground) 10%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/15 { background-color: color-mix(in oklab, var(--foreground) 15%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/20 { background-color: color-mix(in oklab, var(--foreground) 20%, transparent); }
+  :where(:root:not(.dark)) .bg-white\/5 { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .border-l-white\/10 { border-left-color: color-mix(in oklab, var(--foreground) 13%, transparent); }
+  :where(:root:not(.dark)) .border-white\/\[0\.04\] { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .border-white\/\[0\.05\] { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .border-white\/\[0\.06\] { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .border-white\/10 { border-color: color-mix(in oklab, var(--foreground) 13%, transparent); }
+  :where(:root:not(.dark)) .border-white\/15 { border-color: color-mix(in oklab, var(--foreground) 19.5%, transparent); }
+  :where(:root:not(.dark)) .border-white\/20 { border-color: color-mix(in oklab, var(--foreground) 26%, transparent); }
+  :where(:root:not(.dark)) .border-white\/30 { border-color: color-mix(in oklab, var(--foreground) 30%, transparent); }
+  :where(:root:not(.dark)) .border-white\/5 { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .divide-white\/\[0\.04\] > :not(:last-child) { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .divide-white\/\[0\.05\] > :not(:last-child) { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .divide-white\/\[0\.06\] > :not(:last-child) { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .divide-white\/5 > :not(:last-child) { border-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) :where(.group):hover .group-hover\:bg-white\/10 { background-color: color-mix(in oklab, var(--foreground) 10%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.02\]:hover { background-color: color-mix(in oklab, var(--foreground) 2%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.03\]:hover { background-color: color-mix(in oklab, var(--foreground) 3%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.04\]:hover { background-color: color-mix(in oklab, var(--foreground) 4%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.05\]:hover { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.06\]:hover { background-color: color-mix(in oklab, var(--foreground) 6%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.07\]:hover { background-color: color-mix(in oklab, var(--foreground) 7%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/\[0\.08\]:hover { background-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/10:hover { background-color: color-mix(in oklab, var(--foreground) 10%, transparent); }
+  :where(:root:not(.dark)) .hover\:bg-white\/5:hover { background-color: color-mix(in oklab, var(--foreground) 5%, transparent); }
+  :where(:root:not(.dark)) .hover\:border-white\/10:hover { border-color: color-mix(in oklab, var(--foreground) 13%, transparent); }
+  :where(:root:not(.dark)) .hover\:border-white\/15:hover { border-color: color-mix(in oklab, var(--foreground) 19.5%, transparent); }
+  :where(:root:not(.dark)) .hover\:border-white\/20:hover { border-color: color-mix(in oklab, var(--foreground) 26%, transparent); }
+  :where(:root:not(.dark)) .hover\:border-white\/25:hover { border-color: color-mix(in oklab, var(--foreground) 30%, transparent); }
+  :where(:root:not(.dark)) .open\:bg-white\/\[0\.04\]:is([open], :popover-open) { background-color: color-mix(in oklab, var(--foreground) 4%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/\[0\.04\] { --tw-ring-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/\[0\.05\] { --tw-ring-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/\[0\.06\] { --tw-ring-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/10 { --tw-ring-color: color-mix(in oklab, var(--foreground) 13%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/15 { --tw-ring-color: color-mix(in oklab, var(--foreground) 19.5%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/20 { --tw-ring-color: color-mix(in oklab, var(--foreground) 26%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/30 { --tw-ring-color: color-mix(in oklab, var(--foreground) 30%, transparent); }
+  :where(:root:not(.dark)) .ring-white\/5 { --tw-ring-color: color-mix(in oklab, var(--foreground) 8%, transparent); }
+}
+}
