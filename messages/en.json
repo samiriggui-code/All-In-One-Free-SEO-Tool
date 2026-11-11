@@ -2708,6 +2708,17 @@
       "recipientList": "{count, plural, one {# recipient} other {# recipients}}: {list}",
       "lastSent": "Last sent: {date}",
       "nextSend": "Next send: {date}"
+    },
+    "actionPlan": {
+      "button": "Action plan",
+      "buttonHint": "{count, plural, one {# thing to do} other {# things to do}}",
+      "buttonDone": "Nothing urgent",
+      "title": "Action plan",
+      "subtitle": "The first steps and what is worth doing for this client.",
+      "tabStart": "Where to start",
+      "tabRecs": "Recommendations",
+      "footer": "Ranked by what it changes against how long it takes.",
+      "close": "Close"
     }
   },
   "settingsTeam": {
@@ -2981,5 +2992,15 @@
     "doneText": "Now go to any client's detail page and pick the matching <b>Search Console property</b> and <b>GA4 property</b> from the dropdowns. The same Google login covers every client: you just pick the right property each time.",
     "disconnect": "Disconnect",
     "done": "Done"
+  },
+  "nextActions": {
+    "heading": "What's worth doing",
+    "subtitle": "Ranked by what it changes against how long it takes.",
+    "ranked": "{count} ranked",
+    "empty": "Nothing pressing. Run an audit or add a client to give this something to rank.",
+    "agentLabel": "The agent can do these",
+    "agentNote": "No decision needed from you.",
+    "youLabel": "These need you",
+    "youNote": "A decision, a login, or someone who knows the business."
   }
 }

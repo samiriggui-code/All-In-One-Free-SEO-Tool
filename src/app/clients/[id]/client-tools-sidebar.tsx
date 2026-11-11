@@ -44,7 +44,10 @@ export function ClientToolsSidebar({
   hasAiKey = false,
   surfaces,
   onOpenTool,
+  top,
 }: {
+  /** Shown above the rail, first in the stack (the client action plan). */
+  top?: React.ReactNode;
   client: ClientToolsClient;
   /**
    * What this engagement covers. Groups belonging to a chosen surface
@@ -332,7 +335,8 @@ export function ClientToolsSidebar({
   return (
     <>
       {/* Mobile: floating button that opens a sheet */}
-      <div className="md:hidden">
+      <div className="space-y-2 md:hidden">
+        {top}
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
@@ -370,7 +374,9 @@ export function ClientToolsSidebar({
       </div>
 
       {/* Desktop: sticky secondary sidebar */}
-      <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-[280px] shrink-0 overflow-hidden rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-md md:flex md:flex-col">
+      <div className="sticky top-4 hidden w-[280px] shrink-0 flex-col gap-3 md:flex">
+      {top}
+      <aside className="flex h-[calc(100vh-6.5rem)] flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-card/60 backdrop-blur-md">
         <header className="flex items-center gap-2 border-b border-white/[0.06] bg-violet-500/[0.04] px-3 py-2">
           <Wrench className="size-3.5 shrink-0 text-violet-300" />
           <div className="min-w-0 flex-1">
@@ -384,6 +390,7 @@ export function ClientToolsSidebar({
         </header>
         <div className="flex-1 overflow-y-auto px-2.5 pb-3 pt-2.5">{list}</div>
       </aside>
+      </div>
     </>
   );
 }

@@ -29,6 +29,8 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
 import "./globals.css";
+// GsKnora window and sheet styles (settings window, side sheets).
+import "./settings/settings-window.css";
 
 // Inter is warmer + more readable at small sizes than Geist's precise grotesk.
 // Same web-safe quality; same variable-weight support.

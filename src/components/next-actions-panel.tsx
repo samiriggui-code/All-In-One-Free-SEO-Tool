@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Bot, Clock, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   partitionByOwner,
   type NextAction,
@@ -21,8 +22,8 @@ import {
  */
 export function NextActionsPanel({
   items,
-  heading = "What's worth doing",
-  emptyNote = "Nothing pressing. Run an audit or add a client to give this something to rank.",
+  heading,
+  emptyNote,
   showClient = true,
 }: {
   items: NextAction[];
@@ -35,31 +36,32 @@ export function NextActionsPanel({
    */
   showClient?: boolean;
 }) {
+  const t = useTranslations("nextActions");
   const { agent, you } = partitionByOwner(items);
 
   return (
     <section className="glass-apple overflow-hidden rounded-2xl">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border px-4 py-2.5">
-        <h2 className="text-[13px] font-semibold">{heading}</h2>
+        <h2 className="text-[13px] font-semibold">{heading ?? t("heading")}</h2>
         <p className="text-xs text-muted-foreground">
-          Ranked by what it changes against how long it takes.
+          {t("subtitle")}
         </p>
         {items.length > 0 && (
           <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-            {items.length} ranked
+            {t("ranked", { count: items.length })}
           </span>
         )}
       </header>
 
       {items.length === 0 ? (
-        <p className="px-4 py-5 text-xs text-muted-foreground">{emptyNote}</p>
+        <p className="px-4 py-5 text-xs text-muted-foreground">{emptyNote ?? t("empty")}</p>
       ) : (
         <div className="divide-y divide-border">
           {agent.length > 0 && (
             <Group
               icon={Bot}
-              label="The agent can do these"
-              note="No decision needed from you."
+              label={t("agentLabel")}
+              note={t("agentNote")}
               tone="text-emerald-600 dark:text-emerald-300"
               items={agent}
               showClient={showClient}
@@ -68,9 +70,9 @@ export function NextActionsPanel({
           {you.length > 0 && (
             <Group
               icon={User}
-              label="These need you"
-              note="A decision, a login, or someone who knows the business."
-              tone="text-violet-600 dark:text-violet-300"
+              label={t("youLabel")}
+              note={t("youNote")}
+              tone="text-primary"
               items={you}
               showClient={showClient}
             />

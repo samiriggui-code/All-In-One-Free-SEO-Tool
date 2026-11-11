@@ -108,6 +108,22 @@ function stepsFor(s: StartHereState, t: ReturnType<typeof useTranslations>): Ste
   ];
 }
 
+/**
+ * Setup steps (1 to 3) not done yet, with the same rules as stepsFor.
+ * Step 4 is the ongoing work and never counts. Feeds the badge on the
+ * "Plan d'action" button of the client page.
+ */
+export function startHereStepsLeft(
+  s: Pick<StartHereState, "auditDone" | "keywordCount" | "proposalStatus" | "onboardingDone">,
+): number {
+  const done = [
+    s.auditDone,
+    s.keywordCount > 0 && s.onboardingDone,
+    s.proposalStatus === "sent" || s.proposalStatus === "accepted",
+  ].filter(Boolean).length;
+  return 3 - done;
+}
+
 export function StartHere(props: StartHereState) {
   const t = useTranslations("clientPage.startHere");
   const steps = stepsFor(props, t);

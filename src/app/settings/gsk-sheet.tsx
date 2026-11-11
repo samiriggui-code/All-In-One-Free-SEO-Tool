@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 /**
@@ -40,7 +41,10 @@ export function GskSheet({
     return () => document.removeEventListener("keydown", onKey, true);
   }, [onClose]);
 
-  return (
+  // Rendered on <body>: an ancestor with a transform (the page-enter
+  // animation keeps one) would otherwise trap a fixed sheet under the page.
+  // Only mounted while open, from a client event, so `document` exists.
+  return createPortal(
     <>
       <div className="gsk-drawer-mask" onMouseDown={onClose} />
       <aside className="gsk-drawer" role="dialog" aria-modal="true" aria-label={title}>
@@ -56,7 +60,8 @@ export function GskSheet({
         </header>
         {children}
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }
 

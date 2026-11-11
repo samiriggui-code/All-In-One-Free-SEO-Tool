@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { AlertCircle, Check, ExternalLink, Eye, EyeOff, Loader2, Plus, X } from "lucide-react";
 import { PROVIDER_CATALOG, type Provider } from "@/lib/api-providers";
@@ -310,7 +311,7 @@ function ProviderDrawer({
     setTesting(false);
   };
 
-  return (
+  return createPortal(
     <>
       <div className="gsk-drawer-mask" onMouseDown={onClose} />
       <aside className="gsk-drawer" role="dialog" aria-modal="true" aria-label={p.label}>
@@ -462,6 +463,7 @@ function ProviderDrawer({
           </div>
         </footer>
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }

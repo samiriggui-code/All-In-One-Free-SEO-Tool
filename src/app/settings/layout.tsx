@@ -3,7 +3,6 @@ import { canManageSettings } from "@/lib/auth";
 import { requireSettingsPage } from "./access";
 import { SettingsNav } from "./settings-nav";
 import { SettingsOverlay } from "./settings-overlay";
-import "./settings-window.css";
 
 /**
  * The settings window, built like GsKnora's: a centred modal over the

@@ -2708,6 +2708,17 @@
       "recipientList": "{count, plural, one {# destinataire} other {# destinataires}} : {list}",
       "lastSent": "Dernier envoi : {date}",
       "nextSend": "Prochain envoi : {date}"
+    },
+    "actionPlan": {
+      "button": "Plan d'action",
+      "buttonHint": "{count, plural, one {# chose à faire} other {# choses à faire}}",
+      "buttonDone": "Rien d'urgent",
+      "title": "Plan d'action",
+      "subtitle": "Les étapes de départ et ce qui vaut la peine pour ce client.",
+      "tabStart": "Par où commencer",
+      "tabRecs": "Recommandations",
+      "footer": "Classé selon ce que ça change par rapport au temps que ça prend.",
+      "close": "Fermer"
     }
   },
   "settingsTeam": {
@@ -2981,5 +2992,15 @@
     "doneText": "Va maintenant sur la fiche d'un client et choisis la <b>propriété Search Console</b> et la <b>propriété GA4</b> correspondantes dans les listes. La même connexion Google couvre tous les clients : il suffit de choisir la bonne propriété à chaque fois.",
     "disconnect": "Déconnecter",
     "done": "Terminé"
+  },
+  "nextActions": {
+    "heading": "Ce qui vaut la peine",
+    "subtitle": "Classé selon ce que ça change par rapport au temps que ça prend.",
+    "ranked": "{count, plural, one {# action} other {# actions}}",
+    "empty": "Rien d'urgent. Lancez un audit ou ajoutez un client pour avoir quelque chose à classer.",
+    "agentLabel": "L'agent peut s'en charger",
+    "agentNote": "Aucune décision à prendre.",
+    "youLabel": "À faire par vous",
+    "youNote": "Une décision, une connexion, ou quelqu'un qui connaît l'activité."
   }
 }

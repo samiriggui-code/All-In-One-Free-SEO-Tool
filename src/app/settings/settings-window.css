@@ -9,6 +9,32 @@
  * neutrals without being rewritten one by one.
  */
 
+/* GsKnora tokens, app-wide: the sheets (gsk-sheet.tsx) are also used
+   outside the settings window, on client pages. */
+:root {
+  --gsk-bg: #ffffff;
+  --gsk-rail: #f9f9f9;
+  --gsk-stroke: #e7e7e7;
+  --gsk-border: #dcdcdc;
+  --gsk-hover: #f3f3f3;
+  --gsk-active: #f3f3f3;
+  --gsk-text-1: rgba(0, 0, 0, 0.9);
+  --gsk-text-2: rgba(0, 0, 0, 0.6);
+  --gsk-text-3: rgba(0, 0, 0, 0.4);
+  --gsk-brand: var(--primary);
+}
+.dark {
+  --gsk-bg: #242424;
+  --gsk-rail: #181818;
+  --gsk-stroke: #383838;
+  --gsk-border: #5e5e5e;
+  --gsk-hover: #2c2c2c;
+  --gsk-active: #2c2c2c;
+  --gsk-text-1: #ffffff;
+  --gsk-text-2: rgba(255, 255, 255, 0.55);
+  --gsk-text-3: rgba(255, 255, 255, 0.35);
+}
+
 .gsk-overlay {
   --gsk-bg: #ffffff;
   --gsk-rail: #f9f9f9;
@@ -1093,4 +1119,61 @@ button.gsk-card:focus-visible {
   line-height: 1.6;
   color: var(--gsk-text-2);
   white-space: pre;
+}
+
+/* "Plan d'action" button at the top of the client tools rail */
+.gsk-plan-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.gsk-plan-button:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 40%, var(--gsk-stroke));
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gsk-text-1) 6%, transparent);
+}
+.gsk-plan-button__icon {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-plan-button__count {
+  display: inline-flex;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gsk-brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Page panels shown inside a sheet: drop their own card chrome */
+.gsk-plain > section,
+.gsk-plain > div > section {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+.gsk-plain > section > header,
+.gsk-plain > div > section > header {
+  padding-left: 0;
+  padding-right: 0;
 }
