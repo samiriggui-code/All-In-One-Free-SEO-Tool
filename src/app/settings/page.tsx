@@ -10,7 +10,9 @@ import { mayEdit } from "@/lib/auth";
 import { requireSettingsPage } from "./access";
 import { getLocalePreference } from "./locale-actions";
 import { getThemePreference } from "./theme-actions";
-import { LanguageControl, ThemeControl } from "./appearance-form";
+import { cookies } from "next/headers";
+import { FONT_SIZE_COOKIE, parseFontSize } from "@/lib/font-size";
+import { FontSizeControl, LanguageControl, ThemeControl } from "./appearance-form";
 import { SectionHeader, SettingRow, SettingsBlock } from "./section-ui";
 
 /**
@@ -28,6 +30,7 @@ export default async function SettingsPage() {
   ]);
   const [{ value: teamCount }] = await db.select({ value: count() }).from(users);
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const fontSize = parseFontSize((await cookies()).get(FONT_SIZE_COOKIE)?.value);
 
   return (
     <>
@@ -40,6 +43,9 @@ export default async function SettingsPage() {
           </SettingRow>
           <SettingRow label={t("themeLabel")} description={t("themeHint")}>
             <ThemeControl theme={theme} canEdit={canEdit} />
+          </SettingRow>
+          <SettingRow label={t("fontSizeLabel")} description={t("fontSizeHint")}>
+            <FontSizeControl size={fontSize} />
           </SettingRow>
         </div>
       </SettingsBlock>

@@ -720,3 +720,20 @@ html[data-ui-mode="pro"] {
 html[data-embed="1"] main {
   padding: 1rem !important;
 }
+
+/*
+ * Text size (Settings → Appearance, lib/font-size.ts) zooms <html>. Heights
+ * written as "the whole screen" (h-screen, min-h-dvh) are zoomed too, so at
+ * Small the frame stopped 12.5 % short of the bottom and at Large it ran
+ * past it. Dividing them by the same factor brings them back to exactly
+ * the screen. Unlayered on purpose: it must win over the Tailwind utilities.
+ */
+html[data-font-size="small"],
+html[data-font-size="large"] {
+  height: calc(100dvh / var(--rf-zoom));
+}
+html[data-font-size="small"] body,
+html[data-font-size="large"] body {
+  height: calc(100dvh / var(--rf-zoom));
+  min-height: calc(100dvh / var(--rf-zoom));
+}
