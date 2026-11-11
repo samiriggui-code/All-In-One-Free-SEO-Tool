@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { InstallActions } from "./install-actions";
 import { requireSettingsPage } from "../access";
@@ -10,12 +9,6 @@ export default async function InstallPage() {
   await requireSettingsPage("/settings/install");
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" /> Back to settings
-      </Link>
 
       <PageHeader
         title="Install as an app"

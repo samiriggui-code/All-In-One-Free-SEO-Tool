@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ArrowLeft, Globe } from "lucide-react";
+import { Globe } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { getEdgeToken } from "@/lib/edge-token";
 import { db } from "@/db/client";
@@ -43,13 +42,6 @@ export default async function EdgeSettingsPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link
-          href="/settings"
-          className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-3" />
-          Back to settings
-        </Link>
         <PageHeader
           title="Edge worker"
           description="Apply fixes to any site behind Cloudflare — PHP, static HTML, React, anything. No plugin, no CMS required."

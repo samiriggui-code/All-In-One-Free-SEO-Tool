@@ -274,38 +274,6 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "Workspace preferences, integrations, and where your data lives.",
-    "localAccounts": "Local · {count} {count, plural, one {account} other {accounts}}",
-    "localSingle": "Local · single-user",
-    "darkMode": "Dark mode",
-    "keyboardShortcuts": "Keyboard shortcuts",
-    "tocAria": "Settings sections",
-    "languageTitle": "Language",
-    "languageDescription": "Interface in French or English. French is the default.",
-    "languageSaved": "Saved",
-    "toc": {
-      "setup": "Setup",
-      "brand": "Brand",
-      "power": "Power",
-      "advanced": "Advanced",
-      "about": "About",
-      "ai": "AI keys",
-      "google": "Google",
-      "team": "Team",
-      "email": "Email",
-      "brandIdentity": "Brand identity",
-      "notify": "Notifications",
-      "api": "API access",
-      "data": "Data",
-      "browser": "Browser pool",
-      "aiLearning": "AI learning",
-      "install": "Install",
-      "privacy": "Privacy",
-      "maintainer": "Maintainer",
-      "language": "Language"
-    },
-    "dataTitle": "Data",
-    "dataDescription": "Your database is one file you can copy, back up, or move.",
     "counterClients": "Clients",
     "counterAudits": "Audits",
     "counterTasks": "Tasks",
@@ -324,7 +292,127 @@
     "ownerOnlyInboundWebhooks": "Only the workspace owner can manage inbound webhooks.",
     "ownerOnlyAi": "Only the workspace owner can change the AI connection, provider and keys.",
     "alsoAddApiKey": "Also add an API key",
-    "alsoAddApiKeyHint": "optional — only needed for work that runs while you’re away"
+    "alsoAddApiKeyHint": "optional — only needed for work that runs while you’re away",
+    "close": "Close settings",
+    "nav": {
+      "aria": "Settings sections",
+      "groups": {
+        "general": "General",
+        "ai": "Artificial intelligence",
+        "integrations": "Integrations",
+        "agency": "Agency",
+        "system": "System",
+        "about": "About"
+      },
+      "items": {
+        "general": "General",
+        "ai": "AI connection",
+        "ai-usage": "AI usage",
+        "ai-learning": "AI learning",
+        "google": "Google",
+        "email": "Email",
+        "notifications": "Notifications",
+        "api": "API & webhooks",
+        "brand": "Brand identity",
+        "team": "Team & access",
+        "data": "Data",
+        "backup": "Backup",
+        "updates": "Updates",
+        "install": "Install the app",
+        "browser": "Headless browser",
+        "edge": "Edge worker",
+        "health": "System health",
+        "errors": "Error log",
+        "privacy": "Privacy"
+      }
+    },
+    "general": {
+      "title": "General",
+      "description": "Language, appearance and how this workspace works.",
+      "appearance": "Language & appearance",
+      "languageLabel": "Language",
+      "languageHint": "Language of the whole interface. French is the default.",
+      "themeLabel": "Theme",
+      "themeHint": "\"System\" follows your computer's light or dark setting.",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
+      "workspace": "Workspace",
+      "accessLabel": "Access",
+      "accessAccounts": "{count, plural, one {# account} other {# accounts}}: everyone signs in as themselves.",
+      "accessSingle": "Single user, no accounts. Add a team to give each person their own access.",
+      "manageTeam": "Manage team",
+      "timezoneLabel": "Time zone",
+      "timezoneHint": "Used for scheduled jobs and report dates.",
+      "shortcutsLabel": "Keyboard shortcuts",
+      "shortcutsHint": "Every key that makes you faster.",
+      "shortcutsOpen": "See shortcuts",
+      "signedInAs": "Signed in as {name} ({role})."
+    },
+    "ai": {
+      "title": "AI connection",
+      "description": "Connect the AI subscription you already pay for, or a provider key: either one drives the same tools. Most tools need neither.",
+      "keysTitle": "Provider keys",
+      "keysHint": "Add one or more keys, then pick the one used by default."
+    },
+    "brand": {
+      "title": "Brand identity",
+      "description": "Used on PDF reports and the client portal: your logo on the cover, your color for headings. Our branding disappears entirely."
+    },
+    "email": {
+      "title": "Email",
+      "description": "SMTP credentials for sending monthly reports straight to clients. Gmail, Resend, SendGrid or any SMTP host.",
+      "configured": "Configured",
+      "notConfigured": "Not configured"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Get pinged in Slack, Discord or Teams when audits complete and scores change. The message is formatted for whichever service you use.",
+      "howTitle": "How it works",
+      "whenTitle": "When",
+      "whenBody": "Audit completed, score dropped 5 points or more, or audit failed.",
+      "whatTitle": "What",
+      "whatBody": "Client name, score with delta, top issue, link back to the audit.",
+      "whereTitle": "Where",
+      "whereBody": "Only the URL you paste. Nothing else, ever."
+    },
+    "api": {
+      "title": "API & webhooks",
+      "description": "Connect the app to your tools: n8n, Make, Zapier or your own scripts.",
+      "keysTitle": "Public API keys",
+      "keysHintBefore": "Bearer-token auth for",
+      "keysHintAfter": " endpoints.",
+      "webhooksTitle": "Inbound webhooks",
+      "webhooksHint": "Receive events from external systems (GitHub, Linear, Google Alerts…). Each webhook gets its own URL and an event log."
+    },
+    "data": {
+      "title": "Data",
+      "description": "All your data lives in one file you can copy, back up or move.",
+      "contentTitle": "Workspace content",
+      "fileHint": "Back this file up to keep everything. Move it to switch machines. Replaceable via the SEO_DB_PATH env var.",
+      "backupLink": "Back up or restore"
+    },
+    "updates": {
+      "title": "Updates",
+      "description": "Pulls the latest version from your repository's main branch. Your data and .env.local are preserved."
+    },
+    "browser": {
+      "title": "Headless browser",
+      "description": "Concurrency cap, stealth fingerprint and optional outbound proxies for SERP scraping, rank checks, GBP scraping, render + screenshot, and local CWV measurement."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "description": "What the app does, and doesn't do, with your data.",
+      "promisesTitle": "Our commitments",
+      "telemetryTitle": "No telemetry.",
+      "telemetryBody": "The app does not phone home or send usage data anywhere.",
+      "localTitle": "Your data stays here.",
+      "localBody": "Clients, audits, tasks, keywords: all in one SQLite file on this machine.",
+      "outboundTitle": "Outbound requests are explicit.",
+      "outboundBody": "Tech detection, audits and keyword research only fetch the URLs you tell them to.",
+      "fileHint": "Back this file up to keep everything; move it to migrate. Replaceable via the SEO_DB_PATH env var.",
+      "aboutTitle": "About the tool"
+    }
   },
   "reports": {
     "title": "Reports",

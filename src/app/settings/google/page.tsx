@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   Copy,
   ExternalLink,
@@ -53,13 +52,6 @@ export default async function GoogleSettingsPage({
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link
-          href="/settings"
-          className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-3" />
-          Back to settings
-        </Link>
         <PageHeader
           title="Google integration"
           description="Connect Google Search Console + Analytics 4 once. Then per client, just pick the property from a dropdown. Free, no quotas you'll hit."

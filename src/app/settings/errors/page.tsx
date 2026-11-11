@@ -1,6 +1,4 @@
-import Link from "next/link";
 import {
-  ArrowLeft,
   CheckCircle2,
   Bug,
   Server,
@@ -40,12 +38,6 @@ export default async function ErrorsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" /> Back to settings
-      </Link>
 
       <PageHeader
         title="Error log"

@@ -274,38 +274,6 @@
   },
   "settings": {
     "title": "Paramètres",
-    "description": "Préférences de l’espace de travail, intégrations, et où vivent vos données.",
-    "localAccounts": "Local · {count} {count, plural, one {compte} other {comptes}}",
-    "localSingle": "Local · mono-utilisateur",
-    "darkMode": "Mode sombre",
-    "keyboardShortcuts": "Raccourcis clavier",
-    "tocAria": "Sections des paramètres",
-    "languageTitle": "Langue",
-    "languageDescription": "Interface en français ou en anglais. Le français est la langue par défaut.",
-    "languageSaved": "Enregistré",
-    "toc": {
-      "setup": "Config",
-      "brand": "Marque",
-      "power": "Pro",
-      "advanced": "Avancé",
-      "about": "À propos",
-      "ai": "Clés IA",
-      "google": "Google",
-      "team": "Équipe",
-      "email": "E-mail",
-      "brandIdentity": "Identité de marque",
-      "notify": "Notifications",
-      "api": "Accès API",
-      "data": "Données",
-      "browser": "Pool navigateur",
-      "aiLearning": "Apprentissage IA",
-      "install": "Installation",
-      "privacy": "Confidentialité",
-      "maintainer": "Mainteneur",
-      "language": "Langue"
-    },
-    "dataTitle": "Données",
-    "dataDescription": "Votre base est un fichier que vous pouvez copier, sauvegarder ou déplacer.",
     "counterClients": "Clients",
     "counterAudits": "Audits",
     "counterTasks": "Tâches",
@@ -324,7 +292,127 @@
     "ownerOnlyInboundWebhooks": "Seul le propriétaire de l’espace peut gérer les webhooks entrants.",
     "ownerOnlyAi": "Seul le propriétaire de l’espace peut changer la connexion IA, le fournisseur et les clés.",
     "alsoAddApiKey": "Ajouter aussi une clé d’API",
-    "alsoAddApiKeyHint": "facultatif : seulement pour les tâches qui tournent en votre absence"
+    "alsoAddApiKeyHint": "facultatif : seulement pour les tâches qui tournent en votre absence",
+    "close": "Fermer les paramètres",
+    "nav": {
+      "aria": "Sections des paramètres",
+      "groups": {
+        "general": "Général",
+        "ai": "Intelligence artificielle",
+        "integrations": "Intégrations",
+        "agency": "Agence",
+        "system": "Système",
+        "about": "À propos"
+      },
+      "items": {
+        "general": "Général",
+        "ai": "Connexion IA",
+        "ai-usage": "Consommation IA",
+        "ai-learning": "Apprentissage IA",
+        "google": "Google",
+        "email": "E-mail",
+        "notifications": "Notifications",
+        "api": "API et webhooks",
+        "brand": "Identité de marque",
+        "team": "Équipe et accès",
+        "data": "Données",
+        "backup": "Sauvegarde",
+        "updates": "Mises à jour",
+        "install": "Installer l'application",
+        "browser": "Navigateur automatisé",
+        "edge": "Edge worker",
+        "health": "Santé du système",
+        "errors": "Journal des erreurs",
+        "privacy": "Confidentialité"
+      }
+    },
+    "general": {
+      "title": "Général",
+      "description": "Langue, apparence et fonctionnement de cet espace de travail.",
+      "appearance": "Langue et apparence",
+      "languageLabel": "Langue",
+      "languageHint": "Langue de toute l'interface. Le français est la langue par défaut.",
+      "themeLabel": "Thème",
+      "themeHint": "« Système » suit le réglage clair ou sombre de votre ordinateur.",
+      "themeLight": "Clair",
+      "themeDark": "Sombre",
+      "themeSystem": "Système",
+      "workspace": "Espace de travail",
+      "accessLabel": "Accès",
+      "accessAccounts": "{count, plural, one {# compte} other {# comptes}} : chacun se connecte avec son propre identifiant.",
+      "accessSingle": "Mono-utilisateur, sans compte. Ajoutez une équipe pour donner un accès à chacun.",
+      "manageTeam": "Gérer l'équipe",
+      "timezoneLabel": "Fuseau horaire",
+      "timezoneHint": "Utilisé pour les tâches planifiées et les dates des rapports.",
+      "shortcutsLabel": "Raccourcis clavier",
+      "shortcutsHint": "Toutes les touches pour aller plus vite.",
+      "shortcutsOpen": "Voir les raccourcis",
+      "signedInAs": "Connecté en tant que {name} ({role})."
+    },
+    "ai": {
+      "title": "Connexion IA",
+      "description": "Branchez l'abonnement IA que vous payez déjà, ou une clé de fournisseur : les deux font tourner les mêmes outils. La plupart des outils n'en ont pas besoin.",
+      "keysTitle": "Clés de fournisseurs",
+      "keysHint": "Ajoutez une ou plusieurs clés, puis choisissez celle utilisée par défaut."
+    },
+    "brand": {
+      "title": "Identité de marque",
+      "description": "Utilisée sur les rapports PDF et l'espace client : votre logo en couverture, votre couleur pour les titres. Notre marque disparaît complètement."
+    },
+    "email": {
+      "title": "E-mail",
+      "description": "Identifiants SMTP pour envoyer les rapports mensuels directement aux clients. Gmail, Resend, SendGrid ou n'importe quel serveur SMTP.",
+      "configured": "Configuré",
+      "notConfigured": "Non configuré"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Recevez un message dans Slack, Discord ou Teams quand un audit se termine ou qu'un score change. Le format s'adapte au service utilisé.",
+      "howTitle": "Comment ça marche",
+      "whenTitle": "Quand",
+      "whenBody": "Audit terminé, score en baisse de 5 points ou plus, ou audit en échec.",
+      "whatTitle": "Quoi",
+      "whatBody": "Nom du client, score et écart, problème principal, lien vers l'audit.",
+      "whereTitle": "Où",
+      "whereBody": "Uniquement l'adresse que vous collez. Rien d'autre, jamais."
+    },
+    "api": {
+      "title": "API et webhooks",
+      "description": "Connectez l'application à vos outils : n8n, Make, Zapier ou vos propres scripts.",
+      "keysTitle": "Clés d'API publiques",
+      "keysHintBefore": "Authentification par jeton pour les routes",
+      "keysHintAfter": ".",
+      "webhooksTitle": "Webhooks entrants",
+      "webhooksHint": "Recevez des événements de systèmes extérieurs (GitHub, Linear, Google Alerts…). Chaque webhook a sa propre adresse et un journal des événements."
+    },
+    "data": {
+      "title": "Données",
+      "description": "Toutes vos données tiennent dans un seul fichier, que vous pouvez copier, sauvegarder ou déplacer.",
+      "contentTitle": "Contenu de l'espace",
+      "fileHint": "Sauvegardez ce fichier pour tout garder. Déplacez-le pour changer de machine. Modifiable avec la variable SEO_DB_PATH.",
+      "backupLink": "Sauvegarder ou restaurer"
+    },
+    "updates": {
+      "title": "Mises à jour",
+      "description": "Récupère la dernière version de la branche main de votre dépôt. Vos données et votre fichier .env.local sont conservés."
+    },
+    "browser": {
+      "title": "Navigateur automatisé",
+      "description": "Nombre de navigateurs en parallèle, empreinte discrète et proxys sortants pour le scraping des résultats Google, le suivi de positions, les fiches Google Business, les captures et la mesure des Core Web Vitals."
+    },
+    "privacy": {
+      "title": "Confidentialité",
+      "description": "Ce que l'application fait, et ne fait pas, de vos données.",
+      "promisesTitle": "Nos engagements",
+      "telemetryTitle": "Aucune télémétrie.",
+      "telemetryBody": "L'application n'envoie aucune donnée d'utilisation nulle part.",
+      "localTitle": "Vos données restent ici.",
+      "localBody": "Clients, audits, tâches, mots-clés : tout est dans un seul fichier SQLite sur cette machine.",
+      "outboundTitle": "Les requêtes sortantes sont explicites.",
+      "outboundBody": "Détection technique, audits et recherche de mots-clés ne visitent que les adresses que vous indiquez.",
+      "fileHint": "Sauvegardez ce fichier pour tout garder ; déplacez-le pour migrer. Modifiable avec la variable SEO_DB_PATH.",
+      "aboutTitle": "À propos de l'outil"
+    }
   },
   "reports": {
     "title": "Rapports",

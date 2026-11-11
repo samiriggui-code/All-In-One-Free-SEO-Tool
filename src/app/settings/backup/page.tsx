@@ -1,8 +1,6 @@
 import path from "node:path";
 import { statSync, existsSync, readdirSync } from "node:fs";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Database,
   Download,
   Upload,
@@ -70,12 +68,6 @@ export default async function BackupPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" /> Back to settings
-      </Link>
 
       <PageHeader
         title="Backup & restore"
