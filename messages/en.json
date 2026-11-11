@@ -1344,6 +1344,60 @@
     "stage_auditing": "Audit in progress",
     "stage_audited": "Audited"
   },
+  "clientAccount": {
+    "description": "The company: its contact, its billing, the portal and {count, plural, one {its project} other {its # projects}}.",
+    "contact": {
+      "title": "Contact",
+      "description": "Who to reach at this client.",
+      "edit": "Edit",
+      "empty": "Not set",
+      "sheetTitle": "Client details",
+      "companyTitle": "1. The company",
+      "name": "Client name",
+      "nameHelp": "The company's name, as shown in the client list.",
+      "personTitle": "2. The person to contact",
+      "contactName": "Contact",
+      "contactNamePlaceholder": "First Last, role",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "addressHelp": "Billing address, on several lines if needed.",
+      "notes": "Notes",
+      "notesHelp": "Seen by the team only, never by the client.",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "saveClose": "Save and close",
+      "error_name": "The name is required.",
+      "error_email": "Invalid email address.",
+      "error_access": "You do not have access to this client.",
+      "error_other": "A field is too long or invalid."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "This client's sites, their stage, their score and the missions running."
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Invoices and quotes across all of this client's projects.",
+      "paid": "Collected",
+      "due": "Outstanding",
+      "dueHint": "Invoices sent or overdue, drafts and void invoices excluded.",
+      "invoices": "Invoices",
+      "proposals": "Quotes",
+      "project": "Project",
+      "noInvoices": "No invoices for this client.",
+      "noProposals": "No quotes for this client.",
+      "newProposal": "New quote"
+    },
+    "portal": {
+      "title": "Client portal",
+      "description": "Each project has its portal: the client follows results and accepts quotes there, no account needed. The link is created and revoked in the project's settings.",
+      "active": "On",
+      "inactive": "Off",
+      "open": "Open",
+      "manage": "Manage"
+    }
+  },
   "audits": {
     "title": "Audits",
     "description": "Pick a client to see every audit you've run, severity grouping, fix wizards, and trending score over time.",

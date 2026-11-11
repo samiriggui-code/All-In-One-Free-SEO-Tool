@@ -1344,6 +1344,60 @@
     "stage_auditing": "Audit en cours",
     "stage_audited": "Audité"
   },
+  "clientAccount": {
+    "description": "L'entreprise : son contact, sa facturation, le portail et {count, plural, one {son projet} other {ses # projets}}.",
+    "contact": {
+      "title": "Contact",
+      "description": "Qui joindre chez ce client.",
+      "edit": "Modifier",
+      "empty": "Non renseigné",
+      "sheetTitle": "Coordonnées du client",
+      "companyTitle": "1. L'entreprise",
+      "name": "Nom du client",
+      "nameHelp": "Le nom de l'entreprise, tel qu'il apparaît dans la liste des clients.",
+      "personTitle": "2. La personne à contacter",
+      "contactName": "Contact",
+      "contactNamePlaceholder": "Prénom Nom, fonction",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "addressHelp": "Adresse de facturation, sur plusieurs lignes si besoin.",
+      "notes": "Notes",
+      "notesHelp": "Visibles par l'équipe seulement, jamais par le client.",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "saveClose": "Enregistrer et fermer",
+      "error_name": "Le nom est obligatoire.",
+      "error_email": "Adresse e-mail invalide.",
+      "error_access": "Vous n'avez pas accès à ce client.",
+      "error_other": "Un champ est trop long ou invalide."
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Les sites de ce client, leur étape, leur score et les missions en cours."
+    },
+    "billing": {
+      "title": "Facturation",
+      "description": "Les factures et les devis de tous les projets de ce client.",
+      "paid": "Encaissé",
+      "due": "À encaisser",
+      "dueHint": "Factures envoyées ou en retard, hors brouillons et factures annulées.",
+      "invoices": "Factures",
+      "proposals": "Devis",
+      "project": "Projet",
+      "noInvoices": "Aucune facture pour ce client.",
+      "noProposals": "Aucun devis pour ce client.",
+      "newProposal": "Nouveau devis"
+    },
+    "portal": {
+      "title": "Portail client",
+      "description": "Chaque projet a son portail : le client y suit les résultats et accepte les devis, sans compte. Le lien se crée et se révoque dans les réglages du projet.",
+      "active": "Activé",
+      "inactive": "Non activé",
+      "open": "Ouvrir",
+      "manage": "Gérer"
+    }
+  },
   "audits": {
     "title": "Audits",
     "description": "Choisissez un client pour voir tous les audits, regroupement par gravité, assistants de correction et tendance du score.",
