@@ -1,6 +1,6 @@
 // The Surfer/Clearscope-killer scoring engine.
 
-import { tfidfRank, docStats, countTerms, type TermScore } from "./tfidf";
+import { tfidfRank, countTerms, type TermScore } from "./tfidf";
 import { bingSerp, type SerpResult } from "./bing-serp";
 import { peopleAlsoAsk } from "./paa";
 import { fetchSerpPages, type SerpPageContent } from "./serp-content";
@@ -84,17 +84,6 @@ export async function gatherCorpus(keyword: string, lang = "en"): Promise<{
 export interface CorpusContext {
   pages: SerpPageContent[];
   paaQuestions: string[];
-}
-
-function competitorDocFrequency(term: string, pages: SerpPageContent[]): number {
-  // Use the same stemmed counting as countTerms to keep parity with the draft.
-  let df = 0;
-  for (const p of pages) {
-    if (!p.fetched || !p.body) continue;
-    const counts = countTerms(p.body, [term]);
-    if ((counts.get(term) ?? 0) > 0) df++;
-  }
-  return df;
 }
 
 function competitorMedianCount(term: string, pages: SerpPageContent[]): number {

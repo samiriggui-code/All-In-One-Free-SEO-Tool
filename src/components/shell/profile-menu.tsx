@@ -82,6 +82,8 @@ export function ProfileMenu() {
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    // Full load on purpose: it drops every piece of signed-in client state.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- see above
     window.location.href = "/login";
   }
 

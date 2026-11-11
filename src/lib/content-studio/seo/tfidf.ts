@@ -153,7 +153,6 @@ export function tfidfRank(documents: string[], topN = 100): TermScore[] {
  */
 export function countTerms(text: string, terms: string[]): Map<string, number> {
   const s = docStats(text);
-  const haystack = new Set([...s.tokens, ...s.bigrams, ...s.trigrams]);
   const result = new Map<string, number>();
   // Build per-term occurrences via simple sliding match — for phrases we just count substring occurrences in the joined text.
   const joined = s.tokens.join(" ");

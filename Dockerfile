@@ -3,7 +3,7 @@
 # scraping work out of the box.
 
 # ---- deps stage: install only what npm needs to resolve ----
-FROM mcr.microsoft.com/playwright:v1.56.0-noble AS deps
+FROM mcr.microsoft.com/playwright:v1.59.1-noble AS deps
 WORKDIR /app
 
 # pnpm via corepack.
@@ -59,7 +59,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm config set verify-deps-before-run false && pnpm build
 
 # ---- runtime stage ----
-FROM mcr.microsoft.com/playwright:v1.56.0-noble AS runner
+FROM mcr.microsoft.com/playwright:v1.59.1-noble AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

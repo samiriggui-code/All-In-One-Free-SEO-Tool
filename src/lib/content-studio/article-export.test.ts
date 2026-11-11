@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { articleSlug, buildArticleSchema, extractFaqs, slugify, toExportPost } from "./article-export";
 
 const article = {
@@ -36,8 +36,15 @@ describe("article export helpers", () => {
   });
 
   it("rebuilds schema instead of exporting a stale stored copy", () => {
-    const exp = toExportPost({ ...article, schemaJsonLd: '{"@type":"Old"}' }, client);
-    expect(exp.schemaJsonLd).toBe(buildArticleSchema(article, client));
+    // The schema stamps the current time when the article has no publish
+    // date, so two calls a millisecond apart used to disagree at random.
+    vi.useFakeTimers();
+    try {
+      const exp = toExportPost({ ...article, schemaJsonLd: '{"@type":"Old"}' }, client);
+      expect(exp.schemaJsonLd).toBe(buildArticleSchema(article, client));
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("fills export fields and falls back to the title for the SEO title", () => {
