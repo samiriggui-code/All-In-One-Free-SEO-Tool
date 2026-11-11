@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Menu, Search, X } from "lucide-react";
-import { navGroupsForRole, type NavItem } from "./nav-items";
+import { mainNavForRole, navGroupsForRole, type NavItem } from "./nav-items";
 import { navItemMessageKey } from "@/i18n/nav";
 import { capabilityOf } from "@/lib/tool-capabilities";
 
@@ -70,7 +70,9 @@ export function MobileNav({
   const groups = useMemo(() => {
     // The "account" group lives in the top bar's account menu; it still
     // shows up here when the filter matches one of its pages.
-    if (!q) return baseGroups.filter((g) => g.id !== "account");
+    // No filter: the same eight entries as the sidebar. Typing searches
+    // every page.
+    if (!q) return mainNavForRole(userRole);
     return baseGroups.map((g) => ({
       ...g,
       items: g.items.filter((it: NavItem) => {
@@ -82,7 +84,7 @@ export function MobileNav({
     })).filter((g) => g.items.length > 0);
     // itemLabel closes over tItems for the active locale
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, tItems, baseGroups]);
+  }, [q, tItems, baseGroups, userRole]);
 
   return (
     <>

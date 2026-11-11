@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { MostUsedTools } from "./most-used";
 import { ToolsGrid } from "./tools-grid";
+import { ToolboxSections } from "./toolbox-sections";
 import { getConnectionMode } from "../settings/connection-mode-actions";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function ToolsHubPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
+      <ToolboxSections />
       {/* Streamed: the grid is the point of the page and shouldn't wait
           on a usage query to paint. */}
       <Suspense fallback={null}>
