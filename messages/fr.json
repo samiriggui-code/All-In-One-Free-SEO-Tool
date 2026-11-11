@@ -2731,6 +2731,20 @@
       "footer": "Classé selon ce que ça change par rapport au temps que ça prend.",
       "close": "Fermer"
     },
+    "tools": {
+      "title": "Outils du projet",
+      "featured": "Utiles maintenant",
+      "allTools": "Tous les outils ({count})",
+      "toolbox": "Boîte à outils →",
+      "filter": "Chercher parmi les {count} outils…",
+      "clearFilter": "Effacer la recherche",
+      "matches": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
+      "noMatch": "Aucun outil ne correspond à « {query} ».",
+      "needSetup": "{count, plural, one {# à configurer} other {# à configurer}}",
+      "outOfScope": "Hors de cette mission",
+      "autoRuns": "S'exécute seul chaque nuit : ses résultats arrivent dans le plan d'action sans l'ouvrir.",
+      "close": "Fermer"
+    },
     "tabs": {
       "aria": "Sections du projet",
       "overview": "Vue d'ensemble",
