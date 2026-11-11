@@ -20,13 +20,11 @@ export default async function NotificationSettingsPage() {
     <>
       <SectionHeader title={t("title")} description={t("description")} />
 
-      <SettingsBlock>
-        {isAdmin ? (
-          <WebhookForm initialUrl={webhookUrl} />
-        ) : (
-          <OwnerOnly>{tOld("ownerOnlyWebhook")}</OwnerOnly>
-        )}
-      </SettingsBlock>
+      {isAdmin ? (
+        <WebhookForm initialUrl={webhookUrl} />
+      ) : (
+        <OwnerOnly>{tOld("ownerOnlyWebhook")}</OwnerOnly>
+      )}
 
       <SettingsBlock title={t("howTitle")}>
         <dl className="grid gap-3 text-xs sm:grid-cols-3">

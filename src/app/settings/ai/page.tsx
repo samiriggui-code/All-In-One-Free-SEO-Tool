@@ -18,11 +18,9 @@ import {
   getConnectionMode,
   getMcpStatus,
 } from "../connection-mode-actions";
-import { ActiveProviderCard } from "../active-provider-card";
-import { CreditSaverForm } from "../credit-saver-form";
-import { ApiKeysSection } from "../api-keys-section";
+import { AiProvidersPanel } from "../ai-providers-panel";
 import { DefaultModelForm } from "../default-model-form";
-import { OwnerOnly, SectionHeader, SettingsBlock } from "../section-ui";
+import { OwnerOnly, SectionHeader } from "../section-ui";
 
 export default async function AiSettingsPage() {
   const me = await requireSettingsPage("/settings/ai");
@@ -59,45 +57,32 @@ export default async function AiSettingsPage() {
   const proto = hdrs.get("x-forwarded-proto") ?? "http";
   const appOrigin = `${proto}://${host}`;
 
-  const keys = (
-    <>
-      <ActiveProviderCard
-        active={activeProvider}
-        configured={configuredKeys}
-        defaultModel={defaultModel}
-      />
-      <CreditSaverForm initial={creditSaverOn} />
-      <ApiKeysSection configured={configuredKeys} ollamaUrl={ollamaUrl} />
-    </>
-  );
-
   return (
     <>
       <SectionHeader title={t("title")} description={t("description")} />
 
-      <SettingsBlock>
-        <ConnectionModePicker
-          mode={connectionMode}
-          status={aiStatus}
-          mcp={mcpStatus}
-          origin={appOrigin}
-          installPath={process.cwd()}
-          platform={process.platform}
-          nodePath={process.execPath}
-          mcpToolCount={MCP_TOOL_LIST.length}
-          mcpToolNames={MCP_TOOL_LIST.map((tool) => tool.name)}
-        />
-      </SettingsBlock>
+      <ConnectionModePicker
+        mode={connectionMode}
+        status={aiStatus}
+        mcp={mcpStatus}
+        origin={appOrigin}
+        installPath={process.cwd()}
+        platform={process.platform}
+        nodePath={process.execPath}
+        mcpToolCount={MCP_TOOL_LIST.length}
+        mcpToolNames={MCP_TOOL_LIST.map((tool) => tool.name)}
+      />
 
       {/* Keys stay reachable in every mode: someone on a subscription still
           wants a key for the overnight jobs, and hiding it would make that
           look impossible rather than optional. */}
-      <SettingsBlock
-        title={t("keysTitle")}
-        description={connectionMode === "mcp" ? tOld("alsoAddApiKeyHint") : t("keysHint")}
-      >
-        <div className="space-y-5">{keys}</div>
-      </SettingsBlock>
+      <AiProvidersPanel
+        configured={configuredKeys}
+        active={activeProvider}
+        defaultModel={defaultModel}
+        creditSaver={creditSaverOn}
+        ollamaUrl={ollamaUrl}
+      />
     </>
   );
 }

@@ -425,3 +425,580 @@
 .gsk-modal .pro-mode-marker::after {
   display: none !important;
 }
+
+/* ------------------------------------------------------------------ *
+ * Form controls, from GsKnora's TDesign theme: 32px controls, #dcdcdc
+ * border, 3px radius, brand outline on focus.
+ * ------------------------------------------------------------------ */
+.gsk-input,
+.gsk-select,
+.gsk-textarea {
+  width: 100%;
+  border: 1px solid var(--gsk-border);
+  border-radius: 3px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.gsk-input,
+.gsk-select {
+  height: 32px;
+  padding: 0 8px;
+}
+.gsk-textarea {
+  min-height: 88px;
+  padding: 6px 8px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.gsk-input::placeholder,
+.gsk-textarea::placeholder {
+  color: var(--gsk-text-3);
+}
+.gsk-input:hover,
+.gsk-select:hover,
+.gsk-textarea:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 60%, var(--gsk-border));
+}
+.gsk-input:focus,
+.gsk-select:focus,
+.gsk-textarea:focus {
+  outline: none;
+  border-color: var(--gsk-brand);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gsk-brand) 20%, transparent);
+}
+.gsk-mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.gsk-w-280 {
+  width: 280px;
+  max-width: 100%;
+}
+
+.gsk-btn {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 15px;
+  border: 1px solid var(--gsk-border);
+  border-radius: 3px;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.gsk-btn:hover:not(:disabled) {
+  border-color: var(--gsk-brand);
+  color: var(--gsk-brand);
+}
+.gsk-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.gsk-btn--primary {
+  border-color: var(--gsk-brand);
+  background: var(--gsk-brand);
+  color: #fff;
+}
+.gsk-btn--primary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--gsk-brand) 85%, white);
+  background: color-mix(in srgb, var(--gsk-brand) 85%, white);
+  color: #fff;
+}
+.gsk-btn--text {
+  border-color: transparent;
+  background: transparent;
+  padding: 0 8px;
+}
+.gsk-btn--text:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-1);
+}
+.gsk-btn--danger-text {
+  border-color: transparent;
+  background: transparent;
+  color: #d54941;
+  padding: 0 8px;
+}
+.gsk-btn--danger-text:hover:not(:disabled) {
+  border-color: transparent;
+  background: #fdecee;
+  color: #c9353f;
+}
+.dark .gsk-btn--danger-text:hover:not(:disabled) {
+  background: rgba(227, 77, 89, 0.15);
+}
+.gsk-btn--sm {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+/* TDesign switch (input[type=checkbox].gsk-switch) */
+.gsk-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  appearance: none;
+  border-radius: 999px;
+  background: var(--gsk-border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.gsk-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+.gsk-switch:checked {
+  background: var(--gsk-brand);
+}
+.gsk-switch:checked::after {
+  transform: translateX(16px);
+}
+.gsk-switch:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: 2px;
+}
+.gsk-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gsk-help {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gsk-text-3);
+}
+.gsk-tag--brand {
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-tag--warning {
+  background: #fef3e6;
+  color: #d35a21;
+}
+.dark .gsk-tag--warning {
+  background: rgba(237, 123, 47, 0.18);
+  color: #f2995f;
+}
+.gsk-status-ok {
+  color: #078d5c;
+}
+.gsk-status-error {
+  color: #d54941;
+}
+.dark .gsk-status-ok {
+  color: #48c79c;
+}
+.dark .gsk-status-error {
+  color: #f78d94;
+}
+
+/* Sticky save bar at the bottom of a section: GsKnora's settings-footer */
+.gsk-form-footer {
+  position: sticky;
+  bottom: -40px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 24px -48px -40px;
+  padding: 12px 48px;
+  border-top: 1px solid var(--gsk-stroke);
+  background: var(--gsk-bg);
+}
+.gsk-form-footer__note {
+  margin-right: auto;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--gsk-text-2);
+}
+
+/* ------------------------------------------------------------------ *
+ * Provider cards (provider-card.less + ModelSettings .model-grid)
+ * ------------------------------------------------------------------ */
+.gsk-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 10px;
+}
+.gsk-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+  background: var(--gsk-bg);
+  text-align: left;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+button.gsk-card {
+  cursor: pointer;
+}
+button.gsk-card:hover {
+  border-color: color-mix(in srgb, var(--gsk-brand) 40%, var(--gsk-stroke));
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--gsk-text-1) 6%, transparent);
+}
+button.gsk-card:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: 2px;
+}
+.gsk-card__badge {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+.gsk-card--on .gsk-card__badge {
+  background: color-mix(in srgb, var(--gsk-brand) 12%, transparent);
+  color: var(--gsk-brand);
+}
+.gsk-card__body {
+  min-width: 0;
+  flex: 1;
+}
+.gsk-card__header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+.gsk-card__title {
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gsk-text-1);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gsk-card__subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-card__sep {
+  color: var(--gsk-text-3);
+}
+.gsk-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gsk-border);
+}
+.gsk-dot--on {
+  background: #00a870;
+}
+
+/* Tabs above a card grid (ModelSettings .model-tabbar) */
+.gsk-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-tab {
+  position: relative;
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gsk-text-2);
+}
+.gsk-tab:hover {
+  color: var(--gsk-text-1);
+}
+.gsk-tab[aria-selected="true"] {
+  color: var(--gsk-text-1);
+}
+.gsk-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--gsk-brand);
+}
+.gsk-tab__count {
+  display: inline-flex;
+  height: 20px;
+  min-width: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Side drawer (SettingDrawer.vue)
+ * ------------------------------------------------------------------ */
+.gsk-drawer-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(0, 0, 0, 0.3);
+}
+.gsk-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 71;
+  display: flex;
+  width: min(560px, 100vw);
+  flex-direction: column;
+  background: var(--gsk-bg);
+  color: var(--gsk-text-1);
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+}
+.gsk-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--gsk-stroke);
+}
+.gsk-drawer__icon {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gsk-brand) 10%, transparent);
+  color: var(--gsk-brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.gsk-drawer__title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.gsk-drawer__subtitle {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--gsk-text-2);
+}
+.gsk-drawer__body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding: 18px;
+}
+.gsk-drawer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--gsk-stroke);
+  box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.04);
+}
+.gsk-drawer__footer-right {
+  display: flex;
+  gap: 12px;
+}
+/* Section title with GsKnora's leading bar */
+.gsk-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gsk-text-1);
+}
+.gsk-section-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--gsk-brand);
+}
+.gsk-field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--gsk-text-1);
+}
+.gsk-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gsk-steps li {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gsk-text-2);
+}
+.gsk-steps__index {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gsk-hover);
+  color: var(--gsk-text-2);
+  font-size: 12px;
+}
+.gsk-code {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--gsk-hover);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.gsk-result {
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: var(--gsk-hover);
+}
+
+/* Inside the window, the old dark-first "inset" panels (bg-black/20…)
+   read as grey slabs on white: same tone as the rail instead. */
+.gsk-modal [class*="bg-black/"] {
+  background-color: var(--gsk-rail);
+}
+
+/* A row whose control needs the full width (textareas, lists) */
+.gsk-row--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.gsk-row--stacked .gsk-row-info {
+  max-width: none;
+}
+.gsk-row--stacked .gsk-row-control {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* Sheet internals */
+.gsk-drawer__close {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--gsk-text-2);
+}
+.gsk-drawer__close:hover {
+  background: var(--gsk-hover);
+  color: var(--gsk-text-1);
+}
+.gsk-sheet-form {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+.gsk-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gsk-sheet-section + .gsk-sheet-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--gsk-stroke);
+}
+.gsk-sheet-field {
+  display: flex;
+  flex-direction: column;
+}
+.gsk-sheet-field .gsk-help {
+  margin-top: 4px;
+}
+.gsk-sheet-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+}
+.gsk-sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Read-only values in the window */
+.gsk-value {
+  font-size: 14px;
+  color: var(--gsk-text-1);
+}
+.gsk-value--muted {
+  color: var(--gsk-text-3);
+}
+.gsk-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--gsk-stroke);
+  vertical-align: middle;
+}
+/* Section header with an action on the right (ModelSettings header) */
+.gsk-block-head--action {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}

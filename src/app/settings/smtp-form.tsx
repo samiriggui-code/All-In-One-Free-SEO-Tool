@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
-import { CheckCircle2, AlertCircle, Mail, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { AlertCircle, CheckCircle2, Mail, Pencil } from "lucide-react";
 import {
   saveSmtpConfig,
   testSmtpConnection,
@@ -12,6 +11,13 @@ import {
   clearSmtpConfig,
   type SaveSmtpResult,
 } from "./smtp-actions";
+import { GskSheet, SheetField, ValueRow } from "./gsk-sheet";
+
+/*
+ * GsKnora's principle: the window shows the current SMTP setup and the
+ * checks; setting it up happens in a sheet, starting from a provider
+ * preset. Same server actions and field names as before.
+ */
 
 type Initial = {
   host: string | null;
@@ -23,265 +29,306 @@ type Initial = {
   hasPassword: boolean;
 };
 
-export function SmtpForm({ initial }: { initial: Initial }) {
-  const [state, formAction, pending] = useActionState<
-    SaveSmtpResult | null,
-    FormData
-  >(saveSmtpConfig, null);
-  const errors = state && !state.ok ? state.errors : {};
+const PRESETS = [
+  { id: "gmail", label: "Gmail", host: "smtp.gmail.com", port: "587", secure: false, user: "" },
+  { id: "resend", label: "Resend", host: "smtp.resend.com", port: "465", secure: true, user: "resend" },
+  { id: "sendgrid", label: "SendGrid", host: "smtp.sendgrid.net", port: "587", secure: false, user: "apikey" },
+] as const;
 
+export function SmtpForm({ initial }: { initial: Initial }) {
+  const t = useTranslations("settings.smtpForm");
+  const [editing, setEditing] = useState(false);
   const [testTo, setTestTo] = useState("");
   const [testPending, startTest] = useTransition();
-  const [testMsg, setTestMsg] = useState<{
-    tone: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  function runVerify() {
-    setTestMsg(null);
-    startTest(async () => {
-      const r = await testSmtpConnection();
-      setTestMsg(
-        r.ok
-          ? { tone: "success", text: "SMTP connection verified." }
-          : { tone: "error", text: r.error ?? "Failed" },
-      );
-    });
-  }
-
-  function runSend() {
-    if (!testTo.trim()) {
-      setTestMsg({ tone: "error", text: "Enter an email to send to." });
-      return;
-    }
-    setTestMsg(null);
-    startTest(async () => {
-      const r = await sendTestEmail(testTo.trim());
-      setTestMsg(
-        r.ok
-          ? { tone: "success", text: `Test email sent to ${testTo}.` }
-          : { tone: "error", text: r.error ?? "Failed" },
-      );
-    });
-  }
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const configured = Boolean(initial.host);
+  const empty = <span className="gsk-value--muted">{t("notSet")}</span>;
 
   return (
-    <div className="space-y-5">
-      <form action={formAction} className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field
-            label="SMTP host"
-            name="host"
-            defaultValue={initial.host ?? ""}
-            placeholder="smtp.gmail.com"
-            error={errors.host}
-            required
-          />
-          <Field
-            label="Port"
-            name="port"
-            type="number"
-            defaultValue={initial.port ?? "587"}
-            placeholder="587"
-            error={errors.port}
-            required
-          />
-          <Field
-            label="Username"
-            name="user"
-            defaultValue={initial.user ?? ""}
-            placeholder="you@gmail.com"
-            error={errors.user}
-          />
-          <Field
-            label="Password / App password"
-            name="password"
-            type="password"
-            placeholder={initial.hasPassword ? "•••••••••• (saved)" : ""}
-            error={errors.password}
-          />
-          <Field
-            label="From email"
-            name="fromEmail"
-            type="email"
-            defaultValue={initial.fromEmail ?? ""}
-            placeholder="reports@yourdomain.com"
-            error={errors.fromEmail}
-            required
-          />
-          <Field
-            label="From name (optional)"
-            name="fromName"
-            defaultValue={initial.fromName ?? ""}
-            placeholder="Acme SEO"
-            error={errors.fromName}
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="secure"
-            name="secure"
-            value="true"
-            defaultChecked={initial.secure === "true"}
-            className="size-4 cursor-pointer accent-violet-500"
-          />
-          <Label htmlFor="secure" className="cursor-pointer">
-            Use TLS/SSL (port 465). Leave off for STARTTLS on 587.
-          </Label>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Button type="submit" disabled={pending}>
-            {pending ? "Saving…" : "Save SMTP config"}
-          </Button>
-          <Button
+    <>
+      <section className="gsk-block">
+        <div className="gsk-block-head gsk-block-head--action">
+          <div>
+            <h2 className="gsk-block-title">{t("serverTitle")}</h2>
+          </div>
+          <button
             type="button"
-            variant="outline"
-            onClick={runVerify}
-            disabled={testPending}
+            className={configured ? "gsk-btn" : "gsk-btn gsk-btn--primary"}
+            onClick={() => setEditing(true)}
           >
-            <CheckCircle2 className="size-3.5" />
-            Test connection
-          </Button>
-          {(initial.host || initial.fromEmail) && (
-            <form action={clearSmtpConfig}>
-              <Button type="submit" variant="ghost" size="sm">
-                Clear all
-              </Button>
-            </form>
-          )}
+            <Pencil className="size-4" />
+            {configured ? t("edit") : t("setUp")}
+          </button>
         </div>
-      </form>
+        <ValueRow label={t("server")}>
+          {configured ? (
+            <span className="font-mono text-[13px]">
+              {initial.host}:{initial.port ?? "587"}
+            </span>
+          ) : (
+            empty
+          )}
+        </ValueRow>
+        <ValueRow label={t("security")}>
+          {configured ? (initial.secure === "true" ? t("tls") : t("starttls")) : empty}
+        </ValueRow>
+        <ValueRow label={t("user")}>
+          {initial.user || empty}
+          {initial.hasPassword ? <span className="gsk-tag gsk-tag--default">{t("passwordSaved")}</span> : null}
+        </ValueRow>
+        <ValueRow label={t("from")}>
+          {initial.fromEmail ? (
+            <span>
+              {initial.fromName ? `${initial.fromName} · ` : ""}
+              {initial.fromEmail}
+            </span>
+          ) : (
+            empty
+          )}
+        </ValueRow>
+      </section>
 
-      <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex-1 space-y-1.5">
-            <Label htmlFor="testTo">Send a test email</Label>
-            <Input
-              id="testTo"
+      {configured ? (
+        <section className="gsk-block">
+          <div className="gsk-block-head">
+            <h2 className="gsk-block-title">{t("checkTitle")}</h2>
+          </div>
+          <ValueRow label={t("verify")} hint={t("verifyHint")}>
+            <button
+              type="button"
+              className="gsk-btn"
+              disabled={testPending}
+              onClick={() => {
+                setMsg(null);
+                startTest(async () => {
+                  const r = await testSmtpConnection();
+                  setMsg({ ok: r.ok, text: r.ok ? t("verifyOk") : (r.error ?? t("failed")) });
+                });
+              }}
+            >
+              {t("verifyButton")}
+            </button>
+          </ValueRow>
+          <ValueRow label={t("sendTest")} hint={t("sendTestHint")}>
+            <input
               type="email"
               value={testTo}
               onChange={(e) => setTestTo(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="vous@exemple.fr"
+              aria-label={t("sendTestTo")}
+              className="gsk-input w-[200px]"
             />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={runSend}
-            disabled={testPending || !testTo.trim()}
-          >
-            <Send className="size-3.5" />
-            Send test
-          </Button>
-        </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Sends a one-line plain-text email so you can confirm before scheduling
-          real reports.
-        </p>
-      </div>
-
-      {testMsg && (
-        <div
-          className={`flex items-start gap-2 rounded-lg px-3 py-2 text-xs ${
-            testMsg.tone === "success"
-              ? "bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/30"
-              : "bg-rose-500/10 text-rose-300 ring-1 ring-rose-500/30"
-          }`}
-        >
-          {testMsg.tone === "success" ? (
-            <CheckCircle2 className="mt-0.5 size-3.5 shrink-0" />
-          ) : (
-            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-          )}
-          <span>{testMsg.text}</span>
-        </div>
-      )}
-
-      <Examples />
-    </div>
-  );
-}
-
-function Field({
-  label,
-  name,
-  type = "text",
-  defaultValue,
-  placeholder,
-  error,
-  required,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  defaultValue?: string;
-  placeholder?: string;
-  error?: string;
-  required?: boolean;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <Input
-        id={name}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        required={required}
-        aria-invalid={Boolean(error)}
-      />
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
-  );
-}
-
-function Examples() {
-  return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4 text-xs">
-      <div className="flex items-center gap-1.5 font-medium text-foreground">
-        <Mail className="size-3.5 text-violet-300" />
-        Common provider settings
-      </div>
-      <div className="mt-2 grid gap-3 text-muted-foreground sm:grid-cols-3">
-        <div>
-          <div className="font-medium text-foreground">Gmail</div>
-          <div className="font-mono text-[11px]">
-            smtp.gmail.com · 587 · STARTTLS
-          </div>
-          <div className="mt-1 text-[11px]">
-            Use an{" "}
-            <a
-              href="https://myaccount.google.com/apppasswords"
-              target="_blank"
-              rel="noreferrer"
-              className="text-violet-300 hover:underline"
+            <button
+              type="button"
+              className="gsk-btn"
+              disabled={testPending || !testTo.trim()}
+              onClick={() => {
+                setMsg(null);
+                startTest(async () => {
+                  const r = await sendTestEmail(testTo.trim());
+                  setMsg({
+                    ok: r.ok,
+                    text: r.ok ? t("sendTestOk", { to: testTo.trim() }) : (r.error ?? t("failed")),
+                  });
+                });
+              }}
             >
-              App Password
-            </a>
-            , not your real password.
+              {t("send")}
+            </button>
+          </ValueRow>
+          {msg ? (
+            <p className={`gsk-result ${msg.ok ? "gsk-status-ok" : "gsk-status-error"}`}>
+              {msg.ok ? <CheckCircle2 className="mr-1 inline size-4" /> : <AlertCircle className="mr-1 inline size-4" />}
+              {msg.text}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {editing ? <SmtpSheet initial={initial} onClose={() => setEditing(false)} /> : null}
+    </>
+  );
+}
+
+function SmtpSheet({ initial, onClose }: { initial: Initial; onClose: () => void }) {
+  const t = useTranslations("settings.smtpForm");
+  const router = useRouter();
+  const [state, formAction, pending] = useActionState<SaveSmtpResult | null, FormData>(
+    saveSmtpConfig,
+    null,
+  );
+  const errors = state && !state.ok ? state.errors : {};
+  const [host, setHost] = useState(initial.host ?? "");
+  const [port, setPort] = useState(initial.port ?? "587");
+  const [user, setUser] = useState(initial.user ?? "");
+  const [secure, setSecure] = useState(initial.secure === "true");
+  const [clearing, startClear] = useTransition();
+
+  useEffect(() => {
+    if (state?.ok) {
+      router.refresh();
+      onClose();
+    }
+  }, [state, router, onClose]);
+
+  const err = (k: string) => (errors[k] ? <span className="gsk-status-error">{errors[k]}</span> : undefined);
+
+  return (
+    <GskSheet
+      title={t("sheetTitle")}
+      subtitle={t("sheetSubtitle")}
+      icon={<Mail className="size-4" />}
+      closeLabel={t("cancel")}
+      onClose={onClose}
+    >
+      <form action={formAction} className="gsk-sheet-form">
+        <div className="gsk-drawer__body">
+          <div className="gsk-sheet-section">
+            <h4 className="gsk-section-title">{t("step1")}</h4>
+            <p className="gsk-help m-0">{t("step1Hint")}</p>
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="gsk-btn"
+                  onClick={() => {
+                    setHost(p.host);
+                    setPort(p.port);
+                    setSecure(p.secure);
+                    if (p.user) setUser(p.user);
+                  }}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <p className="gsk-help m-0">{t("gmailHint")}</p>
+          </div>
+
+          <div className="gsk-sheet-section">
+            <h4 className="gsk-section-title">{t("step2")}</h4>
+            <div className="gsk-sheet-grid">
+              <SheetField label={t("host")} htmlFor="host" help={err("host")}>
+                <input
+                  id="host"
+                  name="host"
+                  required
+                  value={host}
+                  onChange={(e) => setHost(e.target.value)}
+                  placeholder="smtp.gmail.com"
+                  className="gsk-input"
+                />
+              </SheetField>
+              <SheetField label={t("port")} htmlFor="port" help={err("port")}>
+                <input
+                  id="port"
+                  name="port"
+                  type="number"
+                  required
+                  value={port}
+                  onChange={(e) => setPort(e.target.value)}
+                  className="gsk-input"
+                />
+              </SheetField>
+            </div>
+            <label className="gsk-sheet-switch">
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm">{t("tlsLabel")}</span>
+                <span className="gsk-help mt-0.5 block">{t("tlsHint")}</span>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                name="secure"
+                value="true"
+                checked={secure}
+                onChange={(e) => setSecure(e.target.checked)}
+                className="gsk-switch"
+              />
+            </label>
+          </div>
+
+          <div className="gsk-sheet-section">
+            <h4 className="gsk-section-title">{t("step3")}</h4>
+            <SheetField label={t("user")} htmlFor="user" help={err("user")}>
+              <input
+                id="user"
+                name="user"
+                value={user}
+                onChange={(e) => setUser(e.target.value)}
+                placeholder="vous@gmail.com"
+                className="gsk-input"
+              />
+            </SheetField>
+            <SheetField label={t("password")} htmlFor="password" help={err("password") ?? t("passwordHint")}>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                placeholder={initial.hasPassword ? t("passwordKept") : ""}
+                className="gsk-input"
+              />
+            </SheetField>
+          </div>
+
+          <div className="gsk-sheet-section">
+            <h4 className="gsk-section-title">{t("step4")}</h4>
+            <div className="gsk-sheet-grid">
+              <SheetField label={t("fromEmail")} htmlFor="fromEmail" help={err("fromEmail")}>
+                <input
+                  id="fromEmail"
+                  name="fromEmail"
+                  type="email"
+                  required
+                  defaultValue={initial.fromEmail ?? ""}
+                  placeholder="rapports@votre-agence.fr"
+                  className="gsk-input"
+                />
+              </SheetField>
+              <SheetField label={t("fromName")} htmlFor="fromName" help={err("fromName")}>
+                <input
+                  id="fromName"
+                  name="fromName"
+                  defaultValue={initial.fromName ?? ""}
+                  placeholder="Mon agence SEO"
+                  className="gsk-input"
+                />
+              </SheetField>
+            </div>
           </div>
         </div>
-        <div>
-          <div className="font-medium text-foreground">Resend</div>
-          <div className="font-mono text-[11px]">
-            smtp.resend.com · 465 · TLS
+
+        <footer className="gsk-drawer__footer">
+          <div>
+            {initial.host || initial.fromEmail ? (
+              <button
+                type="button"
+                className="gsk-btn gsk-btn--danger-text"
+                disabled={clearing}
+                onClick={() =>
+                  startClear(async () => {
+                    await clearSmtpConfig();
+                    router.refresh();
+                    onClose();
+                  })
+                }
+              >
+                {t("clear")}
+              </button>
+            ) : null}
           </div>
-          <div className="mt-1 text-[11px]">
-            Username: <code>resend</code> · Password: API key.
+          <div className="gsk-drawer__footer-right">
+            <button type="button" className="gsk-btn" onClick={onClose}>
+              {t("cancel")}
+            </button>
+            <button type="submit" disabled={pending} className="gsk-btn gsk-btn--primary">
+              {pending ? t("saving") : t("saveClose")}
+            </button>
           </div>
-        </div>
-        <div>
-          <div className="font-medium text-foreground">SendGrid</div>
-          <div className="font-mono text-[11px]">
-            smtp.sendgrid.net · 587 · STARTTLS
-          </div>
-          <div className="mt-1 text-[11px]">
-            Username: <code>apikey</code> · Password: API key.
-          </div>
-        </div>
-      </div>
-    </div>
+        </footer>
+      </form>
+    </GskSheet>
   );
 }
