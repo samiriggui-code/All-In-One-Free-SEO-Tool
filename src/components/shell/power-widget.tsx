@@ -18,7 +18,12 @@ import { Power, RefreshCw, Square, Settings as Cog, X } from "lucide-react";
 import { safeFetch } from "@/lib/safe-fetch";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 
-export function PowerWidget() {
+/**
+ * `variant="sidebar"`: an icon at the bottom of the sidebar whose panel
+ * opens upwards, instead of a button floating over the page (it covered
+ * the end of rows, the delete crosses of the task list among them).
+ */
+export function PowerWidget({ variant = "floating" }: { variant?: "floating" | "sidebar" } = {}) {
   const t = useTranslations("shell.power");
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<null | "restart" | "stop">(null);
@@ -132,11 +137,18 @@ export function PowerWidget() {
   return (
     <div
       ref={ref}
-      className="fixed bottom-3 right-14 z-40 sm:bottom-5 sm:right-20"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className={
+        // Floating on phones only; from md up it lives in the sidebar.
+        variant === "sidebar" ? "relative" : "fixed bottom-3 right-14 z-40 sm:bottom-5 sm:right-20 md:hidden"
+      }
+      style={variant === "sidebar" ? undefined : { paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       {open && (
-        <div className="mb-2 w-64 overflow-hidden rounded-lg border border-border bg-popover shadow-lg">
+        <div
+          className={`w-64 overflow-hidden rounded-lg border border-border bg-popover shadow-lg ${
+            variant === "sidebar" ? "absolute bottom-full left-0 z-50 mb-2" : "mb-2"
+          }`}
+        >
           <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <span className="text-[12px] font-medium text-foreground">
               {t("title")}
@@ -194,7 +206,11 @@ export function PowerWidget() {
         onClick={() => setOpen((v) => !v)}
         title={t("title")}
         aria-label={t("title")}
-        className="grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition-colors hover:bg-accent hover:text-foreground"
+        className={
+          variant === "sidebar"
+            ? "grid size-8 place-items-center rounded-md text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            : "grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition-colors hover:bg-accent hover:text-foreground"
+        }
       >
         <Power className="size-4" />
       </button>

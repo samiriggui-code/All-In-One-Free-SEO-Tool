@@ -16,6 +16,8 @@ import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
 import { useStoredState } from "@/components/use-stored-state";
 import { ProductMark, ProductWordmark } from "@/components/brand/product-logo";
 import { LAST_PAGE_KEY } from "@/app/settings/settings-overlay";
+import type { ThemePreference } from "@/app/settings/theme-actions";
+import { SidebarFooter } from "./sidebar-footer";
 
 /**
  * Per-group accent. Pre-baked Tailwind class strings so the JIT picks
@@ -79,7 +81,13 @@ export function Sidebar({
   uiMode = "guided",
   hasAiKey = false,
   userRole = null,
+  theme = "system",
+  isOwner = false,
 }: {
+  /** For the theme button of the footer (SidebarFooter). */
+  theme?: ThemePreference;
+  /** Owner only: the server controls in the footer (restart / stop). */
+  isOwner?: boolean;
   unreadByHref?: Record<string, number>;
   userRole?: string | null;
   /**
@@ -437,6 +445,8 @@ export function Sidebar({
       {!collapsed && (
         <ToolDotLegend className="border-t border-sidebar-border px-3 py-2" />
       )}
+
+      <SidebarFooter collapsed={collapsed} theme={theme} isOwner={isOwner} />
 
     </aside>
   );

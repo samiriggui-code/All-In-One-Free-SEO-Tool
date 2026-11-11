@@ -40,7 +40,16 @@ type AuthStatus = {
  * sidebar (get started, settings, docs, learn, knowledge). They are all
  * here now, grouped the way GsKnora's user menu groups them.
  */
-export function ProfileMenu() {
+/**
+ * `variant="sidebar"`: GsKnora's user bar at the bottom of the sidebar
+ * (avatar, name, email; the menu opens upwards). `collapsed` keeps only
+ * the avatar, for the narrow rail. The default is the round avatar of the
+ * top bar, still used on phones where the sidebar is hidden.
+ */
+export function ProfileMenu({
+  variant = "header",
+  collapsed = false,
+}: { variant?: "header" | "sidebar"; collapsed?: boolean } = {}) {
   const pathname = usePathname();
   const t = useTranslations("shell.profile");
   const tRoles = useTranslations("auth.roles");
@@ -108,22 +117,50 @@ export function ProfileMenu() {
   const close = () => setOpen(false);
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-label={t("menu")}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm ring-2 ring-transparent transition hover:ring-primary/30"
-      >
-        {initial}
-      </button>
+    <div ref={ref} className={variant === "sidebar" && !collapsed ? "relative min-w-0 flex-1" : "relative"}>
+      {variant === "sidebar" && !collapsed ? (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={t("menu")}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          className="flex w-full min-w-0 items-center gap-2.5 rounded-md px-1.5 py-1.5 text-left transition-colors hover:bg-sidebar-accent"
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+            {initial}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-medium text-sidebar-foreground">
+              {me?.name || me?.email || t("appName")}
+            </span>
+            <span className="block truncate text-[11px] text-sidebar-foreground/60">
+              {me ? me.email : status?.mode === "password" ? t("sharedPassword") : t("localSingleUser")}
+            </span>
+          </span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={t("menu")}
+          title={collapsed ? me?.name || me?.email || t("menu") : undefined}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm ring-2 ring-transparent transition hover:ring-primary/30"
+        >
+          {initial}
+        </button>
+      )}
 
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-10 z-50 max-h-[calc(100dvh-4rem)] w-72 overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-xl"
+          className={`absolute z-50 w-72 overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-xl ${
+            variant === "sidebar"
+              ? "bottom-full left-0 mb-2 max-h-[calc(100dvh-6rem)]"
+              : "right-0 top-10 max-h-[calc(100dvh-4rem)]"
+          }`}
         >
           {/* Who */}
           <div className="flex items-center gap-3 px-4 py-3">

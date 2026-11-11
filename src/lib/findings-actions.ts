@@ -17,7 +17,9 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq, desc } from "drizzle-orm";
 import { db } from "@/db/client";
-import { toolFindings, type ToolFinding } from "@/db/schema";
+import { toolFindings, toolRuns, type ToolFinding } from "@/db/schema";
+import { requireEditor } from "@/lib/auth";
+import { mayAccessClient } from "@/lib/client-scope";
 import { revalidatePath } from "next/cache";
 
 export type FindingStatus = "new" | "in_progress" | "resolved" | "ignored";
@@ -30,6 +32,19 @@ export async function markFindingStatus(
   await requireSignedIn();
   if (!Number.isFinite(findingId)) {
     return { ok: false, error: "Invalid finding id" };
+  }
+  // A finding belongs to a client: only someone who may edit that client
+  // changes its status. This used to take any id from any signed-in user,
+  // read-only members included. Unknown and out-of-scope ids get the same
+  // answer, so the reply does not reveal which ids exist.
+  await requireEditor();
+  const [finding] = await db
+    .select({ clientId: toolFindings.clientId })
+    .from(toolFindings)
+    .where(eq(toolFindings.id, findingId))
+    .limit(1);
+  if (!finding || !(await mayAccessClient(finding.clientId))) {
+    return { ok: false, error: "Finding not found" };
   }
   const completedAt = status === "resolved" ? new Date() : null;
   try {
@@ -54,6 +69,14 @@ export async function getFindingsForRun(
   runId: number,
 ): Promise<ToolFinding[]> {
   await requireSignedIn();
+  // Same scope as the run itself: a run for a client the user may not see
+  // reads as empty, like one that does not exist.
+  const [run] = await db
+    .select({ clientId: toolRuns.clientId })
+    .from(toolRuns)
+    .where(eq(toolRuns.id, runId))
+    .limit(1);
+  if (!run || !(await mayAccessClient(run.clientId))) return [];
   return db
     .select()
     .from(toolFindings)

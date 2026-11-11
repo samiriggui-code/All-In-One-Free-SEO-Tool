@@ -1,6 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { FONT_SCALES, FONT_SIZE_COOKIE, FONT_SIZES, type FontSize } from "@/lib/font-size";
 import { useTranslations } from "next-intl";
 import { localeLabels, type Locale } from "@/i18n/config";
 import { setLocalePreference } from "./locale-actions";
@@ -52,6 +53,30 @@ export function LanguageControl({ locale }: { locale: Locale }) {
         label: localeLabels[l],
       }))}
       onChange={(l) => startTransition(async () => setLocalePreference(l))}
+    />
+  );
+}
+
+/**
+ * Text size, as in GsKnora: applied at once to <html> and remembered in a
+ * cookie that the root layout reads on the next page (lib/font-size.ts).
+ * Per browser, so it needs no rights: a viewer may read in large too.
+ */
+export function FontSizeControl({ size }: { size: FontSize }) {
+  const t = useTranslations("settings.general");
+  const [value, setValue] = useState<FontSize>(size);
+  return (
+    <Segmented
+      value={value}
+      options={FONT_SIZES.map((s) => ({ value: s, label: t(`fontSize_${s}`) }))}
+      onChange={(next) => {
+        setValue(next);
+        const root = document.documentElement;
+        root.style.setProperty("zoom", next === "normal" ? "" : String(FONT_SCALES[next]));
+        root.style.setProperty("--rf-zoom", next === "normal" ? "" : String(FONT_SCALES[next]));
+        root.dataset.fontSize = next;
+        document.cookie = `${FONT_SIZE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+      }}
     />
   );
 }
