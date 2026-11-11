@@ -12,7 +12,7 @@
 import { createServer, type Server } from "node:http";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { createAuditor } from "@/audit/engine/auditor";
 import { withNetPolicy } from "@/audit/crawler/net";
 import type { AuditResult } from "@/audit/types";
@@ -29,11 +29,29 @@ const PORT = 18765;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 let server: Server;
 
+// The golden file was recorded with nothing outside the fixture server
+// reachable. One fixture page links to Wikipedia, so on a machine with open
+// internet access (GitHub's runners) that link answers and
+// `links-external-valid` moves from warn to pass. Refuse every request that
+// leaves the fixture origin, so the result is the same wherever this runs.
+const realFetch = globalThis.fetch;
+function requestUrl(input: Parameters<typeof fetch>[0]): string {
+  if (typeof input === "string") return input;
+  return input instanceof URL ? input.href : input.url;
+}
+
 beforeAll(async () => {
+  vi.stubGlobal("fetch", (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+    if (!requestUrl(input).startsWith(`${ORIGIN}/`)) {
+      return Promise.reject(new TypeError("fetch failed: offline in the parity test"));
+    }
+    return realFetch(input, init);
+  });
   server = createServer(handler(() => ORIGIN));
   await new Promise<void>((resolve) => server.listen(PORT, "127.0.0.1", resolve));
 });
 afterAll(() => {
+  vi.unstubAllGlobals();
   server.close();
 });
 
