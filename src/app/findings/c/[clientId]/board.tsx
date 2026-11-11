@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Check, EyeOff, Loader2, Undo2 } from "lucide-react";
 import { markFindingStatus } from "@/lib/findings-actions";
 import type { OpenToolFinding } from "@/lib/tool-findings";
@@ -29,6 +30,7 @@ export function FindingsBoard({
   clientName: string;
   findings: OpenToolFinding[];
 }) {
+  const t = useTranslations("auditTab.findings");
   // The list is snapshotted on mount and deliberately does not follow
   // the prop.
   //
@@ -77,14 +79,13 @@ export function FindingsBoard({
     return (
       <div className="glass-apple rounded-2xl p-6">
         <p className="text-sm text-muted-foreground">
-          Nothing open. Either the checks have not run for this client yet, or
-          everything they found has been dealt with.
+          {t("empty")}
         </p>
         <Link
           href={`/clients/${clientId}`}
           className="mt-3 inline-block text-xs text-primary hover:underline"
         >
-          Back to {clientName}
+          {t("backTo", { name: clientName })}
         </Link>
       </div>
     );
@@ -102,10 +103,11 @@ export function FindingsBoard({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-baseline gap-x-3 text-sm">
-        <span className="font-semibold">{openCount} open</span>
+        <span className="font-semibold">
+          {t("openCount", { count: openCount })}
+        </span>
         <span className="text-xs text-muted-foreground">
-          of {items.length} found across {byTool.size} tool
-          {byTool.size === 1 ? "" : "s"}
+          {t("foundAcross", { total: items.length, tools: byTool.size })}
         </span>
       </div>
 
@@ -123,10 +125,12 @@ export function FindingsBoard({
               href={`/tools/${toolId}?clientId=${clientId}`}
               className="text-[11px] text-primary hover:underline"
             >
-              run it again
+              {t("runAgain")}
             </Link>
             <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-              {list.filter((f) => !closed.has(f.id)).length} open
+              {t("openCount", {
+                count: list.filter((f) => !closed.has(f.id)).length,
+              })}
             </span>
           </header>
 
@@ -167,7 +171,9 @@ export function FindingsBoard({
                       className="inline-flex shrink-0 items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] hover:bg-muted/70"
                     >
                       <Undo2 className="size-3" />
-                      {state === "resolved" ? "Resolved" : "Ignored"} — undo
+                      {state === "resolved"
+                        ? t("resolvedUndo")
+                        : t("ignoredUndo")}
                     </button>
                   ) : (
                     <span className="flex shrink-0 items-center gap-1.5">
@@ -177,16 +183,16 @@ export function FindingsBoard({
                         className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-1 text-[11px] text-emerald-700 hover:bg-emerald-500/25 dark:text-emerald-300"
                       >
                         <Check className="size-3" />
-                        Fixed
+                        {t("fixed")}
                       </button>
                       <button
                         type="button"
                         onClick={() => set(f.id, "ignored")}
                         className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/70"
-                        title="The check is right about the facts and wrong about whether they matter here. It will not be raised again."
+                        title={t("ignoreHint")}
                       >
                         <EyeOff className="size-3" />
-                        Not a problem here
+                        {t("notAProblem")}
                       </button>
                     </span>
                   )}
@@ -200,7 +206,13 @@ export function FindingsBoard({
   );
 }
 
+const KNOWN_SEVERITIES = ["critical", "high", "medium", "low"] as const;
+
 function SeverityChip({ severity }: { severity: string }) {
+  const t = useTranslations("auditTab.findings.severity");
+  const known = (KNOWN_SEVERITIES as readonly string[]).includes(severity)
+    ? (severity as (typeof KNOWN_SEVERITIES)[number])
+    : null;
   const tone =
     severity === "critical"
       ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
@@ -213,7 +225,7 @@ function SeverityChip({ severity }: { severity: string }) {
     <span
       className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${tone}`}
     >
-      {severity}
+      {known ? t(known) : severity}
     </span>
   );
 }

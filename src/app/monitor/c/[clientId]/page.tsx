@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import { Activity, ExternalLink, X } from "lucide-react";
 import { db } from "@/db/client";
@@ -46,6 +47,7 @@ export default async function PerClientMonitorPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("auditTab.monitor");
 
   const pages = await db
     .select()
@@ -72,8 +74,8 @@ export default async function PerClientMonitorPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Page monitor · ${client.name}`}
-        description="Tracks the status code, title, description, H1, canonical, robots directives and structured data of key pages, checked daily. A page answering with an error, a noindex, or a removed canonical, title, H1 or structured data is flagged critical."
+        title={t("page.title", { name: client.name })}
+        description={t("page.description")}
         icon={Activity}
         accent="violet"
         actions={pages.length > 0 ? <CheckAllPagesButton /> : undefined}
@@ -83,7 +85,7 @@ export default async function PerClientMonitorPage({
 
       {pages.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No pages monitored yet. Add a few above to start tracking changes.
+          {t("page.empty")}
         </div>
       ) : (
         <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -121,27 +123,31 @@ export default async function PerClientMonitorPage({
                             : "bg-white/5 text-muted-foreground ring-white/10"
                         }`}
                       >
-                        {p.status}
+                        {t.has(`status.${p.status}`)
+                          ? t(`status.${p.status}`)
+                          : p.status}
                       </span>
                       {p.lastStatus !== null && p.lastStatus >= 400 && (
                         <span className="inline-flex items-center rounded-full bg-rose-500/20 px-2 py-0.5 text-[11px] font-medium text-rose-200 ring-1 ring-inset ring-rose-500/40">
-                          answering HTTP {p.lastStatus}
+                          {t("page.answeringHttp", { status: p.lastStatus })}
                         </span>
                       )}
                     </div>
                     {p.lastTitle && (
                       <div className="truncate text-xs text-muted-foreground">
-                        Title: {p.lastTitle}
+                        {t("page.lastTitle", { title: p.lastTitle })}
                       </div>
                     )}
                     {p.lastRobots && (
                       <div className="truncate text-xs text-muted-foreground">
-                        Robots: {p.lastRobots}
+                        {t("page.lastRobots", { robots: p.lastRobots })}
                       </div>
                     )}
                     {p.lastCheckedAt && (
                       <div className="text-[11px] text-muted-foreground/70">
-                        Last checked {p.lastCheckedAt.toLocaleString()}
+                        {t("page.lastChecked", {
+                          date: p.lastCheckedAt.toLocaleString(),
+                        })}
                       </div>
                     )}
                   </div>
@@ -152,13 +158,13 @@ export default async function PerClientMonitorPage({
                         type="submit"
                         className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
                       >
-                        {p.status === "active" ? "pause" : "resume"}
+                        {p.status === "active" ? t("page.pause") : t("page.resume")}
                       </button>
                     </form>
                     <form action={removeAction}>
                       <button
                         type="submit"
-                        aria-label="Remove"
+                        aria-label={t("page.remove")}
                         className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                       >
                         <X className="size-3.5" />
@@ -175,9 +181,11 @@ export default async function PerClientMonitorPage({
       {recentChanges.length > 0 && (
         <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <header className="border-b border-white/5 px-5 py-4">
-            <h2 className="text-base font-semibold">Recent changes</h2>
+            <h2 className="text-base font-semibold">
+              {t("page.recentChanges")}
+            </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Last 20 detected diffs across this client&apos;s pages.
+              {t("page.recentChangesHint", { count: 20 })}
             </p>
           </header>
           <ul className="divide-y divide-white/5">
@@ -188,13 +196,17 @@ export default async function PerClientMonitorPage({
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${severityTone[c.severity]}`}
                     >
-                      {c.severity}
+                      {t.has(`severity.${c.severity}`)
+                        ? t(`severity.${c.severity}`)
+                        : c.severity}
                     </span>
                   )}
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${fieldTone[c.field] ?? fieldTone.title}`}
                   >
-                    {c.field}
+                    {t.has(`field.${c.field}`)
+                      ? t(`field.${c.field}`)
+                      : c.field}
                   </span>
                   <span className="text-[11px] text-muted-foreground">
                     {c.detectedAt.toLocaleString()}

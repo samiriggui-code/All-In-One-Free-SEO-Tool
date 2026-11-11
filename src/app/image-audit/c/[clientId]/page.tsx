@@ -2,6 +2,7 @@
 
 import { useState, useTransition, use } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   ArrowLeft,
@@ -16,18 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { runImageAudit } from "@/app/image-audit/actions";
 import type { ImageAuditResult, ImageIssue } from "@/lib/image-audit";
-
-const ISSUE_LABEL: Record<ImageIssue, string> = {
-  missing_alt: "No alt",
-  empty_alt: "Empty alt",
-  alt_too_long: "Alt > 125",
-  alt_is_filename: "Alt is filename",
-  no_dimensions: "No w/h",
-  no_lazy_loading: "No lazy",
-  legacy_format: "JPG/PNG",
-  oversize: "Oversize",
-  broken: "Broken",
-};
 
 const ISSUE_TONE: Record<ImageIssue, string> = {
   missing_alt: "bg-rose-500/10 text-rose-300 ring-rose-500/30",
@@ -47,6 +36,7 @@ export default function PerClientImageAudit({
   params: Promise<{ clientId: string }>;
 }) {
   use(params); // satisfy the params Promise contract
+  const t = useTranslations("auditTab.imageAudit");
 
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
@@ -67,7 +57,7 @@ export default function PerClientImageAudit({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All clients
+        {t("allClients")}
       </Link>
 
       <header className="space-y-2">
@@ -76,36 +66,35 @@ export default function PerClientImageAudit({
             <ImageIcon className="size-5 text-amber-300" />
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">
-            <span className="text-gradient-brand">Image SEO audit</span>
+            <span className="text-gradient-brand">{t("title")}</span>
           </h1>
         </div>
         <p className="text-sm text-muted-foreground">
-          Extracts every image from the page, then HEAD-checks each for size +
-          format. Flags 9 distinct image-SEO issues per file.
+          {t("intro")}
         </p>
       </header>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-1.5">
-            <Label htmlFor="iurl">Page URL</Label>
+            <Label htmlFor="iurl">{t("urlLabel")}</Label>
             <Input
               id="iurl"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/blog/post"
+              placeholder={t("urlPlaceholder")}
             />
           </div>
           <Button onClick={run} disabled={pending || !url.trim()}>
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Auditing…
+                {t("auditing")}
               </>
             ) : (
               <>
                 <Search className="size-4" />
-                Audit
+                {t("audit")}
               </>
             )}
           </Button>
@@ -122,14 +111,14 @@ export default function PerClientImageAudit({
       {result?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Tile label="Total images" value={result.total} tone="violet" />
+            <Tile label={t("tiles.total")} value={result.total} tone="violet" />
             <Tile
-              label="With issues"
+              label={t("tiles.withIssues")}
               value={result.withIssues}
               tone={result.withIssues === 0 ? "emerald" : "rose"}
             />
             <Tile
-              label="Clean"
+              label={t("tiles.clean")}
               value={result.total - result.withIssues}
               tone="emerald"
             />
@@ -137,12 +126,12 @@ export default function PerClientImageAudit({
 
           {result.total === 0 ? (
             <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-8 text-center text-sm text-muted-foreground">
-              No images found on this page.
+              {t("noImages")}
             </div>
           ) : (
             <section className="glass-apple relative overflow-hidden rounded-2xl">
               <header className="border-b border-white/[0.06] px-5 py-4">
-                <h2 className="text-base font-semibold">Images</h2>
+                <h2 className="text-base font-semibold">{t("imagesHeading")}</h2>
               </header>
               <ul className="divide-y divide-white/[0.04]">
                 {result.images.map((img, i) => (
@@ -177,7 +166,7 @@ export default function PerClientImageAudit({
                         )}
                         {img.sizeBytes !== null && (
                           <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-muted-foreground ring-1 ring-inset ring-white/10">
-                            {(img.sizeBytes / 1024).toFixed(0)}KB
+                            {t("sizeKb", { size: (img.sizeBytes / 1024).toFixed(0) })}
                           </span>
                         )}
                         {img.width && img.height && (
@@ -187,11 +176,11 @@ export default function PerClientImageAudit({
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Alt:{" "}
+                        {t("altLabel")}{" "}
                         {img.alt === null ? (
-                          <span className="text-rose-300">(none)</span>
+                          <span className="text-rose-300">{t("altNone")}</span>
                         ) : img.alt === "" ? (
-                          <span className="text-amber-300">(empty)</span>
+                          <span className="text-amber-300">{t("altEmpty")}</span>
                         ) : (
                           <span className="text-foreground">
                             &ldquo;{img.alt}&rdquo;
@@ -205,14 +194,14 @@ export default function PerClientImageAudit({
                               key={iss}
                               className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${ISSUE_TONE[iss]}`}
                             >
-                              {ISSUE_LABEL[iss]}
+                              {t(`issues.${iss}`)}
                             </span>
                           ))}
                         </div>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                           <CheckCircle2 className="size-2.5" />
-                          Clean
+                          {t("cleanBadge")}
                         </span>
                       )}
                     </div>

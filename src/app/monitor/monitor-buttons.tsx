@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Activity, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 
 export function CheckPageButton({ pageId }: { pageId: number }) {
   const [pending, startTransition] = useTransition();
+  const t = useTranslations("auditTab.monitor");
   return (
     <Button
       type="button"
@@ -24,13 +26,14 @@ export function CheckPageButton({ pageId }: { pageId: number }) {
       ) : (
         <Activity className="size-3" />
       )}
-      {pending ? "…" : "Check now"}
+      {pending ? "…" : t("buttons.checkNow")}
     </Button>
   );
 }
 
 export function CheckAllPagesButton() {
   const [pending, startTransition] = useTransition();
+  const t = useTranslations("auditTab.monitor");
   return (
     <Button
       type="button"
@@ -43,7 +46,7 @@ export function CheckAllPagesButton() {
       ) : (
         <RefreshCw className="size-4" />
       )}
-      {pending ? "Checking all…" : "Check all pages"}
+      {pending ? t("buttons.checkingAll") : t("buttons.checkAll")}
     </Button>
   );
 }

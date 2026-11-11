@@ -3290,5 +3290,180 @@
       "missions": "Missions",
       "settings": "Settings"
     }
+  },
+  "auditTab": {
+    "findings": {
+      "title": "What the tools found",
+      "description": "Open findings for {name}, from the checks that run on their own and the ones you ran by hand. Resolving or ignoring one here sticks — the next run will not raise it again.",
+      "backTo": "Back to {name}",
+      "empty": "Nothing open. Either the checks have not run for this client yet, or everything they found has been dealt with.",
+      "openCount": "{count} open",
+      "foundAcross": "of {total} found across {tools, plural, one {# tool} other {# tools}}",
+      "runAgain": "run it again",
+      "resolvedUndo": "Resolved — undo",
+      "ignoredUndo": "Ignored — undo",
+      "fixed": "Fixed",
+      "notAProblem": "Not a problem here",
+      "ignoreHint": "The check is right about the facts and wrong about whether they matter here. It will not be raised again.",
+      "severity": {
+        "critical": "critical",
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      }
+    },
+    "landingPerf": {
+      "connectGsc": "Connect Google Search Console first — the page-level click data comes from GSC.",
+      "title": "Landing-page performance · {name}",
+      "description": "Pages sorted by 'fix score' — high clicks + low conversion rate = best ROI to fix. Run a UX/CRO pass on the top 5.",
+      "noGa4": "GA4 not connected — showing GSC clicks only. Connect GA4 to see conversions + revenue per page.",
+      "empty": "No page-level GSC data returned. The site may be too new or have too little traffic for GSC to surface page reports.",
+      "tableTitle": "Pages by fix-score ({count})",
+      "tableHint": "Higher score = more wasted traffic. Targets first.",
+      "colPage": "Page",
+      "colClicks": "Clicks",
+      "colSessions": "Sess.",
+      "colConversions": "Conv.",
+      "colRate": "CR",
+      "colRevenue": "$",
+      "colFixScore": "Fix score"
+    },
+    "monitor": {
+      "page": {
+        "title": "Page monitor · {name}",
+        "description": "Tracks the status code, title, description, H1, canonical, robots directives and structured data of key pages, checked daily. A page answering with an error, a noindex, or a removed canonical, title, H1 or structured data is flagged critical.",
+        "empty": "No pages monitored yet. Add a few above to start tracking changes.",
+        "answeringHttp": "answering HTTP {status}",
+        "lastTitle": "Title: {title}",
+        "lastRobots": "Robots: {robots}",
+        "lastChecked": "Last checked {date}",
+        "pause": "pause",
+        "resume": "resume",
+        "remove": "Remove",
+        "recentChanges": "Recent changes",
+        "recentChangesHint": "Last {count} detected diffs across this client's pages."
+      },
+      "status": {
+        "active": "active",
+        "paused": "paused"
+      },
+      "severity": {
+        "critical": "critical",
+        "warning": "warning",
+        "info": "info"
+      },
+      "field": {
+        "status": "status",
+        "title": "title",
+        "description": "description",
+        "h1": "h1",
+        "canonical": "canonical",
+        "robots": "robots",
+        "schema": "schema",
+        "content": "content"
+      },
+      "form": {
+        "noClients": "Add a client first, then you can monitor their key pages here.",
+        "client": "Client",
+        "url": "Page URL",
+        "urlPlaceholder": "https://acmecoffee.com/products/dark-roast",
+        "label": "Label (optional)",
+        "labelPlaceholder": "Top product page",
+        "adding": "Adding…",
+        "submit": "Monitor",
+        "hint": "We'll fetch the page now to take a baseline snapshot. Future checks compare title, meta description, H1, canonical, and body content — and ping your webhook when any change."
+      },
+      "buttons": {
+        "checkNow": "Check now",
+        "checkingAll": "Checking all…",
+        "checkAll": "Check all pages"
+      }
+    },
+    "cwv": {
+      "page": {
+        "title": "Core Web Vitals · {name}",
+        "description": "Free PageSpeed Insights scans. Run on the homepage + key landing pages, then drop the wins into your task list."
+      },
+      "runner": {
+        "enterUrl": "Enter a URL.",
+        "success": "Performance {score}/100 · {verdict}",
+        "newScan": "New scan",
+        "newScanHint": "Calls PageSpeed Insights — free 25k requests/day. Takes ~30-60s per URL.",
+        "url": "URL",
+        "urlPlaceholder": "https://example.com/important-page",
+        "mobile": "Mobile",
+        "desktop": "Desktop",
+        "scanning": "Scanning…",
+        "run": "Run scan",
+        "empty": "No scans yet. Try the homepage above and pick a strategy."
+      },
+      "overall": {
+        "pass": "Pass",
+        "needs_improvement": "Needs improvement",
+        "fail": "Fail",
+        "scanned": "Scanned"
+      },
+      "report": {
+        "delete": "Delete",
+        "perf": "Perf",
+        "a11y": "A11y",
+        "best": "Best",
+        "topOpportunities": "Top opportunities",
+        "save": "Save {seconds}s"
+      }
+    },
+    "brokenLinks": {
+      "allClients": "All clients",
+      "title": "Broken link finder",
+      "intro": "Client #{clientId} · Paste any page URL — we'll fetch, extract every link, and check status codes in parallel (max ~200 links per scan).",
+      "urlLabel": "Page URL to scan",
+      "urlPlaceholder": "https://yoursite.com/blog/post",
+      "checking": "Checking…",
+      "scan": "Scan",
+      "tiles": {
+        "total": "Total links",
+        "broken": "Broken",
+        "ok": "OK"
+      },
+      "brokenSection": "Broken ({count})",
+      "noBroken": "No broken links on this page. Run the scan on more URLs to cover the whole site.",
+      "scope": {
+        "internal": "internal",
+        "external": "external"
+      },
+      "anchor": "Anchor: “{anchor}”"
+    },
+    "imageAudit": {
+      "allClients": "All clients",
+      "title": "Image SEO audit",
+      "intro": "Extracts every image from the page, then HEAD-checks each for size + format. Flags 9 distinct image-SEO issues per file.",
+      "urlLabel": "Page URL",
+      "urlPlaceholder": "https://example.com/blog/post",
+      "auditing": "Auditing…",
+      "audit": "Audit",
+      "tiles": {
+        "total": "Total images",
+        "withIssues": "With issues",
+        "clean": "Clean"
+      },
+      "noImages": "No images found on this page.",
+      "imagesHeading": "Images",
+      "sizeKb": "{size}KB",
+      "altLabel": "Alt:",
+      "altNone": "(none)",
+      "altEmpty": "(empty)",
+      "cleanBadge": "Clean",
+      "issues": {
+        "missing_alt": "No alt",
+        "empty_alt": "Empty alt",
+        "alt_too_long": "Alt > 125",
+        "alt_is_filename": "Alt is filename",
+        "no_dimensions": "No w/h",
+        "no_lazy_loading": "No lazy",
+        "legacy_format": "JPG/PNG",
+        "oversize": "Oversize",
+        "broken": "Broken"
+      }
+    }
   }
 }

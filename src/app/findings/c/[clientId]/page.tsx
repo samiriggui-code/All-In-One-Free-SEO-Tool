@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { ClipboardList } from "lucide-react";
@@ -41,12 +42,13 @@ export default async function ClientFindingsPage({
   if (!client) notFound();
 
   const findings = await openToolFindings(clientId);
+  const t = await getTranslations("auditTab.findings");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="What the tools found"
-        description={`Open findings for ${client.name}, from the checks that run on their own and the ones you ran by hand. Resolving or ignoring one here sticks — the next run will not raise it again.`}
+        title={t("title")}
+        description={t("description", { name: client.name })}
         icon={ClipboardList}
         accent="cyan"
       />
@@ -73,7 +75,7 @@ export default async function ClientFindingsPage({
           href={`/clients/${clientId}`}
           className="text-primary hover:underline"
         >
-          Back to {client.name}
+          {t("backTo", { name: client.name })}
         </Link>
       </p>
     </div>
