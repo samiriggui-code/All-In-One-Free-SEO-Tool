@@ -36,6 +36,8 @@ import {
 } from "./google-data";
 import { loadBrand, type Brand } from "./brand";
 import { isOpenTask } from "./task-status";
+import { getRuleById } from "@/audit/catalog";
+import { getReportLocale, reportFormat, reportStrings } from "./report-i18n";
 
 type Color = string;
 
@@ -43,7 +45,8 @@ const defaultPalette = {
   ink: "#0f1117" as Color,
   mute: "#5b6173" as Color,
   rule: "#dde0e7" as Color,
-  brand: "#6d49d6" as Color,
+  // The app's brand blue; a workspace brand colour overrides it.
+  brand: "#0a6fa8" as Color,
   good: "#0f9460" as Color,
   warn: "#b76b00" as Color,
   bad: "#c43151" as Color,
@@ -54,6 +57,20 @@ const defaultPalette = {
 // generateReportPdf calls are serialized via _generateLock below so two
 // reports don't stomp each other's brand color.
 let palette = { ...defaultPalette };
+
+// Report language, set with the palette under the same lock: the
+// workspace language (Settings -> General), see report-i18n.ts.
+let L = reportStrings("en");
+let F = reportFormat("en");
+
+/** Readable name of an issue type: the audit rule's name, not its id. */
+function issueTitle(type: string): string {
+  if (type.startsWith("seomator:")) {
+    const rule = getRuleById(type.slice("seomator:".length));
+    if (rule?.name) return rule.name;
+  }
+  return type.replace(/_/g, " ");
+}
 
 // Mutex that serializes report generation. Without this, two concurrent
 // calls would race on palette mutation: client A sets brand color, awaits
@@ -284,6 +301,9 @@ export async function generateReportPdf(
           ? brand.color
           : defaultPalette.brand,
     };
+    const locale = await getReportLocale();
+    L = reportStrings(locale);
+    F = reportFormat(locale);
 
   const completedAudits = await db
     .select()
@@ -560,7 +580,7 @@ export async function generateReportPdf(
     .sort((a, b) => severityRank(b.severity) - severityRank(a.severity))
     .slice(0, 5)
     .map((i) => ({
-      type: i.type,
+      type: issueTitle(i.type),
       severity: i.severity,
       message: i.message,
     }));
@@ -626,6 +646,7 @@ export async function generateReportPdf(
       position: q.position,
     })),
     quickWinsCount: gscQuickWins.length,
+    locale: (await getReportLocale()),
   });
   void topIssue;
   void aiExecutiveSummary;
@@ -635,9 +656,9 @@ export async function generateReportPdf(
     size: "A4",
     margins: { top: 60, bottom: 60, left: 56, right: 56 },
     info: {
-      Title: `${client.name} — SEO Report`,
-      Author: "SEO Tool",
-      Subject: "Monthly SEO performance report",
+      Title: L.docTitle(client.name),
+      Author: brand.name || L.docAuthor,
+      Subject: L.docSubject,
     },
   });
 
@@ -667,7 +688,7 @@ export async function generateReportPdf(
     brandColor: palette.brand,
     brandName: brand.name,
     brandLogo: brand.logoBuffer && brand.logoMime ? { buffer: brand.logoBuffer, mime: brand.logoMime } : null,
-    template: TEMPLATE_LABELS[template],
+    template: L.templates[template],
   });
   doc.addPage();
 
@@ -692,7 +713,7 @@ export async function generateReportPdf(
   doc
     .fillColor(palette.brand)
     .fontSize(10)
-    .text("SEO REPORT", { characterSpacing: 2 });
+    .text(L.seoReport, { characterSpacing: 2 });
   doc.moveDown(0.5);
   doc
     .fillColor(palette.ink)
@@ -718,31 +739,28 @@ export async function generateReportPdf(
 
   doc.moveDown(1.5);
   const today = new Date();
-  const periodLabel = today.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-  doc.fillColor(palette.mute).fontSize(10).text(`Period · ${periodLabel}`);
+  const periodLabel = F.monthYear(today);
+  doc.fillColor(palette.mute).fontSize(10).text(L.period(periodLabel));
   if (brand.name) {
     doc
       .fillColor(palette.mute)
       .fontSize(9)
-      .text(`Prepared by ${brand.name}`);
+      .text(L.preparedBy(brand.name));
   }
 
   // Template label + variant intro on cover
   doc
     .fillColor(palette.mute)
     .fontSize(9)
-    .text(`Template · ${TEMPLATE_LABELS[template]}`);
-  const framing = TEMPLATE_FRAMING[template];
-  if (framing?.intro) {
+    .text(L.template(L.templates[template]));
+  const framingIntro = L.framing[template];
+  if (framingIntro) {
     doc
       .moveDown(0.3)
       .fillColor(palette.mute)
       .font("Helvetica-Oblique")
       .fontSize(10)
-      .text(framing.intro);
+      .text(framingIntro);
   }
 
   doc.moveDown(2);
@@ -753,7 +771,7 @@ export async function generateReportPdf(
   doc.moveDown(2);
 
   // === Executive summary === (always)
-  drawSectionHeading(doc, "Executive summary");
+  drawSectionHeading(doc, L.execSummary);
   doc
     .fillColor(palette.ink)
     .fontSize(11)
@@ -775,10 +793,14 @@ export async function generateReportPdf(
       .fontSize(10)
       .fillColor(palette.ink)
       .text(
-        `Week ${planState.currentWeek} of ${planState.totalWeeks}` +
-          (planState.phase ? ` · ${planState.phase}` : "") +
-          ` — ${planState.done} of ${planState.total} planned items complete` +
-          (planState.overdue > 0 ? `, ${planState.overdue} overdue` : ""),
+        L.planLine(
+          planState.currentWeek,
+          planState.totalWeeks,
+          planState.phase ?? null,
+          planState.done,
+          planState.total,
+          planState.overdue,
+        ),
       );
 
     if (planState.currentWeek <= 9) {
@@ -787,10 +809,7 @@ export async function generateReportPdf(
         .fontSize(9)
         .fillColor(palette.mute)
         .text(
-          "Search engines take roughly 60 to 90 days to re-crawl, re-evaluate and " +
-            "move pages, so the work in this period shows up around month three. " +
-            "For now the honest measure of progress is the plan above, not the " +
-            "traffic line below.",
+          L.planPatience,
           { lineGap: 2 },
         );
       doc.fillColor(palette.ink).fontSize(11);
@@ -807,16 +826,16 @@ export async function generateReportPdf(
       .font("Helvetica-Bold")
       .fontSize(8)
       .fillColor(palette.mute)
-      .text("DATA BEHIND THIS SUMMARY", { characterSpacing: 1 });
+      .text(L.dataBehind, { characterSpacing: 1 });
     doc.moveDown(0.3);
     doc.font("Helvetica").fontSize(9).fillColor(palette.mute);
     for (const dp of exec.dataPoints) {
-      doc.text(`• ${dp.label}: ${dp.value}`, { lineGap: 1 });
+      doc.text(`• ${dp.label}${L.colon}${dp.value}`, { lineGap: 1 });
     }
     if (exec.source === "template") {
       doc.moveDown(0.3);
       doc.text(
-        "(Summary generated from template — no AI provider configured.)",
+        L.templateSummaryNote,
         { lineGap: 1 },
       );
     }
@@ -830,7 +849,7 @@ export async function generateReportPdf(
     snapshotComparison.latest &&
     (snapshotComparison.baseline || snapshotComparison.prior)
   ) {
-    drawSectionHeading(doc, "Performance over time");
+    drawSectionHeading(doc, L.performanceOverTime);
     const cur = snapshotComparison.latest;
     const base = snapshotComparison.baseline;
     const prior = snapshotComparison.prior;
@@ -840,34 +859,32 @@ export async function generateReportPdf(
         .fillColor(palette.mute)
         .fontSize(9)
         .text(
-          `Since baseline (${base.capturedAt.toLocaleDateString()}, ~${Math.max(
-            1,
-            Math.round(
-              (Date.now() - base.capturedAt.getTime()) / 86_400_000,
-            ),
-          )} days ago):`,
+          L.sinceBaseline(
+            F.date(base.capturedAt),
+            Math.max(1, Math.round((Date.now() - base.capturedAt.getTime()) / 86_400_000)),
+          ),
         );
       doc.moveDown(0.3);
       doc.fontSize(10).fillColor(palette.ink);
-      drawDeltaRow(doc, "Health score", base.healthScore, cur.healthScore);
-      drawDeltaRow(doc, "Organic clicks (28d)", base.organicClicks, cur.organicClicks);
-      drawDeltaRow(doc, "Organic impressions (28d)", base.organicImpressions, cur.organicImpressions);
-      drawDeltaRow(doc, "GA4 sessions (28d)", base.ga4Sessions, cur.ga4Sessions);
-      drawDeltaRow(doc, "GA4 conversions (28d)", base.ga4Conversions, cur.ga4Conversions);
+      drawDeltaRow(doc, L.rowHealthScore, base.healthScore, cur.healthScore);
+      drawDeltaRow(doc, L.rowClicks, base.organicClicks, cur.organicClicks);
+      drawDeltaRow(doc, L.rowImpressions, base.organicImpressions, cur.organicImpressions);
+      drawDeltaRow(doc, L.rowSessions, base.ga4Sessions, cur.ga4Sessions);
+      drawDeltaRow(doc, L.rowConversions, base.ga4Conversions, cur.ga4Conversions);
       if (
         typeof base.ga4RevenueX100 === "number" &&
         typeof cur.ga4RevenueX100 === "number"
       ) {
         drawDeltaRow(
           doc,
-          "Organic revenue (28d, $)",
+          L.rowRevenue,
           Math.round(base.ga4RevenueX100 / 100),
           Math.round(cur.ga4RevenueX100 / 100),
         );
       }
-      drawDeltaRow(doc, "Top-10 keywords", base.top10Count, cur.top10Count);
-      drawDeltaRow(doc, "Backlinks (logged)", base.backlinkCount, cur.backlinkCount);
-      drawDeltaRow(doc, "GBP playbook %", base.gbpScore, cur.gbpScore);
+      drawDeltaRow(doc, L.rowTop10, base.top10Count, cur.top10Count);
+      drawDeltaRow(doc, L.rowBacklinks, base.backlinkCount, cur.backlinkCount);
+      drawDeltaRow(doc, L.rowGbp, base.gbpScore, cur.gbpScore);
       doc.moveDown(0.5);
     }
     if (prior && prior !== base) {
@@ -875,12 +892,12 @@ export async function generateReportPdf(
         .font("Helvetica")
         .fillColor(palette.mute)
         .fontSize(9)
-        .text(`Since last snapshot (${prior.capturedAt.toLocaleDateString()}):`);
+        .text(L.sinceSnapshot(F.date(prior.capturedAt)));
       doc.moveDown(0.3);
       doc.fontSize(10).fillColor(palette.ink);
-      drawDeltaRow(doc, "Health score", prior.healthScore, cur.healthScore);
-      drawDeltaRow(doc, "Organic clicks (28d)", prior.organicClicks, cur.organicClicks);
-      drawDeltaRow(doc, "Top-10 keywords", prior.top10Count, cur.top10Count);
+      drawDeltaRow(doc, L.rowHealthScore, prior.healthScore, cur.healthScore);
+      drawDeltaRow(doc, L.rowClicks, prior.organicClicks, cur.organicClicks);
+      drawDeltaRow(doc, L.rowTop10, prior.top10Count, cur.top10Count);
       doc.moveDown(0.5);
     }
     doc.moveDown(0.5);
@@ -891,50 +908,50 @@ export async function generateReportPdf(
   // Cover + exec stays clean on its own pages; data pages start fresh.
   if (!isTechnical(template)) {
     doc.addPage();
-    drawSectionHeading(doc, "Performance highlights");
-    drawKeyValueRow(doc, "Audits completed this period", String(completedAudits.length));
-    drawKeyValueRow(doc, "Tasks completed", `${doneTasks.length} of ${allTasks.length}`);
-    drawKeyValueRow(doc, "Open issues from latest audit", String(allIssues.length));
+    drawSectionHeading(doc, L.highlights);
+    drawKeyValueRow(doc, L.auditsCompleted, String(completedAudits.length));
+    drawKeyValueRow(doc, L.tasksCompleted, L.tasksOf(doneTasks.length, allTasks.length));
+    drawKeyValueRow(doc, L.openIssues, String(allIssues.length));
     if (ga4Daily.length > 0) {
       const trend =
         sessionsDeltaPct !== null
-          ? ` (${sessionsDeltaPct > 0 ? "+" : ""}${sessionsDeltaPct}% vs prior)`
+          ? L.vsPrior(F.pct(sessionsDeltaPct))
           : "";
       drawKeyValueRow(
         doc,
-        "Organic sessions (28 days)",
-        `${totalSessions.toLocaleString()}${trend}`,
+        L.organicSessions28,
+        `${F.num(totalSessions)}${trend}`,
       );
     }
     drawKeyValueRow(
       doc,
-      "Tech stack",
+      L.techStack,
       client.techStack && client.techStack.length > 0
         ? client.techStack.join(", ")
-        : "Not detected",
+        : L.notDetected,
     );
     doc.moveDown(1.5);
   }
 
   // === Organic traffic detail === (detailed only, when GA4 data exists)
   if (isDetailed(template) && ga4Daily.length > 0) {
-    drawSectionHeading(doc, "Organic traffic — last 28 days");
-    drawKeyValueRow(doc, "Sessions", totalSessions.toLocaleString());
+    drawSectionHeading(doc, L.trafficTitle);
+    drawKeyValueRow(doc, L.sessions, F.num(totalSessions));
     drawKeyValueRow(
       doc,
-      "Users",
-      ga4Daily.reduce((s, r) => s + r.users, 0).toLocaleString(),
+      L.users,
+      F.num(ga4Daily.reduce((s, r) => s + r.users, 0)),
     );
     drawKeyValueRow(
       doc,
-      "Pageviews",
-      ga4Daily.reduce((s, r) => s + r.pageviews, 0).toLocaleString(),
+      L.pageviews,
+      F.num(ga4Daily.reduce((s, r) => s + r.pageviews, 0)),
     );
     if (sessionsDeltaPct !== null) {
       drawKeyValueRow(
         doc,
-        "Week-over-week",
-        `${sessionsDeltaPct > 0 ? "+" : ""}${sessionsDeltaPct}%`,
+        L.weekOverWeek,
+        F.pct(sessionsDeltaPct),
       );
     }
     doc.moveDown(0.5);
@@ -951,12 +968,12 @@ export async function generateReportPdf(
 
   // === Top keywords from Search Console ===
   if (gscTop.length > 0 && !isExecutive(template)) {
-    drawSectionHeading(doc, "Top keywords (Search Console, 28 days)");
+    drawSectionHeading(doc, L.topKeywordsGsc);
     drawKeywordTable(doc, gscTop.slice(0, 10));
     doc.moveDown(1.2);
   } else if (gscTop.length > 0 && isExecutive(template)) {
     // Executive: just the top 5 as a tight list
-    drawSectionHeading(doc, "Top organic keywords");
+    drawSectionHeading(doc, L.topKeywords);
     for (const k of gscTop.slice(0, 5)) {
       ensureSpace(doc, 22);
       doc
@@ -968,7 +985,7 @@ export async function generateReportPdf(
         .fillColor(palette.mute)
         .font("Helvetica")
         .text(
-          `   ${k.clicks} clicks · pos ${k.position.toFixed(1)}`,
+          `   ${L.clicksPos(F.num(k.clicks), F.dec(k.position))}`,
         );
     }
     doc.moveDown(1.2);
@@ -976,13 +993,13 @@ export async function generateReportPdf(
 
   // === Quick wins ===
   if (gscQuickWins.length > 0 && !isExecutive(template)) {
-    drawSectionHeading(doc, "Quick wins — keywords ranking 4-15");
+    drawSectionHeading(doc, L.quickWins);
     doc
       .fillColor(palette.mute)
       .font("Helvetica")
       .fontSize(9)
       .text(
-        "Sitting just outside page 1 with real impressions. One tweak can push them onto page 1, where CTR jumps from <2% to 5-12%.",
+        L.quickWinsHint,
         { lineGap: 2 },
       );
     doc.moveDown(0.4);
@@ -994,7 +1011,7 @@ export async function generateReportPdf(
 
   // === Issues by severity === (always; executive shows top 3 only)
   if (allIssues.length > 0) {
-    drawSectionHeading(doc, "Issues by severity");
+    drawSectionHeading(doc, L.issuesBySeverity);
     const grouped = {
       critical: allIssues.filter((i) => i.severity === "critical"),
       high: allIssues.filter((i) => i.severity === "high"),
@@ -1018,7 +1035,7 @@ export async function generateReportPdf(
         .fillColor(sevColor[sev])
         .fontSize(10)
         .font("Helvetica-Bold")
-        .text(`${sev.toUpperCase()} · ${list.length}`);
+        .text(`${L.severity[sev]} - ${list.length}`);
       doc.moveDown(0.3);
       doc.fillColor(palette.ink).font("Helvetica").fontSize(10);
       for (const issue of list.slice(0, perSevCap)) {
@@ -1026,7 +1043,7 @@ export async function generateReportPdf(
         doc
           .font("Helvetica-Bold")
           .fillColor(palette.ink)
-          .text(issue.type.replace(/_/g, " "), { continued: false });
+          .text(issueTitle(issue.type), { continued: false });
         doc
           .font("Helvetica")
           .fillColor(palette.mute)
@@ -1048,7 +1065,7 @@ export async function generateReportPdf(
           .font("Helvetica-Oblique")
           .fillColor(palette.mute)
           .fontSize(9)
-          .text(`+ ${list.length - perSevCap} more`);
+          .text(L.more(list.length - perSevCap));
       }
       doc.moveDown(0.5);
     }
@@ -1063,14 +1080,13 @@ export async function generateReportPdf(
   if (toolFindingsForReport.length > 0) {
     ensureSpace(doc, 80);
     doc.moveDown(0.8);
-    drawSectionHeading(doc, "Found by the tools");
+    drawSectionHeading(doc, L.foundByTools);
     doc
       .font("Helvetica")
       .fillColor(palette.mute)
       .fontSize(9)
       .text(
-        "Checks that run on their own between audits, and that look at things a " +
-          "single crawl does not.",
+        L.foundByToolsHint,
       );
     doc.moveDown(0.5);
     doc.fontSize(10).fillColor(palette.ink);
@@ -1080,7 +1096,7 @@ export async function generateReportPdf(
         .font("Helvetica-Bold")
         .fillColor(sevColor[f.severity as keyof typeof sevColor] ?? palette.ink)
         .fontSize(9)
-        .text(f.severity.toUpperCase(), { continued: true })
+        .text(L.severity[f.severity as keyof typeof L.severity] ?? f.severity.toUpperCase(), { continued: true })
         .fillColor(palette.ink)
         .fontSize(10)
         .text(`  ${f.title}`);
@@ -1088,7 +1104,7 @@ export async function generateReportPdf(
         .font("Helvetica")
         .fillColor(palette.mute)
         .fontSize(9)
-        .text(`found by ${f.toolId}`);
+        .text(L.foundBy(f.toolId));
       doc.moveDown(0.35);
       doc.fontSize(10).fillColor(palette.ink);
     }
@@ -1105,18 +1121,18 @@ export async function generateReportPdf(
   // === Work completed this month === (detailed only)
   if (isDetailed(template)) {
     doc.addPage();
-    drawSectionHeading(doc, "Work completed this period");
+    drawSectionHeading(doc, L.workCompleted);
     if (doneTasks.length === 0) {
       doc
         .fillColor(palette.mute)
         .font("Helvetica")
         .fontSize(10)
-        .text("No tasks marked complete in this period.");
+        .text(L.noTasksDone);
     } else {
       doc.fillColor(palette.ink).font("Helvetica").fontSize(10);
       for (const t of doneTasks) {
         ensureSpace(doc, 30);
-        doc.font("Helvetica-Bold").text(`✓ ${t.title}`);
+        doc.font("Helvetica-Bold").text(`• ${t.title}`);
         if (t.description)
           doc
             .font("Helvetica")
@@ -1132,20 +1148,18 @@ export async function generateReportPdf(
 
     // === Links lost this period ===
     if (linksLostThisPeriod.length > 0) {
-      drawSectionHeading(doc, "Links lost this period");
+      drawSectionHeading(doc, L.linksLost);
       doc.fillColor(palette.ink).font("Helvetica").fontSize(10);
       const n = linksLostThisPeriod.length;
       doc
         .font("Helvetica-Bold")
-        .text(`${n} link${n === 1 ? "" : "s"} no longer found`);
+        .text(L.linksLostCount(n));
       doc
         .font("Helvetica")
         .fillColor(palette.mute)
         .fontSize(9)
         .text(
-          "Each source page was checked twice and the link was not there either time. " +
-            "These are usually the cheapest links to win back — the publisher already " +
-            "decided once that the site was worth linking to.",
+          L.linksLostHint,
         );
       doc.moveDown(0.6);
       doc.fontSize(10).fillColor(palette.ink);
@@ -1153,11 +1167,11 @@ export async function generateReportPdf(
         ensureSpace(doc, 28);
         doc.font("Helvetica-Bold").text(`• ${l.sourceDomain}`);
         const meta: string[] = [];
-        if (l.anchorText) meta.push(`anchor: "${l.anchorText}"`);
+        if (l.anchorText) meta.push(L.anchor(l.anchorText));
         if (l.domainAuthority !== null && l.domainAuthority !== undefined)
           meta.push(`DA ${l.domainAuthority}`);
         if (l.lastSeen)
-          meta.push(`last seen ${new Date(l.lastSeen).toLocaleDateString()}`);
+          meta.push(L.lastSeen(F.date(new Date(l.lastSeen))));
         if (meta.length > 0) {
           doc
             .font("Helvetica")
@@ -1173,7 +1187,7 @@ export async function generateReportPdf(
 
     // === Links built this period ===
     if (linksBuiltThisPeriod.length > 0) {
-      drawSectionHeading(doc, "Links built this period");
+      drawSectionHeading(doc, L.linksBuilt);
       doc.fillColor(palette.ink).font("Helvetica").fontSize(10);
       const total = linksBuiltThisPeriod.length;
       const dofollow = linksBuiltThisPeriod.filter((l) => l.rel === "dofollow")
@@ -1189,13 +1203,13 @@ export async function generateReportPdf(
       })();
       doc
         .font("Helvetica-Bold")
-        .text(`${total} link${total === 1 ? "" : "s"} placed`);
+        .text(L.linksPlaced(total));
       doc
         .font("Helvetica")
         .fillColor(palette.mute)
         .fontSize(9)
         .text(
-          `${dofollow} dofollow${avgDa !== null ? ` · avg DA ${avgDa}` : ""}`,
+          L.dofollowAvg(dofollow, avgDa),
         );
       doc.moveDown(0.6);
       doc.fontSize(10).fillColor(palette.ink);
@@ -1205,12 +1219,12 @@ export async function generateReportPdf(
           .font("Helvetica-Bold")
           .text(`• ${l.sourceDomain}${l.method ? ` (${l.method})` : ""}`);
         const meta: string[] = [];
-        if (l.anchorText) meta.push(`anchor: "${l.anchorText}"`);
+        if (l.anchorText) meta.push(L.anchor(l.anchorText));
         if (l.domainAuthority !== null && l.domainAuthority !== undefined)
           meta.push(`DA ${l.domainAuthority}`);
         if (l.rel) meta.push(l.rel);
         if (l.placedAt)
-          meta.push(new Date(l.placedAt).toLocaleDateString());
+          meta.push(F.date(new Date(l.placedAt)));
         if (meta.length > 0) {
           doc
             .font("Helvetica")
@@ -1233,23 +1247,23 @@ export async function generateReportPdf(
 
     // === Tracker submissions that went live ===
     if (submissionsLiveThisPeriod.length > 0) {
-      drawSectionHeading(doc, "Backlink hub — links marked live");
+      drawSectionHeading(doc, L.hubLive);
       doc
         .fillColor(palette.ink)
         .font("Helvetica-Bold")
         .fontSize(10)
         .text(
-          `${submissionsLiveThisPeriod.length} link${submissionsLiveThisPeriod.length === 1 ? "" : "s"} from your tracker`,
+          L.hubCount(submissionsLiveThisPeriod.length),
         );
       doc.moveDown(0.4);
       for (const s of submissionsLiveThisPeriod) {
         ensureSpace(doc, 22);
-        doc.font("Helvetica").fontSize(10).text(`• ${s.domain ?? "(unknown)"}`);
+        doc.font("Helvetica").fontSize(10).text(`• ${s.domain ?? L.unknown}`);
         const meta: string[] = [];
         if (s.category) meta.push(s.category.replace(/-/g, " "));
         if (s.da !== null && s.da !== undefined) meta.push(`DA ${s.da}`);
         if (s.submittedAt)
-          meta.push(new Date(s.submittedAt).toLocaleDateString());
+          meta.push(F.date(new Date(s.submittedAt)));
         if (meta.length > 0) {
           doc
             .font("Helvetica")
@@ -1265,13 +1279,13 @@ export async function generateReportPdf(
 
     // === Guest posts published ===
     if (guestPostsPublishedThisPeriod.length > 0) {
-      drawSectionHeading(doc, "Guest posts published");
+      drawSectionHeading(doc, L.guestPosts);
       doc
         .font("Helvetica-Bold")
         .fontSize(10)
         .fillColor(palette.ink)
         .text(
-          `${guestPostsPublishedThisPeriod.length} guest post${guestPostsPublishedThisPeriod.length === 1 ? "" : "s"} live`,
+          L.guestCount(guestPostsPublishedThisPeriod.length),
         );
       doc.moveDown(0.4);
       for (const g of guestPostsPublishedThisPeriod) {
@@ -1280,11 +1294,11 @@ export async function generateReportPdf(
           .font("Helvetica-Bold")
           .fontSize(10)
           .fillColor(palette.ink)
-          .text(`• ${g.siteName} — ${g.topic}`);
+          .text(`• ${g.siteName} - ${g.topic}`);
         const meta: string[] = [];
-        if (g.targetKeyword) meta.push(`target: ${g.targetKeyword}`);
+        if (g.targetKeyword) meta.push(L.target(g.targetKeyword));
         if (g.publishedAt)
-          meta.push(new Date(g.publishedAt).toLocaleDateString());
+          meta.push(F.date(new Date(g.publishedAt)));
         if (meta.length > 0) {
           doc
             .font("Helvetica")
@@ -1300,7 +1314,7 @@ export async function generateReportPdf(
 
     // === Rank movement ===
     if (rankMovements.length > 0) {
-      drawSectionHeading(doc, "Rank movement this period");
+      drawSectionHeading(doc, L.rankMovement);
       const ups = rankMovements.filter((r) => r.delta > 0);
       const downs = rankMovements.filter((r) => r.delta < 0);
       doc
@@ -1308,20 +1322,23 @@ export async function generateReportPdf(
         .fillColor(palette.mute)
         .fontSize(9)
         .text(
-          `${ups.length} keyword${ups.length === 1 ? "" : "s"} moved up · ${downs.length} dropped`,
+          L.rankSummary(ups.length, downs.length),
         );
       doc.moveDown(0.6);
       doc.fontSize(10).fillColor(palette.ink);
       for (const m of rankMovements.slice(0, 15)) {
         ensureSpace(doc, 18);
-        const arrow = m.delta > 0 ? "▲" : "▼";
+        // No arrows: Helvetica (WinAnsi) has none. Sign + colour instead.
         doc
           .font("Helvetica-Bold")
-          .text(`${arrow} ${m.query}`, { continued: true })
+          .fillColor(m.delta > 0 ? palette.good : palette.bad)
+          .text(m.delta > 0 ? "+ " : "- ", { continued: true })
+          .fillColor(palette.ink)
+          .text(m.query, { continued: true })
           .font("Helvetica")
           .fillColor(palette.mute)
           .text(
-            `  #${m.prior} → #${m.current} (${m.delta > 0 ? "+" : ""}${m.delta})`,
+            L.rankRow(m.prior, m.current, F.signed(m.delta)),
           );
         doc.fillColor(palette.ink);
       }
@@ -1330,7 +1347,7 @@ export async function generateReportPdf(
 
     // === Page changes (from page monitor) ===
     if (pageChangesForClient.length > 0) {
-      drawSectionHeading(doc, "Page changes detected");
+      drawSectionHeading(doc, L.pageChanges);
       doc.font("Helvetica").fontSize(10).fillColor(palette.ink);
       // Critical first: ten rows by date alone could leave out the one
       // change that took a page out of search.
@@ -1344,12 +1361,12 @@ export async function generateReportPdf(
         ensureSpace(doc, 26);
         doc
           .font("Helvetica-Bold")
-          .text(`${c.severity === "critical" ? "Critical: " : ""}${c.field} changed`, { continued: true })
+          .text(L.fieldChanged(c.field, c.severity === "critical"), { continued: true })
           .font("Helvetica")
           .fillColor(palette.mute)
           .fontSize(9)
           .text(
-            `  on ${c.url ?? "(unknown URL)"} · ${c.detectedAt.toLocaleDateString()}`,
+            L.changedOn(c.url ?? L.unknownUrl, F.date(c.detectedAt)),
           );
         doc.fontSize(10).fillColor(palette.ink);
       }
@@ -1358,19 +1375,19 @@ export async function generateReportPdf(
 
     // === AI suggestions applied ===
     if (suggestionsApplied.length > 0) {
-      drawSectionHeading(doc, "AI suggestions applied");
+      drawSectionHeading(doc, L.aiApplied);
       doc
         .font("Helvetica")
         .fillColor(palette.mute)
         .fontSize(9)
-        .text(`${suggestionsApplied.length} suggestion${suggestionsApplied.length === 1 ? "" : "s"} applied this period.`);
+        .text(L.aiAppliedCount(suggestionsApplied.length));
       doc.moveDown(0.6);
       doc.fontSize(10).fillColor(palette.ink);
       for (const s of suggestionsApplied.slice(0, 12)) {
         ensureSpace(doc, 24);
         doc
           .font("Helvetica-Bold")
-          .text(`✓ ${s.type.replace(/_/g, " ")}`);
+          .text(`• ${issueTitle(s.type)}`);
         if (s.suggestedValue) {
           doc
             .font("Helvetica")
@@ -1389,13 +1406,13 @@ export async function generateReportPdf(
     // Final page is recommendations + tech context so the reader ends
     // the report looking forward, not back.
     doc.addPage();
-    drawSectionHeading(doc, "Recommendations · next period");
+    drawSectionHeading(doc, L.recommendations);
     if (openTasks.length === 0) {
       doc
         .fillColor(palette.mute)
         .font("Helvetica")
         .fontSize(10)
-        .text("No open recommendations. Run a new audit for fresh suggestions.");
+        .text(L.noRecommendations);
     } else {
       const byPriority = {
         high: openTasks.filter((t) => t.priority === "high"),
@@ -1418,7 +1435,7 @@ export async function generateReportPdf(
           )
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(`${p.toUpperCase()} PRIORITY`);
+          .text(L.priority[p]);
         doc.moveDown(0.3);
         for (const t of list.slice(0, 8)) {
           ensureSpace(doc, 30);
@@ -1443,7 +1460,7 @@ export async function generateReportPdf(
   // Technical template: tech-stack focus + security headers info
   if (isTechnical(template)) {
     doc.moveDown(1);
-    drawSectionHeading(doc, "Tech stack");
+    drawSectionHeading(doc, L.techStack);
     doc
       .fillColor(palette.ink)
       .font("Helvetica")
@@ -1451,17 +1468,17 @@ export async function generateReportPdf(
       .text(
         client.techStack && client.techStack.length > 0
           ? client.techStack.join(", ")
-          : "Not detected",
+          : L.notDetected,
       );
 
     doc.moveDown(1.5);
-    drawSectionHeading(doc, "What this report covers");
+    drawSectionHeading(doc, L.covers);
     doc
       .fillColor(palette.mute)
       .font("Helvetica")
       .fontSize(10)
       .text(
-        "Technical template: every issue across all crawled pages, with affected URLs. Use this for engineering handoff or pre/post-deploy verification.",
+        L.coversTechnical,
         { lineGap: 3 },
       );
   }
@@ -1480,8 +1497,8 @@ function drawFooter(
   today: Date,
 ) {
   const footerText = brand.name
-    ? `Prepared by ${brand.name} · ${today.toLocaleString()}`
-    : `Generated by SEO Tool · ${today.toLocaleString()} · Local instance`;
+    ? L.footerBrand(brand.name, F.dateTime(today))
+    : L.footerLocal(F.dateTime(today));
   doc
     .fillColor(palette.mute)
     .font("Helvetica-Oblique")
@@ -1548,7 +1565,7 @@ function drawDeltaRow(
   const inverted = opts?.inverted ?? false;
   const isUp = delta > 0;
   const isFlat = Math.abs(delta) < 0.5;
-  const direction = isFlat ? "→" : isUp ? "↑" : "↓";
+  // Helvetica (WinAnsi) has no arrows; the colour carries the direction.
   const isGood = isFlat ? null : inverted ? !isUp : isUp;
   const arrowColor = isFlat
     ? palette.mute
@@ -1564,7 +1581,7 @@ function drawDeltaRow(
     .fontSize(10)
     .text(label, doc.page.margins.left, startY, { continued: false });
 
-  const valueText = `${prior} → ${current}`;
+  const valueText = L.fromTo(F.num(prior), F.num(current));
   doc
     .fillColor(palette.ink)
     .font("Helvetica-Bold")
@@ -1576,12 +1593,12 @@ function drawDeltaRow(
   // Arrow + delta below the row, right-aligned
   const deltaPct =
     prior !== 0
-      ? ` (${delta > 0 ? "+" : ""}${Math.round((delta / prior) * 100)}%)`
+      ? ` (${F.pct(Math.round((delta / prior) * 100))})`
       : "";
   doc
     .fontSize(9)
     .fillColor(arrowColor)
-    .text(`${direction} ${delta > 0 ? "+" : ""}${delta}${deltaPct}`, {
+    .text(`${F.signed(delta)}${deltaPct}`, {
       align: "right",
       width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
     });
@@ -1611,11 +1628,11 @@ function drawKeywordTable(
     .fillColor(palette.mute)
     .font("Helvetica-Bold")
     .fontSize(8)
-    .text("QUERY", cols.query, headerY, { characterSpacing: 1 })
-    .text("CLICKS", cols.clicks, headerY, { width: 60, align: "right" })
-    .text("IMPR.", cols.impr, headerY, { width: 50, align: "right" })
-    .text("CTR", cols.ctr, headerY, { width: 50, align: "right" })
-    .text("POS", cols.pos, headerY, { width: 30, align: "right" });
+    .text(L.colQuery, cols.query, headerY, { characterSpacing: 1 })
+    .text(L.colClicks, cols.clicks, headerY, { width: 60, align: "right" })
+    .text(L.colImpr, cols.impr, headerY, { width: 50, align: "right" })
+    .text(L.colCtr, cols.ctr, headerY, { width: 50, align: "right" })
+    .text(L.colPos, cols.pos, headerY, { width: 30, align: "right" });
   doc.y = headerY + 14;
   doc
     .strokeColor(palette.rule)
@@ -1636,15 +1653,15 @@ function drawKeywordTable(
       .fillColor(palette.ink)
       .text(query, cols.query, y, { width: 260 })
       .fillColor(palette.mute)
-      .text(r.clicks.toLocaleString(), cols.clicks, y, {
+      .text(F.num(r.clicks), cols.clicks, y, {
         width: 60,
         align: "right",
       })
-      .text(r.impressions.toLocaleString(), cols.impr, y, {
+      .text(F.num(r.impressions), cols.impr, y, {
         width: 50,
         align: "right",
       })
-      .text(`${(r.ctr * 100).toFixed(1)}%`, cols.ctr, y, {
+      .text(`${F.dec(r.ctr * 100)}%`, cols.ctr, y, {
         width: 50,
         align: "right",
       });
@@ -1658,7 +1675,7 @@ function drawKeywordTable(
     doc
       .fillColor(posTone)
       .font("Helvetica-Bold")
-      .text(r.position.toFixed(1), cols.pos, y, {
+      .text(F.dec(r.position), cols.pos, y, {
         width: 30,
         align: "right",
       })
@@ -1744,12 +1761,12 @@ function drawTrafficSparkline(
       .map((a) => a.label)
       .slice(0, 3)
       .join(" · ");
-    const extra = annotations.length > 3 ? ` (+${annotations.length - 3} more)` : "";
+    const extraCount = annotations.length > 3 ? annotations.length - 3 : 0;
     doc
       .fillColor(palette.mute)
       .font("Helvetica-Oblique")
       .fontSize(8)
-      .text(`Dashed lines mark Google updates: ${labels}${extra}`, left, doc.y, {
+      .text(L.googleUpdates(labels, extraCount), left, doc.y, {
         width: w,
       })
       .font("Helvetica");
@@ -1775,7 +1792,7 @@ function drawHealthScoreBlock(
     .fillColor(palette.mute)
     .font("Helvetica")
     .fontSize(9)
-    .text("HEALTH SCORE", left + 16, top + 14, { characterSpacing: 1 });
+    .text(L.healthScore, left + 16, top + 14, { characterSpacing: 1 });
 
   doc
     .fillColor(scoreColor(score))
@@ -1787,18 +1804,17 @@ function drawHealthScoreBlock(
     .fillColor(palette.mute)
     .font("Helvetica")
     .fontSize(10)
-    .text("of 100", left + 16, top + 70);
+    .text(L.of100, left + 16, top + 70);
 
   if (prev !== null && score !== null) {
     const delta = score - prev;
-    const arrow = delta > 0 ? "▲" : delta < 0 ? "▼" : "→";
     const tone = delta > 0 ? palette.good : delta < 0 ? palette.bad : palette.mute;
     doc
       .fillColor(tone)
       .font("Helvetica-Bold")
       .fontSize(11)
       .text(
-        `${arrow} ${delta > 0 ? "+" : ""}${delta} vs last audit`,
+        L.vsLastAudit(F.signed(delta)),
         left + 120,
         top + 40,
       );
@@ -1889,7 +1905,7 @@ function drawCoverPage(
     .fillColor("#ffffff")
     .fillOpacity(0.75)
     .fontSize(12)
-    .text("Health score / 100", 0, centerY + 100, {
+    .text(L.coverScoreLabel, 0, centerY + 100, {
       width: W,
       align: "center",
       characterSpacing: 1,
@@ -1899,14 +1915,13 @@ function drawCoverPage(
   // Delta vs previous
   if (score !== null && opts.previousScore !== null) {
     const delta = score - opts.previousScore;
-    const sign = delta > 0 ? "+" : "";
     doc
       .font("Helvetica-Bold")
       .fillColor("#ffffff")
       .fillOpacity(0.9)
       .fontSize(14)
       .text(
-        `${sign}${delta} vs previous (${opts.previousScore})`,
+        L.coverDelta(F.signed(delta), opts.previousScore),
         0,
         centerY + 124,
         { width: W, align: "center" },
@@ -1921,7 +1936,7 @@ function drawCoverPage(
     .fillColor("#ffffff")
     .fillOpacity(0.6)
     .fontSize(9)
-    .text("PREPARED FOR", padX, bottomY, { characterSpacing: 2 })
+    .text(L.preparedFor, padX, bottomY, { characterSpacing: 2 })
     .fillOpacity(1);
   doc
     .moveDown(0.4)
@@ -1939,16 +1954,13 @@ function drawCoverPage(
     .fillOpacity(1);
 
   // Bottom-right: period
-  const periodLabel = new Date().toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const periodLabel = F.monthYear(new Date());
   doc
     .font("Helvetica")
     .fillColor("#ffffff")
     .fillOpacity(0.6)
     .fontSize(9)
-    .text("REPORT PERIOD", W - padX - 200, bottomY, {
+    .text(L.reportPeriod, W - padX - 200, bottomY, {
       width: 200,
       align: "right",
       characterSpacing: 2,
@@ -1970,7 +1982,7 @@ function drawCoverPage(
       .fillColor("#ffffff")
       .fillOpacity(0.55)
       .fontSize(9)
-      .text(`Prepared by ${opts.brandName}`, padX, H - padY - 10, {
+      .text(L.preparedBy(opts.brandName), padX, H - padY - 10, {
         characterSpacing: 1,
       })
       .fillOpacity(1);
