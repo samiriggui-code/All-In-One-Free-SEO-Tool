@@ -239,6 +239,38 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+/**
+ * The sidebar: eight entries, the agency's own level. Everything else in
+ * NAV_GROUPS (some fifty pages, one per tool family) is listed on the
+ * toolbox page (/tools) and found by the search palette. The sidebar used
+ * to show all of it, numbered as if it were a circuit, which hid the eight
+ * places a working day actually goes through.
+ */
+const MAIN_HREFS = ["/", "/clients", "/audits", "/tasks", "/reports", "/leads", "/tools", "/settings"];
+
+export function mainNavForRole(role: string | null | undefined): NavGroup[] {
+  if (role === "viewer") return navGroupsForRole(role);
+  const all = NAV_GROUPS.flatMap((g) => g.items);
+  return [
+    {
+      id: "main",
+      title: "Agency",
+      pinned: true,
+      items: MAIN_HREFS.map((h) => all.find((it) => it.href === h)).filter(
+        (it): it is NavItem => Boolean(it),
+      ),
+    },
+  ];
+}
+
+/** The former sidebar groups, for the toolbox page: all but the main entries. */
+export function toolboxGroups(): NavGroup[] {
+  const main = new Set(MAIN_HREFS);
+  return NAV_GROUPS.filter((g) => g.id !== "account")
+    .map((g) => ({ ...g, items: g.items.filter((it) => !main.has(it.href)) }))
+    .filter((g) => g.items.length > 0);
+}
+
 /** Every nav item, flattened — used by the mobile drawer's filter. */
 export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 

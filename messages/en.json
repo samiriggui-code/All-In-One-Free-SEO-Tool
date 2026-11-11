@@ -26,7 +26,8 @@
       "monitoring": "10. Monthly follow-up",
       "agency": "11. Running the agency",
       "account": "Account",
-      "viewer": "Your workspace"
+      "viewer": "Your workspace",
+      "main": "Agency"
     },
     "items": {
       "home": "Dashboard",
@@ -35,7 +36,7 @@
       "seo-chat": "SEO chat",
       "audits": "Audits",
       "tasks": "Tasks",
-      "tools": "All tools",
+      "tools": "Toolbox",
       "reports": "Reports",
       "morning": "Morning briefing",
       "digest": "Weekly digest",
@@ -95,6 +96,10 @@
         "member": "Member",
         "viewer": "Client viewer"
       }
+    },
+    "toolbox": {
+      "title": "All sections",
+      "hint": "The pages of each speciality, by stage of the work. Search (Ctrl+K) finds them too."
     }
   },
   "dashboard": {

@@ -7,7 +7,7 @@ import { motion, LayoutGroup } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Search, PanelLeftClose, PanelLeftOpen, ChevronDown, ChevronRight } from "lucide-react";
 import {
-  navGroupsForRole,
+  mainNavForRole,
   type NavGroup,
   type NavItem,
 } from "./nav-items";
@@ -96,7 +96,7 @@ export function Sidebar({
    */
   uiMode?: "guided" | "pro";
 } = {}) {
-  const groups = navGroupsForRole(userRole);
+  const groups = mainNavForRole(userRole);
   const tShell = useTranslations("shell.sidebar");
   const pathname = usePathname();
   // Closing the settings window goes back to the page it was opened from.
@@ -141,20 +141,11 @@ export function Sidebar({
   // via `guided: true`. Pinned groups stay visible even after filtering
   // (Essentials + Account) so the rail always has anchors at top + bottom;
   // non-pinned groups with no surviving items are hidden entirely.
-  const visibleGroups: NavGroup[] = (
-    uiMode === "pro"
-      ? groups
-      : groups
-          .map((g) => ({
-            ...g,
-            items: g.items.filter((it: NavItem) => it.guided),
-          }))
-          .filter((g) => g.pinned || g.items.length > 0)
-  )
-    // Get started, settings, docs, learn and knowledge live in the account
-    // menu of the top bar now (profile-menu.tsx); the search palette still
-    // finds them through NAV_ITEMS.
-    .filter((g) => g.id !== "account");
+  // Eight entries for everyone (mainNavForRole): the guided/pro filter no
+  // longer has anything to hide here. `uiMode` still drives the page
+  // chrome through data-ui-mode on <html>.
+  void uiMode;
+  const visibleGroups: NavGroup[] = groups;
 
   // Auto-open the group containing the current route — even if the user
   // had it collapsed — so navigation context is always visible. We

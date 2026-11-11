@@ -26,7 +26,8 @@
       "monitoring": "10. Suivi mensuel & veille",
       "agency": "11. Pilotage du cabinet",
       "account": "Compte",
-      "viewer": "Votre espace"
+      "viewer": "Votre espace",
+      "main": "Agence"
     },
     "items": {
       "home": "Tableau de bord",
@@ -35,7 +36,7 @@
       "seo-chat": "Chat SEO",
       "audits": "Audits",
       "tasks": "Tâches",
-      "tools": "Tous les outils",
+      "tools": "Boîte à outils",
       "reports": "Rapports",
       "morning": "Briefing du matin",
       "digest": "Digest hebdo",
@@ -95,6 +96,10 @@
         "member": "Membre",
         "viewer": "Client (lecture seule)"
       }
+    },
+    "toolbox": {
+      "title": "Toutes les rubriques",
+      "hint": "Les pages de chaque spécialité, par étape du travail. La recherche (Ctrl+K) les trouve aussi."
     }
   },
   "dashboard": {
