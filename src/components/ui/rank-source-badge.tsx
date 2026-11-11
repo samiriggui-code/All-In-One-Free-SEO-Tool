@@ -16,6 +16,7 @@
  */
 
 import { Database, Globe } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function RankSourceBadge({
   source,
@@ -29,6 +30,7 @@ export function RankSourceBadge({
   impressions?: number | null;
   className?: string;
 }) {
+  const t = useTranslations("rankSource");
   if (!source) return null;
 
   if (source === "gsc") {
@@ -45,19 +47,15 @@ export function RankSourceBadge({
             : "bg-emerald-500/10 text-emerald-300 ring-emerald-500/25"
         } ${className ?? ""}`}
         title={
-          `Google Search Console — the average position real people saw` +
-          (dataDate ? ` on ${dataDate}` : "") +
-          (n
-            ? `, across ${n.toLocaleString()} impression${n === 1 ? "" : "s"}.`
-            : ".") +
-          (thin
-            ? " That's a small sample, so the average can swing a few positions day to day."
-            : "") +
-          " Search Console data lags two to three days."
+          t("gsc.base") +
+          (dataDate ? t("gsc.on", { date: dataDate }) : "") +
+          (n ? t("gsc.across", { count: n }) : t("gsc.end")) +
+          (thin ? t("gsc.thin") : "") +
+          t("gsc.lag")
         }
       >
         <Database className="size-2.5" />
-        Search Console
+        {t("gsc.label")}
       </span>
     );
   }
@@ -65,10 +63,10 @@ export function RankSourceBadge({
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10 ${className ?? ""}`}
-      title="Checked by loading the live search results page. Fresher than Search Console, but it's what one server was shown rather than what your visitors saw — expect ±1-2 positions of noise from personalisation and rotating SERP features. Connect Search Console for this client to get Google's own numbers instead."
+      title={t("live.title")}
     >
       <Globe className="size-2.5" />
-      Live check
+      {t("live.label")}
     </span>
   );
 }
@@ -80,21 +78,17 @@ export function RankSourceBadge({
  * completeness for its own sake.
  */
 export function ConnectGscNudge({ clientId }: { clientId: number }) {
+  const t = useTranslations("rankSource.nudge");
   return (
     <div className="rounded-lg bg-violet-500/10 px-3 py-2 text-xs ring-1 ring-inset ring-violet-500/25">
-      <span className="font-medium text-violet-200">
-        These rankings come from live SERP checks.
-      </span>{" "}
-      <span className="text-muted-foreground">
-        Connecting Search Console for this client gives you Google&apos;s own
-        numbers instead — more accurate, they cover every query you actually
-        appear for, and they can&apos;t be rate-limited or blocked.{" "}
-      </span>
+      <span className="font-medium text-violet-200">{t("lead")}</span>{" "}
+      <span className="text-muted-foreground">{t("body")} </span>
+      {/* Google is connected in the project's settings tab (project-settings.tsx). */}
       <a
-        href={`/clients/${clientId}/edit#google`}
+        href={`/clients/${clientId}?tab=settings`}
         className="font-medium underline underline-offset-2"
       >
-        Connect it
+        {t("cta")}
       </a>
     </div>
   );

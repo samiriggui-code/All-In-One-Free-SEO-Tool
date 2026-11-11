@@ -3465,5 +3465,143 @@
         "broken": "Broken"
       }
     }
+  },
+  "keywordsTab": {
+    "keywords": {
+      "sparkline": {
+        "needsTwoChecks": "Needs ≥2 checks"
+      },
+      "research": {
+        "longTail": "long-tail",
+        "intents": {
+          "informational": "informational",
+          "commercial": "commercial",
+          "transactional": "transactional",
+          "navigational": "navigational"
+        }
+      },
+      "import": {
+        "csvPlaceholder": "query,country,device\nbest running shoes,US,desktop\n..."
+      }
+    },
+    "cannibalization": {
+      "title": "Cannibalization · {name}",
+      "description": "Queries where two or more pages on your site compete in the SERP over the last 28 days. Sorted by severity, then by impressions.",
+      "connectGsc": "Connect Google Search Console first — cannibalization detection requires real per-query, per-page click data.",
+      "empty": "No cannibalization detected — every ranking query is dominated by a single page on your site. Healthy.",
+      "severity": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "clicks": "{count, plural, one {# click} other {# clicks}}",
+      "impressions": "{count, plural, one {# impression} other {# impressions}}",
+      "pagesCompeting": "{count, plural, one {# page competing} other {# pages competing}}",
+      "col": {
+        "page": "Page",
+        "position": "Pos",
+        "clicks": "Clicks",
+        "impressions": "Impr",
+        "ctr": "CTR"
+      },
+      "fix": {
+        "title": "How to fix cannibalization",
+        "step1": "<b>1. Pick the winner.</b> The page with the most clicks + best position wins. The others are cannibalizing it.",
+        "step2": "<b>2. Decide:</b> consolidate (301-redirect losers into the winner, merge content) or differentiate (rewrite each page to target a clearly distinct query / intent).",
+        "step3": "<b>3. Update internal links</b> so they all point to the winner.",
+        "step4": "<b>4. Re-check in 30 days.</b> Google takes time to reconcile."
+      }
+    },
+    "competitors": {
+      "title": "Competitors · {name}",
+      "description": "Track who this client is up against. We'll layer SERP overlap and content tracking on top in v2.",
+      "emptyTitle": "No competitors tracked yet",
+      "emptyBody": "Add 3-5 competitors above to compare keyword overlap, backlink delta, content cadence, and SERP share-of-voice for this client.",
+      "remove": "Remove",
+      "forClient": "for {name}",
+      "form": {
+        "noClients": "Add a client first, then you can track their competitors here.",
+        "client": "For client",
+        "name": "Competitor name",
+        "namePlaceholder": "Better Coffee Co.",
+        "url": "URL",
+        "urlPlaceholder": "bettercoffee.com",
+        "add": "Add",
+        "adding": "Adding…"
+      }
+    },
+    "contentGap": {
+      "title": "Content gap · {name}",
+      "description": "Queries where this client is appearing in search but losing the click. Highest leverage content to refresh — Google already trusts you for these terms.",
+      "tiles": {
+        "tracked": "Total tracked queries",
+        "gap": "Gap opportunities",
+        "gapHint": "Pos 4-30, ≥100 impr, <5% CTR",
+        "winning": "Already winning",
+        "winningHint": "Top 3 with strong CTR"
+      },
+      "gap": {
+        "title": "Gap opportunities ({count})",
+        "body": "Queries you appear for, but searchers aren't clicking your result. Refresh the title/meta + improve the content to capture impressions you're already getting."
+      },
+      "col": {
+        "query": "Query",
+        "impressions": "Impr.",
+        "clicks": "Clicks",
+        "ctr": "CTR",
+        "position": "Pos"
+      },
+      "winning": {
+        "title": "Already winning ({count})",
+        "body": "Don't change these pages — they're winning. Reference for the kind of result you want everywhere.",
+        "ctr": "{value}% CTR",
+        "clicks": "{count, plural, one {# click} other {# clicks}}"
+      }
+    },
+    "metaRewrite": {
+      "title": "Meta-rewrite · {name}",
+      "description": "Pulls GSC data, finds pages with high impressions and below-expected CTR, AI rewrites the title + meta description, and (if WP is connected) pushes the winning version live with one click.",
+      "flow": {
+        "find": "Find low-CTR pages + AI rewrite",
+        "finding": "Finding low-CTR pages…",
+        "wpNotConnected": "WordPress bridge not connected — copy the rewrites manually, or <link>connect WP</link> to push with one click.",
+        "stats": {
+          "position": "pos {value}",
+          "impressions": "{count, plural, one {# imp} other {# imp}}",
+          "clicks": "{count, plural, one {# click} other {# clicks}}",
+          "ctr": "CTR {value}%"
+        },
+        "current": "Current",
+        "noTitle": "(no title)",
+        "noMeta": "(no meta description)",
+        "suggested": "Suggested ({index}/{total})",
+        "noSuggestion": "AI couldn't produce a rewrite — configure an AI provider in Settings.",
+        "topQueries": "Top queries:",
+        "push": "Push to WordPress",
+        "pushing": "Pushing…",
+        "pushed": "Pushed",
+        "pushedPost": "Pushed #{id}"
+      }
+    }
+  },
+  "rankSource": {
+    "gsc": {
+      "label": "Search Console",
+      "base": "Google Search Console — the average position real people saw",
+      "on": " on {date}",
+      "across": "{count, plural, one {, across # impression.} other {, across # impressions.}}",
+      "end": ".",
+      "thin": " That's a small sample, so the average can swing a few positions day to day.",
+      "lag": " Search Console data lags two to three days."
+    },
+    "live": {
+      "label": "Live check",
+      "title": "Checked by loading the live search results page. Fresher than Search Console, but it's what one server was shown rather than what your visitors saw — expect ±1-2 positions of noise from personalisation and rotating SERP features. Connect Search Console for this client to get Google's own numbers instead."
+    },
+    "nudge": {
+      "lead": "These rankings come from live SERP checks.",
+      "body": "Connecting Search Console for this client gives you Google's own numbers instead — more accurate, they cover every query you actually appear for, and they can't be rate-limited or blocked.",
+      "cta": "Connect it"
+    }
   }
 }

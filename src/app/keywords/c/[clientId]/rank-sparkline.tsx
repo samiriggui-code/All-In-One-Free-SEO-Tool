@@ -13,6 +13,7 @@
  */
 
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { useTranslations } from "next-intl";
 
 type Point = {
   checkedAt: Date;
@@ -20,13 +21,14 @@ type Point = {
 };
 
 export function RankSparkline({ history }: { history: Point[] }) {
+  const t = useTranslations("keywordsTab.keywords.sparkline");
   const filtered = history.filter(
     (h): h is Point & { position: number } => h.position !== null,
   );
   if (filtered.length < 2) {
     return (
       <span className="text-[11px] text-muted-foreground/50">
-        Needs ≥2 checks
+        {t("needsTwoChecks")}
       </span>
     );
   }

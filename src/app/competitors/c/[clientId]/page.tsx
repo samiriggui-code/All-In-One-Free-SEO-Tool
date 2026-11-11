@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq } from "drizzle-orm";
 import { Network, ExternalLink, X } from "lucide-react";
 import { db } from "@/db/client";
@@ -27,6 +28,7 @@ export default async function PerClientCompetitorsPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("keywordsTab.competitors");
 
   const rows = await db
     .select()
@@ -38,8 +40,8 @@ export default async function PerClientCompetitorsPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`Competitors · ${client.name}`}
-        description="Track who this client is up against. We'll layer SERP overlap and content tracking on top in v2."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Network}
         accent="rose"
       />
@@ -50,8 +52,8 @@ export default async function PerClientCompetitorsPage({
         <div className="glass-apple relative overflow-hidden rounded-2xl">
           <EmptyState
             icon={Network}
-            title="No competitors tracked yet"
-            body="Add 3-5 competitors above to compare keyword overlap, backlink delta, content cadence, and SERP share-of-voice for this client."
+            title={t("emptyTitle")}
+            body={t("emptyBody")}
           />
         </div>
       ) : (
@@ -85,7 +87,7 @@ export default async function PerClientCompetitorsPage({
                     <form action={removeAction}>
                       <button
                         type="submit"
-                        aria-label="Remove"
+                        aria-label={t("remove")}
                         className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                       >
                         <X className="size-3.5" />
@@ -96,7 +98,7 @@ export default async function PerClientCompetitorsPage({
                     href={`/clients/${client.id}`}
                     className="sr-only"
                   >
-                    for {client.name}
+                    {t("forClient", { name: client.name })}
                   </Link>
                 </li>
               );

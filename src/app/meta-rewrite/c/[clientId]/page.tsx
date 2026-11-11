@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
@@ -24,13 +25,14 @@ export default async function PerClientMetaRewritePage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("keywordsTab.metaRewrite");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title={`Meta-rewrite · ${client.name}`}
-        description="Pulls GSC data, finds pages with high impressions and below-expected CTR, AI rewrites the title + meta description, and (if WP is connected) pushes the winning version live with one click."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Sparkles}
         accent="violet"
       />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   ExternalLink,
@@ -28,6 +29,7 @@ export function RewriteFlow({
     FindState | null,
     FormData
   >(findCandidates, null);
+  const t = useTranslations("keywordsTab.metaRewrite.flow");
 
   return (
     <>
@@ -41,12 +43,12 @@ export function RewriteFlow({
           {finding ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Finding low-CTR pages…
+              {t("finding")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-4" />
-              Find low-CTR pages + AI rewrite
+              {t("find")}
             </>
           )}
         </button>
@@ -68,15 +70,16 @@ export function RewriteFlow({
 
           {!wpConnected && findState.result.candidates.length > 0 && (
             <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-              WordPress bridge not connected — copy the rewrites manually,
-              or{" "}
-              <a
-                href={`/clients/${clientId}#wp-bridge`}
-                className="underline"
-              >
-                connect WP
-              </a>{" "}
-              to push with one click.
+              {t.rich("wpNotConnected", {
+                link: (c) => (
+                  <a
+                    href={`/clients/${clientId}#wp-bridge`}
+                    className="underline"
+                  >
+                    {c}
+                  </a>
+                ),
+              })}
             </p>
           )}
 
@@ -122,6 +125,7 @@ function CandidateCard({
     ApplyState | null,
     FormData
   >(applyRewrite, null);
+  const t = useTranslations("keywordsTab.metaRewrite.flow");
 
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -136,30 +140,30 @@ function CandidateCard({
           <ExternalLink className="size-3 opacity-60" />
         </a>
         <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-muted-foreground">
-          <span>pos {candidate.position}</span>
-          <span>· {candidate.impressions.toLocaleString()} imp</span>
-          <span>· {candidate.clicks} clicks</span>
-          <span>· CTR {candidate.ctrPct.toFixed(2)}%</span>
+          <span>{t("stats.position", { value: candidate.position })}</span>
+          <span>· {t("stats.impressions", { count: candidate.impressions })}</span>
+          <span>· {t("stats.clicks", { count: candidate.clicks })}</span>
+          <span>· {t("stats.ctr", { value: candidate.ctrPct.toFixed(2) })}</span>
         </div>
       </header>
 
       <div className="grid gap-3 p-5 md:grid-cols-2">
         <div className="rounded-md bg-rose-500/5 ring-1 ring-rose-500/15 px-3 py-2.5 text-xs">
           <div className="text-[10px] font-medium uppercase tracking-wider text-rose-300/90">
-            Current
+            {t("current")}
           </div>
           <p className="mt-1 font-medium text-foreground/90">
-            {candidate.currentTitle || "(no title)"}
+            {candidate.currentTitle || t("noTitle")}
           </p>
           <p className="mt-1 text-muted-foreground">
-            {candidate.currentMeta || "(no meta description)"}
+            {candidate.currentMeta || t("noMeta")}
           </p>
         </div>
         {candidate.suggestions.length > 0 && picked ? (
           <div className="rounded-md bg-emerald-500/5 ring-1 ring-emerald-500/20 px-3 py-2.5 text-xs">
             <div className="flex items-center justify-between">
               <div className="text-[10px] font-medium uppercase tracking-wider text-emerald-300/90">
-                Suggested ({pickedIdx + 1}/{candidate.suggestions.length})
+                {t("suggested", { index: pickedIdx + 1, total: candidate.suggestions.length })}
               </div>
               <div className="flex gap-1">
                 {candidate.suggestions.map((_, i) => (
@@ -197,15 +201,14 @@ function CandidateCard({
           </div>
         ) : (
           <p className="rounded-md bg-white/5 px-3 py-2.5 text-xs text-muted-foreground">
-            AI couldn&apos;t produce a rewrite — configure an AI provider in
-            Settings.
+            {t("noSuggestion")}
           </p>
         )}
       </div>
 
       {candidate.topQueries.length > 0 && (
         <div className="border-t border-white/[0.05] px-5 py-2.5 text-[10px] text-muted-foreground">
-          Top queries:{" "}
+          {t("topQueries")}{" "}
           {candidate.topQueries.slice(0, 5).map((q, i) => (
             <span key={q}>
               <code className="rounded bg-white/5 px-1.5 py-0.5">{q}</code>
@@ -229,17 +232,17 @@ function CandidateCard({
             {applyState?.ok ? (
               <>
                 <CheckCircle2 className="mr-2 size-3.5" />
-                Pushed {applyState.postId ? `#${applyState.postId}` : ""}
+                {applyState.postId ? t("pushedPost", { id: applyState.postId }) : t("pushed")}
               </>
             ) : applying ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Pushing…
+                {t("pushing")}
               </>
             ) : (
               <>
                 <Send className="mr-2 size-3" />
-                Push to WordPress
+                {t("push")}
               </>
             )}
           </button>
