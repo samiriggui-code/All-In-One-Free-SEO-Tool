@@ -37,6 +37,7 @@ pnpm dev                                    # migrations puis Next sur :3000
 | #49 | Faille corrigée : `/findings/c/[id]` sans contrôle d'accès, `markFindingStatus` sans vérification du client ni du droit d'écriture. Test `client-scope-layouts.test.ts` |
 | #50 | **Cadre façon GsKnora** : compte et cloche en bas de la barre latérale, assistant, thème et serveur au-dessus ; plus de boutons flottants sur ordinateur ; Guidé / Pro retiré ; **taille du texte** Petite / Normale / Grande (Paramètres → Apparence, cookie `rf-font-size`, `zoom` sur `<html>`, hauteurs plein écran compensées) |
 | #51 | **Navigation du projet** sur ses 29 pages (`src/lib/project-nav.ts`, dessinée par `client-scope-layout`) : fil d'Ariane, onglets, pages de l'onglet ; « Local » masqué si le projet n'est pas local ; ancien en-tête « Tous les clients » retiré |
+| #52 à #56 | **Toutes les pages des onglets du projet en français** (namespaces `auditTab`, `keywordsTab`, `linksTab`, `localTab`, `aiTab`, `overviewTab`, plus `rankSource`, `clientInfoCard`, `gmailScope`). Corrigés au passage : formulaire imbriqué des articles invités (« Proposer des titres » soumettait le brouillon), sélecteur de client inutile dans la Surveillance d'un projet, liens « ← Tous les clients » qui sortaient du projet |
 
 Hors code : la PR #45 ouverte par erreur chez l'auteur d'origine est fermée, et l'issue #59 lui propose nos améliorations (mise à jour Next, moteur 373 règles, navigation). Sans réponse au 11/11. Il s'était dit intéressé par deux PR séparées : la landing publique sans marque, et les traductions françaises seules.
 
@@ -71,7 +72,7 @@ Constat (détaillé dans `docs/AUDIT-UX.md`, écrit le 24/10 et toujours vrai) :
 
 **Reste à faire, dans l'ordre**
 
-1. Point 5, lots suivants : un onglet à la fois, titres et textes en français, style harmonisé (§C). Onglet Audit en cours (branche `feat/onglet-audit`), puis Mots-clés et contenu, Liens, Local, IA et marque, Rapports.
+1. ~~Point 5 : rattacher et traduire les pages des onglets du projet.~~ Fait (#51 à #56). Reste un passage dédié aux textes qui ne viennent pas des pages : messages d'erreur des actions serveur, catalogue des intégrations (`lib/integrations.ts`), infobulles du glossaire (`components/ui/term.tsx`, `lib/glossary`), données de référence (`lib/gbp-playbook.ts`, `lib/guest-post-sites`, `lib/backlink-difficulty.ts`).
 2. Tâches : une tâche par problème et par projet, avec les adresses en sous-cases (aujourd'hui 60 tâches pour ND Prestige) ; échéances réalistes.
 3. Tableau de bord portefeuille ; vues globales Audits et Rapports.
 4. Mission « refonte » : cahier des charges généré depuis l'audit.
@@ -84,7 +85,7 @@ Constat (détaillé dans `docs/AUDIT-UX.md`, écrit le 24/10 et toujours vrai) :
 - **Erreur du 22/10** « Functions cannot be passed directly to Client Components » sur `/audits/c/[clientId]` et `/keywords/c/[clientId]` : plus reproductible le 11/11 sur `main` (pages chargées avec et sans données). La cause probable, l'ancien en-tête `ClientToolHeader` commun à ces pages, a été retirée par #51. À surveiller dans le journal des erreurs.
 - **Messages d'erreur des actions serveur encore en anglais** (par exemple « No valid email addresses found » pour les destinataires d'un rapport, ou la réponse brute du serveur quand la connexion WordPress échoue).
 - **Tests navigateur (Playwright)** : pas relancés depuis le menu à 8 entrées ; ceux qui décrivent l'ancienne barre latérale sont à ajuster.
-- **Encore en anglais** : les noms et messages des 373 règles d'audit (visibles dans les rapports PDF et les recommandations), les étapes des fournisseurs IA (`api-providers.ts`), les sous-pages Sauvegarde, Santé, Edge, Équipe, Consommation IA, Apprentissage IA, Installer l'application, les noms des 40 outils de la colonne du projet, et la plupart des pages des onglets du projet (traduites onglet par onglet, voir §D).
+- **Encore en anglais** : les noms et messages des 373 règles d'audit (visibles dans les rapports PDF et les recommandations), les étapes des fournisseurs IA (`api-providers.ts`), les sous-pages Sauvegarde, Santé, Edge, Équipe, Consommation IA, Apprentissage IA, Installer l'application, les noms des 40 outils de la colonne du projet, et les textes listés en §D point 1 (messages serveur, intégrations, glossaire, données de référence).
 - **Windows** : `core.autocrlf=true` met les `.md` en CRLF au checkout, et `methodology-loader.test.ts` échoue (seul test en échec sur ce poste). `action-guard.test.ts` dépasse parfois 5 s : lancer `pnpm test --testTimeout=60000`.
 - **Fichiers générés** : ajouter une page ou changer les imports d'une page modifie `tool-capabilities.generated.ts` (`pnpm gen:capabilities`). Deux PR qui le régénèrent entrent en conflit : le régénérer après fusion.
 - **Rapport PDF** : une même règle est répétée une fois par page touchée (75 fois « Canonical Pointing to Homepage ») ; à regrouper en une ligne par règle avec le nombre de pages.

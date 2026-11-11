@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, Sparkles, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { runAiCheck, runAllAiChecks } from "./actions";
 
 export function CheckOneButton({ keywordId }: { keywordId: number }) {
+  const t = useTranslations("aiTab.aiVisibility.checkButtons");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ export function CheckOneButton({ keywordId }: { keywordId: number }) {
         ) : (
           <Sparkles className="size-3" />
         )}
-        {pending ? "…" : "Check AI"}
+        {pending ? "…" : t("checkOne")}
       </Button>
       {error && (
         <span
@@ -45,6 +47,7 @@ export function CheckOneButton({ keywordId }: { keywordId: number }) {
 }
 
 export function CheckAllButton() {
+  const t = useTranslations("aiTab.aiVisibility.checkButtons");
   const [pending, startTransition] = useTransition();
   return (
     <Button
@@ -58,7 +61,7 @@ export function CheckAllButton() {
       ) : (
         <RefreshCw className="size-4" />
       )}
-      {pending ? "Checking all keywords…" : "Check all keywords"}
+      {pending ? t("checkingAll") : t("checkAll")}
     </Button>
   );
 }

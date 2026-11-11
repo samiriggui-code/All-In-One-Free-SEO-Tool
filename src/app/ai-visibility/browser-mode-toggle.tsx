@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Globe, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { setBrowserScrapedAiEnabled } from "./actions";
 
 /**
@@ -13,6 +14,7 @@ import { setBrowserScrapedAiEnabled } from "./actions";
  * + Copilot on this run?"
  */
 export function BrowserModeAiToggle({ initial }: { initial: boolean }) {
+  const t = useTranslations("aiTab.aiVisibility.browserToggle");
   const [enabled, setEnabled] = useState(initial);
   const [pending, startTransition] = useTransition();
 
@@ -45,7 +47,7 @@ export function BrowserModeAiToggle({ initial }: { initial: boolean }) {
         <Globe className="size-3" />
       )}
       <span>
-        Also scan Google AI Mode + Copilot
+        {t("label")}
       </span>
       <span
         className={`ml-0.5 inline-block size-2 rounded-full ${
@@ -53,7 +55,7 @@ export function BrowserModeAiToggle({ initial }: { initial: boolean }) {
         }`}
       />
       <span className="ml-1 text-[9px] font-normal opacity-70">
-        (browser-mode, adds ~30s/keyword)
+        {t("hint")}
       </span>
     </label>
   );

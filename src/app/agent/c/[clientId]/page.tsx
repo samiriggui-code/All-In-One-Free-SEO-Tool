@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { Bot } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients, aiSuggestions } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
@@ -62,13 +63,14 @@ export default async function PerClientAgentPage({
   const active = await getActiveProvider();
   const { byId } = await configuredProviders();
   const aiReady = Boolean(active && byId[active]);
+  const t = await getTranslations("overviewTab.agent");
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
 
       <PageHeader
-        title={`AI agent · ${client.name}`}
-        description="Click run. The agent reads the latest audit + Search Console data, then drafts specific title rewrites, meta descriptions, quick-win actions, and content ideas."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Bot}
         accent="violet"
       />

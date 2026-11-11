@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runBrandMonitor } from "../../actions";
 
 export function RunButton({ clientId }: { clientId: number }) {
+  const t = useTranslations("aiTab.brandMonitor.run");
   const [, startTransition] = useTransition();
   const [running, setRunning] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -24,12 +26,12 @@ export function RunButton({ clientId }: { clientId: number }) {
             if (r.ok) {
               setMsg(
                 r.added > 0
-                  ? `+${r.added} new mentions`
-                  : "No new mentions found",
+                  ? t("added", { count: r.added })
+                  : t("none"),
               );
               setTimeout(() => location.reload(), 800);
             } else {
-              setMsg(`Error: ${r.error}`);
+              setMsg(t("error", { error: r.error }));
             }
           });
         }}
@@ -38,12 +40,12 @@ export function RunButton({ clientId }: { clientId: number }) {
         {running ? (
           <>
             <Loader2 className="mr-2 size-3 animate-spin" />
-            Scanning…
+            {t("scanning")}
           </>
         ) : (
           <>
             <RefreshCw className="mr-2 size-3" />
-            Scan now
+            {t("scan")}
           </>
         )}
       </button>
