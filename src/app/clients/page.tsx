@@ -13,7 +13,7 @@ import { ImportClientsButton } from "./import-form";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
 import { clientScope } from "@/lib/client-scope";
 import { auditFacts, listAccountsWithProjects } from "@/lib/projects";
-import { projectStage } from "@/lib/missions";
+import { ProjectList } from "./project-list";
 
 
 
@@ -23,7 +23,6 @@ export default async function ClientsPage() {
   const rows = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
   // Client -> projects (its sites) -> missions.
   const accounts = await listAccountsWithProjects();
-  const tm = await getTranslations("clientPage.missions");
   const facts = new Map(
     await Promise.all(
       accounts.flatMap((a) => a.projects).map(async (p) => [p.id, await auditFacts(p.id)] as const),
@@ -127,7 +126,11 @@ export default async function ClientsPage() {
                     {a.name.slice(0, 1).toUpperCase()}
                   </span>
                   <div className="min-w-0">
-                    <h2 className="truncate text-sm font-semibold">{a.name}</h2>
+                    <h2 className="truncate text-sm font-semibold">
+                      <Link href={`/clients/accounts/${a.id}`} className="hover:underline">
+                        {a.name}
+                      </Link>
+                    </h2>
                     <p className="truncate text-xs text-muted-foreground">
                       {t("projectCount", { count: a.projects.length })}
                       {a.email ? ` · ${a.email}` : ""}
@@ -142,49 +145,7 @@ export default async function ClientsPage() {
                   {t("addProject")}
                 </Link>
               </header>
-              <ul className="divide-y divide-border">
-                {a.projects.map((p) => {
-                  const f = facts.get(p.id);
-                  const stage = f ? projectStage(f) : "to_audit";
-                  const active = p.missions.filter((m) => m.status === "active" || m.status === "proposed");
-                  return (
-                    <li key={p.id}>
-                      <Link
-                        href={`/clients/${p.id}`}
-                        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 transition-colors hover:bg-accent"
-                      >
-                        <Globe className="size-4 shrink-0 text-muted-foreground" />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{p.name}</p>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {p.url.replace(/^https?:\/\//, "")}
-                          </p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {active.length > 0
-                            ? active.map((m) => tm(`kind_${m.kind}`)).join(", ")
-                            : t("noMission")}
-                        </span>
-                        <span
-                          className={
-                            stage === "audited"
-                              ? "gsk-tag gsk-tag--success"
-                              : stage === "auditing"
-                                ? "gsk-tag gsk-tag--warning"
-                                : "gsk-tag gsk-tag--default"
-                          }
-                        >
-                          {t(`stage_${stage}`)}
-                        </span>
-                        <span className="w-14 text-right text-sm font-semibold tabular-nums">
-                          {f?.score ?? "—"}
-                          <span className="text-xs font-normal text-muted-foreground">/100</span>
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+              <ProjectList projects={a.projects} facts={facts} />
             </section>
           ))}
         </div>
