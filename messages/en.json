@@ -1322,7 +1322,7 @@
   },
   "clients": {
     "title": "Clients",
-    "description": "Sites you're managing in this workspace. Each one gets its own dashboard, audits, tasks, and reports.",
+    "description": "Each client, its projects (its sites) and the missions running on each.",
     "importGoogle": "Import from Google",
     "exportCsv": "Export CSV",
     "addClient": "Add client",
@@ -1331,7 +1331,13 @@
     "relativeDaysAgo": "{count, plural, one {# day ago} other {# days ago}}",
     "relativeWeeksAgo": "{count, plural, one {# week ago} other {# weeks ago}}",
     "relativeMonthsAgo": "{count, plural, one {# month ago} other {# months ago}}",
-    "relativeYearsAgo": "{count, plural, one {# year ago} other {# years ago}}"
+    "relativeYearsAgo": "{count, plural, one {# year ago} other {# years ago}}",
+    "projectCount": "{count, plural, one {# project} other {# projects}}",
+    "addProject": "Add a project",
+    "noMission": "No mission",
+    "stage_to_audit": "To audit",
+    "stage_auditing": "Audit in progress",
+    "stage_audited": "Audited"
   },
   "audits": {
     "title": "Audits",
@@ -2997,7 +3003,9 @@
     "addClient": "Add client",
     "cancel": "Cancel",
     "logo": "Logo",
-    "logoAlt": "Site logo preview"
+    "logoAlt": "Site logo preview",
+    "pageTitleProject": "New project for {client}",
+    "pageDescriptionProject": "Another site of this client. It is audited as soon as it is created: quick audit, then full audit."
   },
   "serverMessages": {
     "quickAdd": {

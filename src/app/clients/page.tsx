@@ -6,34 +6,29 @@ export const dynamic = "force-dynamic";
 import { Users, Globe, Plus, Sparkles } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/shell/page-header";
 import { ImportClientsButton } from "./import-form";
 import { getGoogleConnectionStatus } from "@/lib/google-oauth";
 import { clientScope } from "@/lib/client-scope";
+import { auditFacts, listAccountsWithProjects } from "@/lib/projects";
+import { projectStage } from "@/lib/missions";
 
-const nicheLabels: Record<string, string> = {
-  local: "Local",
-  ecommerce: "E-commerce",
-  saas: "SaaS",
-  blog: "Blog",
-  services: "Services",
-};
 
-const nicheTone: Record<string, string> = {
-  local: "bg-violet-500/15 text-violet-300 ring-violet-500/20",
-  ecommerce: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/20",
-  saas: "bg-amber-500/15 text-amber-300 ring-amber-500/20",
-  blog: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/20",
-  services: "bg-rose-500/15 text-rose-300 ring-rose-500/20",
-};
 
 export default async function ClientsPage() {
   const t = await getTranslations("clients");
   const tCommon = await getTranslations("common");
   const rows = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
+  // Client -> projects (its sites) -> missions.
+  const accounts = await listAccountsWithProjects();
+  const tm = await getTranslations("clientPage.missions");
+  const facts = new Map(
+    await Promise.all(
+      accounts.flatMap((a) => a.projects).map(async (p) => [p.id, await auditFacts(p.id)] as const),
+    ),
+  );
   const googleStatus = await getGoogleConnectionStatus();
 
   return (
@@ -123,89 +118,75 @@ export default async function ClientsPage() {
           </div>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Name</th>
-                <th className="px-5 py-3 text-left font-medium">URL</th>
-                <th className="px-5 py-3 text-left font-medium">Niche</th>
-                <th className="px-5 py-3 text-left font-medium">Tech</th>
-                <th className="px-5 py-3 text-left font-medium">Added</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {rows.map((c) => (
-                <tr
-                  key={c.id}
-                  className="group transition-colors hover:bg-white/[0.03]"
+        <div className="space-y-4">
+          {accounts.map((a) => (
+            <section key={a.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+              <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
+                    {a.name.slice(0, 1).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-sm font-semibold">{a.name}</h2>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {t("projectCount", { count: a.projects.length })}
+                      {a.email ? ` · ${a.email}` : ""}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={`/clients/new?account=${a.id}`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  <td className="px-5 py-4">
-                    <Link
-                      href={`/clients/${c.id}`}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white shadow-md shadow-violet-500/25 ring-1 ring-inset ring-white/20">
-                        {c.name.slice(0, 1).toUpperCase()}
-                      </div>
-                      <span className="font-medium group-hover:underline">
-                        {c.name}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-5 py-4 text-muted-foreground">
-                    <a
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-foreground hover:underline"
-                    >
-                      {c.url.replace(/^https?:\/\//, "")}
-                    </a>
-                  </td>
-                  <td className="px-5 py-4">
-                    {c.niche ? (
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${nicheTone[c.niche] ?? "bg-muted text-muted-foreground"}`}
+                  <Plus className="size-4" />
+                  {t("addProject")}
+                </Link>
+              </header>
+              <ul className="divide-y divide-border">
+                {a.projects.map((p) => {
+                  const f = facts.get(p.id);
+                  const stage = f ? projectStage(f) : "to_audit";
+                  const active = p.missions.filter((m) => m.status === "active" || m.status === "proposed");
+                  return (
+                    <li key={p.id}>
+                      <Link
+                        href={`/clients/${p.id}`}
+                        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 transition-colors hover:bg-accent"
                       >
-                        {nicheLabels[c.niche] ?? c.niche}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4">
-                    {c.techStack && c.techStack.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {c.techStack.slice(0, 3).map((t) => (
-                          <Badge
-                            key={t}
-                            variant="outline"
-                            className="border-white/10 bg-white/5 text-foreground/80"
-                          >
-                            {t}
-                          </Badge>
-                        ))}
-                        {c.techStack.length > 3 && (
-                          <Badge
-                            variant="outline"
-                            className="border-white/10 bg-white/5 text-muted-foreground"
-                          >
-                            +{c.techStack.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4 text-xs text-muted-foreground">
-                    {c.createdAt.toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        <Globe className="size-4 shrink-0 text-muted-foreground" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{p.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {p.url.replace(/^https?:\/\//, "")}
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {active.length > 0
+                            ? active.map((m) => tm(`kind_${m.kind}`)).join(", ")
+                            : t("noMission")}
+                        </span>
+                        <span
+                          className={
+                            stage === "audited"
+                              ? "gsk-tag gsk-tag--success"
+                              : stage === "auditing"
+                                ? "gsk-tag gsk-tag--warning"
+                                : "gsk-tag gsk-tag--default"
+                          }
+                        >
+                          {t(`stage_${stage}`)}
+                        </span>
+                        <span className="w-14 text-right text-sm font-semibold tabular-nums">
+                          {f?.score ?? "—"}
+                          <span className="text-xs font-normal text-muted-foreground">/100</span>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
         </div>
       )}
     </div>

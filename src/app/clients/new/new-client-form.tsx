@@ -84,7 +84,10 @@ export function NewClientForm({
   googleClientId,
   googleHasSecret,
   googleRedirectUri,
+  accountId,
 }: {
+  /** New project of an existing client: the account it joins. */
+  accountId?: number;
   mode?: "create" | "update";
   clientId?: number;
   initialUrl?: string;
@@ -194,6 +197,7 @@ export function NewClientForm({
       {isEdit && clientId && (
         <input type="hidden" name="id" value={clientId} />
       )}
+      {!isEdit && accountId ? <input type="hidden" name="accountId" value={accountId} /> : null}
       {/* Website + auto-fill */}
       <div className="space-y-1.5">
         <Label htmlFor="url">{t("websiteUrl")}</Label>
