@@ -3,7 +3,8 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertCircle, Lightbulb, Plus, Target } from "lucide-react";
+import Link from "next/link";
+import { AlertCircle, FileText, Lightbulb, Plus, Target } from "lucide-react";
 import type { MissionKind, MissionStatus } from "@/lib/mission-kinds";
 
 // Listed here, not imported as values: a module evaluated by both the
@@ -44,6 +45,7 @@ export function MissionsPanel({
 }) {
   const t = useTranslations("clientPage.missions");
   const locale = useLocale();
+  const tSpec = useTranslations("redesignSpec");
   const [sheetKind, setSheetKind] = useState<MissionKind | null>(null);
   const [pending, startTransition] = useTransition();
   const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
@@ -105,6 +107,12 @@ export function MissionsPanel({
                     {m.startedAt ? ` · ${t("since", { date: fmt.format(m.startedAt) })}` : ""}
                   </p>
                 </div>
+                {m.kind === "redesign" ? (
+                  <Link href={`/clients/${projectId}/missions/${m.id}`} className="gsk-btn">
+                    <FileText className="size-4" />
+                    {tSpec("linkLabel")}
+                  </Link>
+                ) : null}
                 <select
                   aria-label={t("status")}
                   className="gsk-select"

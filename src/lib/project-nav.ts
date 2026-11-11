@@ -106,6 +106,8 @@ export function activeProjectPage(
     if (pathname === `/clients/${id}` && (tab === "missions" || tab === "settings")) {
       return { group: tab, key: tab };
     }
+    // A mission's own pages (the redesign specification) belong to Missions.
+    if (pathname.startsWith(`/clients/${id}/missions/`)) return { group: "missions", key: "missions" };
     return { group: "overview", key: "overview" };
   }
   for (const group of PROJECT_GROUPS) {

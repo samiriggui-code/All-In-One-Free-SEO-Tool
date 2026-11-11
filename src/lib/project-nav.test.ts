@@ -60,6 +60,7 @@ describe("activeProjectPage", () => {
     expect(activeProjectPage("/clients/7", null, 7)).toEqual({ group: "overview", key: "overview" });
     expect(activeProjectPage("/clients/7", "settings", 7)).toEqual({ group: "settings", key: "settings" });
     expect(activeProjectPage("/clients/7/onboarding", "settings", 7)).toEqual({ group: "overview", key: "overview" });
+    expect(activeProjectPage("/clients/7/missions/3", null, 7)).toEqual({ group: "missions", key: "missions" });
   });
 
   it("files sub-pages under their parent", () => {

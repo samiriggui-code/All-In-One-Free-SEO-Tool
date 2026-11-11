@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { getTemplatesByKey, STACK_LABELS } from "./tech-stack-templates";
 import {
   agentTaskWanted,
+  distinctProblemTypes,
   engineTaskWanted,
   planPriorityFromTitle,
   TEMPLATE_AUDIT_EQUIVALENTS,
@@ -79,5 +80,18 @@ describe("agentTaskWanted", () => {
 
   it("fills a real gap", () => {
     expect(agentTaskWanted("missing_og_tags", existing)).toBe(true);
+  });
+});
+
+describe("distinctProblemTypes", () => {
+  it("keeps one entry per problem, and no writing advice", () => {
+    const kept = distinctProblemTypes([
+      "missing_meta_description",
+      "seomator:js-rendered-description",
+      "seomator:core-h1-single",
+      "geo:citability.answer_first",
+      "seomator:technical-www-redirect",
+    ]);
+    expect([...kept]).toEqual(["missing_meta_description", "seomator:technical-www-redirect"]);
   });
 });

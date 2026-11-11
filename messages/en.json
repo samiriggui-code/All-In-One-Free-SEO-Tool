@@ -4499,5 +4499,139 @@
     "archive_sent": "Sent",
     "archive_failed": "Send failed",
     "archive_rejected": "Rejected"
+  },
+  "redesignSpec": {
+    "title": "Specification: redesign of {name}",
+    "basis": "Based on the {mode} audit of {date}.",
+    "modeFull": "full",
+    "modeQuick": "quick",
+    "noAudit": "No completed audit for this project: run a full audit and this document will fill in from its results.",
+    "quickWarning": "This document rests on a quick audit, which only reads the homepage. Run a full audit for an inventory of every page.",
+    "print": "Print or PDF",
+    "download": "Download (.md)",
+    "back": "Project missions",
+    "s1": "1. Context",
+    "site": "Current site",
+    "stack": "Requested technology",
+    "stackNone": "to be decided",
+    "pagesRead": "Pages read by the audit",
+    "scoreNow": "Current SEO score",
+    "scoreTarget": "Target score after the redesign",
+    "notes": "Notes",
+    "s2": "2. Goals",
+    "goalKeep": "Lose no ranking: every current page keeps its address or redirects with a 301 to its replacement.",
+    "goalScore": "Reach an SEO score of at least {score}/100 at the acceptance audit.",
+    "goalCwv": "Pass all three Core Web Vitals (LCP, CLS, INP) on mobile.",
+    "goalFix": "Fix in the new site the problems the audit found (section 4).",
+    "s3": "3. Where the new site must do better",
+    "s3Hint": "Audit categories below 80/100, weakest first.",
+    "s3Empty": "Every category is above 80/100: the new site must do at least as well.",
+    "s4": "4. Problems to fix in the new site",
+    "s4Hint": "Found by the audit, most serious first. The new templates must not repeat them.",
+    "s4Empty": "The audit found no medium or serious problem.",
+    "pagesCount": "{count, plural, one {# page} other {# pages}}",
+    "andMore": "and {count} more",
+    "sev_critical": "Critical",
+    "sev_high": "High",
+    "sev_medium": "Medium",
+    "sev_low": "Low",
+    "s5": "5. SEO requirements",
+    "s5Hint": "To meet on every page of the new site. \"Found in the audit\" marks what the current site does not do.",
+    "found": "Found in the audit",
+    "standard": "Standard requirement",
+    "req": {
+      "https": {
+        "t": "HTTPS everywhere",
+        "d": "The whole site on HTTPS, a 301 from every HTTP address to its HTTPS equivalent, and one version of the domain (with or without www)."
+      },
+      "titles": {
+        "t": "A unique title per page",
+        "d": "A 50–60 character title, specific to each page, editable from the site's admin."
+      },
+      "descriptions": {
+        "t": "A unique meta description per page",
+        "d": "120–155 characters, specific to each page and editable from the admin."
+      },
+      "headings": {
+        "t": "One H1 per page and ordered headings",
+        "d": "An H1 that states the page's subject, then H2s and H3s in order, in the HTML without waiting for JavaScript."
+      },
+      "canonical": {
+        "t": "Canonical tag",
+        "d": "Every page declares its canonical address, without tracking parameters, in the initial HTML."
+      },
+      "indexing": {
+        "t": "Controlled indexing",
+        "d": "A robots.txt that blocks nothing useful and names the sitemap, an up-to-date generated sitemap.xml, no noindex on pages meant to rank."
+      },
+      "structuredData": {
+        "t": "Structured data",
+        "d": "JSON-LD suited to the business (Organization or LocalBusiness, BreadcrumbList, and Product, Article or FAQ where relevant)."
+      },
+      "mobile": {
+        "t": "Mobile first",
+        "d": "Meta viewport tag, a layout built for phones, tap targets of at least 48 px."
+      },
+      "language": {
+        "t": "Declared language",
+        "d": "A lang attribute on every page's html tag, and hreflang if the site exists in several languages."
+      },
+      "images": {
+        "t": "Optimised images",
+        "d": "Alt text on meaningful images, modern formats (WebP or AVIF), declared dimensions, lazy loading below the fold."
+      },
+      "social": {
+        "t": "Sharing and identity",
+        "d": "Open Graph tags (title, description, image) on every page, favicon and app icons."
+      },
+      "errors": {
+        "t": "No pages in error",
+        "d": "A custom 404 page that does return 404, no broken internal links, no redirect chains."
+      },
+      "security": {
+        "t": "Security headers",
+        "d": "HSTS, X-Content-Type-Options, X-Frame-Options or CSP frame-ancestors, Referrer-Policy."
+      },
+      "content": {
+        "t": "Content kept and expanded",
+        "d": "The current pages' text is carried over or improved, never cut without reason; thin pages are expanded."
+      }
+    },
+    "s6": "6. Performance (Core Web Vitals)",
+    "s6Hint": "Measured by the audit on the homepage, on mobile. Google's \"good\" thresholds.",
+    "metric": "Metric",
+    "now": "Current",
+    "target": "Target",
+    "state": "State",
+    "ok": "Good",
+    "ko": "To improve",
+    "notMeasured": "not measured",
+    "lcp": "LCP (main content shown)",
+    "cls": "CLS (layout stability)",
+    "inp": "INP (responsiveness)",
+    "s7": "7. Redirect plan",
+    "s7Hint": "Every current address keeps its address or redirects with a 301 to its new page. Fill in the \"New address\" column with the development team.",
+    "oldUrl": "Current address",
+    "newUrl": "New address",
+    "type": "Type",
+    "same": "same or 301",
+    "pagesNone": "No known pages: the audit gave no inventory.",
+    "s8": "8. Acceptance",
+    "before": "Before going live",
+    "after": "After going live",
+    "chk": {
+      "redirects": "Every redirect in section 7 is in place and tested.",
+      "noindexStaging": "Staging is protected (password or noindex), and that noindex is removed at launch.",
+      "titlesFilled": "Every page has its title, meta description and H1.",
+      "sitemapReady": "The sitemap.xml lists the new addresses and robots.txt names it.",
+      "cwvStaging": "Staging's Core Web Vitals meet the targets of section 6.",
+      "analytics": "Analytics, Search Console and tags are installed on the new site.",
+      "auditNew": "A new full audit of the live site: score at least the target.",
+      "searchConsole": "Sitemap submitted in Search Console, crawl errors watched for 4 weeks.",
+      "redirectsLive": "The old addresses answer with a 301 to the new ones.",
+      "trafficWatch": "Organic traffic compared with the previous period for 8 weeks.",
+      "rankWatch": "Tracked keyword positions compared before and after."
+    },
+    "linkLabel": "Specification"
   }
 }

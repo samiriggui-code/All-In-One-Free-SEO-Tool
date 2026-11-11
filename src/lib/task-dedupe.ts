@@ -29,6 +29,19 @@ const EXTRA_EQUIVALENTS: Readonly<Record<string, readonly string[]>> = {
   "js-rendered-description": ["missing_meta_description"],
   "js-rendered-canonical": ["missing_canonical"],
   "security-https-redirect": ["no_https"],
+  // Checks on something that is missing altogether: when there is no
+  // description, "duplicate description" and "description length" are the
+  // same problem; when there is no sitemap, "sitemap valid" is too.
+  "content-duplicate-description": ["missing_meta_description"],
+  "core-description-length": ["missing_meta_description"],
+  "content-heading-hierarchy": ["missing_h1"],
+  "core-canonical-valid": ["missing_canonical"],
+  "crawl-canonical-redirect": ["missing_canonical"],
+  "technical-robots-txt-valid": ["missing_robots_txt"],
+  "technical-sitemap-valid": ["missing_sitemap"],
+  "crawl-sitemap-domain": ["missing_sitemap"],
+  "security-ssl-expiry": ["missing_security_headers"],
+  "security-ssl-protocol": ["missing_security_headers"],
 };
 
 function ruleIdOf(type: string): string {
@@ -118,4 +131,23 @@ export function agentTaskWanted(
   }
   if (covered.has(type)) return false;
   return !engineEquivalents(type).some((e) => covered.has(e));
+}
+
+/**
+ * The finding types a document about the site should list: our own
+ * audit's, plus the engine's that say something ours did not. Same
+ * reasoning as the tasks: "Duplicate Description", "Meta description in
+ * the rendered DOM" and "Missing meta description" are one problem.
+ * GEO findings are writing advice and stay in the audit report.
+ */
+export function distinctProblemTypes(types: Iterable<string>): Set<string> {
+  const all = new Set(types);
+  const out = new Set<string>();
+  for (const t of all) {
+    if (t.startsWith("geo:")) continue;
+    if (NEVER_A_TASK.has(ruleIdOf(t))) continue;
+    if (t.startsWith("seomator:") && engineEquivalents(t).some((e) => all.has(e))) continue;
+    out.add(t);
+  }
+  return out;
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 import { db } from "@/db/client";
 import { clients, keywords, keywordRankings } from "@/db/schema";
+import { clientScope } from "@/lib/client-scope";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,8 @@ export async function GET() {
     })
     .from(keywords)
     .leftJoin(clients, eq(keywords.clientId, clients.id))
+    // Members and client viewers get their own projects only.
+    .where(await clientScope())
     .orderBy(desc(keywords.createdAt));
 
   // Pull latest position per keyword

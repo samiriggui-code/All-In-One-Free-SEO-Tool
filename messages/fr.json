@@ -4499,5 +4499,139 @@
     "archive_sent": "Envoyé",
     "archive_failed": "Échec d'envoi",
     "archive_rejected": "Refusé"
+  },
+  "redesignSpec": {
+    "title": "Cahier des charges : refonte de {name}",
+    "basis": "Établi d'après l'audit {mode} du {date}.",
+    "modeFull": "complet",
+    "modeQuick": "rapide",
+    "noAudit": "Aucun audit terminé pour ce projet : lancez un audit complet, ce document se remplira avec ses résultats.",
+    "quickWarning": "Ce document s'appuie sur un audit rapide, qui ne lit que la page d'accueil. Lancez un audit complet pour un inventaire de toutes les pages.",
+    "print": "Imprimer ou PDF",
+    "download": "Télécharger (.md)",
+    "back": "Missions du projet",
+    "s1": "1. Contexte",
+    "site": "Site actuel",
+    "stack": "Technologie demandée",
+    "stackNone": "à définir",
+    "pagesRead": "Pages lues par l'audit",
+    "scoreNow": "Score SEO actuel",
+    "scoreTarget": "Score visé après refonte",
+    "notes": "Notes",
+    "s2": "2. Objectifs",
+    "goalKeep": "Ne perdre aucun positionnement : chaque page actuelle garde son adresse ou redirige en 301 vers sa remplaçante.",
+    "goalScore": "Atteindre un score SEO d'au moins {score}/100 à l'audit de recette.",
+    "goalCwv": "Passer les trois Core Web Vitals (LCP, CLS, INP) au vert sur mobile.",
+    "goalFix": "Corriger dans le nouveau site les problèmes relevés par l'audit (section 4).",
+    "s3": "3. Où le nouveau site doit faire mieux",
+    "s3Hint": "Catégories de l'audit sous 80/100, de la plus faible à la plus forte.",
+    "s3Empty": "Toutes les catégories dépassent 80/100 : le nouveau site doit au moins faire aussi bien.",
+    "s4": "4. Problèmes à corriger dans le nouveau site",
+    "s4Hint": "Relevés par l'audit, du plus grave au moins grave. Les nouveaux gabarits ne doivent pas les reproduire.",
+    "s4Empty": "L'audit n'a relevé aucun problème moyen ou grave.",
+    "pagesCount": "{count, plural, one {# page} other {# pages}}",
+    "andMore": "et {count} de plus",
+    "sev_critical": "Critique",
+    "sev_high": "Élevée",
+    "sev_medium": "Moyenne",
+    "sev_low": "Faible",
+    "s5": "5. Exigences SEO",
+    "s5Hint": "À respecter sur toutes les pages du nouveau site. « Relevé à l'audit » signale ce que le site actuel ne fait pas.",
+    "found": "Relevé à l'audit",
+    "standard": "Exigence standard",
+    "req": {
+      "https": {
+        "t": "HTTPS partout",
+        "d": "Tout le site en HTTPS, avec une redirection 301 de chaque adresse HTTP vers son équivalent HTTPS, et une seule version du domaine (avec ou sans www)."
+      },
+      "titles": {
+        "t": "Balise title unique par page",
+        "d": "Un title de 50 à 60 caractères, propre à chaque page, modifiable depuis l'administration du site."
+      },
+      "descriptions": {
+        "t": "Méta-description unique par page",
+        "d": "120 à 155 caractères, propre à chaque page et modifiable depuis l'administration."
+      },
+      "headings": {
+        "t": "Un H1 par page et des titres hiérarchisés",
+        "d": "Un H1 qui dit le sujet de la page, puis des H2 et H3 dans l'ordre, présents dans le HTML sans attendre le JavaScript."
+      },
+      "canonical": {
+        "t": "Balise canonical",
+        "d": "Chaque page déclare son adresse canonique, sans paramètres de suivi, dans le HTML initial."
+      },
+      "indexing": {
+        "t": "Indexation maîtrisée",
+        "d": "Un robots.txt qui n'interdit rien d'utile et cite le sitemap, un sitemap.xml à jour généré automatiquement, aucun noindex sur les pages à référencer."
+      },
+      "structuredData": {
+        "t": "Données structurées",
+        "d": "JSON-LD adapté à l'activité (Organization ou LocalBusiness, BreadcrumbList, et Product, Article ou FAQ selon les pages)."
+      },
+      "mobile": {
+        "t": "Mobile d'abord",
+        "d": "Balise meta viewport, mise en page adaptée au téléphone, zones cliquables d'au moins 48 px."
+      },
+      "language": {
+        "t": "Langue déclarée",
+        "d": "Attribut lang sur la balise html de chaque page, et hreflang si le site existe en plusieurs langues."
+      },
+      "images": {
+        "t": "Images optimisées",
+        "d": "Texte alternatif sur les images utiles, formats modernes (WebP ou AVIF), dimensions déclarées, chargement différé sous la ligne de flottaison."
+      },
+      "social": {
+        "t": "Partage et identité",
+        "d": "Balises Open Graph (titre, description, image) sur chaque page, favicon et icônes d'application."
+      },
+      "errors": {
+        "t": "Aucune page en erreur",
+        "d": "Une page 404 personnalisée qui renvoie bien le code 404, aucun lien interne cassé, pas de chaîne de redirections."
+      },
+      "security": {
+        "t": "En-têtes de sécurité",
+        "d": "HSTS, X-Content-Type-Options, X-Frame-Options ou CSP frame-ancestors, Referrer-Policy."
+      },
+      "content": {
+        "t": "Contenu conservé et étoffé",
+        "d": "Le texte des pages actuelles est repris ou amélioré, jamais raccourci sans raison ; les pages trop pauvres sont enrichies."
+      }
+    },
+    "s6": "6. Performances (Core Web Vitals)",
+    "s6Hint": "Mesurées par l'audit sur la page d'accueil, sur mobile. Seuils « bon » de Google.",
+    "metric": "Mesure",
+    "now": "Actuel",
+    "target": "Objectif",
+    "state": "État",
+    "ok": "Bon",
+    "ko": "À améliorer",
+    "notMeasured": "non mesuré",
+    "lcp": "LCP (affichage du contenu principal)",
+    "cls": "CLS (stabilité de la mise en page)",
+    "inp": "INP (réactivité)",
+    "s7": "7. Plan de redirections",
+    "s7Hint": "Chaque adresse actuelle garde la même adresse ou redirige en 301 vers sa nouvelle page. La colonne « Nouvelle adresse » est à compléter avec l'équipe de développement.",
+    "oldUrl": "Adresse actuelle",
+    "newUrl": "Nouvelle adresse",
+    "type": "Type",
+    "same": "identique ou 301",
+    "pagesNone": "Aucune page connue : l'audit n'a pas fourni d'inventaire.",
+    "s8": "8. Recette",
+    "before": "Avant la mise en ligne",
+    "after": "Après la mise en ligne",
+    "chk": {
+      "redirects": "Toutes les redirections de la section 7 sont en place et testées.",
+      "noindexStaging": "La préproduction est protégée (mot de passe ou noindex), et ce noindex est retiré à la mise en ligne.",
+      "titlesFilled": "Chaque page a son title, sa méta-description et son H1.",
+      "sitemapReady": "Le sitemap.xml liste les nouvelles adresses et le robots.txt le cite.",
+      "cwvStaging": "Les Core Web Vitals de la préproduction atteignent les objectifs de la section 6.",
+      "analytics": "Le suivi d'audience (Analytics, Search Console, balises) est installé sur le nouveau site.",
+      "auditNew": "Nouvel audit complet du site en ligne : score au moins égal à l'objectif.",
+      "searchConsole": "Sitemap soumis dans la Search Console, erreurs d'exploration surveillées pendant 4 semaines.",
+      "redirectsLive": "Les anciennes adresses répondent en 301 vers les nouvelles.",
+      "trafficWatch": "Trafic organique comparé à la période précédente pendant 8 semaines.",
+      "rankWatch": "Positions des mots-clés suivis comparées avant et après."
+    },
+    "linkLabel": "Cahier des charges"
   }
 }
