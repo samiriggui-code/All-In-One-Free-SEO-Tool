@@ -2,20 +2,21 @@
 
 import { useActionState } from "react";
 import { Link2, CheckCircle2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { logBuiltLink, type LogLinkResult } from "./actions";
 
 const METHODS = [
-  { v: "guest_post", l: "Guest post" },
-  { v: "outreach", l: "Email outreach" },
-  { v: "citation", l: "Citation / directory" },
-  { v: "broken_link", l: "Broken-link replacement" },
-  { v: "resource_page", l: "Resource page" },
-  { v: "directory", l: "Industry directory" },
-  { v: "social_profile", l: "Social profile" },
-  { v: "podcast", l: "Podcast / interview" },
-  { v: "interview", l: "Quote / interview" },
-  { v: "other", l: "Other" },
+  { v: "guest_post" },
+  { v: "outreach" },
+  { v: "citation" },
+  { v: "broken_link" },
+  { v: "resource_page" },
+  { v: "directory" },
+  { v: "social_profile" },
+  { v: "podcast" },
+  { v: "interview" },
+  { v: "other" },
 ] as const;
 
 /**
@@ -34,6 +35,7 @@ export function LogLinkForm({
     LogLinkResult | null,
     FormData
   >(logBuiltLink, null);
+  const t = useTranslations("linksTab.backlinks.logLink");
 
   return (
     <form
@@ -44,53 +46,52 @@ export function LogLinkForm({
       <div>
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Link2 className="size-4 text-emerald-300" />
-          Log a built link
+          {t("title")}
         </h3>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          Logged links appear in this month&apos;s client report and the
-          activity feed. Fill what you have — only the source URL is required.
+          {t("intro")}
         </p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-1">
           <Label htmlFor="sourceUrl" className="text-xs">
-            Source URL (where the link sits)
+            {t("sourceUrl")}
           </Label>
           <input
             id="sourceUrl"
             name="sourceUrl"
             required
-            placeholder="https://blog.example.com/post"
+            placeholder={t("sourceUrlPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <div className="space-y-1">
           <Label htmlFor="targetUrl" className="text-xs">
-            Target URL (your page it points to)
+            {t("targetUrl")}
           </Label>
           <input
             id="targetUrl"
             name="targetUrl"
             defaultValue={defaultTargetUrl ?? ""}
-            placeholder="https://yoursite.com/page"
+            placeholder={t("targetUrlPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <div className="space-y-1">
           <Label htmlFor="anchorText" className="text-xs">
-            Anchor text
+            {t("anchorText")}
           </Label>
           <input
             id="anchorText"
             name="anchorText"
-            placeholder="best vegan recipes"
+            placeholder={t("anchorTextPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <div className="space-y-1">
           <Label htmlFor="method" className="text-xs">
-            Method
+            {t("method")}
           </Label>
           <select
             id="method"
@@ -100,14 +101,14 @@ export function LogLinkForm({
           >
             {METHODS.map((m) => (
               <option key={m.v} value={m.v}>
-                {m.l}
+                {t(`methods.${m.v}`)}
               </option>
             ))}
           </select>
         </div>
         <div className="space-y-1">
           <Label htmlFor="rel" className="text-xs">
-            Rel
+            {t("rel")}
           </Label>
           <select
             id="rel"
@@ -115,7 +116,7 @@ export function LogLinkForm({
             defaultValue=""
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="">Unknown</option>
+            <option value="">{t("relUnknown")}</option>
             <option value="dofollow">dofollow</option>
             <option value="nofollow">nofollow</option>
             <option value="ugc">ugc</option>
@@ -124,7 +125,7 @@ export function LogLinkForm({
         </div>
         <div className="space-y-1">
           <Label htmlFor="domainAuthority" className="text-xs">
-            Domain authority (0-100)
+            {t("domainAuthority")}
           </Label>
           <input
             id="domainAuthority"
@@ -138,7 +139,7 @@ export function LogLinkForm({
         </div>
         <div className="space-y-1">
           <Label htmlFor="placedAt" className="text-xs">
-            Date placed
+            {t("placedAt")}
           </Label>
           <input
             id="placedAt"
@@ -149,12 +150,12 @@ export function LogLinkForm({
         </div>
         <div className="space-y-1 md:col-span-2">
           <Label htmlFor="notes" className="text-xs">
-            Notes
+            {t("notes")}
           </Label>
           <input
             id="notes"
             name="notes"
-            placeholder="Won via Friday outreach campaign — replied within 4h"
+            placeholder={t("notesPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
@@ -163,8 +164,7 @@ export function LogLinkForm({
       <div className="flex items-center justify-between gap-2 pt-2">
         {state?.ok ? (
           <p className="inline-flex items-center gap-1 text-xs text-emerald-300">
-            <CheckCircle2 className="size-3" /> Logged. It&apos;s in this
-            month&apos;s report.
+            <CheckCircle2 className="size-3" /> {t("logged")}
           </p>
         ) : state && !state.ok ? (
           <p className="text-xs text-rose-300">{state.error}</p>
@@ -176,7 +176,7 @@ export function LogLinkForm({
           disabled={pending}
           className="inline-flex h-9 items-center rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
         >
-          {pending ? "Logging…" : "Log this link"}
+          {pending ? t("logging") : t("submit")}
         </button>
       </div>
     </form>

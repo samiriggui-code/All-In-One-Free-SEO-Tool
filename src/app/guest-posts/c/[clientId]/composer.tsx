@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { startTransition, useActionState, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   AlertTriangle,
@@ -47,57 +48,86 @@ function TitleSuggester({
   siteId: string;
   onPick: (title: string) => void;
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   const [state, formAction, pending] = useActionState<SuggestTitlesState, FormData>(
     suggestGuestPostTitles,
     null,
   );
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Same fields the old inner form posted, read from this block.
+  function suggest() {
+    const box = boxRef.current;
+    if (!box || pending || !siteId) return;
+    const value = (name: string) =>
+      (box.querySelector<HTMLInputElement>(`[data-field="${name}"]`)?.value ?? "").trim();
+    const keyword = value("targetKeyword");
+    if (!keyword) {
+      box.querySelector<HTMLInputElement>('[data-field="targetKeyword"]')?.focus();
+      return;
+    }
+    const data = new FormData();
+    data.set("clientId", String(clientId));
+    data.set("siteId", siteId);
+    data.set("targetKeyword", keyword);
+    data.set("additionalContext", value("additionalContext"));
+    startTransition(() => formAction(data));
+  }
 
   return (
     <div className="rounded-md bg-violet-500/[0.05] p-3 ring-1 ring-inset ring-violet-500/20 space-y-2">
       <header className="flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-medium text-violet-200">
-            Stuck on a title? Let AI propose 6.
+            {t("titles.heading")}
           </p>
           <p className="text-[11px] text-muted-foreground">
-            Tailored to {siteId}&apos;s house style + your client&apos;s niche.
+            {t("titles.hint", { site: siteId })}
           </p>
         </div>
       </header>
-      <form action={formAction} className="space-y-2">
-        <input type="hidden" name="clientId" value={clientId} />
-        <input type="hidden" name="siteId" value={siteId} />
+      {/* Not a <form>: this block sits inside the new-draft form, and a
+          form inside a form is invalid HTML. The browser dropped the inner
+          one, so "suggest titles" submitted the outer form and created a
+          draft. The fields are gathered here and sent on click instead. */}
+      <div ref={boxRef} className="space-y-2">
         <div className="grid gap-2 md:grid-cols-[2fr_3fr]">
           <input
-            name="targetKeyword"
-            required
-            placeholder="Target keyword (e.g. saas onboarding)"
+            data-field="targetKeyword"
+            placeholder={t("titles.keywordPlaceholder")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                suggest();
+              }
+            }}
             className="h-8 w-full rounded-md border border-white/10 bg-card/60 px-2.5 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
           <input
-            name="additionalContext"
-            placeholder="Optional extra context (audience, angle hint…)"
+            data-field="additionalContext"
+            placeholder={t("titles.contextPlaceholder")}
             className="h-8 w-full rounded-md border border-white/10 bg-card/60 px-2.5 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </div>
         <button
-          type="submit"
+          type="button"
+          onClick={suggest}
           disabled={pending || !siteId}
           className="inline-flex h-7 items-center gap-1 rounded-md bg-violet-500/15 px-2.5 text-[11px] font-medium text-violet-200 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
         >
           {pending ? (
             <>
               <Loader2 className="size-3 animate-spin" />
-              Generating…
+              {t("titles.generating")}
             </>
           ) : (
             <>
               <Sparkles className="size-3" />
-              Suggest 6 titles
+              {t("titles.submit")}
             </>
           )}
         </button>
-      </form>
+      </div>
 
       {state && !state.ok && (
         <p className="rounded-md bg-rose-500/10 px-2 py-1 text-[11px] text-rose-300 ring-1 ring-inset ring-rose-500/30">
@@ -108,7 +138,7 @@ function TitleSuggester({
       {state && state.ok && (
         <div className="space-y-1.5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Click a title to use it as the topic
+            {t("titles.pickHint")}
           </p>
           <ul className="space-y-1">
             {state.titles.map((t, i) => (
@@ -152,6 +182,7 @@ export function GuestPostComposer({
   allSites: GuestPostSite[];
   drafts: GuestPostDraft[];
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   const [tab, setTab] = useState<"new" | "drafts">("new");
   const recommendedIds = new Set(recommendedSites.map((s) => s.id));
   const otherSites = allSites.filter((s) => !recommendedIds.has(s.id));
@@ -164,14 +195,14 @@ export function GuestPostComposer({
           onClick={() => setTab("new")}
           className={tabClass(tab === "new")}
         >
-          New draft
+          {t("tabs.new")}
         </button>
         <button
           type="button"
           onClick={() => setTab("drafts")}
           className={tabClass(tab === "drafts")}
         >
-          Saved drafts ({drafts.length})
+          {t("tabs.saved", { count: drafts.length })}
         </button>
       </div>
 
@@ -208,6 +239,7 @@ function NewDraft({
   recommendedSites: GuestPostSite[];
   otherSites: GuestPostSite[];
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   const [state, formAction, pending] = useActionState<GenerateState, FormData>(
     generateGuestPost,
     null,
@@ -229,19 +261,20 @@ function NewDraft({
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Sparkles className="size-4 text-amber-300" />
-            Pick a platform
+            {t("platform.heading")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Tuned recommendations for <strong>{clientName}</strong>&apos;s niche
-            sit on top. Each platform has its own style — the AI will write
-            specifically for it.
+            {t.rich("platform.description", {
+              name: clientName,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </header>
         <div className="grid gap-2 p-5 md:grid-cols-2">
           {recommendedSites.length > 0 && (
             <div className="md:col-span-2">
               <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-emerald-300/90">
-                Recommended for your niche
+                {t("platform.recommended")}
               </h3>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {recommendedSites.map((s) => (
@@ -258,7 +291,7 @@ function NewDraft({
           {otherSites.length > 0 && (
             <div className="md:col-span-2">
               <h3 className="mb-2 mt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Other platforms
+                {t("platform.others")}
               </h3>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {otherSites.map((s) => (
@@ -285,28 +318,34 @@ function NewDraft({
         {selectedSite && (
           <div className="rounded-md border border-white/5 bg-black/20 p-3 text-[11px] text-muted-foreground">
             <div className="font-medium text-foreground/90">
-              Writing for {selectedSite.name} ({selectedSite.domain})
+              {t("site.writingFor", {
+                name: selectedSite.name,
+                domain: selectedSite.domain,
+              })}
             </div>
             <div className="mt-1 grid gap-1 sm:grid-cols-2">
               <span>
-                <strong>Tone:</strong> {selectedSite.style.tone}
+                <strong>{t("site.tone")}</strong> {selectedSite.style.tone}
               </span>
               <span>
-                <strong>Length target:</strong>{" "}
-                {selectedSite.style.wordCount.ideal} words (
-                {selectedSite.style.wordCount.min}–
-                {selectedSite.style.wordCount.max})
+                <strong>{t("site.length")}</strong>{" "}
+                {t("site.lengthValue", {
+                  ideal: selectedSite.style.wordCount.ideal,
+                  min: selectedSite.style.wordCount.min,
+                  max: selectedSite.style.wordCount.max,
+                })}
               </span>
               <span>
-                <strong>Links:</strong>{" "}
+                <strong>{t("site.links")}</strong>{" "}
                 {selectedSite.dofollowPolicy === "dofollow"
-                  ? "Dofollow"
+                  ? t("policy.dofollow")
                   : selectedSite.dofollowPolicy === "nofollow"
-                    ? "Nofollow"
-                    : "Mixed"}
+                    ? t("policy.nofollow")
+                    : t("policy.mixed")}
               </span>
               <span>
-                <strong>Difficulty:</strong> {selectedSite.difficulty}
+                <strong>{t("site.difficulty")}</strong>{" "}
+                {t(`difficulty.${selectedSite.difficulty}`)}
               </span>
             </div>
           </div>
@@ -320,50 +359,50 @@ function NewDraft({
 
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Topic *</span>
+            <span className="text-muted-foreground">{t("form.topic")}</span>
             <input
               name="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               required
-              placeholder="e.g. how we cut SaaS onboarding from 12 days to 2"
+              placeholder={t("form.topicPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Target keyword *</span>
+            <span className="text-muted-foreground">{t("form.keyword")}</span>
             <input
               name="targetKeyword"
               required
-              placeholder="e.g. saas onboarding flow"
+              placeholder={t("form.keywordPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
         </div>
 
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Supporting keywords (optional)</span>
+          <span className="text-muted-foreground">{t("form.supporting")}</span>
           <input
             name="supportingKeywords"
-            placeholder="user activation, free trial conversion"
+            placeholder={t("form.supportingPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           />
         </label>
 
         <div className="grid gap-3 md:grid-cols-2">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Author name (byline)</span>
+            <span className="text-muted-foreground">{t("form.authorName")}</span>
             <input
               name="authorName"
-              placeholder="Your name"
+              placeholder={t("form.authorNamePlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Author bio (1-2 sentences for footer)</span>
+            <span className="text-muted-foreground">{t("form.authorBio")}</span>
             <input
               name="authorBio"
-              placeholder="Founder of Acme. 12 years building SaaS at $0-$10M ARR."
+              placeholder={t("form.authorBioPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
@@ -380,20 +419,19 @@ function NewDraft({
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-4 animate-spin" />
-                Writing… (~30-90s)
+                {t("form.writing")}
               </>
             ) : (
               <>
                 <Wand2 className="mr-2 size-4" />
-                Write guest post
+                {t("form.submit")}
               </>
             )}
           </button>
           <AiModelPicker selection={modelSel} onChange={setModelSel} size="sm" />
         </div>
         <p className="text-[11px] text-muted-foreground">
-          The AI matches the platform&apos;s house style, varies sentence
-          length, includes citations, and limits target-keyword density.
+          {t("form.footnote")}
         </p>
       </form>
 
@@ -426,6 +464,7 @@ function SiteCard({
   selected: boolean;
   onPick: () => void;
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   return (
     <button
       type="button"
@@ -441,12 +480,12 @@ function SiteCard({
         <span
           className={`rounded-full px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${difficultyTone(site.difficulty)}`}
         >
-          {site.difficulty}
+          {t(`difficulty.${site.difficulty}`)}
         </span>
       </div>
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
         <span>{site.domain}</span>
-        <span>· DA ~{site.estDA}</span>
+        <span>{t("site.da", { value: site.estDA })}</span>
         <span
           className={
             site.dofollowPolicy === "dofollow"
@@ -456,7 +495,7 @@ function SiteCard({
                 : "text-muted-foreground"
           }
         >
-          · {site.dofollowPolicy}
+          · {t(`policy.${site.dofollowPolicy}`)}
         </span>
       </div>
     </button>
@@ -482,6 +521,7 @@ function DraftPreview({
   };
   clientId: number;
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   const [markdown, setMarkdown] = useState(initialMd);
   const [copied, setCopied] = useState(false);
   const [savePending, startSave] = useTransition();
@@ -520,12 +560,14 @@ function DraftPreview({
         <div>
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <CheckCircle2 className="size-4 text-emerald-300" />
-            Draft for {siteName}
+            {t("preview.heading", { site: siteName })}
           </h2>
           <div className="mt-0.5 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-            <span>{meta.wordCount} words</span>
-            <span>· {meta.headingsCount} headings</span>
-            <span>· keyword used {meta.targetKeywordOccurrences}×</span>
+            <span>{t("preview.words", { count: meta.wordCount })}</span>
+            <span>· {t("preview.headings", { count: meta.headingsCount })}</span>
+            <span>
+              · {t("preview.keywordUsed", { count: meta.targetKeywordOccurrences })}
+            </span>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -542,7 +584,7 @@ function DraftPreview({
             ) : (
               <FileText className="size-3" />
             )}
-            {saved ? "Saved" : "Save edits"}
+            {saved ? t("preview.saved") : t("preview.save")}
           </button>
           <button
             type="button"
@@ -550,7 +592,7 @@ function DraftPreview({
             className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-3 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
           >
             <Copy className="size-3" />
-            {copied ? "Copied" : "Copy markdown"}
+            {copied ? t("preview.copied") : t("preview.copy")}
           </button>
           <button
             type="button"
@@ -565,7 +607,7 @@ function DraftPreview({
 
       {qa.length > 0 && (
         <div className="border-b border-white/5 bg-amber-500/[0.04] px-5 py-3 text-xs">
-          <p className="font-medium text-amber-300/90">QA notes</p>
+          <p className="font-medium text-amber-300/90">{t("preview.qa")}</p>
           <ul className="mt-1 space-y-0.5">
             {qa.map((q, i) => (
               <li
@@ -600,7 +642,7 @@ function DraftPreview({
             href={`/link-building/c/${clientId}`}
             className="text-[11px] text-muted-foreground hover:text-foreground hover:underline"
           >
-            ← Back to backlink hub
+            {t("preview.back")}
           </a>
           <AiDisclaimer variant="inline" />
         </div>
@@ -616,10 +658,11 @@ function DraftsList({
   drafts: GuestPostDraft[];
   clientId: number;
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   if (drafts.length === 0) {
     return (
       <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-        No drafts yet. Generate one in the &quot;New draft&quot; tab.
+        {t("list.empty")}
       </p>
     );
   }
@@ -647,6 +690,7 @@ function DraftRow({
   draft: GuestPostDraft;
   clientId: number;
 }) {
+  const t = useTranslations("linksTab.guestPosts.composer");
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   void clientId;
@@ -657,13 +701,16 @@ function DraftRow({
         <span
           className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${STATUS_TONE[draft.status]}`}
         >
-          {draft.status}
+          {t(`status.${draft.status}`)}
         </span>
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="font-medium">{draft.topic}</p>
           <p className="text-[11px] text-muted-foreground">
-            {draft.siteName} · target: {draft.targetKeyword} · created{" "}
-            {draft.createdAt.toLocaleDateString()}
+            {t("list.meta", {
+              site: draft.siteName,
+              keyword: draft.targetKeyword,
+              date: draft.createdAt.toLocaleDateString(),
+            })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -675,14 +722,14 @@ function DraftRow({
               className="inline-flex items-center gap-1 text-[11px] text-emerald-300 hover:underline"
             >
               <ExternalLink className="size-3" />
-              live
+              {t("list.live")}
             </a>
           )}
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/10"
-            aria-label="View"
+            aria-label={t("list.view")}
           >
             <Eye className="size-3.5" />
           </button>
@@ -691,9 +738,9 @@ function DraftRow({
             disabled={pending}
             onClick={async () => {
               const ok = await confirmDialog({
-                title: "Delete this draft?",
-                description: "The guest-post draft and its history are removed.",
-                confirmLabel: "Delete draft",
+                title: t("list.deleteTitle"),
+                description: t("list.deleteDescription"),
+                confirmLabel: t("list.deleteConfirm"),
                 destructive: true,
               });
               if (!ok) return;
@@ -702,7 +749,7 @@ function DraftRow({
               });
             }}
             className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-            aria-label="Delete"
+            aria-label={t("list.delete")}
           >
             <Trash2 className="size-3.5" />
           </button>
@@ -726,7 +773,7 @@ function DraftRow({
               className="inline-flex h-7 items-center gap-1 rounded-md bg-violet-500/15 px-2 text-[11px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
             >
               <Send className="size-3" />
-              Mark pitched
+              {t("list.markPitched")}
             </button>
             <form
               action={setDraftLiveUrl.bind(null, draft.id)}
@@ -735,7 +782,7 @@ function DraftRow({
               <input
                 name="liveUrl"
                 defaultValue={draft.liveUrl ?? ""}
-                placeholder="paste live URL"
+                placeholder={t("list.liveUrlPlaceholder")}
                 className="h-7 w-56 rounded-md border border-white/10 bg-card/60 px-2 text-[11px]"
               />
               <button
@@ -743,7 +790,7 @@ function DraftRow({
                 className="inline-flex h-7 items-center gap-1 rounded-md bg-emerald-500/15 px-2 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
               >
                 <CheckCircle2 className="size-3" />
-                Mark published
+                {t("list.markPublished")}
               </button>
             </form>
           </div>

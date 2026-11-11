@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { eq } from "drizzle-orm";
@@ -30,6 +31,7 @@ export default async function GuestPostsPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("linksTab.guestPosts");
   const recommended = pickSitesForNiche(client.niche);
   const drafts = await listDraftsForClient(clientId);
 
@@ -39,12 +41,12 @@ export default async function GuestPostsPage({
         href={`/link-building/c/${clientId}`}
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to link building for {client.name}
+        <ArrowLeft className="size-3" /> {t("backLink", { name: client.name })}
       </Link>
 
       <PageHeader
-        title={`Guest posts — ${client.name}`}
-        description="Pick a target platform, give a topic and target keyword. AI writes a draft tuned to that platform's house style — varied cadence, real examples, anti-keyword-stuffing, E-E-A-T citations. Drafts are saved so you can iterate, push to WP, or paste straight in."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={BookOpen}
         accent="amber"
       />

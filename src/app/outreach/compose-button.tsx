@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { Mail, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   sendOutreachAction,
   type SendResultState,
@@ -28,6 +29,7 @@ export function ComposeButton({
   templates: Template[];
   smtpConfigured: boolean;
 }) {
+  const t = useTranslations("linksTab.outreach.compose");
   const [open, setOpen] = useState(false);
   const [templateId, setTemplateId] = useState<string>("");
   const [subject, setSubject] = useState("");
@@ -53,9 +55,9 @@ export function ComposeButton({
       <a
         href="/settings#smtp"
         className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/20"
-        title="Configure SMTP in Settings to enable sending"
+        title={t("setupSmtpTitle")}
       >
-        Set up SMTP
+        {t("setupSmtp")}
       </a>
     );
   }
@@ -68,7 +70,7 @@ export function ComposeButton({
         className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
       >
         <Mail className="size-3" />
-        Send
+        {t("send")}
       </button>
 
       {open && (
@@ -77,11 +79,12 @@ export function ComposeButton({
             <button
               type="button"
               onClick={() => setOpen(false)}
+              aria-label={t("close")}
               className="absolute right-3 top-3 grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
             >
               <X className="size-4" />
             </button>
-            <h3 className="text-lg font-semibold">Send to {contact.name}</h3>
+            <h3 className="text-lg font-semibold">{t("sendTo", { name: contact.name })}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {contact.email}
             </p>
@@ -97,7 +100,7 @@ export function ComposeButton({
               {templates.length > 0 && (
                 <label className="block space-y-1 text-xs">
                   <span className="text-muted-foreground">
-                    Start from a template (optional)
+                    {t("template")}
                   </span>
                   <select
                     value={templateId}
@@ -112,7 +115,7 @@ export function ComposeButton({
                     }}
                     className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
                   >
-                    <option value="">— blank —</option>
+                    <option value="">{t("blank")}</option>
                     {templates.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.name}
@@ -123,7 +126,7 @@ export function ComposeButton({
               )}
 
               <label className="block space-y-1 text-xs">
-                <span className="text-muted-foreground">Subject</span>
+                <span className="text-muted-foreground">{t("subject")}</span>
                 <input
                   name="subject"
                   required
@@ -135,7 +138,7 @@ export function ComposeButton({
               </label>
 
               <label className="block space-y-1 text-xs">
-                <span className="text-muted-foreground">Body</span>
+                <span className="text-muted-foreground">{t("body")}</span>
                 <textarea
                   name="body"
                   required
@@ -146,9 +149,10 @@ export function ComposeButton({
                   className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
                 />
                 <span className="text-[10px] text-muted-foreground">
-                  Variables like {"{{name}}"} get replaced before sending.
-                  Preview: &quot;
-                  {previewSubject(subject, contact)}&quot;
+                  {t("variablesHint", {
+                    variable: "{{name}}",
+                    preview: previewSubject(subject, contact),
+                  })}
                 </span>
               </label>
 
@@ -164,14 +168,14 @@ export function ComposeButton({
                   onClick={() => setOpen(false)}
                   className="rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={pending}
                   className="rounded-md bg-emerald-500/15 px-4 py-1.5 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
                 >
-                  {pending ? "Sending…" : "Send email"}
+                  {pending ? t("sending") : t("sendEmail")}
                 </button>
               </div>
             </form>
