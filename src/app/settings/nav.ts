@@ -123,6 +123,7 @@ export const LEGACY_ANCHORS: Record<string, string> = {
   integrations: "/settings/google",
   team: "/settings/team",
   email: "/settings/email",
+  smtp: "/settings/email",
   language: "/settings",
   brand: "/settings/brand",
   notify: "/settings/notifications",
