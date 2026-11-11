@@ -66,6 +66,7 @@ export function AccountForm({
         return;
       }
       // Full load: the layout has to swap the auth frame for the app.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a client-side push would keep the auth frame
       window.location.assign("/");
     });
   }

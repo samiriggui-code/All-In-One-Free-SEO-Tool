@@ -11,7 +11,6 @@ export interface ReadabilityReport {
 }
 
 const PASSIVE_RX = /\b(was|were|been|being|is|are|am|be)\s+\w+(?:ed|en)\b/i;
-const TRANSITION_RX = /^(however|moreover|furthermore|in contrast|besides|beyond that|in addition|therefore|consequently|on the other hand|meanwhile|conversely|likewise|similarly|nonetheless|nevertheless|in conclusion|finally|notably|specifically|for example|for instance)\b/i;
 
 function stripMarkdown(text: string): string {
   return text

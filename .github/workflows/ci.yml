@@ -14,7 +14,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest. `latest` moved to 26.04, which Playwright
+    # 1.59.1 has no Chromium build for, so the browser install step failed
+    # before a single e2e test ran. 24.04 (noble) is also what the Docker
+    # image is built on.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -446,7 +450,11 @@ jobs:
   # Docker is the documented install path for non-technical users. It
   # needs its own gate.
   docker:
-    runs-on: ubuntu-latest
+    # Pinned, not ubuntu-latest. `latest` moved to 26.04, which Playwright
+    # 1.59.1 has no Chromium build for, so the browser install step failed
+    # before a single e2e test ran. 24.04 (noble) is also what the Docker
+    # image is built on.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:

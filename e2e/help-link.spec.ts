@@ -13,12 +13,14 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("help link", () => {
+  // Help opens the guides built into the app (/docs), not the old
+  // external handbook pages.
   const CASES = [
-    { path: "/audits", page: "audits.html" },
-    { path: "/keywords", page: "keywords.html" },
-    { path: "/reports", page: "reports.html" },
-    { path: "/tools", page: "tools.html" },
-    { path: "/settings", page: "integrations.html" },
+    { path: "/audits", page: "/docs/audit" },
+    { path: "/keywords", page: "/docs/keywords" },
+    { path: "/reports", page: "/docs/monthly-report" },
+    { path: "/tools", page: "/docs#tools" },
+    { path: "/settings", page: "/docs/connect-ai" },
   ];
 
   for (const c of CASES) {
@@ -27,7 +29,7 @@ test.describe("help link", () => {
       const help = page.getByRole("link", { name: /help for this screen/i }).first();
       await expect(help).toBeVisible();
       const href = await help.getAttribute("href");
-      expect(href, `${c.path} should link to ${c.page}`).toContain(c.page);
+      expect(href, `${c.path} should link to ${c.page}`).toBe(c.page);
       // Mid-task is the usual moment someone needs this, so losing the
       // screen they were on would make things worse.
       expect(await help.getAttribute("target")).toBe("_blank");
@@ -40,7 +42,7 @@ test.describe("help link", () => {
     await expect(
       page.getByRole("link", { name: /help for this screen/i }),
     ).toHaveCount(0);
-    // It offers the full handbook instead.
-    await expect(page.getByRole("link", { name: /full handbook/i })).toBeVisible();
+    // It lists the guides themselves instead.
+    await expect(page.locator('main a[href="/docs/audit"]').first()).toBeVisible();
   });
 });
