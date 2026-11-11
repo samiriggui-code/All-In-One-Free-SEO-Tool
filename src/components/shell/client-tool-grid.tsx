@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Dropdown } from "@/components/ui/dropdown";
 import { ArrowUpRight, Globe } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { QuickAddClientButton } from "./quick-add-client-dialog";
 
 export type ClientToolCard = {
@@ -146,90 +144,5 @@ export function ClientToolGrid({
         </Link>
       ))}
     </div>
-  );
-}
-
-/**
- * Tiny header for per-client tool pages. Shows the current client + a
- * dropdown to jump to another without going back to the list.
- */
-export function ClientToolHeader({
-  current,
-  allClients,
-  basePath,
-  toolLabel,
-  icon: Icon,
-}: {
-  current: { id: number; name: string; url: string; logoUrl: string | null };
-  allClients: { id: number; name: string }[];
-  basePath: string;
-  toolLabel: string;
-  icon?: LucideIcon;
-}) {
-  const t = useTranslations("common");
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 sm:px-4">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-        <Link
-          href={basePath}
-          className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
-        >
-          {t("allClients")}
-        </Link>
-        <span className="hidden text-muted-foreground/40 sm:inline">·</span>
-        {Icon && <Icon className="size-4 shrink-0 text-violet-300" />}
-        <span className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground sm:inline">
-          {toolLabel}
-        </span>
-        {current.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={current.logoUrl}
-            alt=""
-            className="size-6 shrink-0 rounded border border-white/10 object-contain"
-          />
-        ) : null}
-        <span className="truncate font-medium">{current.name}</span>
-      </div>
-
-      <ClientJumpDropdown
-        currentId={current.id}
-        clients={allClients}
-        basePath={basePath}
-      />
-    </div>
-  );
-}
-
-function ClientJumpDropdown({
-  currentId,
-  clients,
-  basePath,
-}: {
-  currentId: number;
-  clients: { id: number; name: string }[];
-  basePath: string;
-}) {
-  const t = useTranslations("common");
-  if (clients.length <= 1) return null;
-  return (
-    <Dropdown
-      align="right"
-      width={224}
-      className="cursor-pointer rounded-md bg-white/5 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-      trigger={<>{t("jumpToClient")}</>}
-    >
-      {clients.map((c) => (
-        <Link
-          key={c.id}
-          href={`${basePath}/${c.id}`}
-          className={`block px-3 py-2 text-sm transition-colors hover:bg-accent ${
-            c.id === currentId ? "bg-violet-500/10 text-violet-300" : ""
-          }`}
-        >
-          {c.name}
-        </Link>
-      ))}
-    </Dropdown>
   );
 }

@@ -2,16 +2,14 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Network, ExternalLink, X } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, competitors } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { AddCompetitorForm } from "@/app/competitors/add-form";
 import { deleteCompetitor } from "@/app/competitors/actions";
 import { EmptyState } from "@/components/ui/empty-state";
-import { clientScope } from "@/lib/client-scope";
 
 export default async function PerClientCompetitorsPage({
   params,
@@ -29,11 +27,6 @@ export default async function PerClientCompetitorsPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const rows = await db
     .select()
@@ -43,18 +36,6 @@ export default async function PerClientCompetitorsPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/competitors/c"
-        toolLabel="Competitors"
-        icon={Network}
-      />
 
       <PageHeader
         title={`Competitors · ${client.name}`}

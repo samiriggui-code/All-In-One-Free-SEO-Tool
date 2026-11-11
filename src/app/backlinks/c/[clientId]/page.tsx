@@ -2,18 +2,16 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desc, eq, asc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Link2, ExternalLink, FileDown } from "lucide-react";
 import { db } from "@/db/client";
 import { backlinks, clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { AddBacklinkForm } from "@/app/backlinks/add-form";
 import { LogLinkForm } from "@/app/backlinks/log-link-form";
 import { setBacklinkStatus, deleteBacklink } from "@/app/backlinks/actions";
 import { ClientInfoCard } from "@/components/client-info-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { clientScope } from "@/lib/client-scope";
 import { BingBacklinkImport } from "@/app/backlinks/bing-import";
 import { getBingApiKey } from "@/lib/bing-webmaster";
 
@@ -55,11 +53,6 @@ export default async function PerClientBacklinksPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const rows = await db
     .select()
@@ -75,18 +68,6 @@ export default async function PerClientBacklinksPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/backlinks/c"
-        toolLabel="Backlinks"
-        icon={Link2}
-      />
 
       <PageHeader
         title={`Backlinks · ${client.name}`}

@@ -3073,5 +3073,51 @@
     "agentNote": "No decision needed from you.",
     "youLabel": "These need you",
     "youNote": "A decision, a login, or someone who knows the business."
+  },
+  "projectNav": {
+    "aria": "Project navigation",
+    "clients": "Clients",
+    "groups": {
+      "overview": "Overview",
+      "audit": "Audit",
+      "keywords": "Keywords & content",
+      "links": "Links",
+      "local": "Local",
+      "ai": "AI & brand",
+      "reports": "Reports",
+      "missions": "Missions",
+      "settings": "Project settings"
+    },
+    "pages": {
+      "overview": "Overview",
+      "agent": "Agent",
+      "audits": "Audits",
+      "findings": "Findings",
+      "monitor": "Monitoring",
+      "cwv": "Core Web Vitals",
+      "landingPerf": "Landing pages",
+      "brokenLinks": "Broken links",
+      "images": "Images",
+      "keywords": "Keywords",
+      "cannibalization": "Cannibalization",
+      "competitors": "Competitors",
+      "contentGap": "Content gaps",
+      "content": "Writing",
+      "metaRewrite": "Meta tags",
+      "backlinks": "Backlinks",
+      "linkBuilding": "Link building",
+      "outreach": "Outreach",
+      "guestPosts": "Guest posts",
+      "gbp": "Business Profile",
+      "citations": "Citations",
+      "localGrid": "Local grid",
+      "localRank": "Local ranks",
+      "aiVisibility": "AI visibility",
+      "brandMonitor": "Brand monitoring",
+      "geoSwot": "GEO SWOT",
+      "reports": "Reports",
+      "missions": "Missions",
+      "settings": "Settings"
+    }
   }
 }

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { desc, eq, asc, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import {
   AlertCircle,
   CheckCircle2,
@@ -17,13 +17,11 @@ import {
   seoResources,
 } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { CATEGORY_LABELS } from "@/lib/seo-resources-loader";
 import { trackResource, deleteSubmission } from "@/app/link-building/actions";
 import { setStatusForm } from "@/app/citations/actions";
 import { citationsForCountry } from "@/lib/citations-data";
 import { ClientInfoCard } from "@/components/client-info-card";
-import { clientScope } from "@/lib/client-scope";
 
 const CITATION_CATEGORIES = [
   "local-citation",
@@ -61,11 +59,6 @@ export default async function PerClientCitationsPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const activeCategory = CITATION_CATEGORIES.includes(catParam ?? "")
     ? (catParam as string)
@@ -142,18 +135,6 @@ export default async function PerClientCitationsPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/citations/c"
-        toolLabel="Citations"
-        icon={MapPin}
-      />
 
       <PageHeader
         title={`Citations · ${client.name}`}

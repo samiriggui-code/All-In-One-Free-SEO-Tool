@@ -1,19 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { desc, eq, asc, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { Activity, ExternalLink, X } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, monitoredPages, pageChanges } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { AddMonitorForm } from "@/app/monitor/add-form";
 import {
   CheckAllPagesButton,
   CheckPageButton,
 } from "@/app/monitor/monitor-buttons";
 import { deleteMonitoredPage, setMonitorStatus } from "@/app/monitor/actions";
-import { clientScope } from "@/lib/client-scope";
 
 const fieldTone: Record<string, string> = {
   status: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
@@ -48,11 +46,6 @@ export default async function PerClientMonitorPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const pages = await db
     .select()
@@ -77,18 +70,6 @@ export default async function PerClientMonitorPage({
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/monitor/c"
-        toolLabel="Page monitor"
-        icon={Activity}
-      />
 
       <PageHeader
         title={`Page monitor · ${client.name}`}

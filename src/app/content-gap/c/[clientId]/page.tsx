@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { eq, asc } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   AlertCircle,
   GitCompare,
@@ -11,9 +11,7 @@ import {
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
-import { ClientToolHeader } from "@/components/shell/client-tool-grid";
 import { analyzeContentGap } from "@/app/content-gap/actions";
-import { clientScope } from "@/lib/client-scope";
 
 export default async function PerClientContentGapPage({
   params,
@@ -31,28 +29,11 @@ export default async function PerClientContentGapPage({
     .limit(1);
   if (!client) notFound();
 
-  const allClients = await db
-    .select({ id: clients.id, name: clients.name })
-    .from(clients)
-    .where(await clientScope())
-    .orderBy(asc(clients.name));
 
   const result = await analyzeContentGap({ clientId });
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <ClientToolHeader
-        current={{
-          id: client.id,
-          name: client.name,
-          url: client.url,
-          logoUrl: client.logoUrl,
-        }}
-        allClients={allClients}
-        basePath="/content-gap/c"
-        toolLabel="Content gap"
-        icon={GitCompare}
-      />
 
       <PageHeader
         title={`Content gap · ${client.name}`}
