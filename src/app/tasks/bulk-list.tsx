@@ -12,7 +12,6 @@ import {
   Loader2,
   MinusCircle,
   Repeat,
-  Sparkles,
   Trash2,
   X,
   ArrowUpRight,
@@ -26,35 +25,6 @@ import {
 } from "./actions";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { isOpenTask, isClosedTask } from "@/lib/task-status";
-
-const priorityConfig: Record<
-  string,
-  {
-    color: string;
-    iconBg: string;
-    iconText: string;
-    accent: string;
-  }
-> = {
-  high: {
-    color: "text-gradient-rose",
-    iconBg: "bg-rose-500/15 ring-rose-400/30",
-    iconText: "text-rose-300",
-    accent: "from-rose-500/20",
-  },
-  medium: {
-    color: "text-gradient-amber",
-    iconBg: "bg-amber-500/15 ring-amber-400/30",
-    iconText: "text-amber-300",
-    accent: "from-amber-500/20",
-  },
-  low: {
-    color: "text-gradient-cyan",
-    iconBg: "bg-cyan-500/15 ring-cyan-400/30",
-    iconText: "text-cyan-300",
-    accent: "from-cyan-500/20",
-  },
-};
 
 export type BulkTask = {
   id: number;
@@ -149,11 +119,29 @@ export function TasksBulkList({
   const doneCount = closed.filter((task) => task.status === "done").length;
   const skippedCount = closed.length - doneCount;
 
-  const byPriority = {
-    high: open.filter((task) => task.priority === "high"),
-    medium: open.filter((task) => task.priority === "medium"),
-    low: open.filter((task) => task.priority === "low"),
-  };
+  // Grouped by project: an agency works site by site. Inside a project,
+  // most urgent first, then soonest due. Projects with the most urgent
+  // work come first.
+  const byProject = useMemo(() => {
+    const rank: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    const groups = new Map<string, { id: number | null; name: string; tasks: BulkTask[] }>();
+    for (const task of open) {
+      const key = String(task.clientId ?? "none");
+      const g = groups.get(key) ?? { id: task.clientId, name: task.clientName ?? "", tasks: [] };
+      g.tasks.push(task);
+      groups.set(key, g);
+    }
+    const list = [...groups.values()];
+    for (const g of list) {
+      g.tasks.sort(
+        (a, b) =>
+          (rank[a.priority] ?? 3) - (rank[b.priority] ?? 3) ||
+          (a.dueDate?.getTime() ?? Infinity) - (b.dueDate?.getTime() ?? Infinity),
+      );
+    }
+    const urgent = (g: { tasks: BulkTask[] }) => g.tasks.filter((x) => x.priority === "high").length;
+    return list.sort((a, b) => urgent(b) - urgent(a) || a.name.localeCompare(b.name));
+  }, [open]);
 
   const toggle = (id: number) => {
     setSelected((prev) => {
@@ -289,37 +277,29 @@ export function TasksBulkList({
         </div>
       )}
 
-      {(["high", "medium", "low"] as const).map((p) => {
-        const list = byPriority[p];
-        if (list.length === 0) return null;
-        const cfg = priorityConfig[p];
+      {byProject.map((g) => {
+        const urgent = g.tasks.filter((x) => x.priority === "high").length;
         return (
-          <section
-            key={p}
-            className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md"
-          >
-            <div
-              className={`pointer-events-none absolute -left-16 -top-16 size-48 rounded-full bg-gradient-to-br ${cfg.accent} to-transparent blur-3xl`}
-            />
-            <header className="relative flex items-center justify-between border-b border-white/5 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex size-9 items-center justify-center rounded-xl ring-1 ${cfg.iconBg}`}
-                >
-                  <Sparkles className={`size-4 ${cfg.iconText}`} />
-                </div>
-                <div>
-                  <h2 className={`text-base font-semibold ${cfg.color}`}>
-                    {t(`priority.${p}`)}
-                  </h2>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {t("taskCount", { count: list.length })}
-                  </p>
-                </div>
+          <section key={g.id ?? "none"} className="overflow-hidden rounded-2xl border border-border bg-card">
+            <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3">
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-semibold">
+                  {g.id ? (
+                    <Link href={`/clients/${g.id}`} className="hover:underline">
+                      {g.name}
+                    </Link>
+                  ) : (
+                    t("noProject")
+                  )}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {t("taskCount", { count: g.tasks.length })}
+                  {urgent > 0 ? ` · ${t("urgentCount", { count: urgent })}` : ""}
+                </p>
               </div>
             </header>
-            <ul className="relative divide-y divide-white/5">
-              {list.map((task) => (
+            <ul className="divide-y divide-border">
+              {g.tasks.map((task) => (
                 <Row
                   key={task.id}
                   task={task}
@@ -334,14 +314,12 @@ export function TasksBulkList({
       })}
 
       {closed.length > 0 && (
-        <details className="relative overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
-          <summary className="cursor-pointer border-b border-white/5 px-5 py-4">
+        <details className="overflow-hidden rounded-2xl border border-border bg-card">
+          <summary className="cursor-pointer border-b border-border px-5 py-3">
             <div className="inline-flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/15 ring-1 ring-emerald-400/30">
-                <Check className="size-4 text-emerald-300" />
-              </div>
+              <Check className="size-4 text-muted-foreground" />
               <div>
-                <h2 className="text-base font-semibold text-gradient-emerald">
+                <h2 className="text-sm font-semibold">
                   {skippedCount > 0 ? t("closed") : t("done")}
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -353,7 +331,7 @@ export function TasksBulkList({
               </div>
             </div>
           </summary>
-          <ul className="divide-y divide-white/5">
+          <ul className="divide-y divide-border">
             {closed.map((task) => (
               <Row
                 key={task.id}
@@ -400,7 +378,7 @@ function Row({
 
   return (
     <li
-      className={`px-5 py-4 transition-colors ${selected ? "bg-violet-500/5" : "hover:bg-white/[0.03]"}`}
+      className={`px-5 py-4 transition-colors ${selected ? "bg-primary/5" : "hover:bg-accent/40"}`}
     >
       <div className="flex items-start gap-3">
         <input
@@ -440,7 +418,7 @@ function Row({
               {task.whyItMatters}
             </p>
           )}
-          {task.pages && task.pages.length > 0 ? (
+          {task.pages && task.pages.length > 1 ? (
             <TaskPagesList taskId={task.id} pages={task.pages} />
           ) : null}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
@@ -483,6 +461,17 @@ function Row({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
+          {task.status !== "done" && task.status !== "skipped" ? (
+            <span
+              className={
+                task.priority === "high"
+                  ? "gsk-tag gsk-tag--warning"
+                  : "gsk-tag gsk-tag--default"
+              }
+            >
+              {t(`priorityShort.${task.priority === "high" || task.priority === "medium" || task.priority === "low" ? task.priority : "medium"}`)}
+            </span>
+          ) : null}
           <span
             className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${sCfg.className}`}
           >

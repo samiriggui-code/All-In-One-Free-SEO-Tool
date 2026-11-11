@@ -964,6 +964,8 @@
     "advanceStatus": "Advance status",
     "deleteTask": "Delete task",
     "taskCount": "{count, plural, one {# task} other {# tasks}}",
+    "noProject": "No project",
+    "urgentCount": "{count, plural, one {# urgent} other {# urgent}}",
     "completedCount": "{count} completed",
     "skippedInClosed": "· {count} skipped",
     "openTool": "Open the tool",

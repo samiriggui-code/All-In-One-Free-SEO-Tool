@@ -63,6 +63,47 @@ export function allPagesDone(pages: readonly TaskPage[] | null | undefined): boo
 
 export type Priority = "high" | "medium" | "low";
 
+const PACE_DAYS: Record<Priority, number> = { high: 2, medium: 4, low: 7 };
+
+/**
+ * New due dates for tasks that share a day with others of the same
+ * priority: the first keeps its date, the next ones move back by the
+ * priority's pace. Tasks generated before due dates were staggered all
+ * fell on the same day ("everything due the 18th"). Only collisions move,
+ * so running it again after an audit changes nothing.
+ *
+ * Returns only the tasks whose date changes.
+ */
+export function spreadSameDayDueDates(
+  list: readonly { id: number; priority: Priority; dueDate: Date | null }[],
+): Map<number, Date> {
+  const DAY_MS = 86_400_000;
+  const groups = new Map<string, { id: number; priority: Priority; dueDate: Date }[]>();
+  for (const t of list) {
+    if (!t.dueDate) continue;
+    const key = `${t.priority}:${Math.floor(t.dueDate.getTime() / DAY_MS)}`;
+    const g = groups.get(key) ?? [];
+    g.push({ ...t, dueDate: t.dueDate });
+    groups.set(key, g);
+  }
+  const taken = new Set(list.filter((t) => t.dueDate).map((t) => `${t.priority}:${Math.floor(t.dueDate!.getTime() / DAY_MS)}`));
+  const out = new Map<number, Date>();
+  for (const g of groups.values()) {
+    if (g.length < 2) continue;
+    g.sort((a, b) => a.id - b.id);
+    const pace = PACE_DAYS[g[0].priority];
+    let next = g[0].dueDate.getTime();
+    for (const t of g.slice(1)) {
+      do {
+        next += pace * DAY_MS;
+      } while (taken.has(`${t.priority}:${Math.floor(next / DAY_MS)}`));
+      taken.add(`${t.priority}:${Math.floor(next / DAY_MS)}`);
+      out.set(t.id, new Date(next));
+    }
+  }
+  return out;
+}
+
 const DAY = 86_400_000;
 
 /**

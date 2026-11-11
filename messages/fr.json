@@ -964,6 +964,8 @@
     "advanceStatus": "Avancer le statut",
     "deleteTask": "Supprimer la tâche",
     "taskCount": "{count, plural, one {# tâche} other {# tâches}}",
+    "noProject": "Sans projet",
+    "urgentCount": "{count, plural, one {# urgente} other {# urgentes}}",
     "completedCount": "{count} terminées",
     "skippedInClosed": "· {count} ignorées",
     "openTool": "Ouvrir l’outil",

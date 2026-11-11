@@ -5,7 +5,9 @@ import { requireSignedIn } from "@/lib/action-guard";
 import { redirect } from "next/navigation";
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
 import { and, desc, eq, inArray, isNotNull, like, ne, or, sql } from "drizzle-orm";
-import { mergeTaskPages, staggeredDueDates } from "@/lib/task-pages";
+import { mergeTaskPages, spreadSameDayDueDates, staggeredDueDates } from "@/lib/task-pages";
+import { engineTaskWanted, planPriorityFromTitle, templateAuditType, untouched } from "@/lib/task-dedupe";
+import { getReportLocale } from "@/lib/report-i18n";
 import { db } from "@/db/client";
 import { audits, auditIssues, auditRuleHistory, clients, tasks } from "@/db/schema";
 import { runAudit } from "@/lib/audit";
@@ -318,7 +320,9 @@ export async function runAuditForClient(
       }),
     );
 
-    const generatedTasks = findingsToTasks(crawlFindings);
+    // Task texts in the workspace language (Settings → General).
+    const taskLocale = (await getReportLocale()) === "fr" ? "fr" : "en";
+    const generatedTasks = findingsToTasks(crawlFindings, taskLocale);
     // The pages each open task is about, refreshed by this audit: flagged
     // pages open, fixed ones ticked, unvisited ones left alone
     // (lib/task-pages.ts). Runs before the "fresh" filter below, so a
@@ -333,7 +337,14 @@ export async function runAuditForClient(
       urlsByType.set(f.type, list);
     }
     const openWithPages = await db
-      .select({ id: tasks.id, sourceRef: tasks.sourceRef, pages: tasks.pages })
+      .select({
+        id: tasks.id,
+        sourceRef: tasks.sourceRef,
+        pages: tasks.pages,
+        status: tasks.status,
+        actualMinutes: tasks.actualMinutes,
+        assignedUserId: tasks.assignedUserId,
+      })
       .from(tasks)
       .where(
         and(
@@ -342,11 +353,24 @@ export async function runAuditForClient(
           or(like(tasks.sourceRef, "audit:%"), like(tasks.sourceRef, "seomator:%")),
         ),
       );
+    // The current wording of each generated task, so an untouched task
+    // picks up a better title, the workspace language or the page count.
+    const textByRef = new Map<string, { title: string; whyItMatters: string }>();
+    for (const g of generatedTasks) textByRef.set(`audit:${g.type}`, g);
+    for (const g of seomatorFindingsToTasks(engineFindings, 25, taskLocale)) textByRef.set(g.type, g);
     for (const t of openWithPages) {
       const type = t.sourceRef!.startsWith("audit:") ? t.sourceRef!.slice("audit:".length) : t.sourceRef!;
       const pages = mergeTaskPages(t.pages, urlsByType.get(type) ?? [], crawled);
-      if (pages.length === 0) continue;
-      await db.update(tasks).set({ pages, updatedAt: new Date() }).where(eq(tasks.id, t.id));
+      const text = untouched(t) ? textByRef.get(t.sourceRef!) : undefined;
+      if (pages.length === 0 && !text) continue;
+      await db
+        .update(tasks)
+        .set({
+          ...(pages.length > 0 ? { pages } : {}),
+          ...(text ? { title: text.title, whyItMatters: text.whyItMatters } : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(tasks.id, t.id));
     }
     // Open work per priority, so new tasks queue behind it rather than
     // all landing on the same day.
@@ -414,7 +438,49 @@ export async function runAuditForClient(
 
     // The engine's worst rules, one task per rule, tagged by rule so the
     // next audit does not open them again.
-    const engineTasks = seomatorFindingsToTasks(engineFindings);
+    // The problems our own audit has an open task for, after the inserts
+    // above: the engine and the starter templates do not repeat them
+    // (lib/task-dedupe.ts).
+    const generated = await db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        source: tasks.source,
+        sourceRef: tasks.sourceRef,
+        status: tasks.status,
+        actualMinutes: tasks.actualMinutes,
+        assignedUserId: tasks.assignedUserId,
+      })
+      .from(tasks)
+      .where(and(eq(tasks.clientId, clientId), inArray(tasks.status, ["todo", "in_progress"])));
+    const openAuditTypes = new Set(
+      generated.filter((t) => t.sourceRef?.startsWith("audit:")).map((t) => t.sourceRef!.slice("audit:".length)),
+    );
+    // Tidy what earlier runs left: engine tasks this rule would not create
+    // now (P2/P3, the single-H1 rule, a problem the audit already covers)
+    // and generic templates that say what an audit task says. Only tasks
+    // nobody has started; anything a person touched stays.
+    const stale = generated.filter((t) => {
+      if (!untouched(t)) return false;
+      if (t.sourceRef?.startsWith("seomator:")) {
+        return !engineTaskWanted(
+          { type: t.sourceRef, planPriority: planPriorityFromTitle(t.title) },
+          openAuditTypes,
+        );
+      }
+      if (t.source === null && t.sourceRef === null) {
+        const type = templateAuditType(t.title);
+        return type !== null && openAuditTypes.has(type);
+      }
+      return false;
+    });
+    if (stale.length > 0) {
+      await db.delete(tasks).where(inArray(tasks.id, stale.map((t) => t.id)));
+    }
+
+    const engineTasks = seomatorFindingsToTasks(engineFindings, 25, taskLocale).filter((t) =>
+      engineTaskWanted(t, openAuditTypes),
+    );
     if (engineTasks.length > 0) {
       const open = await db
         .select({ sourceRef: tasks.sourceRef })
@@ -613,6 +679,35 @@ export async function runAuditForClient(
     await applyQuickWins({ clientId });
   } catch {
     // ignore
+  }
+
+  // Spread generated tasks that fell on the same day (everything created
+  // before due dates were staggered was due the same morning). Untouched
+  // ones only; collisions only, so this is a no-op once spread.
+  try {
+    const open = await db
+      .select({
+        id: tasks.id,
+        priority: tasks.priority,
+        dueDate: tasks.dueDate,
+        source: tasks.source,
+        sourceRef: tasks.sourceRef,
+        status: tasks.status,
+        actualMinutes: tasks.actualMinutes,
+        assignedUserId: tasks.assignedUserId,
+      })
+      .from(tasks)
+      .where(and(eq(tasks.clientId, clientId), inArray(tasks.status, ["todo", "in_progress"])));
+    const generatedOpen = open.filter(
+      (t) =>
+        untouched(t) &&
+        (t.source === "quick_win" || t.sourceRef?.startsWith("audit:") || t.sourceRef?.startsWith("seomator:")),
+    );
+    for (const [id, dueDate] of spreadSameDayDueDates(generatedOpen)) {
+      await db.update(tasks).set({ dueDate, updatedAt: new Date() }).where(eq(tasks.id, id));
+    }
+  } catch {
+    // Best-effort, like the quick wins above.
   }
 
   safeRevalidatePath(`/clients/${clientId}`);
