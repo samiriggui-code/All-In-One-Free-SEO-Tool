@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { runGrid, type GridState } from "../../actions";
 import { Heatmap } from "./heatmap";
 
@@ -10,6 +11,7 @@ export function GridForm({ clientId }: { clientId: number }) {
     runGrid,
     null,
   );
+  const t = useTranslations("localTab.localGrid.form");
 
   return (
     <>
@@ -20,16 +22,16 @@ export function GridForm({ clientId }: { clientId: number }) {
         <input type="hidden" name="clientId" value={clientId} />
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs md:col-span-3">
-            <span className="text-muted-foreground">Search query</span>
+            <span className="text-muted-foreground">{t("queryLabel")}</span>
             <input
               name="query"
               required
-              placeholder="vegan bakery near me"
+              placeholder={t("queryPlaceholder")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Centre latitude</span>
+            <span className="text-muted-foreground">{t("centerLat")}</span>
             <input
               name="centerLat"
               type="number"
@@ -40,7 +42,7 @@ export function GridForm({ clientId }: { clientId: number }) {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Centre longitude</span>
+            <span className="text-muted-foreground">{t("centerLng")}</span>
             <input
               name="centerLng"
               type="number"
@@ -51,19 +53,19 @@ export function GridForm({ clientId }: { clientId: number }) {
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Grid (3-7)</span>
+            <span className="text-muted-foreground">{t("gridLabel")}</span>
             <select
               name="size"
               defaultValue="5"
               className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="3">3×3 (9 points, fast)</option>
-              <option value="5">5×5 (25 points)</option>
-              <option value="7">7×7 (49 points, slow)</option>
+              <option value="3">{t("size3")}</option>
+              <option value="5">{t("size5")}</option>
+              <option value="7">{t("size7")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Spacing (metres)</span>
+            <span className="text-muted-foreground">{t("spacing")}</span>
             <input
               name="spacingM"
               type="number"
@@ -82,16 +84,15 @@ export function GridForm({ clientId }: { clientId: number }) {
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Running…
+                {t("running")}
               </>
             ) : (
-              "Run grid"
+              t("run")
             )}
           </button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Tip: drop a Google Maps pin on the centre of your service area, copy
-          the coordinates from the URL.
+          {t("tip")}
         </p>
       </form>
 
@@ -105,12 +106,14 @@ export function GridForm({ clientId }: { clientId: number }) {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              Result: &quot;{state.result.query}&quot;
+              {t("resultTitle", { query: state.result.query })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              In-pack at <strong>{state.result.inPackPct}%</strong> of cells ·
-              avg position{" "}
-              <strong>{state.result.avgPosition ?? "(not ranked)"}</strong>
+              {t.rich("resultSummary", {
+                pct: state.result.inPackPct,
+                avg: state.result.avgPosition ?? t("notRanked"),
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           </header>
           <div className="p-5">

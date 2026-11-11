@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq, desc } from "drizzle-orm";
 import { Map } from "lucide-react";
 import { db } from "@/db/client";
@@ -28,6 +29,7 @@ export default async function PerClientLocalGridPage({
     .limit(1);
   if (!client) notFound();
 
+  const t = await getTranslations("localTab.localGrid");
 
   const [recentGrids, schedules] = await Promise.all([
     db
@@ -43,8 +45,8 @@ export default async function PerClientLocalGridPage({
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title={`Local-pack heatmap · ${client.name}`}
-        description="Pick a query and a centre point. The tool samples ranking from a grid of locations and shows where you appear in the 3-pack."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Map}
         accent="emerald"
       />

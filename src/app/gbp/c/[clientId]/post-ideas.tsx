@@ -13,6 +13,7 @@ import {
   generateGbpPostIdeas,
   type GbpPostIdea,
 } from "@/app/gbp/actions";
+import { useTranslations } from "next-intl";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
@@ -44,6 +45,7 @@ export function GbpPostIdeas({
   const [busy, setBusy] = useState(false);
   const [, startTransition] = useTransition();
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const t = useTranslations("localTab.gbp");
 
   function generate() {
     setError(null);
@@ -78,12 +80,10 @@ export function GbpPostIdeas({
         <div>
           <h2 className="text-base font-semibold flex items-center gap-2">
             <CalendarDays className="size-4 text-amber-300" />
-            7-day GBP post calendar
+            {t("ideas.title")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            AI-generated post ideas for the upcoming week. Use them as starting
-            points — feed any one back into the composer above to draft full
-            copy.
+            {t("ideas.description")}
           </p>
         </div>
         <button
@@ -95,12 +95,12 @@ export function GbpPostIdeas({
           {busy ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Drafting…
+              {t("ideas.drafting")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-3" />
-              {ideas ? "Regenerate week" : "Generate 7-day plan"}
+              {ideas ? t("ideas.regenerate") : t("ideas.generate")}
             </>
           )}
         </button>
@@ -129,7 +129,7 @@ export function GbpPostIdeas({
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${TYPE_TONE[idea.postType]}`}
                       >
-                        {idea.postType}
+                        {t.has(`postTypes.${idea.postType}`) ? t(`postTypes.${idea.postType}`) : idea.postType}
                       </span>
                     </div>
                     <p className="mt-1 font-medium">{idea.title}</p>
@@ -137,7 +137,7 @@ export function GbpPostIdeas({
                       {idea.angle}
                     </p>
                     <p className="mt-1.5 text-[11px]">
-                      <span className="font-medium text-amber-300">CTA:</span>{" "}
+                      <span className="font-medium text-amber-300">{t("ideas.cta")}</span>{" "}
                       <span className="text-foreground/80">{idea.cta}</span>
                     </p>
                   </div>
@@ -149,12 +149,12 @@ export function GbpPostIdeas({
                     {copiedIdx === i ? (
                       <>
                         <Check className="mr-1 size-3 text-emerald-300" />
-                        Copied
+                        {t("ideas.copied")}
                       </>
                     ) : (
                       <>
                         <Copy className="mr-1 size-3" />
-                        Copy
+                        {t("ideas.copy")}
                       </>
                     )}
                   </button>

@@ -3950,5 +3950,309 @@
       "body": "L’agent quotidien utilise Gmail (en lecture seule) pour passer les contacts de prospection en « A répondu » quand le destinataire répond. Pour l’activer, reconnectez Google et cochez l’autorisation Gmail.",
       "reconnect": "Reconnecter Google"
     }
+  },
+  "localTab": {
+    "gbp": {
+      "title": "Fiche Google · {name}",
+      "description": "Récupérez la fiche Google Business publique, consultez les avis récents et rédigez avec l'IA des réponses à coller dans votre fiche Google.",
+      "allClients": "Tous les clients",
+      "open": "Ouvrir →",
+      "noUrl": {
+        "description": "Ajoutez le lien de partage Google Maps dans les réglages du client pour activer l'extraction.",
+        "empty": "Ce client n'a pas encore d'URL de fiche Google Business.",
+        "addLink": "Ajoutez-la depuis la page de modification"
+      },
+      "reviewDesk": {
+        "title": "Gestion des avis",
+        "noLink": "Aucun lien de partage nécessaire. Si vous avez connecté Google avec l'autorisation Business Profile, vous pouvez lire les avis et y répondre depuis cette page.",
+        "connected": "Tous les avis, ceux qui attendent encore une réponse, et des réponses envoyées directement à Google. Nécessite l'autorisation Business Profile sur votre connexion Google."
+      },
+      "playbook": {
+        "title": "Plan d'optimisation de la fiche Google ({done}/{total} terminées · {pct} %)",
+        "description": "Score des signaux de la fiche : {score}/100. Cochez les actions au fur et à mesure : les actions ponctuelles restent cochées, les actions récurrentes se réinitialisent à la période suivante.",
+        "markDone": "Marquer comme fait",
+        "markNotDone": "Marquer comme non fait",
+        "action": "Action :",
+        "openTool": "Ouvrir l'outil →",
+        "cadence": {
+          "once": "Ponctuel",
+          "weekly": "Hebdomadaire",
+          "monthly": "Mensuel",
+          "quarterly": "Trimestriel"
+        }
+      },
+      "postTypes": {
+        "offer": "offre",
+        "event": "événement",
+        "update": "actualité",
+        "product": "produit",
+        "story": "témoignage"
+      },
+      "runner": {
+        "scraping": "Extraction…",
+        "refresh": "Actualiser",
+        "pull": "Récupérer la fiche Google",
+        "profile": "Fiche",
+        "fields": {
+          "name": "Nom",
+          "rating": "Note",
+          "address": "Adresse",
+          "phone": "Téléphone",
+          "website": "Site web",
+          "source": "Source"
+        },
+        "ratingValue": "★ {rating} ({count, plural, one {# avis} other {# avis}})",
+        "recentReviews": "Avis récents ({count})",
+        "reviewsHelp": "Cliquez sur <strong>Générer une réponse IA</strong> sous un avis : nous rédigeons une réponse personnalisée. Copiez-la puis collez-la vous-même dans la zone de réponse de la fiche Google.",
+        "noReviews": "Aucun avis n'a été trouvé sur la page publique.",
+        "openDesk": "Ouvrir le gestion des avis →",
+        "drafting": "Rédaction…",
+        "generateReply": "Générer une réponse IA",
+        "aiDraft": "Réponse rédigée par l'IA",
+        "copied": "Copiée",
+        "copyReply": "Copier la réponse",
+        "pasteHint": "Collez-la dans la zone de réponse de la fiche Google, ou passez par la publication officielle si votre compte Google dispose de l'accès à la fiche Google."
+      },
+      "composer": {
+        "title": "Rédacteur de publications pour la fiche Google",
+        "description": "Rédigez une publication pour votre fiche Google en moins de 30 secondes. Choisissez un type, donnez un angle, puis copiez-collez-la dans la fiche. Les publications restent visibles sous la fiche environ 7 jours et montrent que l'établissement est actif.",
+        "types": {
+          "offer": "Offre / promo",
+          "event": "Événement",
+          "update": "Actualité / nouveauté",
+          "product": "Produit à la une",
+          "story": "Témoignage client"
+        },
+        "angle": "Angle / message à faire passer",
+        "anglePlaceholder": "-20 % sur toutes les prestations cette semaine / nouveau menu végétarien dès mardi / 5 ans dans le quartier…",
+        "ctaUrl": "URL du bouton d'action (facultatif)",
+        "ctaPlaceholder": "https://votresite.fr/reserver",
+        "drafting": "Rédaction…",
+        "draftPost": "Rédiger la publication",
+        "draft": "Brouillon",
+        "copied": "Copiée",
+        "copyPost": "Copier la publication",
+        "pasteHint": "Collez-la dans votre fiche Google → Nouvelle publication → {type}."
+      },
+      "ideas": {
+        "title": "Calendrier de publications sur 7 jours",
+        "description": "Idées de publications générées par l'IA pour la semaine à venir. Servez-vous-en comme point de départ : reprenez-en une dans le rédacteur ci-dessus pour obtenir le texte complet.",
+        "drafting": "Rédaction…",
+        "regenerate": "Régénérer la semaine",
+        "generate": "Générer le plan sur 7 jours",
+        "cta": "Appel à l'action :",
+        "copied": "Copiée",
+        "copy": "Copier"
+      }
+    },
+    "reviews": {
+      "back": "Fiche Google",
+      "title": "Avis Google · {name}",
+      "description": "Tous les avis, ceux qui attendent encore une réponse, et les réponses — rédigées ici, envoyées à Google quand vous le décidez.",
+      "pickFirst": "Choisissez la fiche Google ci-dessus, puis récupérez les avis.",
+      "picker": {
+        "title": "Quelle fiche",
+        "notChosen": "Pas encore choisie. Les avis ne peuvent pas être récupérés tant qu’elle ne l’est pas.",
+        "change": "Changer",
+        "find": "Trouver mes fiches",
+        "scopeMissing": "Reconnectez Google dans les Réglages et accordez l’autorisation Business Profile. Sans elle, impossible de lire les avis ou d’y répondre.",
+        "noListings": "Le compte Google connecté ne gère aucune fiche."
+      },
+      "desk": {
+        "neverSynced": "Aucun avis n’a encore été récupéré : tous les chiffres ci-dessous seraient à zéro pour une mauvaise raison. Cliquez sur <b>Récupérer les avis</b> pour les importer depuis Google.",
+        "stats": {
+          "unanswered": "Sans réponse",
+          "unansweredNegative": "Dont 3 étoiles ou moins",
+          "drafted": "Rédigés, non envoyés",
+          "sentByUs": "Répondus par cet outil",
+          "answeredElsewhere": "Répondus ailleurs",
+          "averageRating": "Note moyenne"
+        },
+        "held": "{count, plural, one {# avis conservé} other {# avis conservés}} · dernière récupération {when}",
+        "sync": "Récupérer les avis",
+        "syncDone": "Récupération : {added, plural, one {# nouveau} other {# nouveaux}}, {updated, plural, one {# mis à jour} other {# mis à jour}}",
+        "syncRemoved": ", {count, plural, one {# disparu} other {# disparus}}",
+        "syncIncomplete": ". Arrêt au plafond de pages : aucun avis n’a donc été marqué comme disparu.",
+        "draftNext": "Rédiger les 10 suivants",
+        "draftDone": "{count, plural, =0 {Aucune réponse rédigée.} one {# réponse rédigée.} other {# réponses rédigées.}}",
+        "draftFailed": "{count, plural, one {# n’a pas pu être rédigée} other {# n’ont pas pu être rédigées}} : {error}",
+        "draftNothingSent": "Rien n’a été envoyé — relisez-les d’abord.",
+        "sendAll": "Envoyer {count, plural, one {le brouillon} other {les # brouillons}}",
+        "publishDone": "{count, plural, =0 {Aucune réponse envoyée.} one {# réponse envoyée.} other {# réponses envoyées.}}",
+        "publishFailed": "{count, plural, one {# en échec} other {# en échec}} : {error}",
+        "filters": {
+          "unanswered": "À traiter",
+          "drafted": "Rédigés, non envoyés",
+          "answered": "Répondus",
+          "all": "Tous"
+        },
+        "emptyNeverSynced": "Rien pour l’instant.",
+        "emptyAllAnswered": "Tous les avis ont une réponse.",
+        "emptyFilter": "Aucun avis ne correspond à ce filtre.",
+        "noRating": "sans note",
+        "ratingLabel": "{rating} sur 5",
+        "when": {
+          "today": "aujourd’hui",
+          "yesterday": "hier",
+          "days": "il y a {count, plural, one {# jour} other {# jours}}",
+          "months": "il y a {count} mois",
+          "years": "il y a {count, plural, one {# an} other {# ans}}"
+        },
+        "card": {
+          "anonymous": "Anonyme",
+          "repliedElsewhere": "réponse publiée hors de cet outil",
+          "repliedByUs": "réponse envoyée par cet outil",
+          "removed": "n’est plus sur Google",
+          "noComment": "Une note sans avis écrit.",
+          "liveReply": "La réponse en ligne sur Google",
+          "placeholder": "Rédigez la réponse, ou cliquez sur « Rédiger les 10 suivants » ci-dessus.",
+          "save": "Enregistrer le brouillon",
+          "send": "Envoyer à Google",
+          "sent": "Envoyée. Elle est en ligne sur Google.",
+          "rejected": "Google l’a refusée.",
+          "answerFirst": "À traiter en priorité"
+        }
+      }
+    },
+    "citations": {
+      "title": "Citations · {name}",
+      "description": "Diffusez des informations NAP (nom, adresse, téléphone) cohérentes sur les annuaires de citations locales. Suivez les soumissions en ligne et repérez les incohérences NAP.",
+      "nap": {
+        "heading": "Profil NAP",
+        "intro": "Un nom, une adresse et un téléphone cohérents sont le premier facteur de classement en SEO local. Utilisez exactement ces valeurs partout.",
+        "complete": "Complet à {score} %",
+        "name": "Nom",
+        "address": "Adresse",
+        "phone": "Téléphone",
+        "website": "Site web",
+        "email": "E-mail",
+        "missing": "(manquant)",
+        "copyTitle": "Triple-cliquez pour sélectionner",
+        "copyLabel": "sélectionnez pour copier"
+      },
+      "recommended": {
+        "heading": "Annuaires recommandés pour {country}",
+        "yourCountry": "votre pays",
+        "intro": "Fiches propres au pays, classées selon leur impact SEO habituel. Les plus importantes (★★★★ et plus) méritent généralement d’être obtenues en premier."
+      },
+      "directoryCategory": {
+        "core_global": "incontournable",
+        "maps": "cartes",
+        "review_platform": "plateforme d’avis",
+        "general_directory": "annuaire généraliste",
+        "industry_directory": "annuaire sectoriel",
+        "local_chamber": "chambre de commerce locale",
+        "social": "réseau social"
+      },
+      "resourceCategory": {
+        "local-citation": "Citations locales",
+        "directory-submission": "Soumission d’annuaire",
+        "business-networking": "Réseaux professionnels",
+        "profile-creation": "Création de profil"
+      },
+      "status": {
+        "pending": "en attente",
+        "submitted": "soumise",
+        "live": "en ligne",
+        "rejected": "refusée",
+        "lost": "perdue"
+      },
+      "tracked": {
+        "heading": "Soumissions suivies",
+        "intro": "Toutes les citations mises en file d’attente ou soumises pour {name}.",
+        "liveUrl": "en ligne : {url}",
+        "remove": "retirer"
+      },
+      "browse": {
+        "heading": "Parcourir les annuaires",
+        "intro": "Catalogue préchargé depuis vos ressources SEO. Cliquez sur + pour suivre une soumission.",
+        "empty": "Plus aucun annuaire dans cette catégorie : vous les suivez tous. Choisissez un autre onglet.",
+        "track": "Suivre pour ce client"
+      }
+    },
+    "localGrid": {
+      "title": "Grille locale · {name}",
+      "description": "Choisissez une requête et un point central. L’outil relève la position sur une grille de points géographiques et montre où vous apparaissez dans le pack local (3 résultats).",
+      "form": {
+        "queryLabel": "Requête de recherche",
+        "queryPlaceholder": "boulangerie vegan près de moi",
+        "centerLat": "Latitude du centre",
+        "centerLng": "Longitude du centre",
+        "gridLabel": "Grille (3-7)",
+        "size3": "3×3 (9 points, rapide)",
+        "size5": "5×5 (25 points)",
+        "size7": "7×7 (49 points, lent)",
+        "spacing": "Espacement (mètres)",
+        "running": "Analyse en cours…",
+        "run": "Lancer la grille",
+        "tip": "Astuce : placez une épingle Google Maps au centre de votre zone de chalandise, puis copiez les coordonnées depuis l’URL.",
+        "resultTitle": "Résultat : « {query} »",
+        "resultSummary": "Dans le pack local sur <strong>{pct} %</strong> des points · position moyenne <strong>{avg}</strong>",
+        "notRanked": "(non classé)"
+      },
+      "history": {
+        "title": "Grilles récentes ({count})",
+        "spacing": "espacement de {spacing} m",
+        "inPack": "{pct} % dans le pack",
+        "avg": "moy. n° {avg}"
+      },
+      "heatmap": {
+        "empty": "Aucun point à afficher.",
+        "notRanked": "non classé",
+        "was": " · avant : {prior}",
+        "new": "nouveau",
+        "lost": "perdu",
+        "legendInPack": "1-3 (dans le pack)",
+        "legendNotRanked": "Non classé"
+      },
+      "scheduleForm": {
+        "title": "Programmer une grille récurrente",
+        "description": "L’agent quotidien relance automatiquement les grilles programmées. Pratique pour suivre chaque semaine vos positions locales sans remplir à nouveau le formulaire.",
+        "query": "Requête",
+        "queryPlaceholder": "boulangerie vegan près de moi",
+        "centerLat": "Lat. du centre",
+        "centerLng": "Long. du centre",
+        "cadence": "Fréquence",
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuelle",
+        "grid": "Grille",
+        "spacing": "Espacement (m)",
+        "saving": "Enregistrement…",
+        "save": "Enregistrer la programmation",
+        "scheduled": "✓ Programmée."
+      },
+      "scheduleList": {
+        "title": "Grilles programmées ({count})",
+        "description": "L’agent quotidien les relance selon la fréquence indiquée. Aucune API SERP nécessaire : le même outil de suivi de position en mode navigateur est utilisé.",
+        "cadence": {
+          "weekly": "hebdomadaire",
+          "monthly": "mensuelle"
+        },
+        "lastRan": "dernière exécution le {date}",
+        "pause": "Mettre en pause",
+        "resume": "Reprendre",
+        "delete": "Supprimer la programmation"
+      }
+    },
+    "localRank": {
+      "allClients": "Tous les clients",
+      "title": "Positions locales",
+      "description": "Vérifiez le même mot-clé dans plusieurs villes pour repérer les zones géographiques où vous êtes faible. Mode navigateur (Playwright), environ 10 s par ville.",
+      "keyword": "Mot-clé",
+      "keywordPlaceholder": "meilleur plombier",
+      "country": "Pays",
+      "cities": "Villes (séparées par une virgule ou un retour à la ligne, 8 au maximum)",
+      "citiesPlaceholder": "Lyon\nMarseille\nBordeaux",
+      "checking": "Vérification…",
+      "check": "Vérifier les positions",
+      "addCity": "Ajoutez au moins une ville",
+      "ranksFor": "Positions pour « {query} »",
+      "colCity": "Ville",
+      "colPosition": "Position",
+      "colMapPack": "Pack local",
+      "colRankingUrl": "URL positionnée",
+      "yes": "Oui",
+      "notInTop50": "Absent du top 50"
+    }
   }
 }

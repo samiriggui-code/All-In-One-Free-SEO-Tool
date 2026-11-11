@@ -3,7 +3,6 @@
 import { useState, useTransition, use } from "react";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ExternalLink,
   Loader2,
@@ -11,7 +10,6 @@ import {
   Unlink,
   XCircle,
 } from "lucide-react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,13 +40,6 @@ export default function PerClientBrokenLinks({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/broken-links"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {t("allClients")}
-      </Link>
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

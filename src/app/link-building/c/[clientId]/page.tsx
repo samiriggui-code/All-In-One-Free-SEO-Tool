@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, desc, eq, gte } from "drizzle-orm";
 import {
-  ArrowLeft,
   CheckCircle2,
   Compass,
   Link2,
@@ -99,12 +98,6 @@ export default async function ClientLinkBuildingPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <Link
-        href="/link-building"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" /> {t("back")}
-      </Link>
 
       <PageHeader
         title={t("title", { name: client.name })}

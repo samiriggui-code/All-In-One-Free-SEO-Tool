@@ -12,6 +12,7 @@ import {
   Newspaper,
   Sparkles,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { composeGbpPost } from "@/app/gbp/actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
@@ -45,6 +46,7 @@ export function GbpPostComposer({
   const [copied, setCopied] = useState(false);
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
+  const t = useTranslations("localTab.gbp");
 
   function generate() {
     setError(null);
@@ -79,12 +81,10 @@ export function GbpPostComposer({
       <header className="border-b border-white/[0.06] px-5 py-4">
         <h2 className="text-base font-semibold flex items-center gap-2">
           <Sparkles className="size-4 text-violet-300" />
-          GBP post composer
+          {t("composer.title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Draft a Google Business post in under 30 seconds. Pick a type,
-          give an angle, copy-paste into GBP. Posts appear under your
-          listing for ~7 days and signal an active business.
+          {t("composer.description")}
         </p>
       </header>
 
@@ -102,28 +102,28 @@ export function GbpPostComposer({
               }`}
             >
               <Icon className="size-3.5" />
-              {label}
+              {t.has(`composer.types.${id}`) ? t(`composer.types.${id}`) : label}
             </button>
           ))}
         </div>
 
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">Angle / what to say</span>
+          <span className="text-muted-foreground">{t("composer.angle")}</span>
           <textarea
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             rows={2}
-            placeholder="20% off all services this week / new vegan menu launching Tuesday / celebrating 5 years in town…"
+            placeholder={t("composer.anglePlaceholder")}
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
 
         <label className="block space-y-1 text-xs">
-          <span className="text-muted-foreground">CTA URL (optional)</span>
+          <span className="text-muted-foreground">{t("composer.ctaUrl")}</span>
           <input
             value={ctaUrl}
             onChange={(e) => setCtaUrl(e.target.value)}
-            placeholder="https://yoursite.com/book"
+            placeholder={t("composer.ctaPlaceholder")}
             className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
         </label>
@@ -137,10 +137,10 @@ export function GbpPostComposer({
           {busy ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Drafting…
+              {t("composer.drafting")}
             </>
           ) : (
-            "Draft post"
+            t("composer.draftPost")
           )}
         </button>
 
@@ -153,7 +153,7 @@ export function GbpPostComposer({
         {draft && (
           <div className="space-y-2 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm">
             <div className="text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
-              Draft
+              {t("composer.draft")}
             </div>
             <textarea
               value={draft}
@@ -179,18 +179,20 @@ export function GbpPostComposer({
                 {copied ? (
                   <>
                     <Check className="size-3" />
-                    Copied
+                    {t("composer.copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="size-3" />
-                    Copy post
+                    {t("composer.copyPost")}
                   </>
                 )}
               </button>
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Paste into Google Business Profile → New post → {postType}.
+              {t("composer.pasteHint", {
+                type: t.has(`postTypes.${postType}`) ? t(`postTypes.${postType}`) : postType,
+              })}
             </p>
           </div>
         )}

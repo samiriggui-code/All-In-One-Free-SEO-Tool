@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -37,6 +38,7 @@ export default async function ReviewDeskPage({
   if (!client) notFound();
 
   const initial = await loadReviewDesk(clientId);
+  const t = await getTranslations("localTab.reviews");
 
   return (
     <div className="space-y-6">
@@ -45,12 +47,12 @@ export default async function ReviewDeskPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        Business profile
+        {t("back")}
       </Link>
 
       <PageHeader
-        title={`Reviews · ${client.name}`}
-        description="Every review, which ones still need an answer, and the replies — drafted here, sent to Google when you say so."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={MessageSquare}
         accent="cyan"
       />
@@ -64,7 +66,7 @@ export default async function ReviewDeskPage({
         <ReviewDesk clientId={clientId} initial={initial} />
       ) : (
         <p className="rounded-xl bg-white/[0.02] px-5 py-8 text-center text-sm text-muted-foreground">
-          Pick the Business Profile listing above, then pull the reviews.
+          {t("pickFirst")}
         </p>
       )}
     </div>

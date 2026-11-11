@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 type Cell = { lat: number; lng: number; position: number | null };
 
 /**
@@ -15,9 +17,10 @@ export function Heatmap({
   size: number;
   prior?: Cell[] | null;
 }) {
+  const t = useTranslations("localTab.localGrid.heatmap");
   if (cells.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">No cells to display.</p>
+      <p className="text-sm text-muted-foreground">{t("empty")}</p>
     );
   }
 
@@ -54,7 +57,7 @@ export function Heatmap({
             return (
               <div
                 key={`${rIdx}-${cIdx}`}
-                title={`(${cell.lat.toFixed(4)}, ${cell.lng.toFixed(4)}) — ${cell.position ?? "not ranked"}${delta ? ` · was ${priorCell?.position ?? "—"}` : ""}`}
+                title={`(${cell.lat.toFixed(4)}, ${cell.lng.toFixed(4)}) — ${cell.position ?? t("notRanked")}${delta ? t("was", { prior: priorCell?.position ?? "—" }) : ""}`}
                 style={{ left: x, top: y, width: tile, height: tile }}
                 className={`absolute grid place-items-center rounded-md text-xs font-bold tabular-nums ring-1 ring-inset ${tone}`}
               >
@@ -70,7 +73,9 @@ export function Heatmap({
                             : "text-foreground/60"
                       }`}
                     >
-                      {delta.label}
+                      {delta.label === "new" || delta.label === "lost"
+                        ? t(delta.label)
+                        : delta.label}
                     </span>
                   )}
                 </div>
@@ -108,13 +113,14 @@ function positionTone(p: number | null): string {
 }
 
 function Legend() {
+  const t = useTranslations("localTab.localGrid.heatmap");
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 text-[10px] text-muted-foreground">
-      <LegendDot tone="bg-emerald-500/40 ring-emerald-400/60" label="1-3 (in pack)" />
+      <LegendDot tone="bg-emerald-500/40 ring-emerald-400/60" label={t("legendInPack")} />
       <LegendDot tone="bg-amber-500/30 ring-amber-400/50" label="4-10" />
       <LegendDot tone="bg-orange-500/30 ring-orange-400/50" label="11-20" />
       <LegendDot tone="bg-rose-500/25 ring-rose-400/40" label="21+" />
-      <LegendDot tone="bg-white/5 ring-white/10" label="Not ranked" />
+      <LegendDot tone="bg-white/5 ring-white/10" label={t("legendNotRanked")} />
     </div>
   );
 }
