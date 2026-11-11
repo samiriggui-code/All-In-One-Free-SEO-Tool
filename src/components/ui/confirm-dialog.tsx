@@ -111,7 +111,10 @@ export function ConfirmDialogProvider({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-background/60 backdrop-blur-sm"
+            // Above everything else, the side sheets included (gsk-drawer
+            // is 71): a confirmation asked from inside a sheet was drawn
+            // under it, half hidden and unclickable.
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-background/60 backdrop-blur-sm"
             onClick={() => finish(false)}
           >
             <motion.div
