@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -48,12 +48,16 @@ function inFilter(task: { dueDate: Date | null }, filter: Filter): boolean {
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: Filter; view?: ViewMode }>;
+  searchParams: Promise<{ filter?: Filter; view?: ViewMode; client?: string }>;
 }) {
   const t = await getTranslations("tasks");
   const sp = await searchParams;
   const filter: Filter = sp.filter && sp.filter in filterMap ? sp.filter : "all";
   const view: ViewMode = sp.view === "kanban" ? "kanban" : "list";
+  // ?client= narrows the list to one project (links from the dashboard,
+  // the project plan and onboarding). Still inside the user's scope.
+  const onlyClient = sp.client && /^d+$/.test(sp.client) ? Number(sp.client) : null;
+  const scopeWhere = await clientScope();
 
   const all = await db
     .select({
@@ -73,12 +77,15 @@ export default async function TasksPage({
     })
     .from(tasks)
     .leftJoin(clients, eq(tasks.clientId, clients.id))
+    // Members and client viewers see their projects' tasks only; this
+    // list used to load every task of the agency for them.
+    .where(and(scopeWhere, onlyClient === null ? undefined : eq(tasks.clientId, onlyClient)))
     .orderBy(desc(tasks.createdAt));
 
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
-    .where(await clientScope())
+    .where(scopeWhere)
     .orderBy(clients.name);
 
   const filtered = all.filter((task) => inFilter(task, filter));
@@ -109,7 +116,7 @@ export default async function TasksPage({
             <NewTaskTrigger clients={allClients} />
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-card/60 p-1 backdrop-blur">
             <Link
-              href={`/tasks?filter=${filter}&view=list`}
+              href={`/tasks?filter=${filter}&view=list${onlyClient ? `&client=${onlyClient}` : ""}`}
               className={
                 view === "list"
                   ? "inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-white/10"
@@ -119,7 +126,7 @@ export default async function TasksPage({
               <List className="size-3" /> {t("list")}
             </Link>
             <Link
-              href={`/tasks?filter=${filter}&view=kanban`}
+              href={`/tasks?filter=${filter}&view=kanban${onlyClient ? `&client=${onlyClient}` : ""}`}
               className={
                 view === "kanban"
                   ? "inline-flex items-center gap-1 rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium ring-1 ring-inset ring-white/10"

@@ -66,12 +66,13 @@ describe("amber means something specific is missing", () => {
 
 describe("silence where we don't know", () => {
   it("a genuinely mixed page gets no dot rather than a wrong one", () => {
-    // /reports both works without a key (crawl data, PDF) and offers an
-    // AI executive summary, so neither colour is true. Green would
+    // A project's reports page both works without a key (crawl data,
+    // PDF) and offers an AI executive summary, so neither colour is true.
+    // (The global /reports overview no longer reaches any AI code.) Green would
     // oversell it and amber would say a working page is broken — the
     // exact failure this codebase keeps producing: a confident wrong
     // answer instead of a crash.
-    const r = toolReadiness({ href: "/reports", hasAiKey: false });
+    const r = toolReadiness({ href: "/reports/c/1", hasAiKey: false });
     expect(r.state).toBe("unknown");
   });
 

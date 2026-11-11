@@ -15,6 +15,9 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { contextForPrompt, getClientContext } from "@/lib/client-knowledge";
 import { withoutInfrastructure } from "@/lib/infrastructure-urls";
+import { findingsToTasks } from "@/lib/audit-to-task";
+import { getReportLocale } from "@/lib/report-i18n";
+import { agentTaskWanted, untouched } from "@/lib/task-dedupe";
 import { db } from "@/db/client";
 import {
   agentActions,
@@ -390,29 +393,56 @@ async function createTasksFromUnfixable(
     byType.set(i.type, [...(byType.get(i.type) ?? []), i]);
   }
 
-  const existing = await db
-    .select({ sourceRef: tasks.sourceRef })
+  const all = await db
+    .select({
+      id: tasks.id,
+      source: tasks.source,
+      sourceRef: tasks.sourceRef,
+      title: tasks.title,
+      status: tasks.status,
+      actualMinutes: tasks.actualMinutes,
+      assignedUserId: tasks.assignedUserId,
+    })
     .from(tasks)
-    .where(and(eq(tasks.clientId, client.id), eq(tasks.source, "agent")));
-  const already = new Set(existing.map((t) => t.sourceRef));
+    .where(eq(tasks.clientId, client.id));
+  const others = all.filter((t) => t.source !== "agent");
+  const mine = all.filter((t) => t.source === "agent");
 
+  // Earlier runs repeated the audit's tasks: drop those nobody touched.
+  const repeats = mine.filter(
+    (t) => untouched(t) && t.sourceRef && !agentTaskWanted(t.sourceRef.slice("agent:".length), others),
+  );
+  if (repeats.length > 0) {
+    await db.delete(tasks).where(inArray(tasks.id, repeats.map((t) => t.id)));
+  }
+  const already = new Set(mine.map((t) => t.sourceRef));
+
+  const locale = (await getReportLocale().catch(() => "en")) === "fr" ? "fr" : "en";
   let created = 0;
   for (const [type, list] of byType) {
     const ref = `agent:${type}`;
     if (already.has(ref)) continue;
+    // Only what the audit, the engine and the templates left out.
+    if (!agentTaskWanted(type, others)) continue;
 
+    // The audit's own words for the problem, in the workspace language.
+    const [text] = findingsToTasks(
+      list.map((i) => ({ type: i.type, severity: i.severity, message: i.message, url: i.url })),
+      locale,
+    );
     const label = humanIssueType(type);
     await db.insert(tasks).values({
       clientId: client.id,
       title:
-        list.length === 1
+        text?.title ??
+        (list.length === 1
           ? `${label} on ${shortUrl(list[0].url)}`
-          : `${label} — ${list.length} pages`,
+          : `${label} — ${list.length} pages`),
       description: list
         .slice(0, 20)
         .map((i) => `- ${i.url}\n  ${i.message}`)
         .join("\n"),
-      whyItMatters: list[0].message,
+      whyItMatters: text?.whyItMatters ?? list[0].message,
       priority: list.some((i) => i.severity === "critical") ? "high" : "medium",
       status: "todo",
       source: "agent",

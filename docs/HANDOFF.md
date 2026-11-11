@@ -37,6 +37,8 @@ pnpm dev                                    # migrations puis Next sur :3000
 | #49 | Faille corrigée : `/findings/c/[id]` sans contrôle d'accès, `markFindingStatus` sans vérification du client ni du droit d'écriture. Test `client-scope-layouts.test.ts` |
 | #50 | **Cadre façon GsKnora** : compte et cloche en bas de la barre latérale, assistant, thème et serveur au-dessus ; plus de boutons flottants sur ordinateur ; Guidé / Pro retiré ; **taille du texte** Petite / Normale / Grande (Paramètres → Apparence, cookie `rf-font-size`, `zoom` sur `<html>`, hauteurs plein écran compensées) |
 | #51 | **Navigation du projet** sur ses 29 pages (`src/lib/project-nav.ts`, dessinée par `client-scope-layout`) : fil d'Ariane, onglets, pages de l'onglet ; « Local » masqué si le projet n'est pas local ; ancien en-tête « Tous les clients » retiré |
+| #57, #58 | **Tâches** : une par problème avec les pages en sous-cases (`tasks.pages_json`, migration `0081`), plus de doublons entre audit, moteur et modèles (`lib/task-dedupe.ts`), titres en français (`audit-to-task.fr.ts`, 373 noms de règles dans `rule-names.fr.ts`), échéances étalées par priorité, page regroupée par projet |
+| #59 | **Tableau de bord portefeuille** (`app/portfolio-overview.tsx`, calculs dans `lib/portfolio.ts`, lectures dans `lib/portfolio-data.ts`) : 4 indicateurs, projets en liste ou cartes (`?vue=cartes`), « À faire aujourd'hui » (5 tâches), répartition des scores, tâches terminées par semaine. **Audits** : tous les audits de l'agence en tableau, filtre par projet, audits par semaine, projets à ré-auditer. **Rapports** : état par projet (à jour, programmé, à faire) et rapports récents. Corrigés : la page Tâches chargeait les tâches de tous les projets pour un membre ; l'agent de nuit recréait en anglais les tâches de l'audit (`agentTaskWanted`) |
 | #52 à #56 | **Toutes les pages des onglets du projet en français** (namespaces `auditTab`, `keywordsTab`, `linksTab`, `localTab`, `aiTab`, `overviewTab`, plus `rankSource`, `clientInfoCard`, `gmailScope`). Corrigés au passage : formulaire imbriqué des articles invités (« Proposer des titres » soumettait le brouillon), sélecteur de client inutile dans la Surveillance d'un projet, liens « ← Tous les clients » qui sortaient du projet |
 
 Hors code : la PR #45 ouverte par erreur chez l'auteur d'origine est fermée, et l'issue #59 lui propose nos améliorations (mise à jour Next, moteur 373 règles, navigation). Sans réponse au 11/11. Il s'était dit intéressé par deux PR séparées : la landing publique sans marque, et les traductions françaises seules.
@@ -73,8 +75,8 @@ Constat (détaillé dans `docs/AUDIT-UX.md`, écrit le 24/10 et toujours vrai) :
 **Reste à faire, dans l'ordre**
 
 1. ~~Point 5 : rattacher et traduire les pages des onglets du projet.~~ Fait (#51 à #56). Reste un passage dédié aux textes qui ne viennent pas des pages : messages d'erreur des actions serveur, catalogue des intégrations (`lib/integrations.ts`), infobulles du glossaire (`components/ui/term.tsx`, `lib/glossary`), données de référence (`lib/gbp-playbook.ts`, `lib/guest-post-sites`, `lib/backlink-difficulty.ts`).
-2. Tâches : une tâche par problème et par projet, avec les adresses en sous-cases (aujourd'hui 60 tâches pour ND Prestige) ; échéances réalistes.
-3. Tableau de bord portefeuille ; vues globales Audits et Rapports.
+2. ~~Tâches : une tâche par problème et par projet, avec les adresses en sous-cases ; échéances réalistes.~~ Fait (#57, #58).
+3. ~~Tableau de bord portefeuille ; vues globales Audits et Rapports.~~ Fait (#59).
 4. Mission « refonte » : cahier des charges généré depuis l'audit.
 
 ## E. Problèmes ouverts

@@ -1,9 +1,9 @@
 import { db } from "@/db/client";
-import { audits, clients, tasks } from "@/db/schema";
+import { clients } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
-import { and, count, desc, eq, inArray, ne, type AnyColumn } from "drizzle-orm";
+import { count, inArray, type AnyColumn } from "drizzle-orm";
 import { scopedClientIds } from "@/lib/client-scope";
 import {
   ArrowUpRight,
@@ -11,62 +11,38 @@ import {
   ClipboardList,
   FileDown,
   Link2,
-  ListChecks,
   Search,
-  Sparkles,
-  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
-import { ScoreGauge } from "@/components/ui/score-gauge";
-import { AreaChart } from "@/components/ui/area-chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintainerCredit } from "@/components/shell/maintainer-credit";
 import Link from "next/link";
 import { PortfolioTrafficPanel } from "./portfolio-traffic-panel";
-import { PortfolioQuickWinsPanel } from "./portfolio-quick-wins-panel";
 import { MorningBriefing } from "./morning-briefing";
 import { AgencyWeekInReview } from "./agency-week";
 import { OnboardingChecklistPanel } from "./onboarding-checklist-panel";
 import { AutonomyPrompt } from "./autonomy-prompt";
+import { PortfolioOverview } from "./portfolio-overview";
 import { startScheduler, tickScheduler } from "@/lib/scheduler";
 import { redirect } from "next/navigation";
 import { getSetting } from "@/lib/settings-store";
-import { FreshnessBadge } from "@/components/ui/freshness-badge";
 
-const priorityVariant: Record<
-  string,
-  "destructive" | "default" | "secondary" | "outline"
-> = {
-  high: "destructive",
-  medium: "default",
-  low: "secondary",
-};
-
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vue?: string }>;
+}) {
   const t = await getTranslations("dashboard");
-
-  function greetingForHour(hour: number) {
-    if (hour < 5) return t("greetingLate");
-    if (hour < 12) return t("greetingMorning");
-    if (hour < 18) return t("greetingAfternoon");
-    return t("greetingEvening");
-  }
+  const { vue } = await searchParams;
 
   // The background runners live in the scheduler now (src/lib/scheduler.ts),
   // on a real interval, so they keep running whether or not anyone opens
-  // this page. Previously all six hung off exactly this spot, which meant
-  // rank checks, monitoring, alerts and scheduled reports quietly stopped
-  // the moment nobody loaded the dashboard.
-  //
-  // We still nudge it here: it costs nothing when everything is current,
-  // and it makes a just-restarted process catch up on this render rather
-  // than waiting for the next tick.
+  // this page. We still nudge it here: it costs nothing when everything is
+  // current, and it makes a just-restarted process catch up on this render.
   //
   // try/catch AND .catch() because a synchronous throw (native module
   // fails to load, DB binding missing on a half-built install) escapes
@@ -77,10 +53,7 @@ export default async function DashboardPage() {
     tickScheduler().catch(() => {});
   } catch {}
 
-  // Members and client viewers see their assigned clients only. The
-  // dashboard used to count, list and chart the whole agency for them,
-  // client names included, which for a client viewer meant seeing the
-  // agency's other customers.
+  // Members and client viewers see their assigned clients only.
   const scope = await scopedClientIds();
   const scoped = scope !== null;
   const inScope = (column: AnyColumn) =>
@@ -93,69 +66,11 @@ export default async function DashboardPage() {
     .from(clients)
     .where(inScope(clients.id));
 
-  const [{ value: openTaskCount }] = await db
-    .select({ value: count() })
-    .from(tasks)
-    .where(and(ne(tasks.status, "done"), inScope(tasks.clientId)));
-
-  const [{ value: auditCount }] = await db
-    .select({ value: count() })
-    .from(audits)
-    .where(inScope(audits.clientId));
-
-  const recentAudits = await db
-    .select({
-      id: audits.id,
-      score: audits.score,
-      issuesCount: audits.issuesCount,
-      status: audits.status,
-      completedAt: audits.completedAt,
-      createdAt: audits.createdAt,
-      clientId: audits.clientId,
-      clientName: clients.name,
-    })
-    .from(audits)
-    .leftJoin(clients, eq(audits.clientId, clients.id))
-    .where(inScope(audits.clientId))
-    .orderBy(desc(audits.createdAt))
-    .limit(5);
-
-  // Wider window for the trend chart — 30 most recent completed audits
-  // (across clients) so the line has enough points to be meaningful.
-  const trendAudits = await db
-    .select({
-      score: audits.score,
-      completedAt: audits.completedAt,
-      createdAt: audits.createdAt,
-    })
-    .from(audits)
-    .where(and(eq(audits.status, "completed"), inScope(audits.clientId)))
-    .orderBy(desc(audits.createdAt))
-    .limit(30);
-
-  const priorityTasks = await db
-    .select({
-      id: tasks.id,
-      title: tasks.title,
-      priority: tasks.priority,
-      clientId: tasks.clientId,
-      clientName: clients.name,
-    })
-    .from(tasks)
-    .leftJoin(clients, eq(tasks.clientId, clients.id))
-    .where(and(eq(tasks.status, "todo"), inScope(tasks.clientId)))
-    .orderBy(desc(tasks.createdAt))
-    .limit(6);
-
   // "Fresh" means a new workspace, not a member with no assignments yet.
   const isFresh = clientCount === 0 && !scoped;
-  const greeting = greetingForHour(new Date().getHours());
 
   // First-run gate. A genuinely fresh workspace lands on /welcome where
-  // the stepper makes the next action obvious. Once the user clicks
-  // "Skip & explore" (or completes any step that creates a client / AI
-  // provider), the dismissed_at flag is set and they never see the gate
-  // again. Re-running /welcome any time via the nav still works.
+  // the stepper makes the next action obvious, until it is dismissed.
   if (isFresh) {
     const dismissedAt = await getSetting<string>("onboarding.dismissed_at").catch(() => null);
     if (!dismissedAt) {
@@ -163,393 +78,78 @@ export default async function DashboardPage() {
     }
   }
 
-  // Latest score across all completed audits (for hero gauge)
-  const completedAudits = recentAudits.filter(
-    (a) => a.status === "completed" && a.score !== null,
-  );
-  const latestScore = completedAudits[0]?.score ?? null;
-  const previousScore = completedAudits[1]?.score ?? null;
-  const scoreDelta =
-    latestScore !== null && previousScore !== null
-      ? latestScore - previousScore
-      : null;
+  if (!isFresh) {
+    // The portfolio: every project, what to do today, two charts. The
+    // panels below it are the agency-wide ones that were already here.
+    return (
+      <div className="mx-auto max-w-7xl space-y-6">
+        <PortfolioOverview view={vue === "cartes" ? "cards" : "list"} />
 
-  // Build score timeline for sparkline
-  const scoreTimeline = completedAudits
-    .map((a) => a.score!)
-    .reverse();
-
-  // Issue trend (placeholder pattern derived from real data)
-  const issueTimeline = recentAudits
-    .map((a) => a.issuesCount)
-    .reverse();
-
-  return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* HERO — wrapped in a card for visual containment. Shows fresh
-          welcome or returning-user greeting. Returning users also see
-          a latest-audit summary card on the right. */}
-      <section className="grid gap-6 rounded-xl border border-border bg-card p-6 shadow lg:grid-cols-[1fr_auto] lg:items-end">
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-emerald-400" />
-            {t("badge")}
-          </div>
-          <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
-            {isFresh
-              ? t("welcomeTitle")
-              : t("returningTitle", { greeting })}
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {isFresh ? t("welcomeBody") : t("returningBody")}
-          </p>
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            {isFresh ? (
-              <>
-                {/* Lead with the thing that produces a result, not the
-                    thing that asks for a credential. Audits need no AI
-                    key, so a first-time user can see real output before
-                    deciding whether to configure anything. */}
-                <Link href="/clients/new" className={buttonVariants()}>
-                  {t("addFirstSite")}
-                </Link>
-                <Link
-                  href="/settings#ai"
-                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {t("orConnectAi")}
-                  <ArrowUpRight className="size-3.5" />
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/clients/new" className={buttonVariants()}>
-                  {t("addClient")}
-                </Link>
-                <Link
-                  href="/clients"
-                  className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {t("viewClients")}
-                  <ArrowUpRight className="size-3.5" />
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-
-        {!isFresh && (
-          <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
-            <ScoreGauge score={latestScore} />
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                <span>{t("latestAudit")}</span>
-                <FreshnessBadge
-                  capturedAt={
-                    recentAudits[0]?.completedAt ??
-                    recentAudits[0]?.createdAt ??
-                    null
-                  }
-                  source="Audit"
-                />
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                {recentAudits[0]?.clientName ?? "—"}
-              </div>
-              {scoreDelta !== null ? (
-                <div
-                  className={`inline-flex items-center gap-1 text-xs font-medium tabular-nums ${
-                    scoreDelta > 0
-                      ? "text-emerald-300"
-                      : scoreDelta < 0
-                        ? "text-rose-300"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {scoreDelta > 0 ? "+" : ""}
-                    {scoreDelta} {t("vsPrevious")}
-                  </div>
-                ) : (
-                  <div className="text-[11px] text-muted-foreground">
-                    {t("firstMeasurement")}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-      </section>
-
-      {/* STATS — hidden on fresh state (all-zero cards look bad).
-          Returning users see a clean 4-column row of 4 cards. */}
-      {!isFresh && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            className="animate-page-enter stagger-1"
-            label={t("openTasks")}
-            value={openTaskCount}
-            accent="violet"
-            icon={ListChecks}
-            hint={
-              openTaskCount > 0 ? t("openTasksHint") : t("allCaughtUp")
-            }
-            spark={issueTimeline.length > 1 ? issueTimeline : undefined}
-          />
-          <StatCard
-            className="animate-page-enter stagger-2"
-            label={t("clients")}
-            value={clientCount}
-            accent="cyan"
-            icon={Users}
-            hint={t("clientsHint")}
-          />
-          <StatCard
-            className="animate-page-enter stagger-3"
-            label={t("auditsRun")}
-            value={auditCount}
-            accent="amber"
-            icon={ClipboardList}
-            hint={
-              scoreDelta !== null
-                ? t("scoreHint", {
-                    score: latestScore ?? "—",
-                    delta: `${scoreDelta > 0 ? "+" : ""}${scoreDelta}`,
-                  })
-                : completedAudits.length > 0
-                  ? t("latestScoreHint", { score: latestScore ?? "—" })
-                  : t("runFirst")
-            }
-            spark={scoreTimeline.length > 1 ? scoreTimeline : undefined}
-          />
-          <StatCard
-            className="animate-page-enter stagger-4"
-            label={t("latestScore")}
-            value={latestScore ?? "—"}
-            accent="emerald"
-            icon={Sparkles}
-            // The one number on this row that isn't a count of our own
-            // rows. It's derived from what our crawler saw, so it can
-            // disagree with what Google last indexed — worth saying,
-            // because this is the figure that ends up in client reports.
-            source="crawl"
-            hint={
-              completedAudits.length > 0
-                ? t("completedCount", { count: completedAudits.length })
-                : t("runAuditFirst")
-            }
-            delta={
-              scoreDelta !== null
-                ? { value: scoreDelta, label: t("vsPrevious") }
-                : undefined
-            }
-          />
-        </div>
-      )}
-
-      {/* Asked once, above everything, because it decides whether the
-          rest of the agent's work reaches the site at all. Renders
-          nothing once answered, and nothing at all before the first
-          client exists. */}
-      {!scoped && (
-        <Suspense fallback={null}>
-          <AutonomyPrompt />
-        </Suspense>
-      )}
-
-      {/* GET STARTED — two-column on fresh state (checklist + features),
-          single column once user has clients (checklist auto-hides when done). */}
-      {isFresh ? (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Suspense fallback={null}>
-              <OnboardingChecklistPanel />
-            </Suspense>
-          </div>
-          <FeatureHighlights t={t} />
-        </div>
-      ) : scoped ? null : (
-        <Suspense fallback={null}>
-          <OnboardingChecklistPanel />
-        </Suspense>
-      )}
-
-      {/* MORNING BRIEFING — what changed in last 24h across portfolio */}
-      {!isFresh && (
+        {/* Asked once, because it decides whether the agent's work
+            reaches the site at all. Renders nothing once answered. */}
+        {!scoped && (
+          <Suspense fallback={null}>
+            <AutonomyPrompt />
+          </Suspense>
+        )}
+        {!scoped && (
+          <Suspense fallback={null}>
+            <OnboardingChecklistPanel />
+          </Suspense>
+        )}
         <Suspense fallback={<DashboardPanelSkeleton lines={4} />}>
           <MorningBriefing />
         </Suspense>
-      )}
+        {/* Owners and managers only: not scoped, and a member or client
+            viewer must not see other clients. */}
+        {!scoped && (
+          <>
+            <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
+              <AgencyWeekInReview />
+            </Suspense>
+            <Suspense fallback={<DashboardPanelSkeleton lines={5} />}>
+              <PortfolioTrafficPanel />
+            </Suspense>
+          </>
+        )}
+      </div>
+    );
+  }
 
-      {/* AGENCY-WIDE PANELS — activity, traffic and quick wins across
-          every client. Owners and managers only: they are not scoped,
-          and a member or client viewer must not see other clients. */}
-      {!isFresh && !scoped && (
-        <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
-          <AgencyWeekInReview />
-        </Suspense>
-      )}
-      {!scoped && (
-        <>
-          <Suspense fallback={<DashboardPanelSkeleton lines={5} />}>
-            <PortfolioTrafficPanel />
-          </Suspense>
-          <Suspense fallback={<DashboardPanelSkeleton lines={3} />}>
-            <PortfolioQuickWinsPanel />
-          </Suspense>
-        </>
-      )}
-
-      {/* PRIORITY TASKS + RECENT AUDITS — returning users only.
-          (Fresh state skips this; the onboarding checklist + bento are enough.) */}
-      {!isFresh && (
-        <div className="grid gap-4 lg:grid-cols-5">
-          {priorityTasks.length > 0 && (
-            <section className="rounded-lg border border-border bg-card lg:col-span-3">
-              <header className="flex items-center justify-between border-b border-border px-4 py-3">
-                <div>
-                  <h2 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
-                    <Sparkles className="size-3.5 text-violet-300" />
-                    {t("priorityTasks")}
-                  </h2>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {t("priorityTasksHint")}
-                  </p>
-                </div>
-                <Link
-                  href="/tasks"
-                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {t("viewAll")}
-                  <ArrowUpRight className="size-3" />
-                </Link>
-              </header>
-              <ul className="divide-y divide-border">
-                {priorityTasks.map((t) => (
-                  <li
-                    key={t.id}
-                    className="group flex items-start justify-between gap-4 px-4 py-2.5 transition-colors hover:bg-accent"
-                  >
-                    <div className="space-y-0.5">
-                      <div className="text-[13px] font-medium leading-snug text-foreground">
-                        {t.title}
-                      </div>
-                      {t.clientName && t.clientId && (
-                        <Link
-                          href={`/clients/${t.clientId}`}
-                          className="text-[11px] text-muted-foreground hover:text-foreground hover:underline"
-                        >
-                          {t.clientName}
-                        </Link>
-                      )}
-                    </div>
-                    <Badge
-                      variant={priorityVariant[t.priority]}
-                      className="shrink-0 capitalize"
-                    >
-                      {t.priority}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {recentAudits.length > 0 && (
-            <section className="rounded-lg border border-border bg-card lg:col-span-2">
-              <header className="flex items-center justify-between border-b border-border px-4 py-3">
-                <div>
-                  <h2 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
-                    <ClipboardList className="size-3.5 text-violet-300" />
-                    {t("recentAudits")}
-                  </h2>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {t("recentAuditsHint")}
-                  </p>
-                </div>
-                <Link
-                  href="/clients"
-                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  {t("clients")}
-                  <ArrowUpRight className="size-3" />
-                </Link>
-              </header>
-              <ul className="divide-y divide-border">
-                {recentAudits.map((a) => (
-                  <li
-                    key={a.id}
-                    className="flex items-center justify-between gap-3 px-4 py-2.5 text-[13px] transition-colors hover:bg-accent"
-                  >
-                    <div className="min-w-0 space-y-0.5">
-                      <Link
-                        href={`/audits/${a.id}`}
-                        className="block truncate font-medium text-foreground hover:underline"
-                      >
-                        {a.clientName ?? `Client ${a.clientId}`}
-                      </Link>
-                      <div className="text-[11px] text-muted-foreground">
-                        {(a.completedAt ?? a.createdAt).toLocaleDateString()} ·{" "}
-                        {t("issues", { count: a.issuesCount })}
-                      </div>
-                    </div>
-                    <ScoreBadge score={a.score} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+  return (
+    <div className="mx-auto max-w-7xl space-y-6">
+      <section className="space-y-3 rounded-xl border border-border bg-card p-6">
+        <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
+          {t("welcomeTitle")}
+        </h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">{t("welcomeBody")}</p>
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          {/* Lead with the thing that produces a result, not the thing
+              that asks for a credential: audits need no AI key. */}
+          <Link href="/clients/new" className={buttonVariants()}>
+            {t("addFirstSite")}
+          </Link>
+          <Link
+            href="/settings#ai"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            {t("orConnectAi")}
+            <ArrowUpRight className="size-3.5" />
+          </Link>
         </div>
-      )}
+      </section>
 
-      {/* Score trend chart — shadcn-admin-style area chart of recent audits */}
-      {!isFresh && trendAudits.length >= 2 && (
-        <section className="rounded-xl border border-border bg-card p-6 shadow">
-          <header className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                {t("scoreTrend")}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {t("scoreTrendHint", { count: trendAudits.length })}
-              </p>
-            </div>
-          </header>
-          <AreaChart
-            data={[...trendAudits]
-              .reverse()
-              .map((a, i) => ({
-                name: (a.completedAt ?? a.createdAt).toLocaleDateString(
-                  undefined,
-                  { month: "short", day: "numeric" },
-                ),
-                value: a.score ?? 0,
-                _idx: i,
-              }))}
-            colorClass="text-violet-500"
-            height={220}
-            formatValue="score"
-          />
-        </section>
-      )}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Suspense fallback={null}>
+            <OnboardingChecklistPanel />
+          </Suspense>
+        </div>
+        <FeatureHighlights t={t} />
+      </div>
 
-      {/* Bento quick-actions — one tile per workflow */}
       <BentoQuickActions t={t} />
     </div>
-  );
-}
-
-function ScoreBadge({ score }: { score: number | null }) {
-  let cls = "border-border bg-muted text-muted-foreground";
-  if (score !== null) {
-    if (score >= 80) cls = "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
-    else if (score >= 50) cls = "border-amber-500/30 bg-amber-500/10 text-amber-300";
-    else cls = "border-rose-500/30 bg-rose-500/10 text-rose-300";
-  }
-  return (
-    <span
-      className={`inline-flex h-8 w-10 items-center justify-center rounded-md border text-[13px] font-semibold tabular-nums ${cls}`}
-    >
-      {score ?? "—"}
-    </span>
   );
 }
 
