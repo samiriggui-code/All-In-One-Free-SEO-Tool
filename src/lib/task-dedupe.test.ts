@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getTemplatesByKey, STACK_LABELS } from "./tech-stack-templates";
 import {
+  agentTaskWanted,
   engineTaskWanted,
   planPriorityFromTitle,
   TEMPLATE_AUDIT_EQUIVALENTS,
@@ -59,5 +60,24 @@ describe("untouched", () => {
     expect(untouched({ status: "todo", actualMinutes: 15, assignedUserId: null })).toBe(false);
     expect(untouched({ status: "todo", actualMinutes: null, assignedUserId: 3 })).toBe(false);
     expect(untouched({ status: "in_progress", actualMinutes: null, assignedUserId: null })).toBe(false);
+  });
+});
+
+describe("agentTaskWanted", () => {
+  const existing = [
+    { sourceRef: "audit:missing_h1", title: "Ajouter un titre <h1>" },
+    { sourceRef: "seomator:technical-www-redirect", title: "[P0] Redirection www" },
+    { sourceRef: null, title: "Generate and submit a sitemap.xml" },
+  ];
+  it("skips what the audit, the engine or a template already covers", () => {
+    expect(agentTaskWanted("missing_h1", existing)).toBe(false);
+    expect(agentTaskWanted("seomator:technical-www-redirect", existing)).toBe(false);
+    expect(agentTaskWanted("missing_sitemap", existing)).toBe(false);
+    expect(agentTaskWanted("seomator:js-rendered-h1", existing)).toBe(false);
+    expect(agentTaskWanted("seomator:core-h1-single", [])).toBe(false);
+  });
+
+  it("fills a real gap", () => {
+    expect(agentTaskWanted("missing_og_tags", existing)).toBe(true);
   });
 });

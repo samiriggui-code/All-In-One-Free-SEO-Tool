@@ -86,3 +86,36 @@ export function templateAuditType(title: string): string | null {
 export function untouched(t: { status: string; actualMinutes: number | null; assignedUserId: number | null }): boolean {
   return t.status === "todo" && !t.actualMinutes && t.assignedUserId === null;
 }
+
+/**
+ * Whether the agent's nightly pass should make a task for a finding type.
+ *
+ * It ran after the audit had already made one task per problem and made
+ * its own for the same problems ("Add missing H1 on example.com" next to
+ * "Ajouter un titre <h1> clair à la page d'accueil"), in English, every
+ * night the list was empty of `agent:` rows. Now it only fills gaps: a
+ * type with no task from the audit, the engine or a template, whatever
+ * that task's status (a task closed by hand is a decision, not a gap),
+ * and engine rules under the same rules as the audit's own engine tasks.
+ *
+ * `existing` are the project's tasks other than the agent's own.
+ */
+export function agentTaskWanted(
+  type: string,
+  existing: readonly { sourceRef: string | null; title: string }[],
+): boolean {
+  if (NEVER_A_TASK.has(ruleIdOf(type))) return false;
+  const covered = new Set<string>();
+  for (const t of existing) {
+    const ref = t.sourceRef ?? "";
+    if (ref.startsWith("audit:")) covered.add(ref.slice("audit:".length));
+    else if (ref.startsWith("seomator:")) {
+      covered.add(ref);
+      for (const e of engineEquivalents(ref)) covered.add(e);
+    }
+    const fromTemplate = templateAuditType(t.title);
+    if (fromTemplate) covered.add(fromTemplate);
+  }
+  if (covered.has(type)) return false;
+  return !engineEquivalents(type).some((e) => covered.has(e));
+}
