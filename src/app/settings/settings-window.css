@@ -815,9 +815,12 @@ button.gsk-card:focus-visible {
   font-weight: 600;
 }
 .gsk-drawer__title {
+  overflow: hidden;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .gsk-drawer__subtitle {
   font-size: 12px;
@@ -1001,4 +1004,93 @@ button.gsk-card:focus-visible {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+}
+
+/* Table (GsKnora's member / invitation tables) */
+.gsk-table {
+  overflow: hidden;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 8px;
+}
+.gsk-table__head,
+.gsk-table__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 70px 130px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+.gsk-table__head {
+  height: 44px;
+  border-bottom: 1px solid var(--gsk-stroke);
+  font-size: 13px;
+  color: var(--gsk-text-2);
+}
+.gsk-table__row {
+  width: 100%;
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gsk-stroke);
+  background: var(--gsk-bg);
+  font-size: 14px;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+.gsk-table__row:hover {
+  background: var(--gsk-hover);
+}
+.gsk-table__row:focus-visible {
+  outline: 2px solid var(--gsk-brand);
+  outline-offset: -2px;
+}
+.gsk-table__foot {
+  padding: 10px 16px;
+  background: var(--gsk-rail);
+  font-size: 12px;
+  color: var(--gsk-text-2);
+}
+@media (max-width: 767px) {
+  .gsk-table__head {
+    display: none;
+  }
+  .gsk-table__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .gsk-table__row > :nth-child(2),
+  .gsk-table__row > :nth-child(4) {
+    display: none;
+  }
+}
+
+/* Definition list and code block inside a sheet */
+.gsk-dl {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+.gsk-dl dt {
+  color: var(--gsk-text-2);
+}
+.gsk-dl dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--gsk-text-1);
+}
+.gsk-pre {
+  max-height: 280px;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--gsk-stroke);
+  border-radius: 3px;
+  padding: 10px 12px;
+  background: var(--gsk-rail);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--gsk-text-2);
+  white-space: pre;
 }
