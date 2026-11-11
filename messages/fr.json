@@ -4254,5 +4254,147 @@
       "yes": "Oui",
       "notInTop50": "Absent du top 50"
     }
+  },
+  "aiTab": {
+    "aiVisibility": {
+      "title": "Visibilité IA · {name}",
+      "description": "Vérifiez si les assistants IA citent le domaine de ce client lorsqu'ils répondent aux requêtes suivies. La colonne Sentiment indique le ton employé par les IA lorsqu'elles mentionnent la marque.",
+      "geoSwot": "Générer le SWOT GEO →",
+      "providersConfigured": "{configured}/{total} fournisseurs configurés",
+      "mentionsLogged": "{count, plural, one {# mention enregistrée} other {# mentions enregistrées}}",
+      "empty": "Aucun mot-clé suivi pour ce client. Rendez-vous dans <link>Mots-clés</link> pour en ajouter : les vérifications de visibilité IA portent sur les mots-clés suivis.",
+      "noChecks": "Aucune vérification",
+      "table": {
+        "query": "Requête",
+        "mentions": "Mentions",
+        "sentiment": "Sentiment",
+        "sentimentHelp": "Sentiment moyen des mentions, tous fournisseurs IA confondus. Positif = marque présentée favorablement ; Négatif = présentée défavorablement ; Mitigé = les deux.",
+        "latestChecks": "Dernières vérifications",
+        "actions": "Actions"
+      },
+      "sentiment": {
+        "positive": "Positif",
+        "negative": "Négatif",
+        "neutral": "Neutre",
+        "avgScore": "Score moyen de {score} sur une échelle de -100 à +100, sur {count, plural, one {# mention} other {# mentions}}",
+        "none": "Aucune mention avec sentiment pour l'instant"
+      },
+      "check": {
+        "liveMentioned": "Mentionné, d'après une recherche web en direct",
+        "liveNotMentioned": "Non mentionné, d'après une recherche web en direct",
+        "memoryMentioned": "Mentionné, mais ce modèle a répondu à partir de ses données d'entraînement, sans recherche en direct. Ce n'est pas la preuve que vous apparaissez aujourd'hui dans la recherche IA.",
+        "memoryNotMentioned": "Non mentionné. Ce modèle a répondu à partir de ses données d'entraînement, sans recherche en direct.",
+        "memSuffix": "·mém"
+      },
+      "checkButtons": {
+        "checkOne": "Vérifier l'IA",
+        "checkAll": "Vérifier tous les mots-clés",
+        "checkingAll": "Vérification de tous les mots-clés…"
+      },
+      "browserToggle": {
+        "label": "Analyser aussi Google AI Mode + Copilot",
+        "hint": "(mode navigateur, ajoute ~30 s par mot-clé)"
+      }
+    },
+    "brandMonitor": {
+      "title": "Veille de marque · {name}",
+      "description": "Repérez les mentions sans lien, suivez la tonalité et réagissez vite aux avis négatifs. Cliquez sur « Analyser maintenant » pour récupérer un nouveau lot.",
+      "stats": {
+        "total": "Total",
+        "positive": "Positives",
+        "negative": "Négatives",
+        "linked": "Avec lien vers le site"
+      },
+      "trendTitle": "Évolution de la tonalité (60 jours)",
+      "empty": "Aucune mention pour l’instant. Cliquez sur <strong>Analyser maintenant</strong> ci-dessus.",
+      "linksToSite": "renvoie vers votre site",
+      "delete": "Supprimer",
+      "sources": {
+        "reddit": "Reddit",
+        "hackernews": "Hacker News",
+        "bluesky": "Bluesky",
+        "mastodon": "Mastodon",
+        "rss": "RSS"
+      },
+      "run": {
+        "added": "{count, plural, one {+# nouvelle mention} other {+# nouvelles mentions}}",
+        "none": "Aucune nouvelle mention trouvée",
+        "error": "Erreur : {error}",
+        "scanning": "Analyse en cours…",
+        "scan": "Analyser maintenant"
+      },
+      "outreach": {
+        "added": "✓ Ajouté à la prospection",
+        "reachOut": "Contacter"
+      },
+      "chart": {
+        "noData": "Aucune donnée pour l’instant. Lancez une analyse pour récupérer des mentions.",
+        "noMentions": "Aucune mention sur la période.",
+        "barTitle": "{date} : {positive} positive(s), {neutral} neutre(s), {negative} négative(s)",
+        "sentiment": {
+          "positive": "positive",
+          "neutral": "neutre",
+          "negative": "négative"
+        }
+      }
+    }
+  },
+  "overviewTab": {
+    "agent": {
+      "title": "Agent IA · {name}",
+      "description": "Cliquez sur « Lancer l'agent ». L'agent lit le dernier audit et les données de la Search Console, puis rédige des propositions concrètes : réécritures du title, méta-descriptions, gains rapides et idées de contenu.",
+      "list": {
+        "runSuccess": "{created, plural, =0 {Aucune nouvelle suggestion créée} one {# nouvelle suggestion créée} other {# nouvelles suggestions créées}}{reused, plural, =0 {} one { (# doublon ignoré)} other { (# doublons ignorés)}}.",
+        "thinking": "L'agent réfléchit… (~30-60 s)",
+        "run": "Lancer l'agent",
+        "runAgain": "Relancer l'agent",
+        "executeHint": "Applique automatiquement les suggestions de title et de méta-description via le pont WordPress, et ajoute tout le reste aux tâches. Limité à 20 actions et 60 s au total.",
+        "executing": "Exécution…",
+        "executePending": "Exécuter les suggestions en attente",
+        "execSummary": "Exécution de l'agent : {applied, plural, one {# appliquée automatiquement} other {# appliquées automatiquement}}, {queued, plural, one {# ajoutée aux tâches} other {# ajoutées aux tâches}}, {skipped, plural, one {# ignorée} other {# ignorées}} · {seconds} s",
+        "more": "… et {count} de plus",
+        "emptyNone": "Aucune suggestion pour l'instant. Cliquez sur <strong>Lancer l'agent</strong> pour générer la première série.",
+        "emptyFilter": "Rien dans ce filtre. Essayez un autre onglet.",
+        "statusApplied": "Appliquée",
+        "statusDismissed": "Écartée",
+        "current": "Actuel",
+        "suggested": "Proposé",
+        "copy": "Copier",
+        "copied": "Copié",
+        "addToTasks": "Ajouter aux tâches",
+        "markApplied": "Marquer comme appliquée",
+        "dismiss": "Écarter",
+        "reopen": "Rouvrir",
+        "filters": {
+          "new": "nouvelles",
+          "applied": "appliquées",
+          "dismissed": "écartées",
+          "all": "toutes"
+        },
+        "priorities": {
+          "high": "haute",
+          "medium": "moyenne",
+          "low": "basse"
+        },
+        "types": {
+          "title_rewrite": "Réécriture du title",
+          "meta_description_rewrite": "Méta-description",
+          "h1_rewrite": "Réécriture du H1",
+          "quick_win_action": "Gain rapide",
+          "content_idea": "Idée de contenu",
+          "internal_link": "Lien interne",
+          "schema_markup": "Balisage Schema",
+          "general": "Suggestion"
+        },
+        "outcomes": {
+          "auto_applied": "appliquée automatiquement",
+          "queued_as_task": "ajoutée aux tâches",
+          "skipped_no_url": "ignorée (pas d'URL)",
+          "skipped_no_match": "ignorée (page introuvable)",
+          "skipped_wp_error": "ignorée (erreur WordPress)",
+          "skipped_no_bridge": "ignorée (pas de pont WordPress)"
+        }
+      }
+    }
   }
 }

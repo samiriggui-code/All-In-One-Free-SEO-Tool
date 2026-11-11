@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { eq, desc } from "drizzle-orm";
 import {
   ExternalLink,
@@ -43,6 +44,7 @@ export default async function PerClientBrandMonitorPage({
     .where(eq(clients.id, clientId))
     .limit(1);
   if (!client) notFound();
+  const t = await getTranslations("aiTab.brandMonitor");
 
 
   const mentions = await db
@@ -57,34 +59,34 @@ export default async function PerClientBrandMonitorPage({
       if (m.sentiment > 0) acc.positive++;
       else if (m.sentiment < 0) acc.negative++;
       else acc.neutral++;
-      if (m.linksToClient) acc.unlinked++;
+      if (m.linksToClient) acc.linked++;
       return acc;
     },
-    { positive: 0, neutral: 0, negative: 0, unlinked: 0 },
+    { positive: 0, neutral: 0, negative: 0, linked: 0 },
   );
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title={`Brand mentions · ${client.name}`}
-        description="Surface unlinked mentions, monitor sentiment, react fast to negatives. Click run to fetch a fresh batch."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Megaphone}
         accent="amber"
         meta={<RunButton clientId={client.id} />}
       />
 
       <div className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Total" value={mentions.length} tone="neutral" />
-        <Stat label="Positive" value={summary.positive} tone="emerald" />
-        <Stat label="Negative" value={summary.negative} tone="rose" />
-        <Stat label="Linked to site" value={summary.unlinked} tone="violet" />
+        <Stat label={t("stats.total")} value={mentions.length} tone="neutral" />
+        <Stat label={t("stats.positive")} value={summary.positive} tone="emerald" />
+        <Stat label={t("stats.negative")} value={summary.negative} tone="rose" />
+        <Stat label={t("stats.linked")} value={summary.linked} tone="violet" />
       </div>
 
       {mentions.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Sentiment trend (60 days)</h2>
+            <h2 className="text-base font-semibold">{t("trendTitle")}</h2>
           </header>
           <div className="p-5">
             <SentimentChart buckets={bucketSentiment(mentions, 60)} />
@@ -94,7 +96,9 @@ export default async function PerClientBrandMonitorPage({
 
       {mentions.length === 0 ? (
         <div className="glass-apple rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No mentions yet. Click <strong>Scan now</strong> above.
+          {t.rich("empty", {
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </div>
       ) : (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -107,7 +111,9 @@ export default async function PerClientBrandMonitorPage({
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${SOURCE_TONE[m.source] ?? SOURCE_TONE.rss}`}
                       >
-                        {m.source}
+                        {t.has(`sources.${m.source}`)
+                          ? t(`sources.${m.source}`)
+                          : m.source}
                       </span>
                       {m.sentiment > 0 && (
                         <ThumbsUp className="size-3.5 text-emerald-300" />
@@ -117,7 +123,7 @@ export default async function PerClientBrandMonitorPage({
                       )}
                       {m.linksToClient && (
                         <span className="rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                          links to your site
+                          {t("linksToSite")}
                         </span>
                       )}
                       {m.author && (
@@ -156,7 +162,7 @@ export default async function PerClientBrandMonitorPage({
                     <form action={deleteMention.bind(null, m.id)}>
                       <button
                         type="submit"
-                        aria-label="Delete"
+                        aria-label={t("delete")}
                         className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
                       >
                         <X className="size-3.5" />

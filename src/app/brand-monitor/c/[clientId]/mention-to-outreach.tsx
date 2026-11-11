@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { mentionToOutreach } from "../../actions";
 
 /**
@@ -20,13 +21,14 @@ export function MentionToOutreachButton({
   authorName: string | null;
   url: string;
 }) {
+  const t = useTranslations("aiTab.brandMonitor.outreach");
   const [, startTransition] = useTransition();
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
 
   if (done) {
     return (
-      <span className="text-[10px] text-emerald-300">✓ Added to outreach</span>
+      <span className="text-[10px] text-emerald-300">{t("added")}</span>
     );
   }
 
@@ -54,7 +56,7 @@ export function MentionToOutreachButton({
       ) : (
         <Send className="size-3" />
       )}
-      Reach out
+      {t("reachOut")}
     </button>
   );
 }

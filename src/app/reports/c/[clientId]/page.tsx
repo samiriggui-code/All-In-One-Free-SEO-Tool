@@ -254,7 +254,10 @@ export default async function PerClientReportsPage({
                 >
                   <div>
                     <div className="font-medium">
-                      {s.template} ·{" "}
+                      {t.has(`templates.${s.template}.name`)
+                        ? t(`templates.${s.template}.name`)
+                        : s.template}{" "}
+                      ·{" "}
                       <span className="font-normal text-muted-foreground">
                         {s.frequency === "monthly"
                           ? t("monthlyOnDay", { day: s.dayOfMonth ?? "—" })

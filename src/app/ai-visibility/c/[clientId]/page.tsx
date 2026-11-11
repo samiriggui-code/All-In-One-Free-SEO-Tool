@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { desc, eq, inArray } from "drizzle-orm";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
@@ -41,6 +42,7 @@ export default async function PerClientAIVisibilityPage({
     .where(eq(clients.id, clientId))
     .limit(1);
   if (!client) notFound();
+  const t = await getTranslations("aiTab.aiVisibility");
 
 
   const { ids: configured } = await configuredProviders();
@@ -82,8 +84,8 @@ export default async function PerClientAIVisibilityPage({
     <div className="mx-auto max-w-6xl space-y-6">
 
       <PageHeader
-        title={`AI visibility · ${client.name}`}
-        description="Track whether AI assistants cite this client's domain when answering tracked queries. Sentiment column shows the tone AI providers use when they DO mention the brand."
+        title={t("title", { name: client.name })}
+        description={t("description")}
         icon={Sparkles}
         accent="rose"
         actions={
@@ -97,7 +99,7 @@ export default async function PerClientAIVisibilityPage({
                 href={`/tools/geo-swot/c/${client.id}`}
                 className="inline-flex h-9 items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 text-xs font-medium text-rose-300 hover:bg-rose-500/20"
               >
-                Generate GEO SWOT →
+                {t("geoSwot")}
               </a>
             )}
           </div>
@@ -105,11 +107,11 @@ export default async function PerClientAIVisibilityPage({
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-500/10 px-2.5 py-1 text-fuchsia-300 ring-1 ring-inset ring-fuchsia-500/20">
-              {configured.length}/{PROVIDER_CATALOG.length} providers configured
+              {t("providersConfigured", { configured: configured.length, total: PROVIDER_CATALOG.length })}
             </span>
             {totalMentions > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                {totalMentions} mentions logged
+                {t("mentionsLogged", { count: totalMentions })}
               </span>
             )}
           </div>
@@ -118,30 +120,32 @@ export default async function PerClientAIVisibilityPage({
 
       {tracked.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No keywords tracked yet for this client. Go to{" "}
-          <a
-            href={`/keywords/c/${client.id}`}
-            className="text-violet-300 hover:underline"
-          >
-            Keywords
-          </a>{" "}
-          to add some — AI visibility checks run against tracked keywords.
+          {t.rich("empty", {
+            link: (chunks) => (
+              <a
+                href={`/keywords/c/${client.id}`}
+                className="text-violet-300 hover:underline"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </div>
       ) : (
         <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Query</th>
-                <th className="px-3 py-3 text-left font-medium">Mentions</th>
+                <th className="px-5 py-3 text-left font-medium">{t("table.query")}</th>
+                <th className="px-3 py-3 text-left font-medium">{t("table.mentions")}</th>
                 <th
                   className="px-3 py-3 text-left font-medium"
-                  title="Average sentiment of the mentions across AI providers. Positive = brand described favourably; Negative = described unfavourably; Mixed = both."
+                  title={t("table.sentimentHelp")}
                 >
-                  Sentiment
+                  {t("table.sentiment")}
                 </th>
-                <th className="px-3 py-3 text-left font-medium">Latest checks</th>
-                <th className="px-3 py-3 text-right font-medium">Actions</th>
+                <th className="px-3 py-3 text-left font-medium">{t("table.latestChecks")}</th>
+                <th className="px-3 py-3 text-right font-medium">{t("table.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -169,9 +173,9 @@ export default async function PerClientAIVisibilityPage({
                   const avg = scored.reduce((s, r) => s + (r.sentimentScore ?? 0), 0) / scored.length;
                   sentimentBadge = {
                     label:
-                      avg > 30 ? "Positive"
-                      : avg < -30 ? "Negative"
-                      : "Neutral",
+                      avg > 30 ? t("sentiment.positive")
+                      : avg < -30 ? t("sentiment.negative")
+                      : t("sentiment.neutral"),
                     tone:
                       avg > 30 ? "emerald"
                       : avg < -30 ? "rose"
@@ -206,8 +210,8 @@ export default async function PerClientAIVisibilityPage({
                         className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${sentimentToneClass[sentimentBadge.tone]}`}
                         title={
                           sentimentBadge.score !== null
-                            ? `Avg score ${sentimentBadge.score} on -100..+100 across ${scored.length} mention${scored.length === 1 ? "" : "s"}`
-                            : "No mentions with sentiment yet"
+                            ? t("sentiment.avgScore", { score: sentimentBadge.score, count: scored.length })
+                            : t("sentiment.none")
                         }
                       >
                         {sentimentBadge.label}
@@ -215,7 +219,7 @@ export default async function PerClientAIVisibilityPage({
                     </td>
                     <td className="px-3 py-3 text-xs">
                       {latest.length === 0 ? (
-                        <span className="text-muted-foreground">No checks yet</span>
+                        <span className="text-muted-foreground">{t("noChecks")}</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
                           {latest.map((c) => (
@@ -235,17 +239,17 @@ export default async function PerClientAIVisibilityPage({
                               title={
                                 c.grounding === "live"
                                   ? c.mentionsDomain
-                                    ? "Mentioned — from a live web search"
-                                    : "Not mentioned — from a live web search"
+                                    ? t("check.liveMentioned")
+                                    : t("check.liveNotMentioned")
                                   : c.mentionsDomain
-                                    ? "Mentioned, but this model answered from training data, not a live search. It is not proof you appear in AI search today."
-                                    : "Not mentioned. This model answered from training data, not a live search."
+                                    ? t("check.memoryMentioned")
+                                    : t("check.memoryNotMentioned")
                               }
                             >
                               {providerLabel[c.provider] ?? c.provider}
                               {c.grounding !== "live" && (
                                 <span aria-hidden className="opacity-60">
-                                  ·mem
+                                  {t("check.memSuffix")}
                                 </span>
                               )}
                             </span>

@@ -6,6 +6,8 @@
  * render a stacked-bar chart in pure SVG (no chart lib).
  */
 
+import { useTranslations } from "next-intl";
+
 export type SentimentBucket = {
   date: string; // YYYY-MM-DD
   positive: number;
@@ -18,10 +20,11 @@ export function SentimentChart({
 }: {
   buckets: SentimentBucket[];
 }) {
+  const t = useTranslations("aiTab.brandMonitor.chart");
   if (buckets.length === 0) {
     return (
       <p className="px-5 py-6 text-sm text-muted-foreground">
-        No data yet. Run a scan to capture mentions.
+        {t("noData")}
       </p>
     );
   }
@@ -33,7 +36,7 @@ export function SentimentChart({
   if (max === 0) {
     return (
       <p className="px-5 py-6 text-sm text-muted-foreground">
-        No mentions in the period.
+        {t("noMentions")}
       </p>
     );
   }
@@ -108,8 +111,12 @@ export function SentimentChart({
                     rx={1}
                   >
                     <title>
-                      {b.date}: {b.positive} positive, {b.neutral} neutral,{" "}
-                      {b.negative} negative
+                      {t("barTitle", {
+                        date: b.date,
+                        positive: b.positive,
+                        neutral: b.neutral,
+                        negative: b.negative,
+                      })}
                     </title>
                   </rect>
                 );
@@ -140,13 +147,13 @@ export function SentimentChart({
       </svg>
       <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
         <span className="inline-flex items-center gap-1">
-          <span className="size-2.5 rounded-sm bg-emerald-400" /> positive
+          <span className="size-2.5 rounded-sm bg-emerald-400" /> {t("sentiment.positive")}
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="size-2.5 rounded-sm bg-white/20" /> neutral
+          <span className="size-2.5 rounded-sm bg-white/20" /> {t("sentiment.neutral")}
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="size-2.5 rounded-sm bg-rose-400" /> negative
+          <span className="size-2.5 rounded-sm bg-rose-400" /> {t("sentiment.negative")}
         </span>
       </div>
     </div>

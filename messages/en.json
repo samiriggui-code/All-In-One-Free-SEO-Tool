@@ -4254,5 +4254,147 @@
       "yes": "Yes",
       "notInTop50": "Not in top 50"
     }
+  },
+  "aiTab": {
+    "aiVisibility": {
+      "title": "AI visibility · {name}",
+      "description": "Track whether AI assistants cite this client's domain when answering tracked queries. Sentiment column shows the tone AI providers use when they DO mention the brand.",
+      "geoSwot": "Generate GEO SWOT →",
+      "providersConfigured": "{configured}/{total} providers configured",
+      "mentionsLogged": "{count, plural, one {# mention logged} other {# mentions logged}}",
+      "empty": "No keywords tracked yet for this client. Go to <link>Keywords</link> to add some — AI visibility checks run against tracked keywords.",
+      "noChecks": "No checks yet",
+      "table": {
+        "query": "Query",
+        "mentions": "Mentions",
+        "sentiment": "Sentiment",
+        "sentimentHelp": "Average sentiment of the mentions across AI providers. Positive = brand described favourably; Negative = described unfavourably; Mixed = both.",
+        "latestChecks": "Latest checks",
+        "actions": "Actions"
+      },
+      "sentiment": {
+        "positive": "Positive",
+        "negative": "Negative",
+        "neutral": "Neutral",
+        "avgScore": "Avg score {score} on -100..+100 across {count, plural, one {# mention} other {# mentions}}",
+        "none": "No mentions with sentiment yet"
+      },
+      "check": {
+        "liveMentioned": "Mentioned — from a live web search",
+        "liveNotMentioned": "Not mentioned — from a live web search",
+        "memoryMentioned": "Mentioned, but this model answered from training data, not a live search. It is not proof you appear in AI search today.",
+        "memoryNotMentioned": "Not mentioned. This model answered from training data, not a live search.",
+        "memSuffix": "·mem"
+      },
+      "checkButtons": {
+        "checkOne": "Check AI",
+        "checkAll": "Check all keywords",
+        "checkingAll": "Checking all keywords…"
+      },
+      "browserToggle": {
+        "label": "Also scan Google AI Mode + Copilot",
+        "hint": "(browser-mode, adds ~30s/keyword)"
+      }
+    },
+    "brandMonitor": {
+      "title": "Brand mentions · {name}",
+      "description": "Surface unlinked mentions, monitor sentiment, react fast to negatives. Click run to fetch a fresh batch.",
+      "stats": {
+        "total": "Total",
+        "positive": "Positive",
+        "negative": "Negative",
+        "linked": "Linked to site"
+      },
+      "trendTitle": "Sentiment trend (60 days)",
+      "empty": "No mentions yet. Click <strong>Scan now</strong> above.",
+      "linksToSite": "links to your site",
+      "delete": "Delete",
+      "sources": {
+        "reddit": "Reddit",
+        "hackernews": "Hacker News",
+        "bluesky": "Bluesky",
+        "mastodon": "Mastodon",
+        "rss": "RSS"
+      },
+      "run": {
+        "added": "{count, plural, one {+# new mention} other {+# new mentions}}",
+        "none": "No new mentions found",
+        "error": "Error: {error}",
+        "scanning": "Scanning…",
+        "scan": "Scan now"
+      },
+      "outreach": {
+        "added": "✓ Added to outreach",
+        "reachOut": "Reach out"
+      },
+      "chart": {
+        "noData": "No data yet. Run a scan to capture mentions.",
+        "noMentions": "No mentions in the period.",
+        "barTitle": "{date}: {positive} positive, {neutral} neutral, {negative} negative",
+        "sentiment": {
+          "positive": "positive",
+          "neutral": "neutral",
+          "negative": "negative"
+        }
+      }
+    }
+  },
+  "overviewTab": {
+    "agent": {
+      "title": "AI agent · {name}",
+      "description": "Click run. The agent reads the latest audit + Search Console data, then drafts specific title rewrites, meta descriptions, quick-win actions, and content ideas.",
+      "list": {
+        "runSuccess": "Created {created} new {created, plural, one {suggestion} other {suggestions}}{reused, plural, =0 {} other { (# duplicates skipped)}}.",
+        "thinking": "Agent thinking… (~30-60s)",
+        "run": "Run agent",
+        "runAgain": "Run agent again",
+        "executeHint": "Auto-apply title/meta suggestions via the WP bridge and queue everything else as tasks. Bounded: max 20 actions, 60s wall-clock.",
+        "executing": "Executing…",
+        "executePending": "Execute pending",
+        "execSummary": "Agent execution: {applied} auto-applied, {queued} queued as tasks, {skipped} skipped · {seconds}s",
+        "more": "… and {count} more",
+        "emptyNone": "No suggestions yet. Click <strong>Run agent</strong> to generate the first batch.",
+        "emptyFilter": "Nothing in this filter. Try another tab.",
+        "statusApplied": "Applied",
+        "statusDismissed": "Dismissed",
+        "current": "Current",
+        "suggested": "Suggested",
+        "copy": "Copy",
+        "copied": "Copied",
+        "addToTasks": "Add to tasks",
+        "markApplied": "Mark applied",
+        "dismiss": "Dismiss",
+        "reopen": "Reopen",
+        "filters": {
+          "new": "new",
+          "applied": "applied",
+          "dismissed": "dismissed",
+          "all": "all"
+        },
+        "priorities": {
+          "high": "high",
+          "medium": "medium",
+          "low": "low"
+        },
+        "types": {
+          "title_rewrite": "Title rewrite",
+          "meta_description_rewrite": "Meta description",
+          "h1_rewrite": "H1 rewrite",
+          "quick_win_action": "Quick win",
+          "content_idea": "Content idea",
+          "internal_link": "Internal link",
+          "schema_markup": "Schema markup",
+          "general": "Suggestion"
+        },
+        "outcomes": {
+          "auto_applied": "auto applied",
+          "queued_as_task": "queued as task",
+          "skipped_no_url": "skipped no url",
+          "skipped_no_match": "skipped no match",
+          "skipped_wp_error": "skipped wp error",
+          "skipped_no_bridge": "skipped no bridge"
+        }
+      }
+    }
   }
 }

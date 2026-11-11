@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   Bot,
@@ -48,17 +49,6 @@ export type SuggestionRow = {
   createdAt: Date;
 };
 
-const typeLabel: Record<SuggestionRow["type"], string> = {
-  title_rewrite: "Title rewrite",
-  meta_description_rewrite: "Meta description",
-  h1_rewrite: "H1 rewrite",
-  quick_win_action: "Quick win",
-  content_idea: "Content idea",
-  internal_link: "Internal link",
-  schema_markup: "Schema markup",
-  general: "Suggestion",
-};
-
 const typeTone: Record<SuggestionRow["type"], string> = {
   title_rewrite: "bg-violet-500/10 text-violet-300 ring-violet-500/30",
   meta_description_rewrite: "bg-cyan-500/10 text-cyan-300 ring-cyan-500/30",
@@ -87,6 +77,7 @@ export function SuggestionsList({
   initialSuggestions: SuggestionRow[];
   aiReady: boolean;
 }) {
+  const t = useTranslations("overviewTab.agent.list");
   const [filter, setFilter] = useState<FilterStatus>("new");
   const [runPending, startRun] = useTransition();
   const [execPending, startExec] = useTransition();
@@ -118,9 +109,7 @@ export function SuggestionsList({
       }
       setRunMessage({
         tone: "success",
-        text: `Created ${r.created} new suggestion${r.created === 1 ? "" : "s"}${
-          r.reused > 0 ? ` (${r.reused} duplicates skipped)` : ""
-        }.`,
+        text: t("runSuccess", { created: r.created, reused: r.reused }),
       });
     });
   }
@@ -133,12 +122,12 @@ export function SuggestionsList({
           {runPending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Agent thinking… (~30-60s)
+              {t("thinking")}
             </>
           ) : (
             <>
               <Bot className="size-4" />
-              {initialSuggestions.length === 0 ? "Run agent" : "Run agent again"}
+              {initialSuggestions.length === 0 ? t("run") : t("runAgain")}
             </>
           )}
         </Button>
@@ -155,17 +144,17 @@ export function SuggestionsList({
               setExecReport(r);
             });
           }}
-          title="Auto-apply title/meta suggestions via the WP bridge and queue everything else as tasks. Bounded: max 20 actions, 60s wall-clock."
+          title={t("executeHint")}
         >
           {execPending ? (
             <>
               <Loader2 className="size-3.5 animate-spin" />
-              Executing…
+              {t("executing")}
             </>
           ) : (
             <>
               <Bot className="size-3.5" />
-              Execute pending
+              {t("executePending")}
             </>
           )}
         </Button>
@@ -190,9 +179,12 @@ export function SuggestionsList({
       {execReport && (
         <section className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4 text-xs">
           <p className="font-medium text-violet-200">
-            Agent execution: {execReport.applied} auto-applied,{" "}
-            {execReport.queued} queued as tasks, {execReport.skipped} skipped ·{" "}
-            {Math.round(execReport.durationMs / 100) / 10}s
+            {t("execSummary", {
+              applied: execReport.applied,
+              queued: execReport.queued,
+              skipped: execReport.skipped,
+              seconds: Math.round(execReport.durationMs / 100) / 10,
+            })}
           </p>
           <ul className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
             {execReport.actions.slice(0, 8).map((a) => (
@@ -206,15 +198,18 @@ export function SuggestionsList({
                         : "text-amber-300"
                   }
                 >
-                  · {a.outcome.replace(/_/g, " ")}
+                  ·{" "}
+                  {t.has(`outcomes.${a.outcome}`)
+                    ? t(`outcomes.${a.outcome}`)
+                    : a.outcome.replace(/_/g, " ")}
                 </span>{" "}
-                — {a.type}
+                — {t.has(`types.${a.type}`) ? t(`types.${a.type}`) : a.type}
                 {a.targetUrl ? ` · ${new URL(a.targetUrl).pathname}` : ""}
                 {a.detail ? ` — ${a.detail}` : ""}
               </li>
             ))}
             {execReport.actions.length > 8 && (
-              <li>… and {execReport.actions.length - 8} more</li>
+              <li>{t("more", { count: execReport.actions.length - 8 })}</li>
             )}
           </ul>
         </section>
@@ -236,7 +231,7 @@ export function SuggestionsList({
                     : "bg-white/5 text-muted-foreground ring-white/10 hover:bg-white/10 hover:text-foreground"
                 }`}
               >
-                {f} ({counts[f]})
+                {t.has(`filters.${f}`) ? t(`filters.${f}`) : f} ({counts[f]})
               </button>
             ),
           )}
@@ -248,12 +243,13 @@ export function SuggestionsList({
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center">
           {initialSuggestions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No suggestions yet. Click <strong>Run agent</strong> to generate
-              the first batch.
+              {t.rich("emptyNone", {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Nothing in this filter. Try another tab.
+              {t("emptyFilter")}
             </p>
           )}
         </div>
@@ -275,6 +271,7 @@ function SuggestionCard({
   s: SuggestionRow;
   clientId: number;
 }) {
+  const t = useTranslations("overviewTab.agent.list");
   const [pending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
 
@@ -298,22 +295,24 @@ function SuggestionCard({
           <span
             className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${typeTone[s.type]}`}
           >
-            {typeLabel[s.type]}
+            {t.has(`types.${s.type}`) ? t(`types.${s.type}`) : s.type}
           </span>
           <span
             className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${priorityTone[s.priority]}`}
           >
-            {s.priority}
+            {t.has(`priorities.${s.priority}`)
+              ? t(`priorities.${s.priority}`)
+              : s.priority}
           </span>
           {s.status === "applied" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <CheckCircle2 className="size-3" />
-              Applied
+              {t("statusApplied")}
             </span>
           )}
           {s.status === "dismissed" && (
             <span className="inline-flex rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-              Dismissed
+              {t("statusDismissed")}
             </span>
           )}
           {s.targetUrl && (
@@ -331,7 +330,7 @@ function SuggestionCard({
 
         {s.currentValue && (
           <div className="rounded-md border border-rose-500/15 bg-rose-500/[0.03] px-3 py-2 text-xs">
-            <div className="font-medium text-rose-300/90">Current</div>
+            <div className="font-medium text-rose-300/90">{t("current")}</div>
             <div className="mt-0.5 text-foreground/80 line-through decoration-rose-400/50">
               {s.currentValue}
             </div>
@@ -340,7 +339,7 @@ function SuggestionCard({
 
         <div className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.04] px-3 py-2 text-sm">
           <div className="text-[11px] font-medium text-emerald-300/90">
-            Suggested
+            {t("suggested")}
           </div>
           <div className="mt-0.5 whitespace-pre-wrap text-foreground/95">
             {s.suggestedValue}
@@ -373,7 +372,7 @@ function SuggestionCard({
             disabled={pending}
           >
             <Copy className="size-3.5" />
-            {copied ? "Copied" : "Copy"}
+            {copied ? t("copied") : t("copy")}
           </Button>
           {s.status === "new" && (
             <>
@@ -388,7 +387,7 @@ function SuggestionCard({
                 disabled={pending}
               >
                 <ListChecks className="size-3.5" />
-                Add to tasks
+                {t("addToTasks")}
               </Button>
               <Button
                 type="button"
@@ -402,7 +401,7 @@ function SuggestionCard({
                 disabled={pending}
               >
                 <CheckCircle2 className="size-3.5" />
-                Mark applied
+                {t("markApplied")}
               </Button>
               <Button
                 type="button"
@@ -416,7 +415,7 @@ function SuggestionCard({
                 disabled={pending}
               >
                 <X className="size-3.5" />
-                Dismiss
+                {t("dismiss")}
               </Button>
             </>
           )}
@@ -433,7 +432,7 @@ function SuggestionCard({
               disabled={pending}
             >
               <RotateCw className="size-3.5" />
-              Reopen
+              {t("reopen")}
             </Button>
           )}
         </div>
