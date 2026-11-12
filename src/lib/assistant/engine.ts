@@ -172,7 +172,30 @@ function describeCall(name: string, args: Record<string, unknown>): string {
   return parts.length ? `${name} (${parts.join(" ; ")})` : name;
 }
 
-type RunOpts = { user: User | null; clientId?: number | null; locale?: string };
+type RunOpts = {
+  user: User | null;
+  clientId?: number | null;
+  locale?: string;
+  /**
+   * "automation": run by the scheduler for an automation an editor set
+   * up, so not limited to one person's clients; always with readOnly.
+   */
+  actor?: "person" | "automation";
+  /** Offer only the tools that read (no proposals, no memory changes). */
+  readOnly?: boolean;
+  /** Extra instructions appended to the system prompt. */
+  extraSystem?: string;
+};
+
+const sees = async (opts: RunOpts, clientId: number) =>
+  opts.actor === "automation" ? true : canSeeClient(opts.user, clientId);
+
+function toolsFor(opts: RunOpts): ToolSpec[] {
+  const all = assistantTools();
+  return opts.readOnly || opts.actor === "automation"
+    ? all.filter((t) => t.readOnly && t.name !== "remember" && t.name !== "forget")
+    : all;
+}
 
 async function runMemoryTool(name: string, args: Record<string, unknown>, opts: RunOpts): Promise<unknown> {
   const mem = await import("./memory");
@@ -202,13 +225,13 @@ async function runMemoryTool(name: string, args: Record<string, unknown>, opts: 
 async function runReadTool(name: string, args: Record<string, unknown>, opts: RunOpts): Promise<unknown> {
   if (name === "remember" || name === "forget") return runMemoryTool(name, args, opts);
   if (name === "list_clients") {
-    const visible = await visibleClientIds(opts.user);
+    const visible = opts.actor === "automation" ? null : await visibleClientIds(opts.user);
     const rows = await db.select({ id: clients.id, name: clients.name, url: clients.url, niche: clients.niche }).from(clients);
     return visible === null ? rows : rows.filter((r) => visible.includes(r.id));
   }
   const clientId = await clientOfCall(args);
   if (clientId === null) return { error: "This tool needs a clientId. Call list_clients first." };
-  if (!(await canSeeClient(opts.user, clientId))) return { error: `No client with id ${clientId}.` };
+  if (!(await sees(opts, clientId))) return { error: `No client with id ${clientId}.` };
 
   if (name === KB_TOOL.name) {
     const { searchKnowledge } = await import("@/lib/kb/store");
@@ -240,13 +263,13 @@ async function propose(name: string, args: Record<string, unknown>, opts: RunOpt
 
 async function systemPrompt(opts: RunOpts): Promise<string> {
   let here = "";
-  if (opts.clientId && (await canSeeClient(opts.user, opts.clientId))) {
+  if (opts.clientId && (await sees(opts, opts.clientId))) {
     const [c] = await db.select({ name: clients.name, url: clients.url }).from(clients).where(eq(clients.id, opts.clientId)).limit(1);
     if (c) here = `\nThe person is looking at client #${opts.clientId}, ${c.name} (${c.url}). Questions without a client name are about this one.`;
   }
   const lang = opts.locale === "en" ? "English" : "French";
   const { memoryPrompt } = await import("./memory");
-  const memory = await memoryPrompt(opts.user, opts.clientId ?? null).catch(() => "");
+  const memory = await memoryPrompt(opts.user, opts.clientId ?? null, { automation: opts.actor === "automation" }).catch(() => "");
   return `You are the SEO assistant built into rank_forge, the agency's SEO workspace.
 Answer in ${lang} unless the person writes in another language.
 Style: plain language, direct, short paragraphs, bullets when useful. Ground every fact in the data you looked up (client, score, keyword, date). If the data is not there, say so plainly. Prefer Google's confirmed guidance over SEO folklore.${here}
@@ -255,7 +278,7 @@ ${memory ? `\n<memory>\n${memory}\n</memory>\nFollow these unless the person say
 ${TOOL_RULES}
 
 Available tools:
-${toolCatalog(assistantTools())}`;
+${toolCatalog(toolsFor(opts))}${opts.extraSystem ? `\n\n${opts.extraSystem}` : ""}`;
 }
 
 /**
@@ -267,7 +290,7 @@ export async function runAssistant(history: Turn[], opts: RunOpts): Promise<Assi
   const system = await systemPrompt(opts);
   const turns: Turn[] = history.slice(-20).map((t) => ({ role: t.role, content: t.content }));
   const steps: ToolStep[] = [];
-  const specs = new Map(assistantTools().map((t) => [t.name, t]));
+  const specs = new Map(toolsFor(opts).map((t) => [t.name, t]));
 
   for (let i = 0; i <= MAX_STEPS; i++) {
     const last = turns[turns.length - 1];
@@ -276,10 +299,11 @@ export async function runAssistant(history: Turn[], opts: RunOpts): Promise<Assi
       user: last.content,
       messages: turns,
       feature: "assistant",
-      purpose: "chat",
-      channel: "assistant",
+      // Automations run unattended: the background model and channel.
+      purpose: opts.actor === "automation" ? "background" : "chat",
+      channel: opts.actor === "automation" ? "background" : "assistant",
       clientId: opts.clientId ?? null,
-      maxTokens: 1200,
+      maxTokens: opts.actor === "automation" ? 2000 : 1200,
       temperature: 0.2,
       timeoutMs: 45_000,
     });
@@ -300,6 +324,11 @@ export async function runAssistant(history: Turn[], opts: RunOpts): Promise<Assi
       continue;
     }
 
+    if (!spec.readOnly && opts.actor === "automation") {
+      steps.push({ tool: call.name, ok: false });
+      turns.push({ role: "user", content: toolResultMessage(call.name, { error: "This run may only read. Describe the change in your answer instead." }) });
+      continue;
+    }
     if (!spec.readOnly) {
       const p = await propose(call.name, call.args, opts);
       if (typeof p === "string") {

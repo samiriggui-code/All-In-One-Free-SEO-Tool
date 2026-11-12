@@ -29,6 +29,9 @@ export type ActivityKind =
   | "team.invite_cancelled"
   | "team.role_changed"
   | "team.deactivated"
+  // IA-5: AI step in an automation.
+  | "automation.ai_step"
+  | "automation.paused"
   | "team.reactivated"
   | "team.access_changed"
   | "account.password_changed";

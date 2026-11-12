@@ -15,9 +15,12 @@ import {
   PowerOff,
   X,
   ArrowRight,
+  Sparkles,
+  CalendarClock,
 } from "lucide-react";
 import { db } from "@/db/client";
-import { automations, clients } from "@/db/schema";
+import { automationRuns, automations, clients } from "@/db/schema";
+import { RunNowButton } from "./run-now-button";
 import { PageHeader } from "@/components/shell/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NewAutomationForm } from "./new-form";
@@ -47,12 +50,17 @@ const triggerLabels = (tx: Tx): Record<string, { label: string; tone: string }> 
     label: tx("rankDropped"),
     tone: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   },
+  schedule: {
+    label: tx("scheduled"),
+    tone: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
+  },
 });
 
 const actionIcon = {
   webhook: Webhook,
   create_task: ListChecks,
   log: FileText,
+  ai_step: Sparkles,
 } as const;
 
 export default async function AutomationsPage() {
@@ -73,12 +81,32 @@ export default async function AutomationsPage() {
       enabled: automations.enabled,
       lastRunAt: automations.lastRunAt,
       runCount: automations.runCount,
+      schedule: automations.schedule,
+      nextRunAt: automations.nextRunAt,
+      failures: automations.failures,
       createdAt: automations.createdAt,
       clientName: clients.name,
     })
     .from(automations)
     .leftJoin(clients, eq(automations.clientId, clients.id))
     .orderBy(desc(automations.createdAt));
+
+  // The last runs of AI steps, newest first, three per automation.
+  const recentRuns = await db
+    .select({
+      id: automationRuns.id,
+      automationId: automationRuns.automationId,
+      status: automationRuns.status,
+      output: automationRuns.output,
+      error: automationRuns.error,
+      startedAt: automationRuns.startedAt,
+      clientName: clients.name,
+    })
+    .from(automationRuns)
+    .leftJoin(clients, eq(automationRuns.clientId, clients.id))
+    .orderBy(desc(automationRuns.startedAt), desc(automationRuns.id))
+    .limit(300);
+  const runsOf = (id: number) => recentRuns.filter((r) => r.automationId === id).slice(0, 3);
 
   const savedWebhook =
     (await getSetting<string>("webhook.url").catch(() => null)) ?? "";
@@ -175,6 +203,8 @@ export default async function AutomationsPage() {
                             label = `webhook → ${a.url.replace(/^https?:\/\//, "").slice(0, 40)}…`;
                           else if (a.kind === "create_task")
                             label = `task: "${a.title.slice(0, 40)}…"`;
+                          else if (a.kind === "ai_step")
+                            label = `${tx("aiStep")} → ${tx(`deliverables.${a.deliverable}`)}`;
                           else label = `log: "${a.message.slice(0, 40)}…"`;
                           return (
                             <span
@@ -202,8 +232,40 @@ export default async function AutomationsPage() {
                           ? ` · last ${r.lastRunAt.toLocaleString()}`
                           : ""}
                       </div>
+                      {r.schedule ? (
+                        <div className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <CalendarClock className="size-3" />
+                          {tx(`every.${r.schedule.every}`, { hour: r.schedule.hour, day: r.schedule.day ?? 1 })} ({r.schedule.tz})
+                          {r.enabled && r.nextRunAt ? ` · ${tx("nextRun", { when: r.nextRunAt.toLocaleString() })}` : ""}
+                        </div>
+                      ) : null}
+                      {r.failures > 0 ? (
+                        <div className="text-[11px] text-amber-600 dark:text-amber-300">{tx("failures", { count: r.failures })}</div>
+                      ) : null}
+                      {r.actions.some((a) => a.kind === "ai_step") && runsOf(r.id).length > 0 ? (
+                        <ul className="m-0 list-none space-y-1 p-0">
+                          {runsOf(r.id).map((run) => (
+                            <li key={run.id} className="text-xs">
+                              <details>
+                                <summary className="cursor-pointer text-muted-foreground">
+                                  <span className={run.status === "ok" ? "text-emerald-600 dark:text-emerald-400" : run.status === "running" ? "" : "text-rose-500"}>
+                                    {tx(`runStatus.${run.status === "ok" || run.status === "running" ? run.status : "error"}`)}
+                                  </span>
+                                  {" · "}
+                                  {run.startedAt.toLocaleString()}
+                                  {run.clientName ? ` · ${run.clientName}` : ""}
+                                </summary>
+                                <div className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-white/5 p-2 text-[12px] leading-relaxed">
+                                  {run.output ?? run.error ?? "—"}
+                                </div>
+                              </details>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">
+                      {r.actions.some((a) => a.kind === "ai_step") ? <RunNowButton id={r.id} /> : null}
                       <form action={toggleAction}>
                         <button
                           type="submit"

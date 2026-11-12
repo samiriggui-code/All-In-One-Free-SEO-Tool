@@ -5783,7 +5783,55 @@
       "logMessage": "Log message",
       "automationCreated": "Automation created.",
       "creating": "Creating…",
-      "createAutomation": "Create automation"
+      "createAutomation": "Create automation",
+      "onASchedule": "On a schedule",
+      "every": "Frequency",
+      "daily": "Every day",
+      "weekly": "Every week",
+      "monthly": "Every month",
+      "weekday": "Day",
+      "dayOfMonth": "Day of month",
+      "weekdays": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      },
+      "hour": "Time",
+      "timeZone": "Time zone: {tz}",
+      "aiStep": "AI step",
+      "aiTemplates": "Templates:",
+      "aiTemplate": {
+        "watch": {
+          "label": "Weekly watch",
+          "prompt": "Do this week's watch for this client: movement of tracked keywords, AI visibility, new audit issues and reviews to handle. End with the 3 priority actions for the week."
+        },
+        "report": {
+          "label": "Monthly report commentary",
+          "prompt": "Write the commentary for this client's monthly report: what improved, what fell and why, based on Search Console, rankings and the latest audit. Clear wording for a non-specialist client, to review before sending."
+        },
+        "drop": {
+          "label": "Explain a drop",
+          "prompt": "A ranking or score just dropped. Find the most likely explanation (audit, page changes, Search Console, competitors cited by AI) and suggest 3 concrete leads, surest first."
+        },
+        "monday": {
+          "label": "Monday summary",
+          "prompt": "Write the Monday summary for the team: for this client, what needs action this week (critical issues, unanswered reviews, fixes proposed by the agent, overdue tasks)."
+        }
+      },
+      "aiPrompt": "Instruction for the AI",
+      "aiPromptPlaceholder": "E.g. Do this week's watch for this client…",
+      "aiPromptHint": "The AI reads the client's data (audits, rankings, Search Console, knowledge base) without changing anything, then delivers its answer. It never edits the site. Variables like '{{score}}' are filled in for event triggers.",
+      "deliverable": "Deliverable",
+      "deliverables": {
+        "note": "Note in the knowledge base",
+        "task": "Task to review",
+        "webhook": "Webhook message (Slack, Teams…)",
+        "log": "Journal line"
+      }
     },
     "app_automations_overview_page": {
       "backToAutomations": "Back to automations",
@@ -5903,7 +5951,30 @@
       "auditFailed": "Audit failed",
       "scoreDropped": "Score dropped",
       "pageChanged": "Page changed",
-      "rankDropped": "Rank dropped"
+      "rankDropped": "Rank dropped",
+      "scheduled": "Scheduled",
+      "aiStep": "AI step",
+      "deliverables": {
+        "note": "note",
+        "task": "task",
+        "webhook": "webhook",
+        "log": "journal"
+      },
+      "every": {
+        "daily": "Every day at {hour}:00",
+        "weekly": "Every {day, select, 1 {Monday} 2 {Tuesday} 3 {Wednesday} 4 {Thursday} 5 {Friday} 6 {Saturday} 7 {Sunday} other {}} at {hour}:00",
+        "monthly": "On day {day} of every month at {hour}:00"
+      },
+      "nextRun": "next run: {when}",
+      "failures": "{count, plural, one {# failure} other {# failures in a row}} (pauses itself at 3)",
+      "runStatus": {
+        "ok": "Succeeded",
+        "running": "Running",
+        "error": "Failed"
+      },
+      "runNow": "Run now",
+      "runFailed": "{failed} of {runs} run(s) failed. See the details under the automation.",
+      "runDone": "{runs, plural, one {Run finished.} other {# runs finished.}}"
     },
     "app_automations_templates_install-form": {
       "pasteASlackOrDiscord": "Paste a Slack or Discord webhook URL first.",
@@ -7794,7 +7865,10 @@
       "networkFailure": "Network failure",
       "unknownTemplate": "Unknown template",
       "thisTemplateNeedsASlack": "This template needs a Slack/Discord webhook URL.",
-      "couldnTInstallTemplate": "Couldn't install template."
+      "couldnTInstallTemplate": "Couldn't install template.",
+      "aiPromptRequired": "Write the instruction for the AI (at least 10 characters).",
+      "scheduleNeedsAiStep": "A scheduled automation needs an AI step.",
+      "automationNotFound": "This automation no longer exists."
     },
     "app_autonomy-actions": {
       "unknownAutonomyLevel": "Unknown autonomy level.",

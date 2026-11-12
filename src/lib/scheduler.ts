@@ -220,6 +220,18 @@ function runners(): Runner[] {
       // The knowledge base of each client (IA-2): profile, audits,
       // articles and briefs turned into searchable passages. Hourly is
       // cheap: an unchanged source costs one hash and no write.
+      // IA-5: automations with a schedule and an AI step. Every 15 min
+      // so a run lands close to the hour it was set for.
+      id: "ai_automations",
+      label: "Scheduled AI automations",
+      everyMs: 15 * MINUTE,
+      run: async () => (await import("./ai-automations")).tickAiAutomations(),
+      summarise: (r) => {
+        const s = r as { runs?: number; failed?: number } | null;
+        return s && s.runs ? `${s.runs} run(s), ${s.failed ?? 0} failed` : null;
+      },
+    },
+    {
       id: "knowledge_sync",
       label: "Knowledge base sync",
       everyMs: HOUR,

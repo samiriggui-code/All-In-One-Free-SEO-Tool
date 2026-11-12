@@ -9,7 +9,8 @@ export type AutomationTrigger =
   | "audit_failed"
   | "score_drop"
   | "page_change"
-  | "rank_drop";
+  | "rank_drop"
+  | "schedule";
 
 export type TriggerPayload = {
   clientId: number | null;
@@ -45,7 +46,15 @@ export async function runAutomations(
 
     for (const automation of matching) {
       for (const action of automation.actions) {
+        if (action.kind === "ai_step") continue;
         await runAction(action, payload, automation.id, trigger).catch(() => {});
+      }
+      // AI steps can take minutes: never make the audit (or whatever
+      // fired this) wait for them.
+      if (automation.actions.some((a) => a.kind === "ai_step")) {
+        void import("./ai-automations")
+          .then((m) => m.runAutomationAiSteps(automation, trigger, { clientId: payload.clientId, data: payload.data }))
+          .catch(() => {});
       }
       await db
         .update(automations)

@@ -5783,7 +5783,55 @@
       "logMessage": "Message du journal",
       "automationCreated": "Automatisation créée.",
       "creating": "Création…",
-      "createAutomation": "Créer l’automatisation"
+      "createAutomation": "Créer l’automatisation",
+      "onASchedule": "À heure fixe (planifié)",
+      "every": "Fréquence",
+      "daily": "Chaque jour",
+      "weekly": "Chaque semaine",
+      "monthly": "Chaque mois",
+      "weekday": "Jour",
+      "dayOfMonth": "Jour du mois",
+      "weekdays": {
+        "1": "lundi",
+        "2": "mardi",
+        "3": "mercredi",
+        "4": "jeudi",
+        "5": "vendredi",
+        "6": "samedi",
+        "7": "dimanche"
+      },
+      "hour": "Heure",
+      "timeZone": "Fuseau : {tz}",
+      "aiStep": "Étape IA",
+      "aiTemplates": "Modèles :",
+      "aiTemplate": {
+        "watch": {
+          "label": "Veille hebdomadaire",
+          "prompt": "Fais la veille de la semaine pour ce client : évolution des positions des mots-clés suivis, visibilité dans les IA, nouveaux problèmes d’audit et avis à traiter. Termine par les 3 actions prioritaires de la semaine."
+        },
+        "report": {
+          "label": "Commentaire du rapport mensuel",
+          "prompt": "Rédige le commentaire du rapport mensuel de ce client : ce qui a progressé, ce qui a reculé et pourquoi, en t’appuyant sur Search Console, les positions et le dernier audit. Ton clair, pour un client non spécialiste, à relire avant envoi."
+        },
+        "drop": {
+          "label": "Explication d’une chute",
+          "prompt": "Une position ou un score vient de chuter. Cherche l’explication la plus probable (audit, changements de pages, Search Console, concurrents cités par les IA) et propose 3 pistes concrètes, de la plus sûre à la plus incertaine."
+        },
+        "monday": {
+          "label": "Résumé du lundi",
+          "prompt": "Fais le résumé du lundi pour l’équipe : pour ce client, ce qui demande une action cette semaine (problèmes critiques, avis sans réponse, corrections proposées par l’agent, tâches en retard)."
+        }
+      },
+      "aiPrompt": "Consigne pour l’IA",
+      "aiPromptPlaceholder": "Ex. : Fais la veille de la semaine pour ce client…",
+      "aiPromptHint": "L’IA consulte les données du client en lecture seule (audits, positions, Search Console, base de connaissances) puis livre sa réponse. Elle ne modifie jamais le site. Les variables comme '{{score}}' sont remplacées pour les déclencheurs d’événement.",
+      "deliverable": "Livrable",
+      "deliverables": {
+        "note": "Note dans la base de connaissances",
+        "task": "Tâche à relire",
+        "webhook": "Message webhook (Slack, Teams…)",
+        "log": "Ligne du journal"
+      }
     },
     "app_automations_overview_page": {
       "backToAutomations": "Retour aux automatisations",
@@ -5903,7 +5951,30 @@
       "auditFailed": "Audit en échec",
       "scoreDropped": "Score en baisse",
       "pageChanged": "Page modifiée",
-      "rankDropped": "Position en baisse"
+      "rankDropped": "Position en baisse",
+      "scheduled": "Planifiée",
+      "aiStep": "Étape IA",
+      "deliverables": {
+        "note": "note",
+        "task": "tâche",
+        "webhook": "webhook",
+        "log": "journal"
+      },
+      "every": {
+        "daily": "Chaque jour à {hour} h",
+        "weekly": "Chaque {day, select, 1 {lundi} 2 {mardi} 3 {mercredi} 4 {jeudi} 5 {vendredi} 6 {samedi} 7 {dimanche} other {}} à {hour} h",
+        "monthly": "Le {day} de chaque mois à {hour} h"
+      },
+      "nextRun": "prochaine exécution : {when}",
+      "failures": "{count, plural, one {# échec} other {# échecs de suite}} (pause automatique à 3)",
+      "runStatus": {
+        "ok": "Réussie",
+        "running": "En cours",
+        "error": "Échec"
+      },
+      "runNow": "Lancer maintenant",
+      "runFailed": "{failed} exécution(s) sur {runs} ont échoué. Voir le détail sous l’automatisation.",
+      "runDone": "{runs, plural, one {Exécution terminée.} other {# exécutions terminées.}}"
     },
     "app_automations_templates_install-form": {
       "pasteASlackOrDiscord": "Collez d’abord une URL de webhook Slack ou Discord.",
@@ -7794,7 +7865,10 @@
       "networkFailure": "Échec réseau",
       "unknownTemplate": "Modèle inconnu",
       "thisTemplateNeedsASlack": "Ce modèle a besoin d’une URL de webhook Slack ou Discord.",
-      "couldnTInstallTemplate": "Le modèle n’a pas pu être installé."
+      "couldnTInstallTemplate": "Le modèle n’a pas pu être installé.",
+      "aiPromptRequired": "Écrivez la consigne pour l’IA (10 caractères au moins).",
+      "scheduleNeedsAiStep": "Une automatisation planifiée a besoin d’une étape IA.",
+      "automationNotFound": "Cette automatisation n’existe plus."
     },
     "app_autonomy-actions": {
       "unknownAutonomyLevel": "Niveau d’autonomie inconnu.",

@@ -8,7 +8,8 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
-import { automations, type AutomationAction } from "@/db/schema";
+import { automations, type AutomationAction, type AutomationSchedule } from "@/db/schema";
+import { requireClientAccess, requireEditor } from "@/lib/auth";
 
 const triggerEnum = z.enum([
   "audit_completed",
@@ -16,6 +17,7 @@ const triggerEnum = z.enum([
   "score_drop",
   "page_change",
   "rank_drop",
+  "schedule",
 ]);
 
 const inputSchema = z.object({
@@ -27,7 +29,13 @@ const inputSchema = z.object({
       .transform(() => undefined)
       .or(z.literal("0").transform(() => undefined)),
   ),
-  actionKind: z.enum(["webhook", "create_task", "log"]),
+  actionKind: z.enum(["webhook", "create_task", "log", "ai_step"]),
+  aiPrompt: z.string().trim().max(4000).optional(),
+  deliverable: z.enum(["task", "note", "webhook", "log"]).optional(),
+  every: z.enum(["daily", "weekly", "monthly"]).optional(),
+  hour: z.coerce.number().int().min(0).max(23).optional(),
+  day: z.coerce.number().int().min(1).max(28).optional(),
+  tz: z.string().trim().max(64).optional(),
   webhookUrl: z.string().trim().optional(),
   taskTitle: z.string().trim().optional(),
   taskPriority: z.enum(["high", "medium", "low"]).optional(),
@@ -53,6 +61,12 @@ export async function createAutomation(
     taskTitle: formData.get("taskTitle") ?? undefined,
     taskPriority: formData.get("taskPriority") ?? undefined,
     logMessage: formData.get("logMessage") ?? undefined,
+    aiPrompt: formData.get("aiPrompt") ?? undefined,
+    deliverable: formData.get("deliverable") ?? undefined,
+    every: formData.get("every") ?? undefined,
+    hour: formData.get("hour") ?? undefined,
+    day: formData.get("day") || undefined,
+    tz: formData.get("tz") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -80,11 +94,42 @@ export async function createAutomation(
       title: parsed.data.taskTitle,
       priority: parsed.data.taskPriority ?? "medium",
     };
+  } else if (parsed.data.actionKind === "ai_step") {
+    if (!parsed.data.aiPrompt || parsed.data.aiPrompt.length < 10) {
+      return { ok: false, error: tx("aiPromptRequired") };
+    }
+    const deliverable = parsed.data.deliverable ?? "task";
+    if (deliverable === "webhook" && !/^https?:\/\//i.test(parsed.data.webhookUrl ?? "")) {
+      return { ok: false, error: tx("webhookUrlMustBeHttp") };
+    }
+    action = {
+      kind: "ai_step",
+      prompt: parsed.data.aiPrompt,
+      deliverable,
+      ...(deliverable === "webhook" ? { webhookUrl: parsed.data.webhookUrl } : {}),
+    };
   } else {
     if (!parsed.data.logMessage) {
       return { ok: false, error: tx("logMessageRequired") };
     }
     action = { kind: "log", message: parsed.data.logMessage };
+  }
+
+  let schedule: AutomationSchedule | null = null;
+  let nextRunAt: Date | null = null;
+  if (parsed.data.trigger === "schedule") {
+    // A schedule only makes sense with something to do on its own: the AI step.
+    if (action.kind !== "ai_step") return { ok: false, error: tx("scheduleNeedsAiStep") };
+    const { nextRunAfter, validTimeZone } = await import("@/lib/ai-automations");
+    const tz = parsed.data.tz && validTimeZone(parsed.data.tz) ? parsed.data.tz : "Europe/Paris";
+    const every = parsed.data.every ?? "weekly";
+    schedule = {
+      every,
+      hour: parsed.data.hour ?? 8,
+      ...(every === "daily" ? {} : { day: parsed.data.day ?? 1 }),
+      tz,
+    };
+    nextRunAt = nextRunAfter(schedule, new Date());
   }
 
   const [row] = await db
@@ -95,11 +140,33 @@ export async function createAutomation(
       clientId: parsed.data.clientId ?? null,
       actions: [action],
       enabled: true,
+      schedule,
+      nextRunAt,
     })
     .returning({ id: automations.id });
 
   revalidatePath("/automations");
   return { ok: true, id: row.id };
+}
+
+/** "Lancer maintenant": the AI step of one automation, for testing it. */
+export async function runAutomationNow(
+  id: number,
+): Promise<{ ok: true; runs: number; failed: number } | { ok: false; error: string }> {
+  await requireEditor();
+  await requireSignedIn();
+  const tx = await actionTx("ui.app_automations_actions");
+  const [a] = await db.select().from(automations).where(eq(automations.id, Number(id))).limit(1);
+  if (!a) return { ok: false, error: tx("automationNotFound") };
+  if (a.clientId !== null) await requireClientAccess(a.clientId, { edit: true });
+  const { runAutomationAiSteps } = await import("@/lib/ai-automations");
+  const r = await runAutomationAiSteps(a, "manual");
+  await db
+    .update(automations)
+    .set({ lastRunAt: new Date(), runCount: (a.runCount ?? 0) + 1 })
+    .where(eq(automations.id, a.id));
+  revalidatePath("/automations");
+  return { ok: true, ...r };
 }
 
 export async function setAutomationEnabled(id: number, enabled: boolean) {
