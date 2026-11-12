@@ -637,7 +637,7 @@ export default async function ClientDetailPage({
                       </>
                     ) : (
                       <span>
-                        {t("runToScore")}
+                        {recentAudits[0]?.status === "failed" ? t("lastAuditFailed") : t("runToScore")}
                       </span>
                     )}
                   </dd>

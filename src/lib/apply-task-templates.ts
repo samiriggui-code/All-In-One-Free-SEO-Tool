@@ -153,3 +153,21 @@ export async function applyNicheTemplatesForClient(
 ): Promise<TemplateApplyResult> {
   return insertNewTemplates(clientId, getNicheTemplates(niche), facts, "niche");
 }
+
+/**
+ * The starter checklist of a new project: niche tasks, then the tech-stack
+ * ones. Nothing is seeded when the site could not be read: a list of
+ * generic work ("add canonical tags", "submit a sitemap") about a site
+ * nobody has seen says nothing true. The first audit that gets through
+ * creates the tasks, and "apply templates" on the project still works.
+ */
+export async function seedTemplatesForNewProject(
+  clientId: number,
+  niche: string | null | undefined,
+  detectedStack: string[] | null,
+  facts: SiteFacts | null,
+): Promise<void> {
+  if (facts && facts.reachable === false) return;
+  await applyNicheTemplatesForClient(clientId, niche, facts);
+  await applyStackTemplatesForClient(clientId, detectedStack, facts);
+}

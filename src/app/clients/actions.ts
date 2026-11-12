@@ -18,6 +18,7 @@ import {
   applyNicheTemplatesForClient,
   applyStackTemplatesForClient,
   siteFactsFor,
+  seedTemplatesForNewProject,
 } from "@/lib/apply-task-templates";
 
 const niches = ["local", "ecommerce", "saas", "blog", "services"] as const;
@@ -191,11 +192,9 @@ export async function createClient(
   // checklist does not open with work this site finished years ago.
   const facts = await siteFactsFor(parsed.data.url);
 
-  // Auto-seed niche-specific tasks (CLAUDE.md Part 3.3)
-  await applyNicheTemplatesForClient(row.id, parsed.data.niche, facts);
-
-  // Auto-seed tech-stack-aware checklist (CLAUDE.md Part 3.2 + Part 10)
-  await applyStackTemplatesForClient(row.id, detectedStack, facts);
+  // Auto-seed the niche tasks and the tech-stack checklist (CLAUDE.md
+  // Parts 3.2, 3.3 and 10), unless the site could not be read.
+  await seedTemplatesForNewProject(row.id, parsed.data.niche, detectedStack, facts);
 
   await logActivity({
     kind: "client.created",
@@ -554,8 +553,7 @@ export async function quickAddClient(rawUrl: string): Promise<QuickAddResult> {
 
   // Seed niche + tech-stack tasks, minus anything the site already does
   const quickAddFacts = await siteFactsFor(meta.url);
-  await applyNicheTemplatesForClient(row.id, niche, quickAddFacts);
-  await applyStackTemplatesForClient(row.id, techStack, quickAddFacts);
+  await seedTemplatesForNewProject(row.id, niche, techStack, quickAddFacts);
 
   // Freeze the starting line now, not tonight.
   //

@@ -84,8 +84,26 @@ export function ClientToolsSidebar({
 }) {
   const t = useTranslations("clientPage.tools");
   const off = new Set(disabledTools ?? []);
+  // Names and blurbs in the reader's language (clientPage.tools.items,
+  // keyed by the tool's path). `label` stays the English one: the scope
+  // tables below match on it; `shownLabel` is what is drawn.
+  const itemKey = (href: string) =>
+    toolKey(href, client.id).replace(/\/:id/g, "").replace(/^\//, "").replace(/\//g, "_");
+  const groupKey = (label: string) =>
+    label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
   const allGroups = buildClientToolGroups(client)
-    .map((g) => ({ ...g, tools: g.tools.filter((tool) => !isToolDisabled(tool.href, off)) }))
+    .map((g) => ({
+      ...g,
+      shownLabel: t.has(`groups.${groupKey(g.label)}`) ? t(`groups.${groupKey(g.label)}`) : g.label,
+      tools: g.tools
+        .filter((tool) => !isToolDisabled(tool.href, off))
+        .map((tool) => {
+          const k = itemKey(tool.href);
+          return t.has(`items.${k}.title`)
+            ? { ...tool, title: t(`items.${k}.title`), blurb: t(`items.${k}.blurb`) }
+            : tool;
+        }),
+    }))
     .filter((g) => g.tools.length > 0);
 
   // Scope order. Groups no surface claims — "Paid ads & growth" — keep
@@ -276,7 +294,7 @@ export function ClientToolsSidebar({
               className="group flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-left transition-colors hover:bg-white/[0.04]"
             >
               <span className="flex-1 truncate text-[10px] font-semibold uppercase tracking-wider text-foreground/80">
-                {g.label}
+                {g.shownLabel}
               </span>
               <span className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium tabular-nums text-muted-foreground">
                 {g.tools.length}

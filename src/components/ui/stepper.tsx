@@ -21,9 +21,12 @@ export type StepperStep = {
 export function Stepper({
   steps,
   className,
+  startLabel = "Start →",
 }: {
   steps: StepperStep[];
   className?: string;
+  /** Text of the active step's link, in the reader's language. */
+  startLabel?: string;
 }) {
   return (
     <ol className={cn("space-y-0", className)}>
@@ -87,7 +90,7 @@ export function Stepper({
                   href={step.href}
                   className="mt-2 inline-flex items-center gap-1 text-[12px] font-medium text-primary hover:underline"
                 >
-                  Start →
+                  {startLabel}
                 </Link>
               )}
             </div>

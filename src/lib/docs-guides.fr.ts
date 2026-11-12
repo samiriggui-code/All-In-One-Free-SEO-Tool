@@ -10,32 +10,6 @@ import type { DocGuide } from "./docs-guides";
 
 export const DOC_GUIDES_FR: DocGuide[] = [
   {
-    slug: "install",
-    title: "Installer et démarrer",
-    summary: "Télécharger, double-cliquer sur un fichier, et c’est parti.",
-    minutes: 5,
-    group: "start",
-    steps: [
-      {
-        do: "Téléchargez le ZIP depuis la page des versions et décompressez-le où vous voulez.",
-        then: "Un seul dossier, et un seul fichier utile : SEO Tool.cmd sous Windows, SEO Tool.command sur Mac.",
-      },
-      {
-        do: "Double-cliquez sur ce fichier.",
-        then: "Un panneau de contrôle s’ouvre dans le navigateur. Le premier lancement installe et compile : 3 à 5 minutes, une seule fois.",
-      },
-      {
-        do: "Cliquez sur Start.",
-        then: "L’application s’ouvre sur son propre port et y reste.",
-      },
-      {
-        do: "Utilisez Add to Desktop dans le panneau de contrôle.",
-        then: "Ensuite, elle est à un clic depuis votre bureau.",
-      },
-    ],
-    note: "Node 20 ou plus récent doit être installé. Rien d’autre : pas de base de données à configurer, pas de clé API.",
-  },
-  {
     slug: "first-client",
     title: "Ajouter votre premier site",
     summary: "Ce qui se passe quand vous ajoutez un client, et quoi faire pendant que ça tourne.",
@@ -349,31 +323,29 @@ export const DOC_GUIDES_FR: DocGuide[] = [
   },
   {
     slug: "update-backup",
-    title: "Mettre à jour, sauvegarder, changer de machine",
-    summary: "Les trois depuis le panneau de contrôle. Pas de terminal.",
+    title: "Sauvegarder, restaurer, mettre à jour",
+    summary: "La sauvegarde se fait dans l’app. La mise à jour se fait sur le serveur.",
     minutes: 4,
     group: "running",
     steps: [
       {
-        do: "Double-cliquez sur SEO Tool.cmd (ou .command) pour ouvrir le panneau de contrôle.",
+        do: "Ouvrez Paramètres, puis Sauvegarde.",
+        then: "Réservé au propriétaire de l’espace de travail.",
       },
       {
-        do: "Cliquez sur Update.",
-        then: "Récupère la dernière version et recompile. Votre base de données n’est pas touchée.",
+        do: "Téléchargez une sauvegarde avant toute opération risquée.",
+        then: "Un seul fichier contient toute la base : projets, audits, tâches, réglages.",
       },
       {
-        do: "Cliquez sur Backup avant toute opération risquée.",
-        then: "Écrit une copie horodatée de la base dans backups/.",
+        do: "Pour revenir en arrière, restaurez ce fichier depuis la même page.",
+        then: "La base actuelle est remplacée par celle du fichier.",
       },
       {
-        do: "Pour changer de machine : sauvegardez, copiez tout le dossier, puis double-cliquez sur le même fichier là-bas.",
-        then: "Tout vit dans ce dossier. Rien n’est installé ailleurs.",
-      },
-      {
-        do: "Sur un serveur avec Docker, mettez à jour depuis le dossier de l’app avec git pull, puis docker compose up -d --build.",
-        then: "La base de données est dans un volume Docker : la reconstruction la conserve.",
+        do: "La mise à jour se fait sur le serveur, dans le dossier de l’app : git pull, puis docker compose up -d --build.",
+        then: "La base de données est dans un volume Docker : la reconstruction la conserve. L’app ne se met jamais à jour toute seule.",
       },
     ],
-    note: "Vos données ne quittent jamais la machine ou le serveur où l’outil tourne. Pas de compte en ligne, rien à synchroniser.",
+    related: ["/settings/backup"],
+    note: "Vos données ne quittent jamais le serveur où l’outil tourne. Pas de compte en ligne, rien à synchroniser.",
   },
 ];

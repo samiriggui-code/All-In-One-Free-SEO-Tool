@@ -191,13 +191,6 @@ function buildGroups(client: {
           blurb: "AI Overview / Featured Snippet / Local Pack presence.",
         },
         {
-          href: `/tools/content-attack-brief?clientId=${id}`,
-          title: "Content attack brief",
-          icon: Target,
-          blurb: "Striking-distance queries × Impact × Confidence.",
-          needs: client.gscProperty ? null : "gsc",
-        },
-        {
           href: `/tools/traffic-drop?clientId=${id}`,
           title: "Traffic-drop analyzer",
           icon: TrendingDown,
