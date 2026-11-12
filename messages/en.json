@@ -5480,7 +5480,85 @@
       "where": "Where",
       "howStepByStep": "How — step by step",
       "wantItMoreAutomated": "Want it more automated?",
-      "buildACustomWorkflowOn": "Build a custom workflow on <b0>/automations</b0> — trigger an action on any event (rank drop, page change, new backlink, audit issue surfaced) and chain it to Slack, email, webhook, or a task auto-created for your team. Plus the <b1>Settings → AI</b1> page lets you pick which AI provider runs the AI-driven automation."
+      "buildACustomWorkflowOn": "Build a custom workflow on <b0>/automations</b0> — trigger an action on any event (rank drop, page change, new backlink, audit issue surfaced) and chain it to Slack, email, webhook, or a task auto-created for your team. Plus the <b1>Settings → AI</b1> page lets you pick which AI provider runs the AI-driven automation.",
+      "dailySeoAgent": "Daily SEO agent",
+      "walksEveryActiveClientAnd": "Walks every active client and runs 17 automated steps — audit refresh on stale clients, news ingest, AI suggestions, brand monitoring, metric snapshots, watchlist alerts, mention digest, competitor monitor, lost-link check, scheduled local grids, outreach reply polling, anomaly detection, title-test rotation, robots.txt snapshot, sitemap health, traffic-drop alert.",
+      "activityLog": "Activity log",
+      "weeklyRankSweep": "Weekly rank sweep",
+      "everyMondayReChecksAll": "Every Monday: re-checks all striking-distance keywords (positions 4-15) and persists new ranks per device.",
+      "keywordsDashboard": "Keywords dashboard",
+      "weeklyAiSiteAudit": "Weekly AI site audit",
+      "audits": "Audits",
+      "weeklySerpFeatureSnapshot": "Weekly SERP feature snapshot",
+      "capturesSerpFeaturePresenceAi": "Captures SERP feature presence (AI Overview, Featured Snippet, Local Pack, PAA) for tracked queries — so you see when Google adds/removes them.",
+      "serpFeatures": "SERP features",
+      "pageChangeMonitor": "Page change monitor",
+      "watchesTitleH1MetaStructured": "Watches title, H1, meta, structured data on tracked pages. Diff + alert when anything important changes.",
+      "monitor": "Monitor",
+      "uptimeMonitor": "Uptime monitor",
+      "uptimeTool": "Uptime tool",
+      "scheduledReportDelivery": "Scheduled report delivery",
+      "whenAScheduledReportTime": "When a scheduled report time rolls around, generates the PDF + executive summary and emails it to the recipient list.",
+      "reports": "Reports",
+      "clientMetricSnapshots": "Client metric snapshots",
+      "dailySnapshotOfEveryClient": "Daily snapshot of every client's health score, organic clicks, average rank, top-10 count, critical issues. Powers all the dashboards' trend lines.",
+      "snapshots": "Snapshots",
+      "morningBriefing": "Morning briefing",
+      "dashboard": "Dashboard",
+      "submitToBacklinkDirectories": "Submit to backlink directories",
+      "mostDirectoriesRequireAHuman": "Most directories require a human form fill, phone verification, or editorial approval. We can't legally automate every submission.",
+      "yourLibraryOfCuratedProspects": "Your library of curated prospects (35+ countries) + our suggestions per client.",
+      "openTheBacklinkProspectsLibrary": "Open the Backlink prospects library.",
+      "filterByYourCountryNiche": "Filter by your country + niche + cost (start with 'free' + DA ≥ 40).",
+      "forEachProspectClickOpen": "For each prospect: click 'Open' to load the site, click 'How to submit' for steps, submit, then track it in /backlinks.",
+      "goal35SubmissionsWeek": "Goal: 3-5 submissions/week is enough — quality > quantity.",
+      "openProspectsLibrary": "Open prospects library",
+      "claimGoogleBusinessProfile": "Claim Google Business Profile",
+      "googleRequiresPostcardPhoneVideo": "Google requires postcard, phone, video, or document verification — there's no API to bypass it.",
+      "goToGoogleComBusiness": "Go to google.com/business.",
+      "addYourBusinessWithThe": "Add your business with the EXACT name, address, phone as on your site.",
+      "verifyPostcardTakes514": "Verify (postcard takes 5-14 days; phone/video is instant for eligible businesses).",
+      "addCategoriesPhotosServicesHours": "Add categories, photos, services, hours.",
+      "postAWeeklyUpdateGoogle": "Post a weekly update — Google ranks active GBPs higher.",
+      "gbpToolkit": "GBP toolkit",
+      "connectGoogleSearchConsole": "Connect Google Search Console",
+      "gscNeedsYouToVerify": "GSC needs you to verify domain ownership — we can't do this remotely.",
+      "settingsIntegrationsGoogleSearchConsole": "Settings → Integrations → Google Search Console",
+      "openSettingsIntegrations": "Open Settings → Integrations.",
+      "clickConnectGoogleAccount": "Click 'Connect Google account'.",
+      "approveTheGscGa4Read": "Approve the GSC + GA4 read scopes.",
+      "pickYourGscPropertyGa4": "Pick your GSC property + GA4 property per client.",
+      "wait24hForTheFirst": "Wait 24h for the first sync to backfill 28 days of data.",
+      "settingsIntegrations": "Settings → Integrations",
+      "applyForHaroConnectivelyResponses": "Apply for HARO / Connectively responses",
+      "journalistQueriesAreTimeSensitive": "Journalist queries are time-sensitive (sub-2h response wins) and require human judgment + factual accuracy.",
+      "subscribeToConnectivelyForYour": "Subscribe to Connectively for your beats.",
+      "whenAQueryLandsReply": "When a query lands, reply within 30-120 minutes.",
+      "include1SpecificLinkA": "Include 1 specific link + a quotable line.",
+      "trackWinsInBacklinksAs": "Track wins in /backlinks as they go live.",
+      "openBacklinksTracker": "Open backlinks tracker",
+      "applyWordpressFixesViaPlugin": "Apply WordPress fixes via plugin",
+      "bulkSiteWideChangesCan": "Bulk site-wide changes can break things — the plugin requires a human click-Apply for each.",
+      "yourWordpressAdminAfterInstalling": "Your WordPress admin (after installing the SEO Tool Bridge plugin)",
+      "installTheSeoToolBridge": "Install the SEO Tool Bridge plugin from your WP admin.",
+      "pasteYourToolSBridge": "Paste your tool's bridge key (from Settings → Integrations).",
+      "auditResultsShowApplyVia": "Audit results show 'Apply via WP' buttons on title/meta/alt fixes.",
+      "clickApplyPluginPatchesThe": "Click Apply — plugin patches the post + saves a revision for one-click undo.",
+      "settingsWordpressBridge": "Settings → WordPress bridge",
+      "outreachForGuestPosts": "Outreach for guest posts",
+      "personalizationWinsWeAutoPersonalize": "Personalization wins. We auto-personalize the message, but you still hit Send and handle replies.",
+      "outreachHubGmailOrYour": "Outreach hub + Gmail (or your inbox)",
+      "findGuestPostTargetsIn": "Find guest-post targets in the Prospects library (filter: 'guest-post' category).",
+      "useTheOutreachPersonalizerTool": "Use the Outreach personalizer tool to draft the pitch with site-specific hooks.",
+      "sendFromYourRealInbox": "Send from your real inbox (Gmail / Outlook) for deliverability.",
+      "logTheContactInOutreach": "Log the contact in /outreach so we poll for replies.",
+      "outreachHub": "Outreach hub",
+      "verifyNapConsistencyAcrossCitations": "Verify NAP consistency across citations",
+      "mostDirectoriesRequireAPhone": "Most directories require a phone/email confirmation per listing.",
+      "eachCitationSiteYouVe": "Each citation site you've submitted to",
+      "afterSubmittingCheckEmailFor": "After submitting, check email for verification links.",
+      "after46WeeksRun": "After 4-6 weeks, run /tools/local-cwv with your NAP to spot inconsistencies.",
+      "localCitationsTool": "Local citations tool"
     },
     "app_automations_overview_scheduler-status": {
       "backgroundScheduler": "Background scheduler",
@@ -5500,7 +5578,12 @@
       "ranOther": "Ran {runCount} {runCount, plural, one {time} other {times}}",
       "pause": "Pause",
       "resume": "Resume",
-      "delete": "Delete"
+      "delete": "Delete",
+      "auditCompleted": "Audit completed",
+      "auditFailed": "Audit failed",
+      "scoreDropped": "Score dropped",
+      "pageChanged": "Page changed",
+      "rankDropped": "Rank dropped"
     },
     "app_automations_templates_install-form": {
       "pasteASlackOrDiscord": "Paste a Slack or Discord webhook URL first.",
@@ -5516,7 +5599,15 @@
       "oneClickInstallForThe": "One-click install for the most common SEO automations. Trigger an action when something changes — no n8n / Zapier subscription needed.",
       "recommended": "Recommended",
       "when": "When",
-      "do": "do"
+      "do": "do",
+      "auditCompleted": "Audit completed",
+      "auditFailed": "Audit failed",
+      "scoreDrop": "Score drop",
+      "pageChange": "Page change",
+      "rankDrop": "Rank drop",
+      "slackDiscordWebhook": "Slack / Discord webhook",
+      "createTask": "Create task",
+      "activityLog": "Activity log"
     },
     "app_automations_webhook-tester": {
       "testAWebhook": "Test a webhook",
@@ -5617,7 +5708,14 @@
       "tone2": "Tone:",
       "gbpLocation": "GBP location:",
       "postType2": "Post type:",
-      "nextRun": "Next run:"
+      "nextRun": "Next run:",
+      "blogPost": "Blog post",
+      "aiDraftsAn8001200": "AI drafts an 800-1200 word post and lands it in WordPress as a draft.",
+      "googleBusinessProfilePost": "Google Business Profile post",
+      "socialPostXLinkedin": "Social post (X + LinkedIn)",
+      "generatesPlatformSpecificCopyCopy": "Generates platform-specific copy. Copy/paste manually — no auto-OAuth in v1.",
+      "dailyTaskChecklist": "Daily task checklist",
+      "seeds35TasksInto": "Seeds 3-5 tasks into this client's task list every morning."
     },
     "app_clients_id_automations_page": {
       "backTo": "Back to {name}",
@@ -5714,7 +5812,16 @@
       "downloadAsMdFile": "Download as .md file",
       "downloadAsHtmlFile": "Download as .html file",
       "delete": "Delete",
-      "yourEditsAreSavedWhen": "Your edits are saved when you click an Approve button below."
+      "yourEditsAreSavedWhen": "Your edits are saved when you click an Approve button below.",
+      "blogDraft": "Blog draft",
+      "gbpPost": "GBP post",
+      "socialPost": "Social post",
+      "dailyChecklist": "Daily checklist",
+      "pending": "Pending",
+      "approved": "Approved",
+      "published": "Published",
+      "skipped": "Skipped",
+      "failed": "Failed"
     },
     "app_clients_import-form": {
       "importCsv": "Import CSV",
@@ -5844,7 +5951,10 @@
       "improved": "{improved} improved",
       "strikingDistance": "Striking distance",
       "positions415": "positions 4-15",
-      "todaySPriorityItems": "Today's priority items"
+      "todaySPriorityItems": "Today's priority items",
+      "goodMorning": "Good morning",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening"
     },
     "app_settings_ai-learning_distill-button": {
       "noNewRulesNotEnough": "No new rules — not enough recent corrections.",
@@ -6168,7 +6278,16 @@
       "applyViaWp": "Apply via WP",
       "copied": "Copied",
       "copy": "Copy",
-      "googlePreview": "Google preview"
+      "googlePreview": "Google preview",
+      "addA": "Add a '<title>'",
+      "lengthenThe": "Lengthen the '<title>'",
+      "shortenThe": "Shorten the '<title>'",
+      "addAMetaDescription": "Add a meta description",
+      "lengthenTheMetaDescription": "Lengthen the meta description",
+      "shortenTheMetaDescription": "Shorten the meta description",
+      "addAn": "Add an '<h1>'",
+      "addACanonicalLink": "Add a canonical link",
+      "addAViewportMetaTag": "Add a viewport meta tag"
     },
     "components_issue-explainer": {
       "weHavenTWrittenThe": "We haven't written the fix guide for this check yet. <b0>Tell us it's missing</b0> and we'll add it.",
@@ -6181,7 +6300,10 @@
       "copy": "Copy",
       "beforeYouPasteThis": "Before you paste this.",
       "toUndo": "To undo:",
-      "googleSDocs": "Google's docs"
+      "googleSDocs": "Google's docs",
+      "definitelyFixThis": "Definitely fix this",
+      "probablyWorthFixing": "Probably worth fixing",
+      "worthTesting": "Worth testing"
     },
     "components_recent-runs": {
       "recentRuns": "Recent runs",
@@ -6228,7 +6350,41 @@
       "close": "Close"
     },
     "components_ui_data-source-badge": {
-      "figuresFor": "Figures for {asOfLabel}."
+      "figuresFor": "Figures for {asOfLabel}.",
+      "sources": {
+        "gsc": {
+          "label": "Search Console",
+          "detail": "Google's own figures for your site. As authoritative as this gets — but Search Console lags two to three days, and it only knows queries you actually appeared for."
+        },
+        "ga4": {
+          "label": "Analytics",
+          "detail": "From Google Analytics 4. Reflects visitors who weren't blocked by an ad blocker or consent banner, so it under-counts to some degree on every site."
+        },
+        "crawl": {
+          "label": "Our crawl",
+          "detail": "Measured by this tool visiting the pages itself. Accurate about what was on the page when we looked, which may not be what Google last saw."
+        },
+        "psi": {
+          "label": "PageSpeed",
+          "detail": "From Google's PageSpeed Insights. Field data comes from real Chrome users over the last 28 days; lab data is one simulated load and can differ."
+        },
+        "scrape": {
+          "label": "Live check",
+          "detail": "Read from a live search results page. Current, but it's what one server was shown rather than what your visitors see — expect a position or two of noise from personalisation."
+        },
+        "ai": {
+          "label": "AI-written",
+          "detail": "Written by a language model from your data. Worth reading before it goes to a client — models are fluent about things they've got wrong."
+        },
+        "manual": {
+          "label": "Entered by you",
+          "detail": "Typed in by hand. This tool hasn't verified it."
+        },
+        "estimate": {
+          "label": "Estimate",
+          "detail": "Worked out from other numbers using assumptions, not measured. Fine for prioritising; don't put it in a client report as fact."
+        }
+      }
     },
     "components_ui_dialog": {
       "close": "Close"
@@ -6259,7 +6415,65 @@
       "newHere": "New here",
       "sixStepsToReplaceYour": "Six steps to replace your $140/mo SEO stack",
       "eachStepLinksToThe": "Each step links to the right place. You can do them in any order, but the dashboard fills in real data fastest if you do them top-down.",
-      "confusedBySeoTermsVisit": "Confused by SEO terms? <b0>Visit the Learn section</b0> — every term has a plain-English explanation."
+      "confusedBySeoTermsVisit": "Confused by SEO terms? <b0>Visit the Learn section</b0> — every term has a plain-English explanation.",
+      "connectAnAiProvider": "Connect an AI provider",
+      "mostToolsAuditsContentSchema": "Most tools (audits, content, schema, code generator) need AI. Pick free local Ollama for full privacy, or paste a Groq / Gemini / OpenRouter free-tier key. Anthropic / OpenAI work too.",
+      "setUpAi": "Set up AI",
+      "addYourFirstClient": "Add your first client",
+      "pasteAUrlWeAuto": "Paste a URL — we auto-extract brand name, logo, NAP, social links, and detect their tech stack in 3 seconds. Almost every tool gets way better once you have a client.",
+      "addClient": "Add client",
+      "connectGoogleGscGa4": "Connect Google (GSC + GA4)",
+      "oneOauthClickRevealsReal": "One OAuth click reveals real ranking + traffic data — no scraping, no API costs. Skip if you only want technical audits.",
+      "setUpGoogle": "Set up Google",
+      "runAnAudit": "Run an audit",
+      "seeAudits": "See audits",
+      "installATaskPlaybook": "Install a task playbook",
+      "browsePlaybooks": "Browse playbooks",
+      "generateTheFirstReport": "Generate the first report",
+      "aiExecutiveSummaryWhiteLabel": "AI executive summary, white-label branding, PDF or magic-link client portal. Goes from 6 hours/month to 25 minutes/month.",
+      "viewReports": "View reports",
+      "setUpAutomations": "Set up automations",
+      "browseAutomations": "Browse automations"
+    },
+    "app_settings_errors_error-log": {
+      "somethingWentWrong": "Something went wrong"
+    },
+    "components_ui_confidence-badge": {
+      "definitelyFix": "Definitely fix",
+      "probablyWorthIt": "Probably worth it",
+      "worthTesting": "Worth testing"
+    },
+    "components_ui_jargon-term": {
+      "aSignalToGoogleAbout": "A signal to Google about the main version of this page when similar pages exist. Prevents duplicate content from competing with itself.",
+      "theSnippetOfTextShown": "The snippet of text shown under a page's title in Google search results. Not a direct ranking factor, but heavily influences click-through rate.",
+      "thePageTitleShownIn": "The page title shown in the browser tab and as the clickable headline in search results. Most important on-page SEO element.",
+      "searchEngineResultsPageThe": "Search Engine Results Page — the page Google shows after someone runs a search.",
+      "coreWebVitalsGoogleS": "Core Web Vitals — Google's three speed/UX metrics: LCP (loading), INP (responsiveness), CLS (visual stability).",
+      "largestContentfulPaintHowLong": "Largest Contentful Paint — how long it takes for the biggest element on the page (usually a hero image) to load. Target: under 2.5 seconds.",
+      "cumulativeLayoutShiftHowMuch": "Cumulative Layout Shift — how much elements jump around as the page loads. Target: under 0.1.",
+      "interactionToNextPaintHow": "Interaction to Next Paint — how quickly the page responds when you tap or click something. Target: under 200ms.",
+      "structuredDataJsonLdYou": "Structured data (JSON-LD) you embed on a page so Google can show rich results — review stars, FAQ accordions, recipe cards, product prices, etc.",
+      "anEnhancedGoogleSearchListing": "An enhanced Google search listing — stars, prices, FAQs, images — driven by structured data.",
+      "theDescriptiveTextOnAn": "The descriptive text on an image used by screen readers and shown when an image fails to load. Helps accessibility AND image-search ranking.",
+      "anHtmlTagThatTells": "An HTML tag that tells Google which language/region version of a page to show different visitors. Used by international sites.",
+      "aFileAtTheRoot": "A file at the root of your site that tells crawlers which pages they're allowed to fetch.",
+      "anXmlFileListingEvery": "An XML file listing every page on your site, given to Google so it can discover and re-crawl pages faster.",
+      "whenTwoOrMorePages": "When two or more pages on the same site target the same query — they end up competing with each other and neither ranks well.",
+      "theSlowDropInTraffic": "The slow drop in traffic to a page that used to perform well. Usually means the content has gone stale or competitors have updated theirs.",
+      "aKeywordYouRankFor": "A keyword you rank for in positions 11-20 — close enough to page one that a small content tweak can push you over.",
+      "yourSliceOfTotalSearch": "Your slice of total search-result impressions for a set of tracked keywords, vs your competitors.",
+      "experienceExpertiseAuthoritativenessTrustworthinessGoogle": "Experience, Expertise, Authoritativeness, Trustworthiness — Google's guidelines for what makes content worth ranking.",
+      "googleSAiGeneratedAnswer": "Google's AI-generated answer that appears above the regular search results on commercial queries. Now shows on roughly 47% of queries.",
+      "generativeEngineOptimizationGettingYour": "Generative Engine Optimization — getting your content cited inside AI-generated answers (ChatGPT, Perplexity, Claude, Gemini, Google AI Overviews).",
+      "aProposedPlainTextFile": "A proposed plain-text file (analogous to robots.txt) that lets a site tell LLMs which content they can use and how.",
+      "aLinkFromSomeoneElse": "A link from someone else's website to yours. Still one of the strongest ranking signals.",
+      "theClickableTextOfA": "The clickable text of a link. Tells Google what the linked page is about.",
+      "nameAddressPhoneTheThree": "Name, Address, Phone — the three pieces of business info that need to match exactly everywhere online (Google Business Profile, Yelp, your site, etc.) for local SEO.",
+      "googleBusinessProfileYourBusiness": "Google Business Profile — your business listing in Google Maps and the local pack.",
+      "googleSearchConsoleGoogleS": "Google Search Console — Google's free dashboard showing how often your pages appear in search, who clicks, and what queries trigger them.",
+      "googleAnalytics4TheCurrent": "Google Analytics 4 — the current version of Google Analytics; tracks traffic, behavior, and conversions on your site.",
+      "whetherGoogleIsAllowedTo": "Whether Google is allowed to add a page to its search index (it can crawl + isn't blocked by noindex/canonical).",
+      "googleSBundleOfUx": "Google's bundle of UX signals: Core Web Vitals + mobile-friendliness + HTTPS + no intrusive interstitials."
     }
   }
 }

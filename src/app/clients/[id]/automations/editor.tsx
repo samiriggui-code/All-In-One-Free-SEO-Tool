@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import {
@@ -32,7 +33,7 @@ type Kind = DailySchedule["kind"];
 
 // Per-kind metadata. Class strings are stored literal so Tailwind's
 // JIT picks them up — `text-${color}-300` wouldn't work.
-const KIND_META: Record<
+const KIND_META = (tx: Tx): Record<
   Kind,
   {
     label: string;
@@ -42,17 +43,17 @@ const KIND_META: Record<
     activeBorder: string;
     badge: string;
   }
-> = {
+> => ({
   blog_draft: {
-    label: "Blog post",
-    description: "AI drafts an 800-1200 word post and lands it in WordPress as a draft.",
+    label: tx("blogPost"),
+    description: tx("aiDraftsAn8001200"),
     icon: FileText,
     iconCls: "text-violet-300",
     activeBorder: "border-violet-500/40 bg-violet-500/[0.04]",
     badge: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
   },
   gbp_post: {
-    label: "Google Business Profile post",
+    label: tx("googleBusinessProfilePost"),
     description: "≤1300 char local post published via GBP API. Needs a location set.",
     icon: Globe,
     iconCls: "text-cyan-300",
@@ -60,22 +61,22 @@ const KIND_META: Record<
     badge: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   },
   social_post: {
-    label: "Social post (X + LinkedIn)",
-    description: "Generates platform-specific copy. Copy/paste manually — no auto-OAuth in v1.",
+    label: tx("socialPostXLinkedin"),
+    description: tx("generatesPlatformSpecificCopyCopy"),
     icon: Share2,
     iconCls: "text-amber-300",
     activeBorder: "border-amber-500/40 bg-amber-500/[0.04]",
     badge: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   },
   internal_checklist: {
-    label: "Daily task checklist",
-    description: "Seeds 3-5 tasks into this client's task list every morning.",
+    label: tx("dailyTaskChecklist"),
+    description: tx("seeds35TasksInto"),
     icon: Megaphone,
     iconCls: "text-emerald-300",
     activeBorder: "border-emerald-500/40 bg-emerald-500/[0.04]",
     badge: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
   },
-};
+});
 
 function formatTime(timeUtc: number): string {
   const hh = Math.floor(timeUtc / 100);
@@ -193,8 +194,8 @@ export function SchedulesEditor({
               {tx("pickTheKindFirstThe")}
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {(Object.keys(KIND_META) as Kind[]).map((k) => {
-                const meta = KIND_META[k];
+              {(Object.keys(KIND_META(tx)) as Kind[]).map((k) => {
+                const meta = KIND_META(tx)[k];
                 const active = selectedKind === k;
                 const Icon = meta.icon;
                 return (
@@ -434,7 +435,7 @@ function ScheduleRow({
   const tx = useTranslations("ui.app_clients_id_automations_editor");
   const [expanded, setExpanded] = useState(false);
   const [pending, startTransition] = useTransition();
-  const meta = KIND_META[schedule.kind];
+  const meta = KIND_META(tx)[schedule.kind];
   const Icon = meta.icon;
   const cfg = (schedule.configJson ?? {}) as {
     topic_seed?: string;

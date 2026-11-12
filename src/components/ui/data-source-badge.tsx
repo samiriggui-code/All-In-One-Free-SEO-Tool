@@ -142,13 +142,13 @@ export function DataSourceBadge({
 
   return (
     <span
-      title={[meta.detail, note, asOfLabel ? tx("figuresFor", { asOfLabel }) : null]
+      title={[tx(`sources.${source}.detail`), note, asOfLabel ? tx("figuresFor", { asOfLabel }) : null]
         .filter(Boolean)
         .join(" ")}
       className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${meta.tone} ${className ?? ""}`}
     >
       <Icon className="size-2.5" />
-      {meta.label}
+      {tx(`sources.${source}.label`)}
       {asOfLabel && <span className="opacity-70">· {asOfLabel}</span>}
     </span>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
@@ -19,17 +20,17 @@ import {
 } from "@/app/audits/fix-actions";
 import { applyFixViaWp } from "@/app/audits/wp-apply-actions";
 
-const issueLabels: Record<string, string> = {
-  missing_title: "Add a <title>",
-  short_title: "Lengthen the <title>",
-  long_title: "Shorten the <title>",
-  missing_meta_description: "Add a meta description",
-  short_meta_description: "Lengthen the meta description",
-  long_meta_description: "Shorten the meta description",
-  missing_h1: "Add an <h1>",
-  missing_canonical: "Add a canonical link",
-  missing_viewport: "Add a viewport meta tag",
-};
+const issueLabels = (tx: Tx): Record<string, string> => ({
+  missing_title: tx("addA"),
+  short_title: tx("lengthenThe"),
+  long_title: tx("shortenThe"),
+  missing_meta_description: tx("addAMetaDescription"),
+  short_meta_description: tx("lengthenTheMetaDescription"),
+  long_meta_description: tx("shortenTheMetaDescription"),
+  missing_h1: tx("addAn"),
+  missing_canonical: tx("addACanonicalLink"),
+  missing_viewport: tx("addAViewportMetaTag"),
+});
 
 import { isFixable } from "@/lib/fix-suggestions";
 
@@ -84,7 +85,7 @@ export function FixWizard({
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Wand2 className="size-4 text-violet-300" />
               <span className="text-gradient-violet">
-                {issueLabels[issueType] ?? tx("fixIt")}
+                {issueLabels(tx)[issueType] ?? tx("fixIt")}
               </span>
             </div>
             <button

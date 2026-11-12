@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import type { Tx } from "@/lib/tx";
 import { getTranslations } from "next-intl/server";
 import { Sparkles, Sun } from "lucide-react";
 import { count, desc, eq, ne, gte } from "drizzle-orm";
@@ -74,7 +75,7 @@ export default async function MorningPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
         title={tx("morningBriefing")}
-        description={`${greet()}. Here's what needs attention across all ${clientCount} clients.`}
+        description={`${greet(tx)}. Here's what needs attention across all ${clientCount} clients.`}
         icon={Sun}
         accent="amber"
       />
@@ -121,11 +122,11 @@ export default async function MorningPage() {
   );
 }
 
-function greet() {
+function greet(tx: Tx) {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
+  if (h < 12) return tx("goodMorning");
+  if (h < 18) return tx("goodAfternoon");
+  return tx("goodEvening");
 }
 
 function Stat({

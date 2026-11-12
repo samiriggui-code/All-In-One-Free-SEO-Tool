@@ -1,3 +1,4 @@
+import type { Tx } from "@/lib/tx";
 import { getTranslations } from "next-intl/server";
 import { desc, eq } from "drizzle-orm";
 
@@ -25,28 +26,28 @@ import { deleteAutomation, setAutomationEnabled } from "./actions";
 import { getSetting } from "@/lib/settings-store";
 import { clientScope } from "@/lib/client-scope";
 
-const triggerLabels: Record<string, { label: string; tone: string }> = {
+const triggerLabels = (tx: Tx): Record<string, { label: string; tone: string }> => ({
   audit_completed: {
-    label: "Audit completed",
+    label: tx("auditCompleted"),
     tone: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
   },
   audit_failed: {
-    label: "Audit failed",
+    label: tx("auditFailed"),
     tone: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
   },
   score_drop: {
-    label: "Score dropped",
+    label: tx("scoreDropped"),
     tone: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   },
   page_change: {
-    label: "Page changed",
+    label: tx("pageChanged"),
     tone: "bg-fuchsia-500/15 text-fuchsia-300 ring-fuchsia-500/30",
   },
   rank_drop: {
-    label: "Rank dropped",
+    label: tx("rankDropped"),
     tone: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   },
-};
+});
 
 const actionIcon = {
   webhook: Webhook,
@@ -131,7 +132,7 @@ export default async function AutomationsPage() {
         <div className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <ul className="divide-y divide-white/5">
             {rows.map((r) => {
-              const trig = triggerLabels[r.trigger] ?? {
+              const trig = triggerLabels(tx)[r.trigger] ?? {
                 label: r.trigger,
                 tone: "bg-white/5 text-muted-foreground ring-white/10",
               };

@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import {
@@ -45,38 +46,38 @@ const KIND_ICON: Record<Kind, typeof FileText> = {
   internal_checklist: Megaphone,
 };
 
-const KIND_LABEL: Record<Kind, string> = {
-  blog_draft: "Blog draft",
-  gbp_post: "GBP post",
-  social_post: "Social post",
-  internal_checklist: "Daily checklist",
-};
+const KIND_LABEL = (tx: Tx): Record<Kind, string> => ({
+  blog_draft: tx("blogDraft"),
+  gbp_post: tx("gbpPost"),
+  social_post: tx("socialPost"),
+  internal_checklist: tx("dailyChecklist"),
+});
 
-const STATUS_STYLE: Record<
+const STATUS_STYLE = (tx: Tx): Record<
   Status,
   { label: string; cls: string }
-> = {
+> => ({
   pending_review: {
-    label: "Pending",
+    label: tx("pending"),
     cls: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   },
   approved: {
-    label: "Approved",
+    label: tx("approved"),
     cls: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   },
   published: {
-    label: "Published",
+    label: tx("published"),
     cls: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
   },
   skipped: {
-    label: "Skipped",
+    label: tx("skipped"),
     cls: "bg-white/5 text-muted-foreground ring-white/10",
   },
   failed: {
-    label: "Failed",
+    label: tx("failed"),
     cls: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
   },
-};
+});
 
 type Filter = "pending" | "all" | "published" | "failed";
 
@@ -183,7 +184,7 @@ function QueueRow({
   const [pending, startTransition] = useTransition();
 
   const Icon = KIND_ICON[item.kind];
-  const style = STATUS_STYLE[item.status];
+  const style = STATUS_STYLE(tx)[item.status];
 
   const canEdit =
     item.status === "pending_review" || item.status === "approved";
@@ -313,7 +314,7 @@ function QueueRow({
             </span>
           </div>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            {KIND_LABEL[item.kind]} ·{" "}
+            {KIND_LABEL(tx)[item.kind]} ·{" "}
             <Clock className="inline size-3 -mt-0.5" />{" "}
             {new Date(item.generatedAt).toLocaleString().slice(0, 16)}
             {item.publishedRef && item.status === "published" && (

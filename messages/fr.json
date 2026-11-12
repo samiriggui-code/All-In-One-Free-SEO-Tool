@@ -5480,7 +5480,85 @@
       "where": "Où",
       "howStepByStep": "Comment, pas à pas",
       "wantItMoreAutomated": "Envie d’automatiser davantage ?",
-      "buildACustomWorkflowOn": "Créez un scénario sur mesure dans <b0>/automations</b0> : déclenchez une action sur n’importe quel événement (position en baisse, page modifiée, nouveau backlink, problème d’audit) et reliez-la à Slack, un e-mail, un webhook ou une tâche créée pour votre équipe. La page <b1>Paramètres → IA</b1> permet aussi de choisir le fournisseur d’IA qui fait tourner ces automatisations."
+      "buildACustomWorkflowOn": "Créez un scénario sur mesure dans <b0>/automations</b0> : déclenchez une action sur n’importe quel événement (position en baisse, page modifiée, nouveau backlink, problème d’audit) et reliez-la à Slack, un e-mail, un webhook ou une tâche créée pour votre équipe. La page <b1>Paramètres → IA</b1> permet aussi de choisir le fournisseur d’IA qui fait tourner ces automatisations.",
+      "dailySeoAgent": "Agent SEO quotidien",
+      "walksEveryActiveClientAnd": "Passe sur chaque projet actif et déroule 17 étapes automatiques : audit rafraîchi sur les projets anciens, veille d’actualités, suggestions de l’IA, veille de marque, relevés de mesures, alertes de la liste de suivi, digest des mentions, surveillance des concurrents, liens perdus, grilles locales planifiées, réponses de prospection, détection d’anomalies, rotation des tests de titres, relevé du robots.txt, santé du sitemap, alerte de chute de trafic.",
+      "activityLog": "Journal d’activité",
+      "weeklyRankSweep": "Relevé hebdomadaire des positions",
+      "everyMondayReChecksAll": "Chaque lundi : revérifie tous les mots-clés à portée de la première page (positions 4 à 15) et enregistre les nouvelles positions par appareil.",
+      "keywordsDashboard": "Tableau des mots-clés",
+      "weeklyAiSiteAudit": "Audit IA hebdomadaire du site",
+      "audits": "Audits",
+      "weeklySerpFeatureSnapshot": "Relevé hebdomadaire des fonctionnalités de recherche",
+      "capturesSerpFeaturePresenceAi": "Enregistre la présence des fonctionnalités de la page de résultats (AI Overview, extrait optimisé, pack local, autres questions) sur les requêtes suivies, pour voir quand Google les ajoute ou les retire.",
+      "serpFeatures": "Fonctionnalités de recherche",
+      "pageChangeMonitor": "Surveillance des changements de pages",
+      "watchesTitleH1MetaStructured": "Surveille le titre, le H1, les balises meta et les données structurées des pages suivies. Comparaison et alerte dès qu’un élément important change.",
+      "monitor": "Surveillance",
+      "uptimeMonitor": "Surveillance de disponibilité",
+      "uptimeTool": "Outil de disponibilité",
+      "scheduledReportDelivery": "Envoi planifié des rapports",
+      "whenAScheduledReportTime": "À l’heure prévue d’un rapport planifié, génère le PDF et la synthèse, puis les envoie par e-mail aux destinataires.",
+      "reports": "Rapports",
+      "clientMetricSnapshots": "Relevés de mesures par projet",
+      "dailySnapshotOfEveryClient": "Relevé quotidien du score de santé, des clics organiques, de la position moyenne, du nombre de top 10 et des problèmes critiques de chaque projet. Alimente les courbes de tous les tableaux de bord.",
+      "snapshots": "Relevés",
+      "morningBriefing": "Briefing du matin",
+      "dashboard": "Tableau de bord",
+      "submitToBacklinkDirectories": "Inscrire le site dans des annuaires",
+      "mostDirectoriesRequireAHuman": "La plupart des annuaires demandent un formulaire rempli par une personne, une vérification par téléphone ou une validation éditoriale. Tout ne peut pas être automatisé légalement.",
+      "yourLibraryOfCuratedProspects": "Votre bibliothèque de sites sélectionnés (plus de 35 pays) et nos suggestions par projet.",
+      "openTheBacklinkProspectsLibrary": "Ouvrez la bibliothèque de sites pour backlinks.",
+      "filterByYourCountryNiche": "Filtrez par pays, thématique et coût (commencez par « gratuit » et DA ≥ 40).",
+      "forEachProspectClickOpen": "Pour chaque site : cliquez sur « Ouvrir » pour le charger, sur « Comment soumettre » pour les étapes, faites l’inscription, puis suivez-la dans /backlinks.",
+      "goal35SubmissionsWeek": "Objectif : 3 à 5 inscriptions par semaine suffisent. La qualité passe avant la quantité.",
+      "openProspectsLibrary": "Ouvrir la bibliothèque de sites",
+      "claimGoogleBusinessProfile": "Revendiquer la fiche Google Business Profile",
+      "googleRequiresPostcardPhoneVideo": "Google impose une vérification par courrier, téléphone, vidéo ou document : aucune API ne permet de la contourner.",
+      "goToGoogleComBusiness": "Allez sur google.com/business.",
+      "addYourBusinessWithThe": "Ajoutez l’établissement avec EXACTEMENT le nom, l’adresse et le téléphone de votre site.",
+      "verifyPostcardTakes514": "Faites la vérification (le courrier prend 5 à 14 jours ; téléphone ou vidéo sont immédiats pour les établissements éligibles).",
+      "addCategoriesPhotosServicesHours": "Ajoutez les catégories, les photos, les services et les horaires.",
+      "postAWeeklyUpdateGoogle": "Publiez une actualité chaque semaine : Google classe mieux les fiches actives.",
+      "gbpToolkit": "Outils pour la fiche Google",
+      "connectGoogleSearchConsole": "Connecter la Google Search Console",
+      "gscNeedsYouToVerify": "La Search Console demande de prouver que le domaine vous appartient : impossible à faire à distance.",
+      "settingsIntegrationsGoogleSearchConsole": "Paramètres → Intégrations → Google Search Console",
+      "openSettingsIntegrations": "Ouvrez Paramètres → Intégrations.",
+      "clickConnectGoogleAccount": "Cliquez sur « Connecter un compte Google ».",
+      "approveTheGscGa4Read": "Acceptez l’accès en lecture à la Search Console et à GA4.",
+      "pickYourGscPropertyGa4": "Choisissez la propriété Search Console et la propriété GA4 de chaque projet.",
+      "wait24hForTheFirst": "Attendez 24 h que la première synchronisation remonte 28 jours de données.",
+      "settingsIntegrations": "Paramètres → Intégrations",
+      "applyForHaroConnectivelyResponses": "Répondre aux demandes de journalistes (HARO / Connectively)",
+      "journalistQueriesAreTimeSensitive": "Les demandes de journalistes sont urgentes (une réponse en moins de 2 h l’emporte) et demandent du jugement et des faits exacts.",
+      "subscribeToConnectivelyForYour": "Abonnez-vous à Connectively pour vos sujets.",
+      "whenAQueryLandsReply": "Quand une demande arrive, répondez dans les 30 à 120 minutes.",
+      "include1SpecificLinkA": "Ajoutez un lien précis et une phrase facile à citer.",
+      "trackWinsInBacklinksAs": "Suivez les liens obtenus dans /backlinks dès leur mise en ligne.",
+      "openBacklinksTracker": "Ouvrir le suivi des backlinks",
+      "applyWordpressFixesViaPlugin": "Appliquer les corrections WordPress par l’extension",
+      "bulkSiteWideChangesCan": "Un changement en masse sur tout un site peut casser des choses : l’extension demande un clic humain sur Appliquer pour chacun.",
+      "yourWordpressAdminAfterInstalling": "L’administration de votre WordPress (une fois l’extension SEO Tool Bridge installée)",
+      "installTheSeoToolBridge": "Installez l’extension SEO Tool Bridge depuis l’administration WordPress.",
+      "pasteYourToolSBridge": "Collez la clé de la passerelle (dans Paramètres → Intégrations).",
+      "auditResultsShowApplyVia": "Les résultats d’audit affichent un bouton « Appliquer par WordPress » sur les corrections de titre, de meta et de texte alternatif.",
+      "clickApplyPluginPatchesThe": "Cliquez sur Appliquer : l’extension modifie la page et enregistre une révision pour annuler en un clic.",
+      "settingsWordpressBridge": "Paramètres → Passerelle WordPress",
+      "outreachForGuestPosts": "Prospection pour des articles invités",
+      "personalizationWinsWeAutoPersonalize": "La personnalisation fait la différence. Le message est personnalisé automatiquement, mais c’est vous qui l’envoyez et gérez les réponses.",
+      "outreachHubGmailOrYour": "Prospection de liens et Gmail (ou votre messagerie)",
+      "findGuestPostTargetsIn": "Trouvez des cibles d’articles invités dans la bibliothèque de sites (filtre : catégorie « guest-post »).",
+      "useTheOutreachPersonalizerTool": "Utilisez l’outil de personnalisation pour rédiger la proposition avec des accroches propres au site.",
+      "sendFromYourRealInbox": "Envoyez depuis votre vraie messagerie (Gmail, Outlook) pour une bonne délivrabilité.",
+      "logTheContactInOutreach": "Enregistrez le contact dans /outreach pour que les réponses soient relevées.",
+      "outreachHub": "Prospection de liens",
+      "verifyNapConsistencyAcrossCitations": "Vérifier la cohérence des coordonnées dans les annuaires",
+      "mostDirectoriesRequireAPhone": "La plupart des annuaires demandent une confirmation par téléphone ou e-mail pour chaque inscription.",
+      "eachCitationSiteYouVe": "Chaque annuaire où vous avez fait une inscription",
+      "afterSubmittingCheckEmailFor": "Après l’inscription, surveillez vos e-mails pour les liens de vérification.",
+      "after46WeeksRun": "Après 4 à 6 semaines, lancez /tools/local-cwv avec vos coordonnées pour repérer les incohérences.",
+      "localCitationsTool": "Outil des annuaires locaux"
     },
     "app_automations_overview_scheduler-status": {
       "backgroundScheduler": "Planificateur en arrière-plan",
@@ -5500,7 +5578,12 @@
       "ranOther": "{runCount, plural, one {Lancée # fois} other {Lancée # fois}}",
       "pause": "Mettre en pause",
       "resume": "Reprendre",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "auditCompleted": "Audit terminé",
+      "auditFailed": "Audit en échec",
+      "scoreDropped": "Score en baisse",
+      "pageChanged": "Page modifiée",
+      "rankDropped": "Position en baisse"
     },
     "app_automations_templates_install-form": {
       "pasteASlackOrDiscord": "Collez d’abord une URL de webhook Slack ou Discord.",
@@ -5516,7 +5599,15 @@
       "oneClickInstallForThe": "Installation en un clic des automatisations SEO les plus courantes. Déclenchez une action quand quelque chose change, sans abonnement n8n ou Zapier.",
       "recommended": "Recommandé",
       "when": "Quand",
-      "do": "faire"
+      "do": "faire",
+      "auditCompleted": "Audit terminé",
+      "auditFailed": "Audit en échec",
+      "scoreDrop": "Score en baisse",
+      "pageChange": "Page modifiée",
+      "rankDrop": "Position en baisse",
+      "slackDiscordWebhook": "Webhook Slack / Discord",
+      "createTask": "Créer une tâche",
+      "activityLog": "Journal d’activité"
     },
     "app_automations_webhook-tester": {
       "testAWebhook": "Tester un webhook",
@@ -5617,7 +5708,14 @@
       "tone2": "Ton :",
       "gbpLocation": "Établissement Google :",
       "postType2": "Type de publication :",
-      "nextRun": "Prochain passage :"
+      "nextRun": "Prochain passage :",
+      "blogPost": "Article de blog",
+      "aiDraftsAn8001200": "L’IA rédige un article de 800 à 1 200 mots et le dépose en brouillon dans WordPress.",
+      "googleBusinessProfilePost": "Publication Google Business Profile",
+      "socialPostXLinkedin": "Publication réseaux sociaux (X + LinkedIn)",
+      "generatesPlatformSpecificCopyCopy": "Produit un texte adapté à chaque réseau. À copier-coller à la main : pas de publication automatique pour l’instant.",
+      "dailyTaskChecklist": "Liste de tâches du jour",
+      "seeds35TasksInto": "Ajoute chaque matin 3 à 5 tâches à la liste de ce projet."
     },
     "app_clients_id_automations_page": {
       "backTo": "Retour à {name}",
@@ -5714,7 +5812,16 @@
       "downloadAsMdFile": "Télécharger en fichier .md",
       "downloadAsHtmlFile": "Télécharger en fichier .html",
       "delete": "Supprimer",
-      "yourEditsAreSavedWhen": "Vos modifications sont enregistrées quand vous cliquez sur un bouton Approuver ci-dessous."
+      "yourEditsAreSavedWhen": "Vos modifications sont enregistrées quand vous cliquez sur un bouton Approuver ci-dessous.",
+      "blogDraft": "Brouillon d’article",
+      "gbpPost": "Publication Google",
+      "socialPost": "Publication réseaux sociaux",
+      "dailyChecklist": "Liste du jour",
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "published": "Publié",
+      "skipped": "Ignoré",
+      "failed": "En échec"
     },
     "app_clients_import-form": {
       "importCsv": "Importer un CSV",
@@ -5768,7 +5875,8 @@
       "ifYouSkipIt": "Si vous vous en passez",
       "howToSetItUp": "Comment la configurer",
       "getTheKey": "Obtenir la clé",
-      "orSet": "ou définissez <b0>{envVar}</b0>"
+      "orSet": "ou définissez <b0>{envVar}</b0>",
+      "connectedOfConnected": "Connectés : {connected} sur {length}."
     },
     "app_connect_page": {
       "connectYourAccounts": "Connecter vos comptes",
@@ -5844,7 +5952,10 @@
       "improved": "{improved} en hausse",
       "strikingDistance": "À portée de la première page",
       "positions415": "positions 4 à 15",
-      "todaySPriorityItems": "Priorités du jour"
+      "todaySPriorityItems": "Priorités du jour",
+      "goodMorning": "Bonjour",
+      "goodAfternoon": "Bon après-midi",
+      "goodEvening": "Bonsoir"
     },
     "app_settings_ai-learning_distill-button": {
       "noNewRulesNotEnough": "Pas de nouvelle règle : trop peu de corrections récentes.",
@@ -6168,7 +6279,16 @@
       "applyViaWp": "Appliquer par WordPress",
       "copied": "Copié",
       "copy": "Copier",
-      "googlePreview": "Aperçu Google"
+      "googlePreview": "Aperçu Google",
+      "addA": "Ajouter une balise '<title>'",
+      "lengthenThe": "Allonger la balise '<title>'",
+      "shortenThe": "Raccourcir la balise '<title>'",
+      "addAMetaDescription": "Ajouter une meta description",
+      "lengthenTheMetaDescription": "Allonger la meta description",
+      "shortenTheMetaDescription": "Raccourcir la meta description",
+      "addAn": "Ajouter une balise '<h1>'",
+      "addACanonicalLink": "Ajouter un lien canonique",
+      "addAViewportMetaTag": "Ajouter une balise meta viewport"
     },
     "components_issue-explainer": {
       "weHavenTWrittenThe": "Le guide de correction de ce contrôle n’est pas encore écrit. <b0>Signalez qu’il manque</b0> et il sera ajouté.",
@@ -6181,7 +6301,10 @@
       "copy": "Copier",
       "beforeYouPasteThis": "Avant de coller ceci.",
       "toUndo": "Pour annuler :",
-      "googleSDocs": "Documentation Google"
+      "googleSDocs": "Documentation Google",
+      "definitelyFixThis": "À corriger sans hésiter",
+      "probablyWorthFixing": "Vaut sans doute la correction",
+      "worthTesting": "À tester"
     },
     "components_recent-runs": {
       "recentRuns": "Derniers passages",
@@ -6228,7 +6351,41 @@
       "close": "Fermer"
     },
     "components_ui_data-source-badge": {
-      "figuresFor": "Chiffres pour {asOfLabel}."
+      "figuresFor": "Chiffres pour {asOfLabel}.",
+      "sources": {
+        "gsc": {
+          "label": "Search Console",
+          "detail": "Les chiffres de Google pour votre site. On ne fait pas plus fiable, mais la Search Console a deux à trois jours de retard et ne connaît que les requêtes où le site est réellement apparu."
+        },
+        "ga4": {
+          "label": "Analytics",
+          "detail": "Vient de Google Analytics 4. Ne compte que les visiteurs non bloqués par un bloqueur de publicité ou un bandeau de consentement : le chiffre est donc toujours un peu sous-estimé."
+        },
+        "crawl": {
+          "label": "Notre exploration",
+          "detail": "Mesuré par l’outil en visitant lui-même les pages. Exact sur ce que la page contenait à ce moment-là, ce qui n’est pas forcément ce que Google a vu en dernier."
+        },
+        "psi": {
+          "label": "PageSpeed",
+          "detail": "Vient de PageSpeed Insights de Google. Les données de terrain viennent de vrais utilisateurs de Chrome sur les 28 derniers jours ; les données de laboratoire sont un seul chargement simulé et peuvent différer."
+        },
+        "scrape": {
+          "label": "Vérification en direct",
+          "detail": "Lu sur une page de résultats en direct. À jour, mais c’est ce qu’un serveur a vu et non ce que voient vos visiteurs : comptez une ou deux positions d’écart dues à la personnalisation."
+        },
+        "ai": {
+          "label": "Rédigé par l’IA",
+          "detail": "Rédigé par un modèle de langage à partir de vos données. À relire avant envoi à un client : un modèle écrit avec aisance même quand il se trompe."
+        },
+        "manual": {
+          "label": "Saisi par vous",
+          "detail": "Saisi à la main. L’outil ne l’a pas vérifié."
+        },
+        "estimate": {
+          "label": "Estimation",
+          "detail": "Calculé à partir d’autres chiffres et d’hypothèses, pas mesuré. Suffisant pour prioriser ; à ne pas présenter comme un fait dans un rapport client."
+        }
+      }
     },
     "components_ui_dialog": {
       "close": "Fermer"
@@ -6259,7 +6416,65 @@
       "newHere": "Nouveau ici",
       "sixStepsToReplaceYour": "Six étapes pour remplacer vos abonnements SEO",
       "eachStepLinksToThe": "Chaque étape mène au bon endroit. L’ordre est libre, mais le tableau de bord se remplit de vraies données plus vite en les suivant de haut en bas.",
-      "confusedBySeoTermsVisit": "Un terme SEO vous échappe ? <b0>Ouvrez la section Apprendre</b0> : chaque terme y est expliqué simplement."
+      "confusedBySeoTermsVisit": "Un terme SEO vous échappe ? <b0>Ouvrez la section Apprendre</b0> : chaque terme y est expliqué simplement.",
+      "connectAnAiProvider": "Connecter un fournisseur d’IA",
+      "mostToolsAuditsContentSchema": "La plupart des outils (audits, contenus, schema, générateur de code) ont besoin d’une IA. Prenez Ollama, gratuit et local, pour une confidentialité totale, ou collez une clé gratuite Groq, Gemini ou OpenRouter. Anthropic et OpenAI fonctionnent aussi.",
+      "setUpAi": "Configurer l’IA",
+      "addYourFirstClient": "Ajouter votre premier projet",
+      "pasteAUrlWeAuto": "Collez une URL : le nom de la marque, le logo, les coordonnées, les réseaux sociaux et la technologie du site sont récupérés en 3 secondes. Presque tous les outils donnent bien plus une fois un projet créé.",
+      "addClient": "Ajouter un projet",
+      "connectGoogleGscGa4": "Connecter Google (Search Console + GA4)",
+      "oneOauthClickRevealsReal": "Une seule autorisation donne les vraies données de positions et de trafic, sans extraction ni coût d’API. À passer si vous ne voulez que des audits techniques.",
+      "setUpGoogle": "Configurer Google",
+      "runAnAudit": "Lancer un audit",
+      "seeAudits": "Voir les audits",
+      "installATaskPlaybook": "Installer un modèle de tâches",
+      "browsePlaybooks": "Parcourir les modèles",
+      "generateTheFirstReport": "Générer le premier rapport",
+      "aiExecutiveSummaryWhiteLabel": "Synthèse rédigée par l’IA, marque blanche, PDF ou portail client par lien magique. Passe de 6 heures par mois à 25 minutes.",
+      "viewReports": "Voir les rapports",
+      "setUpAutomations": "Configurer les automatisations",
+      "browseAutomations": "Parcourir les automatisations"
+    },
+    "app_settings_errors_error-log": {
+      "somethingWentWrong": "Une erreur est survenue"
+    },
+    "components_ui_confidence-badge": {
+      "definitelyFix": "À corriger",
+      "probablyWorthIt": "Vaut sans doute le coup",
+      "worthTesting": "À tester"
+    },
+    "components_ui_jargon-term": {
+      "aSignalToGoogleAbout": "Un signal donné à Google sur la version principale de cette page quand des pages proches existent. Évite que des contenus en double se fassent concurrence.",
+      "theSnippetOfTextShown": "Le court texte affiché sous le titre d’une page dans les résultats Google. Pas un critère de classement direct, mais il pèse beaucoup sur le taux de clic.",
+      "thePageTitleShownIn": "Le titre de la page, affiché dans l’onglet du navigateur et comme lien cliquable dans les résultats de recherche. L’élément SEO le plus important de la page.",
+      "searchEngineResultsPageThe": "Search Engine Results Page : la page que Google affiche après une recherche.",
+      "coreWebVitalsGoogleS": "Core Web Vitals : les trois mesures de vitesse et de confort de Google, LCP (chargement), INP (réactivité) et CLS (stabilité visuelle).",
+      "largestContentfulPaintHowLong": "Largest Contentful Paint : le temps que met le plus gros élément de la page (souvent l’image principale) à s’afficher. Objectif : moins de 2,5 secondes.",
+      "cumulativeLayoutShiftHowMuch": "Cumulative Layout Shift : à quel point les éléments bougent pendant le chargement. Objectif : moins de 0,1.",
+      "interactionToNextPaintHow": "Interaction to Next Paint : la rapidité de réaction de la page quand on touche ou clique. Objectif : moins de 200 ms.",
+      "structuredDataJsonLdYou": "Des données structurées (JSON-LD) intégrées à la page pour que Google affiche des résultats enrichis : étoiles d’avis, FAQ dépliables, fiches recettes, prix de produits, etc.",
+      "anEnhancedGoogleSearchListing": "Un résultat Google enrichi (étoiles, prix, FAQ, images), alimenté par les données structurées.",
+      "theDescriptiveTextOnAn": "Le texte qui décrit une image, lu par les lecteurs d’écran et affiché si l’image ne se charge pas. Utile pour l’accessibilité ET pour la recherche d’images.",
+      "anHtmlTagThatTells": "Une balise HTML qui indique à Google quelle version de langue ou de région montrer à chaque visiteur. Utilisée par les sites internationaux.",
+      "aFileAtTheRoot": "Un fichier à la racine du site qui indique aux robots les pages qu’ils ont le droit de lire.",
+      "anXmlFileListingEvery": "Un fichier XML qui liste toutes les pages du site, fourni à Google pour qu’il les découvre et les relise plus vite.",
+      "whenTwoOrMorePages": "Quand deux pages ou plus du même site visent la même requête : elles se font concurrence et aucune ne se classe bien.",
+      "theSlowDropInTraffic": "La lente baisse de trafic d’une page qui marchait bien. Le plus souvent, le contenu a vieilli ou les concurrents ont mis le leur à jour.",
+      "aKeywordYouRankFor": "Un mot-clé classé en positions 11 à 20 : assez près de la première page pour qu’une petite retouche du contenu suffise à y entrer.",
+      "yourSliceOfTotalSearch": "Votre part du total des impressions dans les résultats de recherche pour un ensemble de mots-clés suivis, face à vos concurrents.",
+      "experienceExpertiseAuthoritativenessTrustworthinessGoogle": "Expérience, Expertise, Autorité, Fiabilité : les critères de Google pour juger qu’un contenu mérite d’être classé.",
+      "googleSAiGeneratedAnswer": "La réponse générée par l’IA de Google, affichée au-dessus des résultats classiques sur les requêtes commerciales. Présente aujourd’hui sur environ 47 % des requêtes.",
+      "generativeEngineOptimizationGettingYour": "Generative Engine Optimization : faire citer vos contenus dans les réponses générées par les IA (ChatGPT, Perplexity, Claude, Gemini, AI Overviews de Google).",
+      "aProposedPlainTextFile": "Un fichier texte proposé (sur le modèle de robots.txt) qui permet à un site de dire aux IA quels contenus elles peuvent utiliser et comment.",
+      "aLinkFromSomeoneElse": "Un lien d’un autre site vers le vôtre. Toujours l’un des signaux de classement les plus forts.",
+      "theClickableTextOfA": "Le texte cliquable d’un lien. Il indique à Google le sujet de la page visée.",
+      "nameAddressPhoneTheThree": "Nom, adresse, téléphone : les trois coordonnées qui doivent être strictement identiques partout en ligne (fiche Google, annuaires, votre site, etc.) pour le SEO local.",
+      "googleBusinessProfileYourBusiness": "Google Business Profile : la fiche de votre établissement dans Google Maps et le pack local.",
+      "googleSearchConsoleGoogleS": "Google Search Console : le tableau de bord gratuit de Google qui montre combien de fois vos pages apparaissent dans la recherche, qui clique et sur quelles requêtes.",
+      "googleAnalytics4TheCurrent": "Google Analytics 4 : la version actuelle de Google Analytics, qui suit le trafic, le comportement et les conversions sur votre site.",
+      "whetherGoogleIsAllowedTo": "Le fait que Google ait le droit d’ajouter une page à son index (elle est explorable et n’est pas bloquée par un noindex ou une canonique).",
+      "googleSBundleOfUx": "L’ensemble des signaux d’expérience de Google : Core Web Vitals, compatibilité mobile, HTTPS et absence d’interstitiels envahissants."
     }
   }
 }

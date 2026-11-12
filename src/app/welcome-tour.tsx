@@ -1,3 +1,4 @@
+import type { Tx } from "@/lib/tx";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
@@ -10,71 +11,71 @@ import {
   Workflow,
 } from "lucide-react";
 
-const steps = [
+const steps = (tx: Tx) => ([
   {
     n: 1,
     icon: Bot,
-    title: "Connect an AI provider",
-    body: "Most tools (audits, content, schema, code generator) need AI. Pick free local Ollama for full privacy, or paste a Groq / Gemini / OpenRouter free-tier key. Anthropic / OpenAI work too.",
-    cta: "Set up AI",
+    title: tx("connectAnAiProvider"),
+    body: tx("mostToolsAuditsContentSchema"),
+    cta: tx("setUpAi"),
     href: "/settings#ai",
     tone: "violet",
   },
   {
     n: 2,
     icon: Users,
-    title: "Add your first client",
-    body: "Paste a URL — we auto-extract brand name, logo, NAP, social links, and detect their tech stack in 3 seconds. Almost every tool gets way better once you have a client.",
-    cta: "Add client",
+    title: tx("addYourFirstClient"),
+    body: tx("pasteAUrlWeAuto"),
+    cta: tx("addClient"),
     href: "/clients/new",
     tone: "cyan",
   },
   {
     n: 3,
     icon: Sparkles,
-    title: "Connect Google (GSC + GA4)",
-    body: "One OAuth click reveals real ranking + traffic data — no scraping, no API costs. Skip if you only want technical audits.",
-    cta: "Set up Google",
+    title: tx("connectGoogleGscGa4"),
+    body: tx("oneOauthClickRevealsReal"),
+    cta: tx("setUpGoogle"),
     href: "/settings/google",
     tone: "emerald",
   },
   {
     n: 4,
     icon: ClipboardCheck,
-    title: "Run an audit",
+    title: tx("runAnAudit"),
     body: "30+ checks for indexability, schema, Core Web Vitals, hreflang, security headers, broken links — all locally, no third-party APIs.",
-    cta: "See audits",
+    cta: tx("seeAudits"),
     href: "/audits",
     tone: "amber",
   },
   {
     n: 5,
     icon: ListChecks,
-    title: "Install a task playbook",
+    title: tx("installATaskPlaybook"),
     body: "Pre-built routines: weekly health check, monthly content refresh, quarterly review. One click creates every task with staggered due dates.",
-    cta: "Browse playbooks",
+    cta: tx("browsePlaybooks"),
     href: "/tasks/templates",
     tone: "violet",
   },
   {
     n: 6,
     icon: FileText,
-    title: "Generate the first report",
-    body: "AI executive summary, white-label branding, PDF or magic-link client portal. Goes from 6 hours/month to 25 minutes/month.",
-    cta: "View reports",
+    title: tx("generateTheFirstReport"),
+    body: tx("aiExecutiveSummaryWhiteLabel"),
+    cta: tx("viewReports"),
     href: "/reports",
     tone: "rose",
   },
   {
     n: 7,
     icon: Workflow,
-    title: "Set up automations",
+    title: tx("setUpAutomations"),
     body: "8 prebuilt templates — rank drops → Slack, page changes → review task, audit failures → alerts. Replaces n8n / Zapier subscriptions.",
-    cta: "Browse automations",
+    cta: tx("browseAutomations"),
     href: "/automations/templates",
     tone: "cyan",
   },
-];
+]);
 
 const toneCls: Record<string, string> = {
   violet: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
@@ -105,7 +106,7 @@ export function WelcomeTour() {
       </header>
 
       <ol className="grid gap-4 p-6 md:grid-cols-2 lg:grid-cols-3">
-        {steps.map((s) => (
+        {steps(tx).map((s) => (
           <li
             key={s.n}
             className="group relative flex flex-col rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-colors hover:bg-white/[0.04]"

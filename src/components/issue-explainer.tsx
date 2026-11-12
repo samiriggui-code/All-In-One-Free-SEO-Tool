@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
@@ -28,23 +29,23 @@ type Props = {
   explainer?: IssueExplainer | null;
 };
 
-const CONFIDENCE_META = {
+const CONFIDENCE_META = (tx: Tx) => ({
   definitely: {
-    label: "Definitely fix this",
+    label: tx("definitelyFixThis"),
     icon: CheckCircle2,
     tone: "text-emerald-300",
   },
   probably: {
-    label: "Probably worth fixing",
+    label: tx("probablyWorthFixing"),
     icon: AlertTriangle,
     tone: "text-amber-300",
   },
   test: {
-    label: "Worth testing",
+    label: tx("worthTesting"),
     icon: FlaskConical,
     tone: "text-violet-300",
   },
-} as const;
+} as const);
 
 export function IssueExplainer({
   issueType,
@@ -84,7 +85,7 @@ export function IssueExplainer({
     );
   }
 
-  const conf = CONFIDENCE_META[explainer.confidence];
+  const conf = CONFIDENCE_META(tx)[explainer.confidence];
   const ConfIcon = conf.icon;
   const extTool = explainer.externalTool?.({ url });
 
