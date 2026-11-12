@@ -22,8 +22,6 @@ export type SettingsSectionId =
   | "team"
   | "data"
   | "backup"
-  | "updates"
-  | "install"
   | "browser"
   | "edge"
   | "health"
@@ -43,8 +41,6 @@ export type SettingsIconName =
   | "users"
   | "database"
   | "archive"
-  | "refresh"
-  | "download"
   | "globe"
   | "cloud"
   | "activity"
@@ -98,8 +94,6 @@ export const SETTINGS_NAV: SettingsNavGroup[] = [
     items: [
       { id: "data", href: "/settings/data", icon: "database" },
       { id: "backup", href: "/settings/backup", icon: "archive", ownerOnly: true },
-      { id: "updates", href: "/settings/updates", icon: "refresh" },
-      { id: "install", href: "/settings/install", icon: "download" },
       { id: "browser", href: "/settings/browser", icon: "globe" },
       { id: "edge", href: "/settings/edge", icon: "cloud", ownerOnly: true },
       { id: "health", href: "/settings/health", icon: "activity" },
@@ -131,8 +125,6 @@ export const LEGACY_ANCHORS: Record<string, string> = {
   data: "/settings/data",
   browser: "/settings/browser",
   "ai-learning": "/settings/ai-learning",
-  install: "/settings/updates",
-  update: "/settings/updates",
   privacy: "/settings/privacy",
   about: "/settings/privacy",
 };

@@ -1,11 +1,7 @@
 /**
  * Defensive guard for admin endpoints that take destructive actions:
- *   /api/restart   — stops the running server
- *   /api/shutdown  — same
  *   /api/restore   — replaces data.db with an uploaded file
  *   /api/backup    — exports the entire database
- *   /api/update    — runs `git pull` + `pnpm install`
- *   /api/desktop-shortcut — spawns PowerShell
  *   /api/report-archives/[id]/pdf  — exports report PDFs
  *   /api/clients/[id]/skip-branding — mutates client config
  *
@@ -97,12 +93,10 @@ function isLocalRequest(req: Request): boolean {
  * to 127.0.0.1 stops LAN devices, but it does NOT stop the browser the
  * user is already running: any page they visit can issue
  *
- *     fetch('http://localhost:3000/api/update', {method:'POST', mode:'no-cors'})
+ *     fetch('http://localhost:3000/api/restore', {method:'POST', mode:'no-cors'})
  *
  * and that request arrives with `Host: localhost:3000`, passes
- * isLocalRequest(), and — for /api/update — force-resets the user's
- * working tree and runs `pnpm install` (arbitrary postinstall code).
- * /api/restore overwrites data.db; /api/shutdown kills the server.
+ * isLocalRequest(), and — for /api/restore — overwrites data.db.
  * There was no token, no Origin check, and no cookie to carry SameSite,
  * so nothing stood between a malicious page and those endpoints.
  *

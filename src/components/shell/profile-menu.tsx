@@ -13,7 +13,6 @@ import {
   LogIn,
   LogOut,
   Palette,
-  RefreshCw,
   Settings,
   Sparkles,
   Users2,
@@ -205,9 +204,6 @@ export function ProfileMenu({
                   </MenuLink>
                   <MenuLink href="/settings/brand" icon={Palette} onClick={close}>
                     {t("brand")}
-                  </MenuLink>
-                  <MenuLink href="/settings/updates" icon={RefreshCw} onClick={close}>
-                    {t("updates")}
                   </MenuLink>
                 </>
               ) : null}
