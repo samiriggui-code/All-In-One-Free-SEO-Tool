@@ -3270,7 +3270,69 @@
       "create": "Create mission",
       "saving": "Creating…"
     },
-    "lastAuditFailed": "The last audit failed: the site did not answer. Check that it is online and not blocking crawlers, then run the audit again."
+    "lastAuditFailed": "The last audit failed: the site did not answer. Check that it is online and not blocking crawlers, then run the audit again.",
+    "journey": {
+      "aria": "Project steps",
+      "done": "done",
+      "progress": "{done} of 7",
+      "nextStep": "Next step:",
+      "allDone": "All seven steps are in place: the project is in monthly follow-up.",
+      "steps": {
+        "prospection": "Prospecting",
+        "setup": "Setup",
+        "audit": "Audit",
+        "strategy": "Strategy",
+        "missions": "Missions",
+        "delivery": "Delivery",
+        "followup": "Monthly follow-up"
+      },
+      "next": {
+        "prospection": {
+          "status": "No audit yet: a first score gives you something to discuss with the prospect.",
+          "cta": "Run a first audit"
+        },
+        "setup": {
+          "status": "The project's scope, accesses and keywords are not defined yet.",
+          "cta": "Do the setup"
+        },
+        "audit": {
+          "status": "The full site audit is missing; the strategy and the quote rest on it.",
+          "cta": "Run the full audit"
+        },
+        "strategy": {
+          "status": "The plan and the quote are not written yet.",
+          "cta": "Write the plan"
+        },
+        "strategyDraft": {
+          "status": "The plan is written but not sent to the client yet.",
+          "cta": "Open the plan to send"
+        },
+        "strategyDeclined": {
+          "status": "The client declined the last plan.",
+          "cta": "Write a new plan"
+        },
+        "missions": {
+          "status": "No mission is running on this project yet.",
+          "cta": "Create the mission"
+        },
+        "missionsProposed": {
+          "status": "A mission is on offer and awaits the client's approval.",
+          "cta": "Activate the mission"
+        },
+        "delivery": {
+          "status": "No report has been delivered to the client yet.",
+          "cta": "Prepare the report"
+        },
+        "followup": {
+          "status": "The monthly report is not scheduled yet.",
+          "cta": "Schedule the report"
+        },
+        "followupOffer": {
+          "status": "No monthly follow-up is sold on this project.",
+          "cta": "Offer a follow-up"
+        }
+      }
+    }
   },
   "settingsTeam": {
     "title": "Team",
@@ -3598,7 +3660,10 @@
       "reports": "Reports",
       "missions": "Missions",
       "settings": "Settings"
-    }
+    },
+    "more": "Other tools",
+    "moreHint": "Outside this project's missions",
+    "less": "Collapse"
   },
   "auditTab": {
     "findings": {

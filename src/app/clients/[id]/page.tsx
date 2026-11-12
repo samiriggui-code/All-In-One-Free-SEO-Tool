@@ -64,7 +64,8 @@ import { StartHere, startHereStepsLeft } from "./start-here";
 import { ClientActionPlan } from "./client-action-plan";
 import { parseProjectTab } from "./project-tabs";
 import { ProjectMissions } from "./project-missions";
-import { listMissions } from "@/lib/projects";
+import { auditFacts, listMissions } from "@/lib/projects";
+import { ProjectJourney } from "./project-journey";
 import { featuredToolKeys } from "@/lib/project-tools";
 import { NextActionsPanel } from "@/components/next-actions-panel";
 import { nextActions } from "@/lib/next-actions";
@@ -330,6 +331,7 @@ export default async function ClientDetailPage({
   // will take.
   const ranked = await nextActions({ clientId, limit: 8 });
   const projectMissions = await listMissions(clientId);
+  const journeyAudit = await auditFacts(clientId);
   const startHereLeft = startHereStepsLeft({
     auditDone: Boolean(latestCompleted),
     keywordCount,
@@ -403,6 +405,19 @@ export default async function ClientDetailPage({
         />
 
         <div className="min-w-0 flex-1 space-y-6">
+      {tab === "overview" && (
+        <ProjectJourney
+          projectId={client.id}
+          anyAuditDone={Boolean(latestCompleted)}
+          fullAuditDone={journeyAudit.fullAuditDone && journeyAudit.pagesCrawled !== 0}
+          onboardingDone={client.onboardingStep === "completed"}
+          proposalId={approvalDoc?.id ?? null}
+          proposalStatus={approvalDoc?.status ?? null}
+          missions={projectMissions.map((m) => ({ kind: m.kind, status: m.status }))}
+          reportCount={deleteReportCount}
+          reportScheduled={Boolean(scheduleRow?.enabled)}
+        />
+      )}
       {/*
         HERO — editorial composition.
         Top accent rule colored by score band gives the card a magazine-masthead
