@@ -65,7 +65,7 @@ export function KnowledgePanel({
 }: {
   clientId: number;
   editable: boolean;
-  stats: { documents: number; passages: number; updatedAt: string | null };
+  stats: { documents: number; passages: number; updatedAt: string | null; vectorModel: string | null; withVectors: number };
   documents: Doc[];
 }) {
   const t = useTranslations("knowledge");
@@ -94,6 +94,12 @@ export function KnowledgePanel({
       <section className={`${card} flex flex-wrap items-center justify-between gap-3`}>
         <p className="m-0 text-sm">
           {t("stats", { documents: stats.documents, passages: stats.passages })}
+          <span className="text-muted-foreground">
+            {" · "}
+            {stats.vectorModel
+              ? t("vectors", { done: stats.withVectors, total: stats.passages })
+              : t("wordsOnly")}
+          </span>
           {stats.updatedAt ? (
             <span className="text-muted-foreground">
               {" · "}
@@ -110,7 +116,10 @@ export function KnowledgePanel({
               onClick={() =>
                 run(async () => {
                   const r = await syncKnowledgeNow(clientId);
-                  if (r.ok) setNotice(t("synced", { changed: r.data.changed, removed: r.data.removed }));
+                  if (r.ok) {
+                    setNotice(t("synced", { changed: r.data.changed, removed: r.data.removed }));
+                    if (r.data.embedError) setError(t("embedFailed", { error: r.data.embedError }));
+                  }
                   router.refresh();
                 })
               }
@@ -239,6 +248,9 @@ export function KnowledgePanel({
                     </span>
                     {h.heading ? <span>· {h.heading}</span> : null}
                     <span>· {t(`types.${h.sourceType}`)}</span>
+                    {h.match !== "words" ? (
+                      <span className="rounded bg-primary/10 px-1.5 text-primary">{t(`match.${h.match}`)}</span>
+                    ) : null}
                   </div>
                   <p className="m-0 text-sm leading-relaxed">
                     <Snippet text={h.snippet} />

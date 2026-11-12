@@ -475,3 +475,83 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
 
 // Provider-specific callers moved to src/lib/provider-dispatch.ts.
 // Everything above this line goes through dispatchProviderCall().
+
+// ── Embeddings ─────────────────────────────────────────────────────────
+
+export type EmbedResult =
+  | { ok: true; vectors: number[][]; model: string; provider: string }
+  | { ok: false; failure: AiFailure };
+
+/**
+ * Turn texts into vectors with the model chosen for "Vectors" in
+ * Settings → AI. Same rules as chat calls: monthly cap, cost log,
+ * guardrails (masking only: a stored vector of a masked passage is
+ * still useful, a refused one is not), one AI permit per batch.
+ *
+ * `{ ok: false, reason: "no_provider" }` when no vectors model is set:
+ * the knowledge base then searches by words only.
+ */
+export async function embedTexts(opts: {
+  texts: string[];
+  feature?: string;
+  channel?: AiChannel;
+  clientId?: number | null;
+}): Promise<EmbedResult> {
+  const channel = opts.channel ?? "background";
+  const feature = opts.feature ?? "kb_embed";
+  const chosen = normalizePurposeModel(
+    await getSetting<unknown>(purposeSettingKey("embeddings")).catch(() => null),
+    "embeddings",
+  );
+  if (!chosen || !(await providerUsable(chosen.provider))) {
+    return { ok: false, failure: noProviderFailure() };
+  }
+  const provider = chosen.provider as "openai" | "mistral" | "gemini" | "ollama";
+  const model = chosen.model;
+
+  const cap = await checkMonthlyCap();
+  if (cap.capped) return { ok: false, failure: monthlyCapFailure(cap.capUsd ?? null) };
+
+  const guard = await loadGuardrails();
+  const texts = opts.texts.map((t) => {
+    const r = guardText(t.slice(0, 8000), { ...guard, mode: guard.mode === "off" ? "off" : "mask" }, "in");
+    return r.text;
+  });
+
+  const { callEmbeddings } = await import("./providers/embeddings");
+  const start = Date.now();
+  let providerError: { status: number; body: string } | null = null;
+  let vectors: number[][] | null = null;
+  await withAiPermit(async () => {
+    vectors = await callEmbeddings({
+      provider,
+      model,
+      texts,
+      apiKey: provider === "ollama" ? null : await getApiKey(provider),
+      ollamaUrl: provider === "ollama" ? await getOllamaUrl() : null,
+      onFailure: (status, body) => {
+        providerError = { status, body };
+      },
+    });
+  });
+
+  const promptTokens = estimateTokens(texts.join("\n"));
+  const pe = providerError as { status: number; body: string } | null;
+  const failure = vectors ? null : classifyProviderError(pe?.status ?? 0, pe?.body ?? "", { provider, model });
+  void logAiCall({
+    feature,
+    provider,
+    model,
+    promptText: `${texts.length} passage(s)`,
+    promptTokens,
+    completionTokens: 0,
+    completionText: null,
+    latencyMs: Date.now() - start,
+    clientId: opts.clientId ?? null,
+    status: vectors ? "ok" : "error",
+    errorMsg: failure?.message,
+    channel,
+  });
+  if (!vectors) return { ok: false, failure: failure! };
+  return { ok: true, vectors, model, provider };
+}

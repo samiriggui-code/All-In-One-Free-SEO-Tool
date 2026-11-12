@@ -13,6 +13,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { db, sqlite } from "@/db/client";
 import { kbChunks, kbDocuments, type KbDocument } from "@/db/schema";
 import { chunkText } from "./chunk";
+import { currentEmbeddingModel, fuseRrf, vectorSearch } from "./vectors";
 
 export const KB_SOURCE_TYPES = ["profile", "audit", "post", "brief", "offer", "note", "url", "file"] as const;
 export type KbSourceType = (typeof KB_SOURCE_TYPES)[number];
@@ -57,6 +58,16 @@ export async function upsertDocument(
 
   const chunks = chunkText(text);
   const now = new Date();
+  // Vectors of passages whose text did not change are kept: editing one
+  // paragraph of an article re-embeds that paragraph, not the article.
+  const kept = new Map<string, { embedding: Buffer | null; model: string | null }>();
+  if (existing) {
+    const old = await db
+      .select({ hash: kbChunks.textHash, embedding: kbChunks.embedding, model: kbChunks.embeddingModel })
+      .from(kbChunks)
+      .where(eq(kbChunks.documentId, existing.id));
+    for (const o of old) if (o.embedding) kept.set(o.hash, { embedding: o.embedding, model: o.model });
+  }
   const documentId = sqlite.transaction(() => {
     let id = existing?.id;
     if (id) {
@@ -94,6 +105,8 @@ export async function upsertDocument(
       id = row.id;
     }
     for (const c of chunks) {
+      const textHash = sha(`${c.heading ?? ""}\n${c.text}`);
+      const reuse = kept.get(textHash);
       db.insert(kbChunks)
         .values({
           documentId: id,
@@ -101,7 +114,9 @@ export async function upsertDocument(
           ordinal: c.ordinal,
           heading: c.heading,
           text: c.text,
-          textHash: sha(`${c.heading ?? ""}\n${c.text}`),
+          textHash,
+          embedding: reuse?.embedding ?? null,
+          embeddingModel: reuse?.model ?? null,
         })
         .run();
     }
@@ -147,7 +162,9 @@ export async function listDocuments(clientId: number): Promise<KbDocument[]> {
     .orderBy(desc(kbDocuments.updatedAt), desc(kbDocuments.id));
 }
 
-export async function knowledgeStats(clientId: number): Promise<{ documents: number; passages: number; updatedAt: Date | null }> {
+export async function knowledgeStats(
+  clientId: number,
+): Promise<{ documents: number; passages: number; updatedAt: Date | null; vectorModel: string | null; withVectors: number }> {
   const [row] = await db
     .select({
       documents: sql<number>`count(*)`,
@@ -156,10 +173,18 @@ export async function knowledgeStats(clientId: number): Promise<{ documents: num
     })
     .from(kbDocuments)
     .where(eq(kbDocuments.clientId, clientId));
+  const vectorModel = await currentEmbeddingModel();
+  const withVectors = vectorModel
+    ? Number(
+        (sqlite.prepare("SELECT count(*) AS n FROM kb_chunks WHERE client_id = ? AND embedding_model = ?").get(clientId, vectorModel) as { n: number }).n,
+      )
+    : 0;
   return {
     documents: Number(row?.documents ?? 0),
     passages: Number(row?.passages ?? 0),
     updatedAt: row?.updatedAt ? new Date(Number(row.updatedAt) * 1000) : null,
+    vectorModel,
+    withVectors,
   };
 }
 
@@ -174,6 +199,8 @@ export type KbHit = {
   /** Matched words wrapped in [[ ]], for highlighting. */
   snippet: string;
   score: number;
+  /** Which search found it: by its words, by its meaning, or both. */
+  match: "words" | "meaning" | "both";
 };
 
 /**
@@ -205,22 +232,91 @@ const STOPWORDS = new Set(
   ).split(" "),
 );
 
-export async function searchKnowledge(clientId: number, query: string, limit = 8): Promise<KbHit[]> {
-  const match = ftsQuery(query);
-  if (!match) return [];
+const HIT_COLUMNS = `c.id AS chunkId, c.document_id AS documentId, d.title, d.source_type AS sourceType, d.url,
+              c.heading, c.text`;
+
+function wordSearch(clientId: number, match: string, limit: number): KbHit[] {
+  return (
+    sqlite
+      .prepare(
+        `SELECT ${HIT_COLUMNS},
+                snippet(kb_chunks_fts, 1, '[[', ']]', ' … ', 24) AS snippet,
+                bm25(kb_chunks_fts, 2.0, 1.0) AS score
+           FROM kb_chunks_fts
+           JOIN kb_chunks c ON c.id = kb_chunks_fts.rowid
+           JOIN kb_documents d ON d.id = c.document_id
+          WHERE kb_chunks_fts MATCH ? AND c.client_id = ?
+          ORDER BY score
+          LIMIT ?`,
+      )
+      .all(match, clientId, limit) as Omit<KbHit, "match">[]
+  ).map((h) => ({ ...h, match: "words" as const }));
+}
+
+function hitsById(clientId: number, ids: number[]): Map<number, Omit<KbHit, "match" | "snippet" | "score">> {
+  if (ids.length === 0) return new Map();
   const rows = sqlite
     .prepare(
-      `SELECT c.id AS chunkId, c.document_id AS documentId, d.title, d.source_type AS sourceType, d.url,
-              c.heading, c.text,
-              snippet(kb_chunks_fts, 1, '[[', ']]', ' … ', 24) AS snippet,
-              bm25(kb_chunks_fts, 2.0, 1.0) AS score
-         FROM kb_chunks_fts
-         JOIN kb_chunks c ON c.id = kb_chunks_fts.rowid
-         JOIN kb_documents d ON d.id = c.document_id
-        WHERE kb_chunks_fts MATCH ? AND c.client_id = ?
-        ORDER BY score
-        LIMIT ?`,
+      `SELECT ${HIT_COLUMNS} FROM kb_chunks c JOIN kb_documents d ON d.id = c.document_id
+        WHERE c.client_id = ? AND c.id IN (${ids.map(() => "?").join(",")})`,
     )
-    .all(match, clientId, Math.max(1, Math.min(50, limit))) as KbHit[];
-  return rows;
+    .all(clientId, ...ids) as Omit<KbHit, "match" | "snippet" | "score">[];
+  return new Map(rows.map((r) => [r.chunkId, r]));
+}
+
+const POOL = 20;
+
+/**
+ * Search one client's knowledge. By words always (FTS5); by meaning too
+ * when a vectors model is set and the client's passages have vectors,
+ * the two lists then merged with RRF. Falls back to words alone if the
+ * question cannot be embedded (no key, cap reached, provider down).
+ */
+export async function searchKnowledge(
+  clientId: number,
+  query: string,
+  limit = 8,
+  opts: { channel?: "app" | "assistant" | "background" | "portal" } = {},
+): Promise<KbHit[]> {
+  const n = Math.max(1, Math.min(50, limit));
+  const match = ftsQuery(query);
+  const words = match ? wordSearch(clientId, match, POOL) : [];
+
+  const model = await currentEmbeddingModel();
+  const hasVectors =
+    model &&
+    sqlite
+      .prepare("SELECT 1 FROM kb_chunks WHERE client_id = ? AND embedding_model = ? LIMIT 1")
+      .get(clientId, model);
+  if (!model || !hasVectors || !String(query ?? "").trim()) return words.slice(0, n);
+
+  const { embedTexts } = await import("@/lib/ai-call");
+  const q = await embedTexts({ texts: [String(query).slice(0, 2000)], feature: "kb_search", channel: opts.channel ?? "app", clientId });
+  if (!q.ok || q.model !== model) return words.slice(0, n);
+
+  const meaning = vectorSearch(clientId, q.vectors[0], model, POOL);
+  const fused = fuseRrf([
+    { ids: meaning.map((m) => m.chunkId), weight: 0.7 },
+    { ids: words.map((w) => w.chunkId), weight: 0.3 },
+  ]).slice(0, n);
+
+  const byWords = new Map(words.map((w) => [w.chunkId, w]));
+  const inMeaning = new Set(meaning.map((m) => m.chunkId));
+  const others = hitsById(
+    clientId,
+    fused.map((f) => f.id).filter((id) => !byWords.has(id)),
+  );
+  const out: KbHit[] = [];
+  for (const f of fused) {
+    const w = byWords.get(f.id);
+    if (w) {
+      out.push({ ...w, score: f.score, match: inMeaning.has(f.id) ? "both" : "words" });
+      continue;
+    }
+    const o = others.get(f.id);
+    if (!o) continue;
+    const snippet = o.text.length > 280 ? `${o.text.slice(0, 280)} …` : o.text;
+    out.push({ ...o, snippet, score: f.score, match: "meaning" });
+  }
+  return out;
 }

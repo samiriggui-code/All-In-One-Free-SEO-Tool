@@ -16,7 +16,7 @@ import { pruneSynced, upsertDocument, type KbSourceType } from "./store";
 const AUDITS_KEPT = 3;
 const ISSUE_EXAMPLES = 5;
 
-export type SyncReport = { documents: number; changed: number; removed: number };
+export type SyncReport = { documents: number; changed: number; removed: number; embedded?: number; embedError?: string };
 
 function lines(...parts: (string | null | undefined | false)[]): string {
   return parts.filter((p): p is string => typeof p === "string" && p.trim().length > 0).join("\n\n");
@@ -137,6 +137,10 @@ export async function syncClientKnowledge(clientId: number): Promise<SyncReport>
   await apply("audit", await auditDocuments(clientId));
   await apply("post", await postDocuments(clientId));
   await apply("brief", await briefDocuments(clientId));
+  const { embedPendingChunks } = await import("./vectors");
+  const e = await embedPendingChunks({ clientId }).catch((err: Error) => ({ embedded: 0, error: err.message }));
+  report.embedded = e.embedded;
+  if (e.error) report.embedError = e.error;
   return report;
 }
 
