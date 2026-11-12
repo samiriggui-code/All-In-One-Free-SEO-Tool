@@ -16,7 +16,7 @@ export default async function ChatsArchivePage({
   const tx = await getTranslations("ui.app_chats_page");
   const sp = await searchParams;
   const kind = (
-    ["seo_chat", "ask_tool", "portal_chat"].includes(sp.kind ?? "")
+    ["assistant", "seo_chat", "ask_tool", "portal_chat"].includes(sp.kind ?? "")
       ? sp.kind
       : undefined
   ) as ChatKind | undefined;

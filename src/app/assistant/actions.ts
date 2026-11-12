@@ -16,12 +16,12 @@ export type ChatMessage = {
 };
 
 export type ChatResult =
-  | { ok: true; reply: string; provider: string; steps: ToolStep[]; pending?: PendingAction }
+  | { ok: true; reply: string; provider: string; steps: ToolStep[]; pending?: PendingAction; conversationId: number | null }
   | { ok: false; error: string };
 
 export async function chat(
   history: ChatMessage[],
-  opts: { clientId?: number | null } = {},
+  opts: { clientId?: number | null; conversationId?: number | null } = {},
 ): Promise<ChatResult> {
   await requireSignedIn();
   const tx = await actionTx("ui.app_assistant_actions");
@@ -68,6 +68,7 @@ export async function chat(
   // The assistant looks data up with the same tools as the MCP server,
   // within the signed-in person's rights, and proposes changes for them
   // to confirm instead of making them.
+  const last = history[history.length - 1];
   const { runAssistant } = await import("@/lib/assistant/engine");
   const res = await runAssistant(history, {
     user: await currentUser(),
@@ -78,7 +79,17 @@ export async function chat(
     const label = res.provider && res.provider in PROVIDER_LABEL
       ? PROVIDER_LABEL[res.provider as keyof typeof PROVIDER_LABEL]
       : (res.provider ?? active);
-    return { ok: true, reply: res.reply, provider: label, steps: res.steps, pending: res.pending };
+    // Kept in Conversations (/chats), like the other chats.
+    const shown = res.pending ? `${res.reply ? `${res.reply}\n\n` : ""}→ ${res.pending.summary}` : res.reply;
+    const { saveChatTurn } = await import("@/lib/chat-store");
+    const conversationId = await saveChatTurn({
+      conversationId: opts.conversationId ?? null,
+      kind: "assistant",
+      clientId: opts.clientId ?? null,
+      userMessage: last.content,
+      assistantReply: shown,
+    }).catch(() => opts.conversationId ?? null);
+    return { ok: true, reply: res.reply, provider: label, steps: res.steps, pending: res.pending, conversationId };
   }
   return {
     ok: false,

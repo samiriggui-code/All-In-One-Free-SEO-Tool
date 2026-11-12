@@ -30,12 +30,14 @@ import type {
 } from "@/db/schema";
 
 const KIND_LABEL = (tx: Tx): Record<string, string> => ({
+  assistant: tx("assistant"),
   seo_chat: tx("seoChat"),
   ask_tool: tx("askTheTool"),
   portal_chat: tx("portalChat"),
 });
 
 const KIND_TONE: Record<string, string> = {
+  assistant: "bg-fuchsia-500/15 text-fuchsia-300 ring-fuchsia-500/30",
   seo_chat: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
   ask_tool: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   portal_chat: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
@@ -62,7 +64,7 @@ export function ChatsClient({
           >
             {tx("all", { length: conversations.length })}
           </Link>
-          {(["seo_chat", "ask_tool", "portal_chat"] as const).map((k) => {
+          {(["assistant", "seo_chat", "ask_tool", "portal_chat"] as const).map((k) => {
             const n = conversations.filter((c) => c.kind === k).length;
             if (n === 0 && currentKind !== k) return null;
             return (

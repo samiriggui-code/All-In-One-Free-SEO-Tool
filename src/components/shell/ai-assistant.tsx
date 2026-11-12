@@ -56,6 +56,7 @@ export function openAssistant() {
 export function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([]);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<string | null>(null);
@@ -93,9 +94,10 @@ export function AIAssistant() {
     startTransition(async () => {
       const r = await chat(
         next.map((m) => ({ role: m.role, content: m.content })),
-        { clientId: clientIdFromPath(pathname) },
+        { clientId: clientIdFromPath(pathname), conversationId },
       );
       if (r.ok) {
+        setConversationId(r.conversationId);
         setMessages([
           ...next,
           r.pending
