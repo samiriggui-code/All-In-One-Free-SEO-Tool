@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { canSeeClient, currentUser } from "@/lib/auth";
 
@@ -115,18 +116,19 @@ export async function askTheTool(input: {
   conversationId?: number | null;
 }): Promise<AskResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_ask_actions");
   const question = input.question.trim();
   if (!question) {
-    return { ok: false, error: "Type a question first." };
+    return { ok: false, error: tx("typeAQuestionFirst") };
   }
   if (question.length > 2000) {
-    return { ok: false, error: "Question is too long (max 2000 chars)." };
+    return { ok: false, error: tx("questionIsTooLongMax") };
   }
 
   let context = "";
   if (input.clientId) {
     if (!(await canSeeClient(await currentUser(), input.clientId))) {
-      return { ok: false, error: "No such client." };
+      return { ok: false, error: tx("noSuchClient") };
     }
     const c = await buildClientContext(input.clientId);
     if (c) context = c;
@@ -158,7 +160,7 @@ Be specific, action-oriented, and concise. Cite which data point you're reasonin
     return {
       ok: false,
       error:
-        "No AI provider responded. Configure an API key in Settings → AI.",
+        tx("noAiProviderRespondedConfigure"),
     };
   }
 

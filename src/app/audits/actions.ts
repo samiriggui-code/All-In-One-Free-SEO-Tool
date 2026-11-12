@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
@@ -90,6 +91,7 @@ export async function runAuditForClient(
   input?: FormData | AuditMode,
 ) {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_audits_actions");
   const requested = input instanceof FormData ? input.get("mode") : input;
   const mode: AuditMode = isAuditMode(requested) ? requested : "quick";
   const [client] = await db
@@ -145,15 +147,15 @@ export async function runAuditForClient(
 
     // Fire-and-forget — don't block the UI on a webhook failure
     notify({
-      title: `Audit failed for ${client.name}`,
-      body: `Couldn't reach ${client.url}. Try running the audit again, or check the site is online.`,
+      title: tx("auditFailedFor", { name: client.name }),
+      body: tx("couldnTReachTryRunning", { url: client.url }),
       level: "error",
-      fields: [{ label: "Client", value: client.name }],
+      fields: [{ label: tx("client"), value: client.name }],
     }).catch(() => {});
 
     await logActivity({
       kind: "audit.failed",
-      message: `Audit failed for ${client.name} — site unreachable.`,
+      message: tx("auditFailedForSiteUnreachable", { name: client.name }),
       level: "error",
       clientId,
       entityType: "audit",
@@ -614,16 +616,16 @@ export async function runAuditForClient(
   const isScoreDrop = delta !== null && delta <= -SCORE_DROP_THRESHOLD;
   const level: "success" | "warning" = isScoreDrop ? "warning" : "success";
   const titlePrefix = isScoreDrop
-    ? "Score dropped"
+    ? tx("scoreDropped")
     : delta !== null && delta > 0
-      ? "Score improved"
-      : "Audit completed";
+      ? tx("scoreImproved")
+      : tx("auditCompleted");
 
   const fields: NotificationField[] = [
-    { label: "Score", value: `${score}/100` },
+    { label: tx("score"), value: `${score}/100` },
     {
-      label: "Issues",
-      value: `${issuesCount} found`,
+      label: tx("issues"),
+      value: tx("found", { issuesCount }),
     },
   ];
   if (geoResult != null) {
@@ -642,14 +644,14 @@ export async function runAuditForClient(
 
   notify({
     title: `${titlePrefix} — ${client.name}`,
-    body: `Audit (${mode}) run on ${client.url}.`,
+    body: tx("auditRunOn", { mode, url: client.url }),
     level,
     fields,
   }).catch(() => {});
 
   await logActivity({
     kind: "audit.completed",
-    message: `Audit #${auditRow.id} for ${client.name} (${mode}) — score ${score}/100, ${issuesCount} issues.`,
+    message: tx("auditForScore100Issues", { id: auditRow.id, name: client.name, mode, score, issuesCount }),
     level: isScoreDrop ? "warning" : "success",
     clientId,
     entityType: "audit",

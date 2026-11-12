@@ -1,5 +1,7 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
@@ -30,7 +32,7 @@ function normalize(url: string): string {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
-async function snapshot(rawUrl: string): Promise<CompareSnapshot> {
+async function snapshot(tx: Tx, rawUrl: string): Promise<CompareSnapshot> {
   const url = normalize(rawUrl.trim());
   const out: CompareSnapshot = {
     url,
@@ -69,7 +71,7 @@ async function snapshot(rawUrl: string): Promise<CompareSnapshot> {
       score: 0,
       pagesCrawled: 0,
       findings: [],
-      error: (auditRes.reason as Error)?.message ?? "Audit failed",
+      error: (auditRes.reason as Error)?.message ?? tx("auditFailed"),
     };
   }
 
@@ -85,16 +87,17 @@ export async function compareDomains(
   urlB: string,
 ): Promise<CompareResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_compare_actions");
   if (!urlA?.trim() || !urlB?.trim()) {
-    return { ok: false, error: "Two URLs are required." };
+    return { ok: false, error: tx("twoUrlsAreRequired") };
   }
 
-  const [a, b] = await Promise.all([snapshot(urlA), snapshot(urlB)]);
+  const [a, b] = await Promise.all([snapshot(tx, urlA), snapshot(tx, urlB)]);
 
   if (!a.reachable && !b.reachable) {
     return {
       ok: false,
-      error: "Couldn't reach either site. Check the URLs and try again.",
+      error: tx("couldnTReachEitherSite"),
     };
   }
 

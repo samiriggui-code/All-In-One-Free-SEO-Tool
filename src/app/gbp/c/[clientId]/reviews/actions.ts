@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 /**
@@ -91,12 +92,13 @@ export async function listLocationChoices(
   clientId: number,
 ): Promise<LocationChoices> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   try {
     const accounts = await listGbpAccounts({ clientIdScope: clientId });
@@ -104,7 +106,7 @@ export async function listLocationChoices(
       return {
         ok: false,
         error:
-          "Google is connected but no Business Profile accounts came back. The account you connected may not manage any listings.",
+          tx("googleIsConnectedButNo"),
       };
     }
     const locations: GbpLocation[] = [];
@@ -127,8 +129,9 @@ export async function chooseLocation(
   locationName: string,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   if (!/^accounts\/[^/]+\/locations\/[^/]+$/.test(locationName)) {
-    return { ok: false, error: "That is not a location name." };
+    return { ok: false, error: tx("thatIsNotALocation") };
   }
   await db
     .update(clients)
@@ -144,16 +147,17 @@ export type SyncResult =
 
 export async function syncReviews(clientId: number): Promise<SyncResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   if (!client.gbpLocationName) {
     return {
       ok: false,
-      error: "Pick which Business Profile location this client is first.",
+      error: tx("pickWhichBusinessProfileLocation"),
     };
   }
 
@@ -164,7 +168,7 @@ export async function syncReviews(clientId: number): Promise<SyncResult> {
     });
     await appendResearchLog(
       clientId,
-      `Pulled Business Profile reviews: ${out.seen} seen, ${out.added} new, ${out.removed} gone` +
+      tx("pulledBusinessProfileReviewsSeen", { seen: out.seen, added: out.added, removed: out.removed }) +
         (out.complete ? "" : " (stopped at the page cap, so nothing was marked gone)"),
       "app",
     );
@@ -203,12 +207,13 @@ export async function draftNextReplies(opts: {
   redraft?: boolean;
 }): Promise<DraftBatchState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, opts.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const result = await draftRepliesForQueue({
     clientId: opts.clientId,
@@ -256,11 +261,12 @@ export async function publishAllDrafts(
   clientId: number,
 ): Promise<PublishAllResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const out = await sendAllDrafts({ clientId });
   if (out.sent > 0) {
     await appendResearchLog(
       clientId,
-      `Replied to ${out.sent} Business Profile review${out.sent === 1 ? "" : "s"}`,
+      tx("repliedToBusinessProfileOther", { sent: out.sent }),
       "app",
     );
   }

@@ -23,6 +23,8 @@ import { getNicheTemplates } from "./niche-templates";
 import { pickStackTemplates } from "./tech-stack-templates";
 import { splitTemplatesByState, readSiteFacts, type SiteFacts } from "./template-preflight";
 import { logActivity } from "./activity";
+import { getReportLocale } from "./report-i18n";
+import { localizeTemplate, templateTitles } from "./template-i18n";
 
 export type TemplateApplyResult = {
   /** Tasks created. */
@@ -99,21 +101,22 @@ async function insertNewTemplates(
   if (keep.length === 0)
     return { added: 0, skipped: 0, alreadyDone: alreadyDone.length };
 
+  // A template may already be on the list in either language: the
+  // workspace language can change between two runs.
   const existing = await db
     .select({ title: tasks.title })
     .from(tasks)
     .where(
       and(
         eq(tasks.clientId, clientId),
-        inArray(
-          tasks.title,
-          keep.map((t) => t.title),
-        ),
+        inArray(tasks.title, keep.flatMap(templateTitles)),
       ),
     );
 
   const existingTitles = new Set(existing.map((e) => e.title));
-  const toInsert = keep.filter((t) => !existingTitles.has(t.title));
+  const isNew = (t: Template) => !templateTitles(t).some((x) => existingTitles.has(x));
+  const locale = await getReportLocale();
+  const toInsert = keep.filter(isNew).map((t) => localizeTemplate(t, locale));
 
   if (toInsert.length > 0) {
     await db.insert(tasks).values(
@@ -130,7 +133,7 @@ async function insertNewTemplates(
 
   return {
     added: toInsert.length,
-    skipped: existingTitles.size,
+    skipped: keep.length - toInsert.length,
     alreadyDone: alreadyDone.length,
   };
 }

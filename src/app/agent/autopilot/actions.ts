@@ -1,5 +1,7 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 // Bulk approval calls approveAction in a loop, and a loop can run
@@ -37,6 +39,7 @@ import { runAgentForAllClients, runAgentForClient } from "@/lib/agent/run";
  * they were never given access to.
  */
 async function assertMayTouch(
+  tx: Tx,
   actionId: number,
 ): Promise<{ ok: true; action: typeof agentActions.$inferSelect } | { ok: false; error: string }> {
   const [action] = await db
@@ -46,9 +49,9 @@ async function assertMayTouch(
     .limit(1);
   // Same 404-shaped answer whether it doesn't exist or isn't theirs —
   // "that change belongs to another client" confirms the client exists.
-  if (!action) return { ok: false, error: "No such change." };
+  if (!action) return { ok: false, error: tx("noSuchChange") };
   if (!(await canSeeClient(await currentUser(), action.clientId))) {
-    return { ok: false, error: "No such change." };
+    return { ok: false, error: tx("noSuchChange") };
   }
   return { ok: true, action };
 }
@@ -84,11 +87,12 @@ export type RunNowResult = {
 
 export async function runNow(clientId?: number): Promise<RunNowResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const settings = await getAgentSettings();
   if (settings.level === "off") {
     return {
       ok: false,
-      summary: "The agent is turned off. Pick a level above to enable it.",
+      summary: tx("theAgentIsTurnedOff"),
       applied: 0,
       queued: 0,
       failed: 0,
@@ -99,7 +103,7 @@ export async function runNow(clientId?: number): Promise<RunNowResult> {
   if (clientId && !(await canSeeClient(await currentUser(), clientId))) {
     return {
       ok: false,
-      summary: "No such client.",
+      summary: tx("noSuchClient"),
       applied: 0,
       queued: 0,
       failed: 0,
@@ -158,14 +162,15 @@ export async function approveAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const guard = await assertMayTouch(actionId);
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
+  const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
   const action = guard.action;
   if (action.status !== "queued" && action.status !== "proposed") {
-    return { ok: false, error: "That change isn't waiting for approval." };
+    return { ok: false, error: tx("thatChangeIsnTWaiting") };
   }
   if (!action.afterValue || !action.targetUrl) {
-    return { ok: false, error: "That change has nothing to apply." };
+    return { ok: false, error: tx("thatChangeHasNothingTo") };
   }
 
   const { executeAction } = await import("@/lib/agent/executor");
@@ -190,7 +195,7 @@ export async function approveAction(
   // approved by a human at this time".
   await db
     .update(agentActions)
-    .set({ status: "skipped", error: "Superseded — approved and applied." })
+    .set({ status: "skipped", error: tx("supersededApprovedAndApplied") })
     .where(eq(agentActions.id, actionId));
 
   safeRevalidatePath("/agent/autopilot");
@@ -203,12 +208,13 @@ export async function rejectAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const guard = await assertMayTouch(actionId);
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
+  const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
 
   await db
     .update(agentActions)
-    .set({ status: "skipped", error: "Rejected by you." })
+    .set({ status: "skipped", error: tx("rejectedByYou") })
     .where(eq(agentActions.id, actionId));
   safeRevalidatePath("/agent/autopilot");
   return { ok: true };
@@ -218,7 +224,8 @@ export async function undoAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const guard = await assertMayTouch(actionId);
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
+  const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
 
   const result = await revertAction(actionId);
@@ -236,6 +243,7 @@ export async function undoRun(
   runId: number,
 ): Promise<{ ok: boolean; undone: number; failed: number; error?: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const rows = await db
     .select({ id: agentActions.id, clientId: agentActions.clientId })
     .from(agentActions)
@@ -251,7 +259,7 @@ export async function undoRun(
 
   const me = await currentUser();
   if (!(await canSeeClient(me, rows[0].clientId))) {
-    return { ok: false, undone: 0, failed: 0, error: "No such run." };
+    return { ok: false, undone: 0, failed: 0, error: tx("noSuchRun") };
   }
 
   let undone = 0;

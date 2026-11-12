@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -26,6 +27,7 @@ export async function runAuthorScan(
   formData: FormData,
 ): Promise<ScanState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_author-authority_actions");
   const clientId = Number(formData.get("clientId"));
   const domain = String(formData.get("domain") ?? "")
     .trim()
@@ -33,14 +35,14 @@ export async function runAuthorScan(
     .replace(/\/$/, "");
   const topicsRaw = String(formData.get("topics") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Pick a client first." };
-  if (!domain) return { ok: false, error: "Domain required." };
+    return { ok: false, error: tx("pickAClientFirst") };
+  if (!domain) return { ok: false, error: tx("domainRequired") };
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   const topics = topicsRaw
     ? topicsRaw.split(",").map((s) => s.trim()).filter(Boolean)
     : [];
@@ -57,7 +59,7 @@ export async function runAuthorScan(
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Scan failed.",
+      error: e instanceof Error ? e.message : tx("scanFailed"),
     };
   }
 }

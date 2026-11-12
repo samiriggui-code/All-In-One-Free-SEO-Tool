@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -42,6 +43,7 @@ export async function createAutomation(
   formData: FormData,
 ): Promise<SaveAutomationResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_automations_actions");
   const parsed = inputSchema.safeParse({
     name: formData.get("name"),
     trigger: formData.get("trigger"),
@@ -56,22 +58,22 @@ export async function createAutomation(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
   let action: AutomationAction;
   if (parsed.data.actionKind === "webhook") {
     if (!parsed.data.webhookUrl) {
-      return { ok: false, error: "Webhook URL required." };
+      return { ok: false, error: tx("webhookUrlRequired") };
     }
     if (!/^https?:\/\//i.test(parsed.data.webhookUrl)) {
-      return { ok: false, error: "Webhook URL must be http(s)." };
+      return { ok: false, error: tx("webhookUrlMustBeHttp") };
     }
     action = { kind: "webhook", url: parsed.data.webhookUrl };
   } else if (parsed.data.actionKind === "create_task") {
     if (!parsed.data.taskTitle) {
-      return { ok: false, error: "Task title required." };
+      return { ok: false, error: tx("taskTitleRequired") };
     }
     action = {
       kind: "create_task",
@@ -80,7 +82,7 @@ export async function createAutomation(
     };
   } else {
     if (!parsed.data.logMessage) {
-      return { ok: false, error: "Log message required." };
+      return { ok: false, error: tx("logMessageRequired") };
     }
     action = { kind: "log", message: parsed.data.logMessage };
   }
@@ -122,8 +124,9 @@ export async function testWebhook(url: string): Promise<
   | { ok: false; error: string }
 > {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_automations_actions");
   if (!/^https?:\/\//i.test(url)) {
-    return { ok: false, error: "Webhook URL must start with http(s)://" };
+    return { ok: false, error: tx("webhookUrlMustStartWith") };
   }
   const payload = {
     text: "🔔 Test alert from rank_forge — webhook is wired correctly.",
@@ -142,13 +145,13 @@ export async function testWebhook(url: string): Promise<
     });
     clearTimeout(t);
     if (!res.ok) {
-      return { ok: false, error: `Webhook returned ${res.status}.` };
+      return { ok: false, error: tx("webhookReturned", { status: res.status }) };
     }
     return { ok: true, status: res.status };
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Network failure",
+      error: e instanceof Error ? e.message : tx("networkFailure"),
     };
   }
 }
@@ -161,8 +164,9 @@ export async function installWorkflowTemplate(input: {
   webhookUrl?: string;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_automations_actions");
   const tmpl = workflowTemplates.find((t) => t.id === input.templateId);
-  if (!tmpl) return { ok: false, error: "Unknown template" };
+  if (!tmpl) return { ok: false, error: tx("unknownTemplate") };
 
   const action: AutomationAction =
     tmpl.action.kind === "webhook"
@@ -196,9 +200,9 @@ export async function installWorkflowTemplate(input: {
     if (e instanceof Error && e.message === "BAD_WEBHOOK") {
       return {
         ok: false,
-        error: "This template needs a Slack/Discord webhook URL.",
+        error: tx("thisTemplateNeedsASlack"),
       };
     }
-    return { ok: false, error: "Couldn't install template." };
+    return { ok: false, error: tx("couldnTInstallTemplate") };
   }
 }

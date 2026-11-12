@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -28,6 +29,7 @@ export async function findLinkProspects(
   formData: FormData,
 ): Promise<ProspectSearchResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_link-building_prospects_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     topic: formData.get("topic"),
@@ -36,7 +38,7 @@ export async function findLinkProspects(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -45,7 +47,7 @@ export async function findLinkProspects(
     .from(clients)
     .where(eq(clients.id, parsed.data.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   try {
     const results = await findProspects({
@@ -59,7 +61,7 @@ export async function findLinkProspects(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "Search failed",
+      error: (err as Error).message ?? tx("searchFailed"),
     };
   }
 }
@@ -71,6 +73,7 @@ export async function findLinkProspects(
  */
 export async function trackProspect(formData: FormData): Promise<void> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_link-building_prospects_actions");
   const url = String(formData.get("url") ?? "").trim();
   const clientId = Number(formData.get("clientId"));
   const strategy = String(formData.get("strategy") ?? "resource_pages");
@@ -98,7 +101,7 @@ export async function trackProspect(formData: FormData): Promise<void> {
         url,
         domain,
         category: strategyToCategory(strategy),
-        notes: `Discovered via prospecting: ${strategy}`,
+        notes: tx("discoveredViaProspecting", { strategy }),
       })
       .returning({ id: seoResources.id });
     resourceId = row.id;

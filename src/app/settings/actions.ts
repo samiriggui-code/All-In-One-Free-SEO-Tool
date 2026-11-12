@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireEditor, requireSettingsAdmin } from "@/lib/auth";
@@ -24,24 +25,25 @@ export async function saveWebhookUrl(
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await actionTx("ui.app_settings_actions");
   const raw = String(formData.get("url") ?? "").trim();
 
   if (raw === "") {
     await deleteSetting("webhook.url");
     revalidatePath("/settings");
-    return { ok: true, message: "Webhook removed." };
+    return { ok: true, message: tx("webhookRemoved") };
   }
 
   const parsed = webhookSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: "Enter a valid http(s) URL." };
+    return { ok: false, error: tx("enterAValidHttpS") };
   }
 
   await setSetting("webhook.url", parsed.data);
   revalidatePath("/settings");
   return {
     ok: true,
-    message: "Webhook saved.",
+    message: tx("webhookSaved"),
     kind: detectKind(parsed.data),
   };
 }
@@ -52,20 +54,21 @@ export async function testWebhook(
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await actionTx("ui.app_settings_actions");
   const raw = String(formData.get("url") ?? "").trim();
 
   const parsed = webhookSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: "Save a valid webhook URL first." };
+    return { ok: false, error: tx("saveAValidWebhookUrl") };
   }
 
   const result = await sendToWebhook(parsed.data, {
     title: "👋 SEO tool connected",
-    body: "If you see this message, your webhook is wired up correctly. You'll get notifications here when audits complete or scores drop.",
+    body: tx("ifYouSeeThisMessage"),
     level: "info",
     fields: [
-      { label: "Service", value: detectKind(parsed.data) },
-      { label: "Sent at", value: new Date().toLocaleString() },
+      { label: tx("service"), value: detectKind(parsed.data) },
+      { label: tx("sentAt"), value: new Date().toLocaleString() },
     ],
   });
 
@@ -74,7 +77,7 @@ export async function testWebhook(
   }
   return {
     ok: true,
-    message: `Test sent successfully (HTTP ${result.status}, ${result.kind} format).`,
+    message: tx("testSentSuccessfullyHttpFormat", { status: result.status, kind: result.kind }),
   };
 }
 

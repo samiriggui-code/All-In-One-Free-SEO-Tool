@@ -1,5 +1,7 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -10,11 +12,11 @@ import { currentUser, userMayEdit } from "@/lib/auth";
 
 export type LeadStatus = "new" | "contacted" | "won" | "lost" | "spam";
 
-async function assertCanEdit(): Promise<string | null> {
+async function assertCanEdit(tx: Tx): Promise<string | null> {
   const me = await currentUser();
   // Solo installs have no user; a client-viewer shouldn't be triaging
   // the agency's sales pipeline.
-  if (!userMayEdit(me)) return "You have read-only access.";
+  if (!userMayEdit(me)) return tx("youHaveReadOnlyAccess");
   return null;
 }
 
@@ -23,7 +25,8 @@ export async function setLeadStatus(
   status: LeadStatus,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await actionTx("ui.app_leads_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
   await db
@@ -42,7 +45,8 @@ export async function setLeadNotes(
   notes: string,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await actionTx("ui.app_leads_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
   await db
@@ -64,7 +68,8 @@ export async function convertLeadToClient(
   id: number,
 ): Promise<{ ok: boolean; clientId?: number; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await actionTx("ui.app_leads_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
   const [lead] = await db
@@ -72,7 +77,7 @@ export async function convertLeadToClient(
     .from(graderLeads)
     .where(eq(graderLeads.id, id))
     .limit(1);
-  if (!lead) return { ok: false, error: "No such lead." };
+  if (!lead) return { ok: false, error: tx("noSuchLead") };
 
   let name: string;
   try {
@@ -104,7 +109,8 @@ export async function deleteLead(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await actionTx("ui.app_leads_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   await db.delete(graderLeads).where(eq(graderLeads.id, id));
   revalidatePath("/leads");

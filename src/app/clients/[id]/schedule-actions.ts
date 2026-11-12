@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -40,6 +41,7 @@ export async function saveSchedule(
   formData: FormData,
 ): Promise<SaveScheduleResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_schedule-actions");
   const parsed = scheduleInput.safeParse({
     clientId: formData.get("clientId"),
     template: formData.get("template"),
@@ -50,13 +52,13 @@ export async function saveSchedule(
     recipients: formData.get("recipients"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
   await requireClientAccess(parsed.data.clientId, { edit: true });
 
   const recipients = parseRecipients(parsed.data.recipients);
   if (recipients.length === 0) {
-    return { ok: false, error: "No valid email addresses found" };
+    return { ok: false, error: tx("noValidEmailAddressesFound") };
   }
 
   const next = computeNextSendAt({
@@ -132,17 +134,18 @@ export async function sendReportNow(opts: {
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
   await requireClientAccess(opts.clientId, { edit: true });
+  const tx = await actionTx("ui.app_clients_id_schedule-actions");
   const smtp = await getSmtpConfig();
   if (!smtp) {
     return {
       ok: false,
-      error: "SMTP not configured. Set it up in Settings → Email delivery first.",
+      error: tx("smtpNotConfiguredSetIt"),
     };
   }
 
   const list = parseRecipients(opts.recipients);
   if (list.length === 0) {
-    return { ok: false, error: "Add at least one valid email address." };
+    return { ok: false, error: tx("addAtLeastOneValid") };
   }
 
   const r = await sendReportEmail({

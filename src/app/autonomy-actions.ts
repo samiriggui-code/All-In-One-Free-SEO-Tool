@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -18,15 +19,16 @@ export async function chooseAutonomyAction(
   level: AutonomyLevel,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_autonomy-actions");
   const allowed: AutonomyLevel[] = ["off", "suggest", "apply_safe", "apply_all"];
   if (!allowed.includes(level)) {
-    return { ok: false, error: "Unknown autonomy level." };
+    return { ok: false, error: tx("unknownAutonomyLevel") };
   }
   try {
     await chooseAutonomy(level);
     await logActivity({
       kind: "agent.level_chosen",
-      message: `Autonomy set to "${level}" from the first-run prompt.`,
+      message: tx("autonomySetToFromThe", { level }),
       level: "info",
     });
     revalidatePath("/", "layout");

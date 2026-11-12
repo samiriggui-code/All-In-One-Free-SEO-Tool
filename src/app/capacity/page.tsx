@@ -216,7 +216,7 @@ export default async function CapacityPage() {
           </li>
           <li>
             <strong className="text-foreground">{tx("highPri0")}</strong>{" "}
-            urgent items waiting. Triage before adding new work.
+            {tx("urgentItemsWaiting")}
           </li>
           <li>
             {tx.rich("n0AuditsIn30dRun", { b0: (chunks) => <strong className="text-foreground">{chunks}</strong> })}

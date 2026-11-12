@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -72,11 +73,12 @@ export async function importClientsCsv(
   formData: FormData,
 ): Promise<ImportClientsResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_import-actions");
   const csv = String(formData.get("csv") ?? "").trim();
-  if (!csv) return { ok: false, error: "CSV is empty." };
+  if (!csv) return { ok: false, error: tx("csvIsEmpty") };
 
   const rows = parseCsv(csv);
-  if (rows.length === 0) return { ok: false, error: "No rows parsed." };
+  if (rows.length === 0) return { ok: false, error: tx("noRowsParsed") };
 
   const header = rows[0].map((c) => c.trim().toLowerCase());
   const nameIdx = header.indexOf("name");
@@ -163,7 +165,7 @@ export async function importClientsCsv(
 
     await logActivity({
       kind: "client.created",
-      message: `Imported client ${parsed.data.name}.`,
+      message: tx("importedClient", { name: parsed.data.name }),
       level: "info",
       clientId: row.id,
       entityType: "client",

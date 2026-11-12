@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -17,6 +18,7 @@ export async function createSchedule(
   formData: FormData,
 ): Promise<CreateScheduleState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_automations_actions");
   const clientId = Number(formData.get("clientId"));
   const kind = String(formData.get("kind") ?? "");
   const cadenceDays = Math.max(1, Math.min(90, Number(formData.get("cadenceDays") ?? 1)));
@@ -40,14 +42,14 @@ export async function createSchedule(
   const autoPublish = destination === "local" ? false : autoPublishRaw;
 
   if (!Number.isFinite(clientId) || clientId <= 0) {
-    return { ok: false, error: "Bad client." };
+    return { ok: false, error: tx("badClient") };
   }
   if (
     !["blog_draft", "gbp_post", "social_post", "internal_checklist"].includes(
       kind,
     )
   ) {
-    return { ok: false, error: "Pick a kind." };
+    return { ok: false, error: tx("pickAKind") };
   }
 
   const config: Record<string, unknown> = { destination };
@@ -125,6 +127,7 @@ export async function runScheduleNow(
   clientId: number,
 ): Promise<{ ok: boolean; message: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_automations_actions");
   const [s] = await db
     .select()
     .from(dailySchedules)
@@ -135,7 +138,7 @@ export async function runScheduleNow(
       ),
     )
     .limit(1);
-  if (!s) return { ok: false, message: "Schedule not found." };
+  if (!s) return { ok: false, message: tx("scheduleNotFound") };
 
   // Forcing nextRunAt to now and ticking — keeps a single code path.
   await db
@@ -150,7 +153,7 @@ export async function runScheduleNow(
     ok: r.generated > 0,
     message:
       r.generated > 0
-        ? `Generated ${r.generated} item${r.generated === 1 ? "" : "s"}. Check the review queue.`
-        : "Nothing was generated. Check the activity log for the reason.",
+        ? tx("generatedOtherCheckTheReview", { generated: r.generated })
+        : tx("nothingWasGeneratedCheckThe"),
   };
 }

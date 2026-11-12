@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -19,10 +20,11 @@ export async function createInboundWebhook(
 ): Promise<CreateInboundState> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await actionTx("ui.app_settings_inbound-webhooks_actions");
   const name = String(formData.get("name") ?? "").trim();
   const eventType = String(formData.get("eventType") ?? "generic").trim();
   if (name.length < 2 || name.length > 80) {
-    return { ok: false, error: "Name must be 2-80 chars." };
+    return { ok: false, error: tx("nameMustBe280") };
   }
   const token = `wh_${crypto.randomBytes(20).toString("base64url")}`;
   const [row] = await db
@@ -34,7 +36,7 @@ export async function createInboundWebhook(
       enabled: true,
     })
     .returning();
-  if (!row) return { ok: false, error: "DB insert failed." };
+  if (!row) return { ok: false, error: tx("dbInsertFailed") };
   revalidatePath("/settings");
   return { ok: true, token, id: row.id };
 }

@@ -4,6 +4,8 @@ import { isSignedIn, requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
 import { randomBytes } from "node:crypto";
+import { actionTx } from "@/lib/action-tx";
+import { longAgo } from "@/lib/relative-time";
 import { revalidatePath } from "next/cache";
 import { setSetting, getSetting } from "@/lib/settings-store";
 import { configuredProviders, getActiveProvider } from "@/lib/api-keys";
@@ -60,18 +62,6 @@ export type McpStatus = {
   lastSeenLabel: string | null;
 };
 
-/** Coarse on purpose — "4 minutes ago" is the answer, not the timestamp. */
-function relativeTime(iso: string): string {
-  const secs = Math.round((Date.now() - Date.parse(iso)) / 1000);
-  if (secs < 60) return "just now";
-  const mins = Math.round(secs / 60);
-  if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"} ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-  const days = Math.round(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
-}
-
 /**
  * A client counts as connected for 30 days after its last call.
  *
@@ -108,7 +98,10 @@ async function readMcpStatus(): Promise<McpStatus> {
     lastSeenAt,
     lastClient,
     connected,
-    lastSeenLabel: Number.isFinite(seenMs) ? relativeTime(lastSeenAt!) : null,
+    // Coarse on purpose: "4 minutes ago" is the answer, not the timestamp.
+    lastSeenLabel: Number.isFinite(seenMs)
+      ? longAgo(Date.now() - seenMs, await actionTx("time"))
+      : null,
   };
 }
 

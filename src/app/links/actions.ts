@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -78,6 +79,7 @@ export async function createShortLink(
   formData: FormData,
 ): Promise<CreateShortLinkResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_links_actions");
   const parsed = createSchema.safeParse({
     clientId: formData.get("clientId") || undefined,
     destination: formData.get("destination"),
@@ -90,7 +92,7 @@ export async function createShortLink(
     utmContent: formData.get("utmContent") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   let slug = parsed.data.customSlug;
@@ -103,7 +105,7 @@ export async function createShortLink(
     if (existing) {
       return {
         ok: false,
-        error: `Slug "${slug}" is already taken — pick another.`,
+        error: tx("slugIsAlreadyTakenPick", { slug }),
       };
     }
   } else {
@@ -128,7 +130,7 @@ export async function createShortLink(
   if (parsed.data.clientId) {
     await logActivity({
       kind: "task.created",
-      message: `Created short link /r/${slug}`,
+      message: tx("createdShortLinkR", { slug }),
       clientId: parsed.data.clientId,
       entityType: "short_link",
       entityId: row.id,
@@ -172,12 +174,13 @@ export async function importShortLinksCsv(
   formData: FormData,
 ): Promise<ImportShortLinksResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_links_actions");
   const parsed = csvImportSchema.safeParse({
     clientId: formData.get("clientId") || undefined,
     csv: formData.get("csv"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const lines = parsed.data.csv

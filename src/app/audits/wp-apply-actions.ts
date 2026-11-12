@@ -10,6 +10,7 @@ import {
 } from "@/lib/wp-bridge";
 import { logActivity } from "@/lib/activity";
 import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 
 export type WpApplyResult =
   | { ok: true; postId: number; field: string; oldValue: string | null }
@@ -35,6 +36,7 @@ export async function applyFixViaWp(opts: {
   newValue: string;
 }): Promise<WpApplyResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_audits_wp-apply-actions");
   const { clientId, pageUrl, issueType, newValue } = opts;
   const t = await getTranslations("auditUi.fix");
 
@@ -108,7 +110,7 @@ export async function applyFixViaWp(opts: {
 
   await logActivity({
     kind: "task.completed",
-    message: `Applied ${field} fix via WordPress bridge for ${pageUrl}`,
+    message: tx("appliedFixViaWordpressBridge", { field, pageUrl }),
     level: "success",
     clientId,
   }).catch(() => undefined);

@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -31,9 +32,10 @@ export async function gradeSite(
   formData: FormData,
 ): Promise<GraderResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_grader_actions");
   const parsed = inputSchema.safeParse({ url: formData.get("url") });
   if (!parsed.success) {
-    return { ok: false, error: "Enter a valid URL." };
+    return { ok: false, error: tx("enterAValidUrl") };
   }
 
   let result;
@@ -48,7 +50,7 @@ export async function gradeSite(
     return {
       ok: false,
       error:
-        "Couldn't reach that URL. Check it loads in a normal browser, then try again.",
+        tx("couldnTReachThatUrl"),
     };
   }
 

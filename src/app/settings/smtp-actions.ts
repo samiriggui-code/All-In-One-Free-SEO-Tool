@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -85,10 +86,11 @@ export async function sendTestEmail(
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await actionTx("ui.app_settings_smtp-actions");
   const r = await sendMail({
     to: [to],
-    subject: "SEO Tool — SMTP test",
-    text: "If you received this, your SMTP configuration is working. Reports will go out from this address.",
+    subject: tx("seoToolSmtpTest"),
+    text: tx("ifYouReceivedThisYour"),
   });
   if (r.ok) return { ok: true };
   return { ok: false, error: r.error };

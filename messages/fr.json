@@ -6159,7 +6159,10 @@
       "aiUsageLog": "Journal de consommation IA",
       "everyAiCallCost": "Chaque appel à l’IA et son coût",
       "automationOverview": "Vue des automatisations",
-      "whatRunsOnItsOwn": "Ce qui tourne tout seul"
+      "whatRunsOnItsOwn": "Ce qui tourne tout seul",
+      "viewLog": "Voir le journal",
+      "manage": "Gérer",
+      "usageLog": "Journal de consommation"
     },
     "app_settings_inbound-webhooks_manager": {
       "eGGithubRepoActivity": "ex. activité du dépôt GitHub",
@@ -6400,7 +6403,10 @@
       "close": "Fermer"
     },
     "components_ui_freshness-badge": {
-      "noDataYet": "pas encore de données"
+      "noDataYet": "pas encore de données",
+      "noDataYetSource": "{source} : pas encore de données",
+      "captured": "relevé le {when}",
+      "capturedSource": "{source}, relevé le {when}"
     },
     "components_ui_needs-connection": {
       "connectMinFree": "Connecter {label} ({minutes} min, gratuit)",
@@ -6652,7 +6658,8 @@
       "readingThisView": "Lire cette vue",
       "highOpen0DoneClient": "<b0>Beaucoup d’ouvertes et 0 terminée :</b0> le projet est délaissé. Reprenez cette semaine des tâches à un projet moins chargé.",
       "highPri0": "Priorité haute > 0 :",
-      "n0AuditsIn30dRun": "<b0>0 audit en 30 jours :</b0> lancez un nouvel audit pour avoir des données dans le prochain rapport mensuel."
+      "n0AuditsIn30dRun": "<b0>0 audit en 30 jours :</b0> lancez un nouvel audit pour avoir des données dans le prochain rapport mensuel.",
+      "urgentItemsWaiting": "des éléments urgents attendent. Faites le tri avant d’ajouter du travail."
     },
     "app_capture_capture-client": {
       "savedAsCompetitor": "Enregistré comme concurrent.",
@@ -7404,6 +7411,484 @@
     },
     "app_tools_rank-where_page": {
       "aiOverview": "AI Overview"
+    },
+    "app_agent_actions": {
+      "updatePageTitle": "Mettre à jour le titre de la page",
+      "updateMetaDescription": "Mettre à jour la meta description",
+      "updateH1": "Mettre à jour le H1",
+      "quickWinOptimization": "Optimisation à gain rapide",
+      "writeNewContent": "Rédiger un nouveau contenu",
+      "addInternalLink": "Ajouter un lien interne",
+      "addStructuredData": "Ajouter des données structurées",
+      "aiSuggestion": "Suggestion de l’IA"
+    },
+    "app_agent_autopilot_actions": {
+      "noSuchChange": "Modification introuvable.",
+      "theAgentIsTurnedOff": "L’agent est désactivé. Choisissez un niveau ci-dessus pour l’activer.",
+      "noSuchClient": "Projet introuvable.",
+      "thatChangeIsnTWaiting": "Cette modification n’attend pas de validation.",
+      "thatChangeHasNothingTo": "Cette modification n’a rien à appliquer.",
+      "supersededApprovedAndApplied": "Remplacée : validée et appliquée.",
+      "rejectedByYou": "Refusée par vous.",
+      "noSuchRun": "Exécution introuvable."
+    },
+    "app_ai-visibility_actions": {
+      "invalidKeywordId": "Identifiant de mot-clé invalide",
+      "keywordOrClientNotFound": "Mot-clé ou projet introuvable",
+      "noAiProviderConfiguredOpen": "Aucun fournisseur d’IA configuré. Ouvrez Paramètres → Clés des fournisseurs d’IA et collez une clé gratuite Gemini, Groq ou Perplexity, ou activez les contrôles de recherche IA par navigateur dans les Paramètres.",
+      "aiVisibilityCheckOnRan": "Contrôle de visibilité IA sur « {query} » : {length} fournisseurs interrogés · {mentionsFound} citent {clientName}."
+    },
+    "app_annotations_actions": {
+      "labelIsRequired": "Le libellé est obligatoire.",
+      "eventDateIsRequired": "La date de l’événement est obligatoire.",
+      "clientScopeNeedsAClient": "Cette portée demande un projet.",
+      "keywordScopeNeedsAKeyword": "Cette portée demande un identifiant de mot-clé.",
+      "pageScopeNeedsAUrl": "Cette portée demande une URL.",
+      "failedToSaveAnnotation": "L’annotation n’a pas pu être enregistrée."
+    },
+    "app_ask_actions": {
+      "typeAQuestionFirst": "Saisissez d’abord une question.",
+      "questionIsTooLongMax": "La question est trop longue (2 000 caractères maximum).",
+      "noSuchClient": "Projet introuvable.",
+      "noAiProviderRespondedConfigure": "Aucun fournisseur d’IA n’a répondu. Configurez une clé d’API dans Paramètres → IA."
+    },
+    "app_assistant_actions": {
+      "noUserMessageToRespond": "Aucun message auquel répondre.",
+      "toAnswerItHereInstead": "Pour obtenir la réponse ici, ajoutez une clé gratuite Gemini ou Groq dans Paramètres → Connexion IA.",
+      "noActiveAiProviderOpen": "Aucun fournisseur d’IA actif. Ouvrez Paramètres → Connexion IA, ajoutez une clé gratuite Gemini ou Groq, puis choisissez-la comme active.",
+      "activeProviderDidnTRespond": "Le fournisseur actif « {active} » n’a pas répondu. Vérifiez la clé dans les Paramètres ou choisissez un autre fournisseur actif."
+    },
+    "app_audits_actions": {
+      "auditFailedFor": "Échec de l’audit de {name}",
+      "couldnTReachTryRunning": "Impossible de joindre {url}. Relancez l’audit ou vérifiez que le site est en ligne.",
+      "client": "Projet",
+      "auditFailedForSiteUnreachable": "Échec de l’audit de {name} : site injoignable.",
+      "scoreDropped": "Score en baisse",
+      "scoreImproved": "Score en hausse",
+      "auditCompleted": "Audit terminé",
+      "score": "Score",
+      "issues": "Problèmes",
+      "found": "{issuesCount} relevés",
+      "auditRunOn": "Audit ({mode}) lancé sur {url}.",
+      "auditForScore100Issues": "Audit n° {id} de {name} ({mode}) : score {score}/100, {issuesCount} problèmes."
+    },
+    "app_audits_wp-apply-actions": {
+      "appliedFixViaWordpressBridge": "Correction « {field} » appliquée par le pont WordPress sur {pageUrl}"
+    },
+    "app_author-authority_actions": {
+      "pickAClientFirst": "Choisissez d’abord un projet.",
+      "domainRequired": "Le domaine est obligatoire.",
+      "clientNotFound": "Projet introuvable.",
+      "scanFailed": "L’analyse a échoué."
+    },
+    "app_automations_actions": {
+      "invalidInput": "Saisie invalide",
+      "webhookUrlRequired": "L’URL du webhook est obligatoire.",
+      "webhookUrlMustBeHttp": "L’URL du webhook doit être en http(s).",
+      "taskTitleRequired": "Le titre de la tâche est obligatoire.",
+      "logMessageRequired": "Le message du journal est obligatoire.",
+      "webhookUrlMustStartWith": "L’URL du webhook doit commencer par http(s)://",
+      "webhookReturned": "Le webhook a répondu {status}.",
+      "networkFailure": "Échec réseau",
+      "unknownTemplate": "Modèle inconnu",
+      "thisTemplateNeedsASlack": "Ce modèle a besoin d’une URL de webhook Slack ou Discord.",
+      "couldnTInstallTemplate": "Le modèle n’a pas pu être installé."
+    },
+    "app_autonomy-actions": {
+      "unknownAutonomyLevel": "Niveau d’autonomie inconnu.",
+      "autonomySetToFromThe": "Autonomie réglée sur « {level} » depuis l’invite du premier lancement."
+    },
+    "app_backlinks_actions": {
+      "invalidInput": "Saisie invalide",
+      "invalidClientid": "Identifiant de projet invalide",
+      "csvIsEmptyOrToo": "Le CSV est vide ou trop court",
+      "csvMustHaveAHeader": "Le CSV doit contenir une ligne d’en-tête et au moins une ligne de données",
+      "csvIsMissingAReferring": "Il manque la colonne « Referring page URL » : ce fichier ne ressemble pas à un export Ahrefs WMT.",
+      "ahrefsWmtImportNewOther": "Import Ahrefs WMT : {inserted, plural, one {+# nouveau backlink} other {+# nouveaux backlinks}} ({duplicates} doublons, {skipped} ignorés)"
+    },
+    "app_backlinks_bing-actions": {
+      "noSuchClient": "Projet introuvable."
+    },
+    "app_bot-logs_actions": {
+      "emptyFile": "Fichier vide"
+    },
+    "app_brand-monitor_actions": {
+      "invalidClient": "Projet invalide",
+      "clientNotFound": "Projet introuvable",
+      "mentionNotFound": "Mention introuvable",
+      "unknownAuthor": "Auteur inconnu"
+    },
+    "app_brand-serp_actions": {
+      "noClient": "(aucun projet)",
+      "clientNotFound": "Projet introuvable",
+      "serpScanFailed": "L’analyse des résultats de recherche a échoué"
+    },
+    "app_capture_actions": {
+      "pasteAUrl": "Collez une URL",
+      "notAValidUrl": "URL invalide",
+      "couldnTReachThatUrl": "Impossible de joindre cette URL. Vérifiez qu’elle est correcte et accessible publiquement.",
+      "pickAClient": "Choisissez un projet",
+      "nameAndUrlRequired": "Le nom et l’URL sont obligatoires",
+      "clientNotFound": "Projet introuvable",
+      "urlRequired": "L’URL est obligatoire"
+    },
+    "app_clients_id_ai-audit_actions": {
+      "invalidClientId": "Identifiant de projet invalide.",
+      "urlRequired": "L’URL est obligatoire.",
+      "auditFailed": "L’audit a échoué"
+    },
+    "app_clients_id_automations_actions": {
+      "badClient": "Projet incorrect.",
+      "pickAKind": "Choisissez un type.",
+      "scheduleNotFound": "Planification introuvable.",
+      "generatedOtherCheckTheReview": "{generated, plural, one {# élément généré} other {# éléments générés}}. Consultez la file de relecture.",
+      "nothingWasGeneratedCheckThe": "Rien n’a été généré. La raison figure dans le journal d’activité."
+    },
+    "app_clients_id_google-actions": {
+      "invalidClient": "Projet invalide"
+    },
+    "app_clients_id_onboarding_actions": {
+      "invalidInput": "Saisie invalide",
+      "invalidClient": "Projet invalide.",
+      "invalidClient2": "Projet invalide",
+      "clientNotFound": "Projet introuvable",
+      "keywordDiscoveryFoundFromSeeds": "Découverte de mots-clés : {length} trouvés à partir de {length2} mots de départ",
+      "badSelectionPayload": "Sélection illisible",
+      "pickAtLeastOneKeyword": "Choisissez au moins un mot-clé à suivre.",
+      "generated30DaySeoCalendar": "Calendrier SEO à 30 jours généré ({length} tâches)."
+    },
+    "app_clients_id_per-client-google-actions": {
+      "disconnectedPerClientGoogleAccount": "Compte Google propre au projet déconnecté."
+    },
+    "app_clients_id_queue_actions": {
+      "queueItemNotFound": "Élément de la file introuvable.",
+      "approvedPublishesOnTheNext": "Validé. La publication se fera au prochain passage de l’agent quotidien (24 h au plus).",
+      "alreadyPublished": "Déjà publié.",
+      "published": "Publié.",
+      "approvedButNotPickedUp": "Validé, mais pas encore pris en charge. Nouvel essai au prochain passage."
+    },
+    "app_clients_id_schedule-actions": {
+      "invalidInput": "Saisie invalide",
+      "noValidEmailAddressesFound": "Aucune adresse e-mail valide trouvée",
+      "smtpNotConfiguredSetIt": "SMTP non configuré. Réglez-le d’abord dans Paramètres → Envoi des e-mails.",
+      "addAtLeastOneValid": "Ajoutez au moins une adresse e-mail valide."
+    },
+    "app_clients_id_wp-actions": {
+      "invalidInput": "Saisie invalide",
+      "connectedWordpressBridge": "Pont WordPress connecté.",
+      "wordpressBridgeNotConnectedConnect": "Pont WordPress non connecté. Connectez-le d’abord depuis la page du projet.",
+      "couldnTResolveToA": "Impossible de rattacher {url} à une publication WordPress.",
+      "unsupportedFixType": "Type de correction non pris en charge",
+      "wpPushFailed": "L’envoi vers WordPress a échoué",
+      "pushedUpdateToWordpressPost": "Mise à jour « {v} » envoyée à WordPress (publication n° {postId})",
+      "wordpressBridgeNotConnected": "Pont WordPress non connecté.",
+      "pushedAltTextToWordpress": "Texte alternatif envoyé au média WordPress n° {attachmentId}"
+    },
+    "app_clients_actions": {
+      "enterAUrlFirst": "Saisissez d’abord une URL.",
+      "couldnTReachThatUrl": "Impossible de joindre cette URL. Vérifiez qu’elle s’ouvre dans un navigateur, puis réessayez.",
+      "fetchFailed": "La récupération a échoué.",
+      "thisSiteIsAlreadyIn": "Ce site est déjà dans votre espace de travail sous le nom « {name} » (projet n° {id}).",
+      "addedClient": "Projet ajouté : {name} ({url}).",
+      "updatedClient": "Projet mis à jour : {name}.",
+      "clientNotFound": "Projet introuvable",
+      "couldnTReachTheSite": "Impossible de joindre le site. Vérifiez l’URL et réessayez.",
+      "refreshedMetadataFor": "Métadonnées actualisées pour {name}.",
+      "youHaveReadOnlyAccess": "Vous avez un accès en lecture seule et ne pouvez pas supprimer de projet.",
+      "youDoNotHaveAccess": "Vous n’avez pas accès à ce projet.",
+      "deleteFailed": "La suppression a échoué"
+    },
+    "app_clients_import-actions": {
+      "csvIsEmpty": "Le CSV est vide.",
+      "noRowsParsed": "Aucune ligne lue.",
+      "importedClient": "Projet importé : {name}."
+    },
+    "app_clients_import_actions": {
+      "nothingSelected": "Rien n’est sélectionné."
+    },
+    "app_clients_share-actions": {
+      "invalidClient": "Projet invalide",
+      "clientNotFound": "Projet introuvable",
+      "generateAShareLinkFirst": "Générez d’abord un lien de partage.",
+      "needARecipientEmailSet": "Il faut une adresse de destinataire : renseignez-la sur le projet ou indiquez-la ici.",
+      "yourSeoTeam": "Votre équipe SEO",
+      "yourSeoProgressLiveLink": "L’avancement SEO de {name} : lien en direct"
+    },
+    "app_compare_actions": {
+      "auditFailed": "L’audit a échoué",
+      "twoUrlsAreRequired": "Deux URL sont nécessaires.",
+      "couldnTReachEitherSite": "Aucun des deux sites n’a pu être joint. Vérifiez les URL et réessayez."
+    },
+    "app_competitors_actions": {
+      "invalidInput": "Saisie invalide"
+    },
+    "app_competitors_playbook_actions": {
+      "invalidInput": "Saisie invalide",
+      "analysisFailed": "L’analyse a échoué",
+      "emptySynthesis": "Synthèse vide",
+      "invalidClient": "Projet invalide",
+      "noBulletsParsed": "Aucun point lu",
+      "fromCompetitorAnalysisOf": "Issu de l’analyse concurrentielle de {host}.",
+      "importedTasksFromCompetitorAnalysis": "{length} tâches importées depuis l’analyse concurrentielle de {host}"
+    },
+    "app_content-gap_actions": {
+      "clientNotFound": "Projet introuvable",
+      "connectGoogleSearchConsoleFirst": "Connectez d’abord Google Search Console : l’analyse des manques a besoin des vraies requêtes du projet."
+    },
+    "app_content_actions": {
+      "published": "Publié",
+      "sentAsAWordpressDraft": "Envoyé en brouillon WordPress"
+    },
+    "app_csv-import_actions": {
+      "noRowsDetectedIsThis": "Aucune ligne détectée. Est-ce bien un CSV valide ?",
+      "noRows": "Aucune ligne",
+      "pickAClientForKeyword": "Choisissez un projet pour l’import de mots-clés.",
+      "clientNotFound": "Projet introuvable",
+      "pickAClientForOutreach": "Choisissez un projet pour l’import de prospection.",
+      "pickAClientForCompetitor": "Choisissez un projet pour l’import de concurrents.",
+      "couldnTDetectWhatThis": "Le type de ce CSV n’a pas pu être détecté. Choisissez un schéma à la main ou renommez les en-têtes."
+    },
+    "app_cwv_actions": {
+      "urlIsRequired": "L’URL est obligatoire",
+      "clientNotFound": "Projet introuvable",
+      "scanFailed": "L’analyse a échoué"
+    },
+    "app_digest_actions": {
+      "weeklySeoDigest": "Digest SEO hebdomadaire",
+      "invalidEmailAddress": "Adresse e-mail invalide",
+      "sendFailed": "L’envoi a échoué",
+      "validRecipientEmailRequiredTo": "Il faut une adresse de destinataire valide pour activer l’envoi.",
+      "autoSendDisabled": "Envoi automatique désactivé."
+    },
+    "app_gbp_actions": {
+      "clientNotFound": "Projet introuvable",
+      "noGoogleBusinessProfileUrl": "Ce projet n’a pas d’URL de fiche Google Business Profile. Ajoutez-la dans Modifier → Fiche Google.",
+      "theBrowserBasedGbpScraper": "La lecture de la fiche Google par navigateur est désactivée pour économiser la mémoire. Utilisez l’API officielle (connectez Google avec le droit business.manage dans Paramètres → Google) ou activez la lecture par navigateur dans Paramètres → Navigateurs.",
+      "scrapeFailed": "La lecture a échoué",
+      "reviewTextIsEmpty": "Le texte de l’avis est vide",
+      "aiProviderDidnTRespond": "Le fournisseur d’IA n’a pas répondu. Configurez une clé dans les Paramètres.",
+      "replyIsEmpty": "La réponse est vide",
+      "topicAngleIsRequired": "Le sujet ou l’angle est obligatoire",
+      "aiReturnedAnUnexpectedFormat": "L’IA a renvoyé un format inattendu.",
+      "aiReturnedAnEmptyList": "L’IA a renvoyé une liste vide.",
+      "aiReturnedNoValidIdeas": "L’IA n’a renvoyé aucune idée valide.",
+      "couldnTParseAiResponse": "La réponse de l’IA n’a pas pu être lue."
+    },
+    "app_gbp_c_clientId_reviews_actions": {
+      "clientNotFound": "Projet introuvable.",
+      "googleIsConnectedButNo": "Google est connecté mais aucun compte Business Profile n’est revenu. Le compte connecté ne gère peut-être aucune fiche.",
+      "thatIsNotALocation": "Ce n’est pas un nom d’établissement.",
+      "pickWhichBusinessProfileLocation": "Indiquez d’abord quel établissement Business Profile correspond à ce projet.",
+      "pulledBusinessProfileReviewsSeen": "Avis Business Profile récupérés : {seen} vus, {added} nouveaux, {removed} disparus",
+      "repliedToBusinessProfileOther": "{sent, plural, one {Réponse envoyée à # avis Business Profile} other {Réponses envoyées à # avis Business Profile}}"
+    },
+    "app_grader_actions": {
+      "enterAValidUrl": "Saisissez une URL valide.",
+      "couldnTReachThatUrl": "Impossible de joindre cette URL. Vérifiez qu’elle s’ouvre dans un navigateur, puis réessayez."
+    },
+    "app_guest-posts_c_clientId_actions": {
+      "badClientId": "Identifiant de projet incorrect.",
+      "pickATargetPlatform": "Choisissez une plateforme cible.",
+      "topicIsRequired": "Le sujet est obligatoire.",
+      "targetKeywordIsRequired": "Le mot-clé cible est obligatoire.",
+      "unknownPlatform": "Plateforme inconnue : {siteId}",
+      "clientNotFound": "Projet introuvable.",
+      "pickATargetPlatformFirst": "Choisissez d’abord une plateforme cible.",
+      "aTargetKeywordGuidesThe": "Un mot-clé cible oriente les titres.",
+      "aiProviderNotConfiguredSet": "Fournisseur d’IA non configuré : réglez-en un d’abord dans Paramètres → IA.",
+      "aiReturnedNoTitlesTry": "L’IA n’a renvoyé aucun titre. Réessayez.",
+      "couldnTParseTheAi": "La réponse de l’IA n’a pas pu être lue. Réessayez."
+    },
+    "app_import_actions": {
+      "noImageProvided": "Aucune image fournie.",
+      "invalidImageData": "Données d’image invalides.",
+      "imageTooLarge8Mb": "Image trop lourde (plus de 8 Mo).",
+      "ocrFailed": "La lecture du texte (OCR) a échoué : {message}",
+      "couldnTReadAnyText": "Aucun texte lisible dans cette image. Essayez une capture en plus haute résolution.",
+      "aiExtraction": "Extraction par IA",
+      "heuristicParser": "Lecture par règles",
+      "noObviousKeyValuePairs": "Aucune paire libellé/valeur évidente. Connectez une clé d’API pour une extraction plus fine."
+    },
+    "app_keywords_actions": {
+      "enterAtLeast2Characters": "Saisissez au moins 2 caractères.",
+      "seedIsTooLong": "Le mot de départ est trop long."
+    },
+    "app_keywords_import-actions": {
+      "csvIsEmpty": "Le CSV est vide.",
+      "pickATargetClient": "Choisissez un projet cible.",
+      "clientNotFound": "Projet introuvable.",
+      "noRowsParsed": "Aucune ligne lue."
+    },
+    "app_keywords_rank-actions": {
+      "invalidKeywordId": "Identifiant de mot-clé invalide",
+      "keywordOrClientNotFound": "Mot-clé ou projet introuvable",
+      "keyword": "Mot-clé",
+      "source": "Source",
+      "searchConsole": "Search Console ({dataDate})",
+      "liveSerpCheck": "Contrôle en direct des résultats",
+      "change": "Évolution"
+    },
+    "app_keywords_serp-actions": {
+      "keywordNotFound": "Mot-clé introuvable",
+      "serpScanFailed": "L’analyse des résultats de recherche a échoué"
+    },
+    "app_knowledge-panel_actions": {
+      "pickAClientFirst": "Choisissez d’abord un projet.",
+      "clientNotFound": "Projet introuvable.",
+      "captureFailed": "La capture a échoué."
+    },
+    "app_leads_actions": {
+      "youHaveReadOnlyAccess": "Vous avez un accès en lecture seule.",
+      "noSuchLead": "Prospect introuvable."
+    },
+    "app_link-building_c_clientId_actions": {
+      "badClientId": "Identifiant de projet incorrect.",
+      "clientNotFound": "Projet introuvable.",
+      "noAiBespokeIdeasGenerated": "Aucune idée sur mesure générée par l’IA : vérifiez qu’un fournisseur d’IA est configuré dans les Paramètres.",
+      "aiCallFailed": "L’appel à l’IA a échoué."
+    },
+    "app_link-building_prospects_actions": {
+      "invalidInput": "Saisie invalide",
+      "clientNotFound": "Projet introuvable",
+      "searchFailed": "La recherche a échoué",
+      "discoveredViaProspecting": "Trouvé par prospection : {strategy}"
+    },
+    "app_links_actions": {
+      "invalidInput": "Saisie invalide",
+      "slugIsAlreadyTakenPick": "Le slug « {slug} » est déjà pris : choisissez-en un autre.",
+      "createdShortLinkR": "Lien court créé : /r/{slug}"
+    },
+    "app_local-grid_actions": {
+      "invalidInput": "Saisie invalide",
+      "clientNotFound": "Projet introuvable",
+      "gridRunFailed": "Le relevé de la grille a échoué"
+    },
+    "app_local-rank_actions": {
+      "queryIsRequired": "La requête est obligatoire",
+      "atLeastOneCity": "Il faut au moins une ville",
+      "clientNotFound": "Projet introuvable"
+    },
+    "app_meta-rewrite_actions": {
+      "invalidInput": "Saisie invalide",
+      "findFailed": "La recherche a échoué",
+      "titlePushFailed": "L’envoi du titre a échoué : {error}",
+      "titlePushedButMetaDescription": "Titre envoyé, mais la meta description a échoué : {error}",
+      "metaRewriteAppliedTo": "Réécriture des balises appliquée sur {url}"
+    },
+    "app_monitor_actions": {
+      "invalidInput": "Saisie invalide",
+      "pageNotFound": "Page introuvable",
+      "criticalPageChange": "Changement critique sur une page",
+      "pageChanged": "Page modifiée"
+    },
+    "app_news_actions": {
+      "invalidInput": "Saisie invalide",
+      "couldnTFindAnRss": "Aucun flux RSS trouvé à cette URL. Certains sites n’en proposent pas : essayez de coller directement l’URL du flux.",
+      "feedUrlAlreadyExists": "Cette URL de flux existe déjà."
+    },
+    "app_outreach_actions": {
+      "invalidInput": "Saisie invalide",
+      "outreachContacted": "Prospection : {name} contacté."
+    },
+    "app_proposals_actions": {
+      "youHaveReadOnlyAccess": "Vous avez un accès en lecture seule.",
+      "noSuchClient": "Projet introuvable.",
+      "runAnAuditForThis": "Lancez d’abord un audit pour ce projet : une proposition construite à partir de rien ne serait qu’un modèle.",
+      "noSuchLead": "Prospect introuvable.",
+      "pickAClientOrA": "Choisissez un projet ou un prospect.",
+      "invalidInput": "Saisie invalide.",
+      "noSuchProposal": "Proposition introuvable."
+    },
+    "app_report-data_actions": {
+      "pickAClientFirst": "Choisissez d’abord un projet.",
+      "pasteSomeTextToExtract": "Collez du texte à extraire.",
+      "tooMuchTextAtOnce": "Trop de texte d’un coup : collez 20 000 caractères au plus par passage.",
+      "clientNotFound": "Projet introuvable.",
+      "aiProviderDidnTRespond": "Le fournisseur d’IA n’a pas répondu. Configurez-en un dans Paramètres → IA, ou cliquez sur Tester à côté de votre fournisseur pour voir l’erreur exacte.",
+      "aiReturnedMalformedJsonTry": "L’IA a renvoyé un JSON mal formé. Réessayez.",
+      "aiFoundNoActionableItems": "L’IA n’a trouvé aucun élément exploitable dans le texte collé.",
+      "allItemsFailedValidation": "Aucun élément n’a passé la validation."
+    },
+    "app_seo-chat_actions": {
+      "noQuestionToAnswer": "Aucune question à traiter.",
+      "invalidImageDataUrl": "URL de données d’image invalide.",
+      "imageMustBePngJpeg": "L’image doit être en PNG, JPEG, GIF ou WebP.",
+      "imageTooLarge4mb": "Image trop lourde (plus de 4 Mo).",
+      "aiProviderDidnTRespond": "Le fournisseur d’IA n’a pas répondu. Ouvrez Paramètres → Fournisseur d’IA et cliquez sur Tester à côté de votre fournisseur pour voir l’erreur exacte."
+    },
+    "app_settings_actions": {
+      "webhookRemoved": "Webhook supprimé.",
+      "enterAValidHttpS": "Saisissez une URL http(s) valide.",
+      "webhookSaved": "Webhook enregistré.",
+      "saveAValidWebhookUrl": "Enregistrez d’abord une URL de webhook valide.",
+      "ifYouSeeThisMessage": "Si vous voyez ce message, votre webhook est bien branché. Vous recevrez ici une notification à la fin d’un audit ou quand un score baisse.",
+      "service": "Service",
+      "sentAt": "Envoyé le",
+      "testSentSuccessfullyHttpFormat": "Test envoyé (HTTP {status}, format {kind})."
+    },
+    "app_settings_ai-usage_actions": {
+      "capRemoved": "Plafond supprimé.",
+      "capMustBeANon": "Le plafond doit être un nombre positif ou nul.",
+      "capSetToMo": "Plafond fixé à {n} $ par mois."
+    },
+    "app_settings_api-keys_actions": {
+      "nameMustBe280": "Le nom doit compter de 2 à 80 caractères.",
+      "invalidScope": "Portée invalide.",
+      "dbInsertFailed": "L’enregistrement en base a échoué."
+    },
+    "app_settings_brand-actions": {
+      "invalidInput": "Saisie invalide",
+      "brandSaved": "Marque enregistrée."
+    },
+    "app_settings_browser-actions": {
+      "concurrencyMustBeBetween1": "Le nombre de navigateurs simultanés doit être compris entre 1 et 16.",
+      "savedBrowserWillRelaunchOn": "Enregistré. Le navigateur sera relancé à la prochaine utilisation."
+    },
+    "app_settings_desktop-config-actions": {
+      "canTWriteTheConfig": "Impossible d’écrire la configuration : {p} n’existe pas. Lancez l’installation une fois (pnpm install) puis réessayez.",
+      "isnTValidJsonSo": "{configPath} n’est pas un JSON valide : vos réglages existants ne peuvent pas être lus. Une copie est enregistrée dans {backupPath}. Corrigez ou supprimez le fichier, puis réessayez."
+    },
+    "app_settings_edge_actions": {
+      "generatedANewEdgeWorker": "Nouveau jeton généré pour le worker en bordure. Un worker déjà en place n’appliquera plus les corrections tant qu’il n’est pas mis à jour."
+    },
+    "app_settings_google_actions": {
+      "clearedGoogleOauthCredentials": "Identifiants OAuth Google effacés.",
+      "disconnectedGoogleAccount": "Compte Google déconnecté.",
+      "connectedGoogleWithServiceAccount": "Google connecté avec le compte de service {email}.",
+      "removedTheGoogleServiceAccount": "Clé du compte de service Google supprimée.",
+      "noServiceAccountKeySaved": "Aucune clé de compte de service enregistrée.",
+      "googleAcceptedTheKeyBut": "Google a accepté la clé mais a refusé l’accès à Search Console ({status}). Ajoutez {email} comme utilisateur de la propriété dans Search Console, puis réessayez.",
+      "theKeyWorksButThis": "La clé fonctionne, mais ce compte de service ne voit aucune propriété. Dans Search Console, ouvrez Paramètres, Utilisateurs et autorisations, et ajoutez {email} comme utilisateur."
+    },
+    "app_settings_inbound-webhooks_actions": {
+      "nameMustBe280": "Le nom doit compter de 2 à 80 caractères.",
+      "dbInsertFailed": "L’enregistrement en base a échoué."
+    },
+    "app_settings_smtp-actions": {
+      "seoToolSmtpTest": "rank forge : test SMTP",
+      "ifYouReceivedThisYour": "Si vous avez reçu ce message, votre configuration SMTP fonctionne. Les rapports partiront de cette adresse."
+    },
+    "app_settings_team_actions": {
+      "youNeedToBeSigned": "Vous devez être connecté.",
+      "onlyTheOwnerCanManage": "Seul le propriétaire peut gérer l’équipe.",
+      "youReTheOnlyOwner": "Vous êtes le seul propriétaire. Donnez d’abord ce rôle à quelqu’un d’autre, puis changez le vôtre.",
+      "youCanTDeactivateYour": "Vous ne pouvez pas désactiver votre propre compte.",
+      "thatSTheOnlyActive": "C’est le seul propriétaire actif.",
+      "noSuchUser": "Utilisateur introuvable.",
+      "clientSAssigned": "{length, plural, one {# projet attribué} other {# projets attribués}}."
+    },
+    "app_tasks_actions": {
+      "completedTask": "Tâche terminée : {title}",
+      "invalidInput": "Saisie invalide",
+      "clientNotFound": "Projet introuvable.",
+      "newTask": "Nouvelle tâche : {title}",
+      "taskNotFound": "Tâche introuvable",
+      "enterMinutes": "Saisissez des minutes",
+      "invalidClient": "Projet invalide",
+      "unknownPlaybook": "Modèle de tâches inconnu",
+      "clientNotFound2": "Projet introuvable",
+      "pageNotFound": "Page introuvable",
+      "completedTask2": "Tâche terminée : {title}"
     }
   },
   "integrations": {
@@ -7533,5 +8018,37 @@
       "free-tier": "Offre gratuite",
       "paid": "Payant"
     }
+  },
+  "time": {
+    "never": "jamais",
+    "justNow": "à l’instant",
+    "runningNow": "en cours",
+    "s": "il y a {n} s",
+    "m": "il y a {n} min",
+    "h": "il y a {n} h",
+    "d": "il y a {n} j",
+    "w": "il y a {n} sem.",
+    "mo": "il y a {n} mois",
+    "everyD": "tous les {n} j",
+    "everyH": "toutes les {n} h",
+    "everyM": "toutes les {n} min",
+    "minutesAgo": "il y a {n, plural, one {# minute} other {# minutes}}",
+    "hoursAgo": "il y a {n, plural, one {# heure} other {# heures}}",
+    "daysAgo": "il y a {n, plural, one {# jour} other {# jours}}"
+  },
+  "schedulerJobs": {
+    "daily_agent": "Agent quotidien",
+    "autonomous_agent": "Agent autonome",
+    "schedule_runner": "Rapports planifiés",
+    "uptime_ping": "Contrôles de disponibilité",
+    "page_monitor": "Surveillance des pages",
+    "weekly_digest": "Digest hebdomadaire",
+    "auto_backup": "Sauvegarde automatique",
+    "tool_sweep": "Passage automatique des outils",
+    "gbp_monitor": "Contrôles de la fiche Google",
+    "tool_sweep_weekly": "Contrôles hebdomadaires par exploration",
+    "backlink_sync": "Découverte de backlinks",
+    "google_updates": "Mises à jour du classement Google",
+    "retention_cleanup": "Nettoyage des données anciennes"
   }
 }

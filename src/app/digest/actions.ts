@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -21,14 +22,15 @@ export async function sendDigest(
   formData: FormData,
 ): Promise<SendState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_digest_actions");
   const parsed = sendSchema.safeParse({
     to: formData.get("to"),
-    subject: formData.get("subject") || "Weekly SEO digest",
+    subject: formData.get("subject") || tx("weeklySeoDigest"),
   });
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid email address",
+      error: parsed.error.issues[0]?.message ?? tx("invalidEmailAddress"),
     };
   }
 
@@ -40,7 +42,7 @@ export async function sendDigest(
     text: digest.textVersion,
     html: digest.htmlVersion,
   });
-  if (!result.ok) return { ok: false, error: result.error ?? "Send failed" };
+  if (!result.ok) return { ok: false, error: result.error ?? tx("sendFailed") };
 
   // Save the email so we can use it as the default for the auto-schedule
   await setSetting("digest.recipient_email", parsed.data.to);
@@ -58,12 +60,13 @@ export async function setSchedule(
   formData: FormData,
 ): Promise<ScheduleState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_digest_actions");
   const enabled = formData.get("enabled") === "on";
   const email = String(formData.get("email") ?? "").trim();
   if (enabled) {
     const r = z.string().email().safeParse(email);
     if (!r.success)
-      return { ok: false, error: "Valid recipient email required to enable." };
+      return { ok: false, error: tx("validRecipientEmailRequiredTo") };
     await setSetting("digest.recipient_email", email);
     await setSetting("digest.auto_send_enabled", true);
     return {
@@ -72,7 +75,7 @@ export async function setSchedule(
     };
   }
   await setSetting("digest.auto_send_enabled", false);
-  return { ok: true, message: "Auto-send disabled." };
+  return { ok: true, message: tx("autoSendDisabled") };
 }
 
 export async function loadDigestSettings() {

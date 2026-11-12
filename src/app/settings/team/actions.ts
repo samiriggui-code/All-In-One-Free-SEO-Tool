@@ -1,5 +1,7 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -15,11 +17,11 @@ import { createInvite, revokeInvite } from "@/lib/invites";
  * a courtesy, not a permission — a server action is a public endpoint
  * with a nicer calling convention.
  */
-async function requireOwner(): Promise<{ id: number } | { error: string }> {
+async function requireOwner(tx: Tx): Promise<{ id: number } | { error: string }> {
   const me = await currentUser();
-  if (!me) return { error: "You need to be signed in." };
+  if (!me) return { error: tx("youNeedToBeSigned") };
   if (!canManageTeam(me.role)) {
-    return { error: "Only the owner can manage the team." };
+    return { error: tx("onlyTheOwnerCanManage") };
   }
   return { id: me.id };
 }
@@ -31,7 +33,8 @@ export async function inviteMember(input: {
   role: Role;
 }): Promise<ActionResult & { link?: string }> {
   await requireSignedIn();
-  const me = await requireOwner();
+  const tx = await actionTx("ui.app_settings_team_actions");
+  const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
   const created = await createInvite({
@@ -50,7 +53,8 @@ export async function inviteMember(input: {
 
 export async function cancelInvite(id: number): Promise<ActionResult> {
   await requireSignedIn();
-  const me = await requireOwner();
+  const tx = await actionTx("ui.app_settings_team_actions");
+  const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
   revokeInvite(id);
   revalidatePath("/settings/team");
@@ -62,7 +66,8 @@ export async function changeRole(
   role: Role,
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const me = await requireOwner();
+  const tx = await actionTx("ui.app_settings_team_actions");
+  const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
   // Don't let the last owner demote themselves into an instance nobody
@@ -77,7 +82,7 @@ export async function changeRole(
       return {
         ok: false,
         error:
-          "You're the only owner. Promote someone else to owner first, then change your own role.",
+          tx("youReTheOnlyOwner"),
       };
     }
   }
@@ -92,11 +97,12 @@ export async function setActive(
   active: boolean,
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const me = await requireOwner();
+  const tx = await actionTx("ui.app_settings_team_actions");
+  const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
   if (userId === me.id && !active) {
-    return { ok: false, error: "You can't deactivate your own account." };
+    return { ok: false, error: tx("youCanTDeactivateYour") };
   }
   if (!active) {
     const owners = db
@@ -106,7 +112,7 @@ export async function setActive(
       .get();
     const target = db.select().from(users).where(eq(users.id, userId)).get();
     if (target?.role === "owner" && (owners?.n ?? 0) <= 1) {
-      return { ok: false, error: "That's the only active owner." };
+      return { ok: false, error: tx("thatSTheOnlyActive") };
     }
   }
 
@@ -124,11 +130,12 @@ export async function setClientAccess(
   clientIds: number[],
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const me = await requireOwner();
+  const tx = await actionTx("ui.app_settings_team_actions");
+  const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
   const target = db.select().from(users).where(eq(users.id, userId)).get();
-  if (!target) return { ok: false, error: "No such user." };
+  if (!target) return { ok: false, error: tx("noSuchUser") };
   if (seesAllClients(target.role)) {
     return {
       ok: false,
@@ -141,5 +148,5 @@ export async function setClientAccess(
     db.insert(clientMembers).values({ userId, clientId }).run();
   }
   revalidatePath("/settings/team");
-  return { ok: true, message: `${clientIds.length} client(s) assigned.` };
+  return { ok: true, message: tx("clientSAssigned", { length: clientIds.length }) };
 }

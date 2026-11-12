@@ -4,6 +4,7 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -77,9 +78,10 @@ export async function fetchClientMetadata(
   rawUrl: string,
 ): Promise<ClientMetadataResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_actions");
   const trimmed = rawUrl?.trim();
   if (!trimmed) {
-    return { ok: false, error: "Enter a URL first." };
+    return { ok: false, error: tx("enterAUrlFirst") };
   }
   try {
     const metadata = await fetchSiteMetadata(trimmed);
@@ -87,12 +89,12 @@ export async function fetchClientMetadata(
       return {
         ok: false,
         error:
-          "Couldn't reach that URL. Check it loads in a browser, then try again.",
+          tx("couldnTReachThatUrl"),
       };
     }
     return { ok: true, metadata };
   } catch (err) {
-    return { ok: false, error: (err as Error).message || "Fetch failed." };
+    return { ok: false, error: (err as Error).message || tx("fetchFailed") };
   }
 }
 
@@ -105,6 +107,7 @@ export async function createClient(
   formData: FormData,
 ): Promise<CreateClientResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_actions");
   const raw = {
     name: formData.get("name"),
     url: formData.get("url"),
@@ -138,7 +141,7 @@ export async function createClient(
     return {
       ok: false,
       errors: {
-        url: `This site is already in your workspace as “${existing.name}” (client #${existing.id}).`,
+        url: tx("thisSiteIsAlreadyIn", { name: existing.name, id: existing.id }),
       },
       existingClientId: existing.id,
     };
@@ -198,7 +201,7 @@ export async function createClient(
 
   await logActivity({
     kind: "client.created",
-    message: `Added client ${parsed.data.name} (${parsed.data.url}).`,
+    message: tx("addedClient", { name: parsed.data.name, url: parsed.data.url }),
     level: "success",
     clientId: row.id,
     entityType: "client",
@@ -327,6 +330,7 @@ export async function updateClient(
   formData: FormData,
 ): Promise<UpdateClientResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_actions");
   const raw = {
     id: formData.get("id"),
     name: formData.get("name"),
@@ -383,7 +387,7 @@ export async function updateClient(
 
   await logActivity({
     kind: "client.created", // reuse "client.created" for now since edit isn't a kind
-    message: `Updated client ${parsed.data.name}.`,
+    message: tx("updatedClient", { name: parsed.data.name }),
     level: "info",
     clientId: parsed.data.id,
     entityType: "client",
@@ -404,18 +408,19 @@ export async function refreshClientMetadata(
   clientId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const meta = await fetchSiteMetadata(client.url).catch(() => null);
   if (!meta || !meta.reachable) {
     return {
       ok: false,
-      error: "Couldn't reach the site. Check the URL and try again.",
+      error: tx("couldnTReachTheSite"),
     };
   }
 
@@ -450,7 +455,7 @@ export async function refreshClientMetadata(
 
   await logActivity({
     kind: "client.created",
-    message: `Refreshed metadata for ${client.name}.`,
+    message: tx("refreshedMetadataFor", { name: client.name }),
     level: "info",
     clientId,
     entityType: "client",
@@ -590,18 +595,19 @@ export async function deleteClient(
   id: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_actions");
   const me = await currentUser();
   if (!userMayEdit(me)) {
-    return { ok: false, error: "You have read-only access and cannot delete clients." };
+    return { ok: false, error: tx("youHaveReadOnlyAccess") };
   }
   if (me && !(await canSeeClient(me, id))) {
-    return { ok: false, error: "You do not have access to this client." };
+    return { ok: false, error: tx("youDoNotHaveAccess") };
   }
 
   try {
     await db.delete(clients).where(eq(clients.id, id));
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Delete failed";
+    const msg = err instanceof Error ? err.message : tx("deleteFailed");
     return { ok: false, error: msg };
   }
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq, desc, and, inArray, lt } from "drizzle-orm";
@@ -85,9 +86,10 @@ export async function addFeed(input: {
   name?: string;
 }): Promise<AddFeedResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_news_actions");
   const parsed = addFeedSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const raw = parsed.data.url.trim();
@@ -113,7 +115,7 @@ export async function addFeed(input: {
       ok: false,
       error:
         probe.error ??
-        "Couldn't find an RSS feed at that URL. Some sites don't expose one — try pasting the RSS feed URL directly.",
+        tx("couldnTFindAnRss"),
     };
   }
 
@@ -135,7 +137,7 @@ export async function addFeed(input: {
     safeRevalidatePath("/news");
     return { ok: true, id: row.id, resolvedUrl, autoDiscovered };
   } catch {
-    return { ok: false, error: "Feed URL already exists." };
+    return { ok: false, error: tx("feedUrlAlreadyExists") };
   }
 }
 

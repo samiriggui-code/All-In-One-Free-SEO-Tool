@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -42,6 +43,7 @@ export async function saveBrandStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = brandSchema.safeParse({
     clientId: formData.get("clientId"),
     description: formData.get("description") ?? undefined,
@@ -49,7 +51,7 @@ export async function saveBrandStep(
     niche: formData.get("niche") || undefined,
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
 
   await db
     .update(clients)
@@ -87,6 +89,7 @@ export async function saveTargetingStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = targetingSchema.safeParse({
     clientId: formData.get("clientId"),
     country: formData.get("country"),
@@ -96,7 +99,7 @@ export async function saveTargetingStep(
     serviceRadiusKm: formData.get("serviceRadiusKm") ?? undefined,
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
 
   await db
     .update(clients)
@@ -134,9 +137,10 @@ export async function saveSurfacesStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const clientId = Number(formData.get("clientId"));
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Invalid client." };
+    return { ok: false, error: tx("invalidClient") };
 
   const picked = formData
     .getAll("surfaces")
@@ -175,12 +179,13 @@ export async function runKeywordDiscovery(
   formData: FormData,
 ): Promise<DiscoverState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const id = Number(formData.get("clientId"));
   if (!Number.isFinite(id) || id <= 0)
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient2") };
 
   const [c] = await db.select().from(clients).where(eq(clients.id, id)).limit(1);
-  if (!c) return { ok: false, error: "Client not found" };
+  if (!c) return { ok: false, error: tx("clientNotFound") };
 
   let domain = "";
   try {
@@ -217,7 +222,7 @@ export async function runKeywordDiscovery(
 
   await appendResearchLog(
     id,
-    `Keyword discovery: ${result.keywords.length} found from ${result.seedsUsed.length} seeds` +
+    tx("keywordDiscoveryFoundFromSeeds", { length: result.keywords.length, length2: result.seedsUsed.length }) +
       (vocab
         ? `, site read ${fromCache ? "reused" : "fresh"} (${vocab.pagesRead} pages)`
         : ", site could not be read"),
@@ -243,18 +248,19 @@ export async function acceptDiscoveredKeywords(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = acceptKeywordsSchema.safeParse({
     clientId: formData.get("clientId"),
     selected: formData.get("selected"),
   });
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
 
   let chosen: string[] = [];
   try {
     chosen = JSON.parse(parsed.data.selected) as string[];
   } catch {
-    return { ok: false, error: "Bad selection payload" };
+    return { ok: false, error: tx("badSelectionPayload") };
   }
   chosen = chosen
     .map((s) => s.trim())
@@ -262,7 +268,7 @@ export async function acceptDiscoveredKeywords(
     .slice(0, 200);
 
   if (chosen.length === 0) {
-    return { ok: false, error: "Pick at least one keyword to track." };
+    return { ok: false, error: tx("pickAtLeastOneKeyword") };
   }
 
   const [c] = await db
@@ -270,7 +276,7 @@ export async function acceptDiscoveredKeywords(
     .from(clients)
     .where(eq(clients.id, parsed.data.clientId))
     .limit(1);
-  if (!c) return { ok: false, error: "Client not found" };
+  if (!c) return { ok: false, error: tx("clientNotFound") };
 
   // Insert as keyword rows, skipping ones already present (case-insensitive)
   const existing = await db
@@ -315,15 +321,16 @@ export async function generateMonthlyCalendar(
   clientId: number,
 ): Promise<GenerateCalendarResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient2") };
 
   const [c] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!c) return { ok: false, error: "Client not found" };
+  if (!c) return { ok: false, error: tx("clientNotFound") };
 
   // Pull GSC quick wins for the calendar to pin into days 9-11
   let quickWins: { query: string; impressions: number; position: number }[] = [];
@@ -483,7 +490,7 @@ export async function generateMonthlyCalendar(
 
   await logActivity({
     kind: "task.created",
-    message: `Generated 30-day SEO calendar (${rows.length} tasks).`,
+    message: tx("generated30DaySeoCalendar", { length: rows.length }),
     level: "success",
     clientId: c.id,
     entityType: "calendar",

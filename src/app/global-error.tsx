@@ -10,7 +10,11 @@
  * already proved insufficient, so we keep this dead-simple.
  */
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+
+const noSubscribe = () => () => {};
+/** The interface language, read from its cookie: no provider survives here. */
+const cookieSaysEnglish = () => /(^|; )NEXT_LOCALE=en/.test(document.cookie);
 
 export default function GlobalError({
   error,
@@ -19,6 +23,10 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // French unless the visitor chose English, as everywhere else.
+  const en = useSyncExternalStore(noSubscribe, cookieSaysEnglish, () => false);
+  const t = (english: string, french: string) => (en ? english : french);
+
   useEffect(() => {
     fetch("/api/errors", {
       method: "POST",
@@ -49,7 +57,7 @@ export default function GlobalError({
   }
 
   return (
-    <html lang="en">
+    <html lang={en ? "en" : "fr"}>
       <body
         style={{
           margin: 0,
@@ -74,7 +82,7 @@ export default function GlobalError({
               borderRadius: 6,
             }}
           >
-            Critical error — root layout couldn&apos;t load
+            {t("Critical error — root layout couldn't load", "Erreur critique : l’application n’a pas pu s’afficher")}
           </div>
           <h1
             style={{
@@ -84,7 +92,7 @@ export default function GlobalError({
               letterSpacing: "-0.02em",
             }}
           >
-            Something went badly wrong.
+            {t("Something went badly wrong.", "Une erreur grave s’est produite.")}
           </h1>
           <p
             style={{
@@ -94,9 +102,10 @@ export default function GlobalError({
               lineHeight: 1.55,
             }}
           >
-            The app&apos;s root failed to render — usually means a freshly
-            broken build or a missing dependency after an update. Try the
-            options below in order.
+            {t(
+              "The app's root failed to render — usually means a freshly broken build or a missing dependency after an update. Try the options below in order.",
+              "La base de l’application n’a pas pu s’afficher. Essayez les solutions ci-dessous, dans l’ordre.",
+            )}
           </p>
 
           <pre
@@ -114,7 +123,7 @@ export default function GlobalError({
               wordBreak: "break-word",
             }}
           >
-            {error.message || "Unknown error"}
+            {error.message || t("Unknown error", "Erreur inconnue")}
           </pre>
 
           <ol
@@ -126,53 +135,80 @@ export default function GlobalError({
               color: "#d4d4d8",
             }}
           >
-            <li>Try again — sometimes it&apos;s transient.</li>
-            <li>
-              Reload the page (
-              <kbd
-                style={{
-                  fontFamily: "monospace",
-                  background: "#26272b",
-                  padding: "1px 5px",
-                  borderRadius: 3,
-                  fontSize: 11,
-                }}
-              >
-                Ctrl/Cmd + R
-              </kbd>
-              ).
-            </li>
-            <li>
-              Stop the dev server (Ctrl+C in your terminal) and run{" "}
-              <code
-                style={{
-                  fontFamily: "monospace",
-                  background: "#26272b",
-                  padding: "1px 5px",
-                  borderRadius: 3,
-                  fontSize: 11,
-                }}
-              >
-                pnpm install
-              </code>{" "}
-              then{" "}
-              <code
-                style={{
-                  fontFamily: "monospace",
-                  background: "#26272b",
-                  padding: "1px 5px",
-                  borderRadius: 3,
-                  fontSize: 11,
-                }}
-              >
-                pnpm dev
-              </code>{" "}
-              — fixes missing-dependency errors after an update.
-            </li>
-            <li>
-              Open an issue with the copied details below — that gives the
-              maintainer enough to fix it fast.
-            </li>
+            {en ? (
+              <>
+                <li>Try again — sometimes it&apos;s transient.</li>
+                <li>
+                  Reload the page (
+                  <kbd
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#26272b",
+                      padding: "1px 5px",
+                      borderRadius: 3,
+                      fontSize: 11,
+                    }}
+                  >
+                    Ctrl/Cmd + R
+                  </kbd>
+                  ).
+                </li>
+                <li>
+                  Stop the dev server (Ctrl+C in your terminal) and run{" "}
+                  <code
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#26272b",
+                      padding: "1px 5px",
+                      borderRadius: 3,
+                      fontSize: 11,
+                    }}
+                  >
+                    pnpm install
+                  </code>{" "}
+                  then{" "}
+                  <code
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#26272b",
+                      padding: "1px 5px",
+                      borderRadius: 3,
+                      fontSize: 11,
+                    }}
+                  >
+                    pnpm dev
+                  </code>{" "}
+                  — fixes missing-dependency errors after an update.
+                </li>
+                <li>
+                  Open an issue with the copied details below — that gives the
+                  maintainer enough to fix it fast.
+                </li>
+              </>
+            ) : (
+              <>
+                <li>Réessayez : l’erreur est parfois passagère.</li>
+                <li>
+                  Rechargez la page (
+                  <kbd
+                    style={{
+                      fontFamily: "monospace",
+                      background: "#26272b",
+                      padding: "1px 5px",
+                      borderRadius: 3,
+                      fontSize: 11,
+                    }}
+                  >
+                    Ctrl/Cmd + R
+                  </kbd>
+                  ).
+                </li>
+                <li>
+                  Si l’erreur persiste, copiez les détails ci-dessous et
+                  transmettez-les à la personne qui gère l’application.
+                </li>
+              </>
+            )}
           </ol>
 
           <div style={{ marginTop: 20, display: "flex", gap: 8 }}>
@@ -190,7 +226,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Try again
+              {t("Try again", "Réessayer")}
             </button>
             <button
               type="button"
@@ -205,7 +241,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Hard reload
+              {t("Hard reload", "Recharger la page")}
             </button>
             <button
               type="button"
@@ -220,7 +256,7 @@ export default function GlobalError({
                 cursor: "pointer",
               }}
             >
-              Copy details
+              {t("Copy details", "Copier les détails")}
             </button>
           </div>
 
@@ -228,7 +264,8 @@ export default function GlobalError({
             <div
               style={{ marginTop: 18, fontSize: 11, color: "#71717a" }}
             >
-              Error ID: <code style={{ fontFamily: "monospace" }}>{error.digest}</code>
+              {t("Error ID:", "Identifiant de l’erreur :")}{" "}
+              <code style={{ fontFamily: "monospace" }}>{error.digest}</code>
             </div>
           )}
         </div>

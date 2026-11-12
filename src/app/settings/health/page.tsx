@@ -28,6 +28,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { getSetting } from "@/lib/settings-store";
 import { configuredProviders, getActiveProvider } from "@/lib/api-keys";
 import { requireSettingsPage } from "../access";
+import { shortAgoDays } from "@/lib/relative-time";
 
 export const dynamic = "force-dynamic";
 
@@ -38,21 +39,12 @@ function fmtBytes(b: number): string {
   return `${(b / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
-function fmtAgo(d: Date | null): string {
-  if (!d) return "never";
-  const ms = Date.now() - d.getTime();
-  const s = Math.floor(ms / 1000);
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
-}
-
 export default async function HealthPage() {
   await requireSettingsPage("/settings/health");
   const tx = await getTranslations("ui.app_settings_health_page");
+  const tTime = await getTranslations("time");
+  const fmtAgo = (d: Date | null) =>
+    d ? shortAgoDays(Date.now() - d.getTime(), tTime, { seconds: true }) : tTime("never");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbsolute = path.resolve(dbPath);
   const dbExists = existsSync(dbAbsolute);
@@ -139,7 +131,7 @@ export default async function HealthPage() {
           subtitle={tx("inLast24h", { errorsLast24h })}
           tone={errorCount === 0 ? "ok" : errorCount < 5 ? "warn" : "error"}
           href="/settings/errors"
-          ctaLabel="View log"
+          ctaLabel={tx("viewLog")}
         />
         <Card
           icon={Bot}
@@ -148,7 +140,7 @@ export default async function HealthPage() {
           subtitle={tx("otherConfigured", { length: configuredProviderIds.length })}
           tone={activeProvider ? "ok" : "warn"}
           href="/settings#ai"
-          ctaLabel="Manage"
+          ctaLabel={tx("manage")}
         />
         <Card
           icon={Cpu}
@@ -161,7 +153,7 @@ export default async function HealthPage() {
           }
           tone={aiErrorsLast24h === 0 ? "ok" : "warn"}
           href="/settings/ai-usage"
-          ctaLabel="Usage log"
+          ctaLabel={tx("usageLog")}
         />
         <Card
           icon={Globe}

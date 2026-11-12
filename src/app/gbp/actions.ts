@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -27,17 +28,18 @@ export async function runGbpScrape(
   clientId: number,
 ): Promise<RunGbpResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   if (!client.gbpUrl) {
     return {
       ok: false,
       error:
-        "No Google Business Profile URL on this client. Add it in Edit → GBP profile.",
+        tx("noGoogleBusinessProfileUrl"),
     };
   }
 
@@ -58,13 +60,13 @@ export async function runGbpScrape(
     return {
       ok: false,
       error:
-        "The browser-based GBP scraper is disabled to save memory. Use the official GBP API (connect Google with business.manage scope under Settings → Google), or enable the scraper under Settings → Browser pool.",
+        tx("theBrowserBasedGbpScraper"),
     };
   }
 
   const report = await scrapeGbp(client.gbpUrl);
   if (!report.ok) {
-    return { ok: false, error: report.error ?? "Scrape failed" };
+    return { ok: false, error: report.error ?? tx("scrapeFailed") };
   }
   return { ok: true, report };
 }
@@ -95,8 +97,9 @@ export async function generateReviewReply(opts: {
   reviewText: string;
 }): Promise<GenerateReplyResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_actions");
   if (!opts.reviewText.trim()) {
-    return { ok: false, error: "Review text is empty" };
+    return { ok: false, error: tx("reviewTextIsEmpty") };
   }
 
   const userPrompt = [
@@ -120,7 +123,7 @@ export async function generateReviewReply(opts: {
   if (!raw) {
     return {
       ok: false,
-      error: lastAiFailure()?.message ?? "AI provider didn't respond. Set up a key in Settings.",
+      error: lastAiFailure()?.message ?? tx("aiProviderDidnTRespond"),
     };
   }
   return { ok: true, reply: raw.trim().replace(/^["']|["']$/g, "") };
@@ -143,12 +146,13 @@ export async function loadGbpForClient(
   selectedLocation?: string,
 ): Promise<GbpApiState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   try {
     const accounts = await listGbpAccounts({ clientIdScope: clientId });
@@ -204,7 +208,8 @@ export async function postGbpReply(opts: {
   comment: string;
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  if (!opts.comment.trim()) return { ok: false, error: "Reply is empty" };
+  const tx = await actionTx("ui.app_gbp_actions");
+  if (!opts.comment.trim()) return { ok: false, error: tx("replyIsEmpty") };
   return await replyToGbpReview({
     reviewName: opts.reviewName,
     comment: opts.comment.trim(),
@@ -239,8 +244,9 @@ export async function composeGbpPost(opts: {
   ctaUrl?: string;
 }): Promise<ComposePostResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_actions");
   if (!opts.topic.trim())
-    return { ok: false, error: "Topic / angle is required" };
+    return { ok: false, error: tx("topicAngleIsRequired") };
 
   const userPrompt = [
     `Business: ${opts.clientName}`,
@@ -267,7 +273,7 @@ export async function composeGbpPost(opts: {
   if (!raw) {
     return {
       ok: false,
-      error: lastAiFailure()?.message ?? "AI provider didn't respond. Set up a key in Settings.",
+      error: lastAiFailure()?.message ?? tx("aiProviderDidnTRespond"),
     };
   }
   return { ok: true, text: raw.trim().replace(/^["']|["']$/g, "") };
@@ -304,6 +310,7 @@ export async function generateGbpPostIdeas(opts: {
   description?: string | null;
 }): Promise<IdeasResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_gbp_actions");
   const userPrompt = [
     `Business: ${opts.clientName}`,
     opts.businessType ? `Business type: ${opts.businessType}` : "",
@@ -330,7 +337,7 @@ export async function generateGbpPostIdeas(opts: {
   if (!raw) {
     return {
       ok: false,
-      error: lastAiFailure()?.message ?? "AI provider didn't respond. Set up a key in Settings.",
+      error: lastAiFailure()?.message ?? tx("aiProviderDidnTRespond"),
     };
   }
   // Strip code fences if the model added them despite instructions.
@@ -342,12 +349,12 @@ export async function generateGbpPostIdeas(opts: {
   const start = cleaned.indexOf("[");
   const end = cleaned.lastIndexOf("]");
   if (start === -1 || end === -1 || end <= start) {
-    return { ok: false, error: "AI returned an unexpected format." };
+    return { ok: false, error: tx("aiReturnedAnUnexpectedFormat") };
   }
   try {
     const parsed = JSON.parse(cleaned.slice(start, end + 1)) as GbpPostIdea[];
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      return { ok: false, error: "AI returned an empty list." };
+      return { ok: false, error: tx("aiReturnedAnEmptyList") };
     }
     const valid = parsed
       .filter(
@@ -362,11 +369,11 @@ export async function generateGbpPostIdeas(opts: {
       )
       .slice(0, 7);
     if (valid.length === 0) {
-      return { ok: false, error: "AI returned no valid ideas." };
+      return { ok: false, error: tx("aiReturnedNoValidIdeas") };
     }
     return { ok: true, ideas: valid };
   } catch {
-    return { ok: false, error: "Couldn't parse AI response." };
+    return { ok: false, error: tx("couldnTParseAiResponse") };
   }
 }
 

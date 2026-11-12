@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -126,9 +127,10 @@ export async function previewCsv(text: string): Promise<
   | { ok: false; error: string }
 > {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_csv-import_actions");
   const rows = parseCsv(text);
   if (rows.length === 0) {
-    return { ok: false, error: "No rows detected. Is this a valid CSV?" };
+    return { ok: false, error: tx("noRowsDetectedIsThis") };
   }
   const schema = detectSchema(rows);
   return {
@@ -159,9 +161,10 @@ export async function importCsv(input: {
   clientId?: number;
 }): Promise<ImportResult> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_csv-import_actions");
   const rows = parseCsv(input.text);
   if (rows.length === 0) {
-    return { ok: false, error: "No rows" };
+    return { ok: false, error: tx("noRows") };
   }
 
   let inserted = 0;
@@ -202,14 +205,14 @@ export async function importCsv(input: {
     revalidatePath("/clients");
   } else if (input.schema === "keywords") {
     if (!input.clientId) {
-      return { ok: false, error: "Pick a client for keyword import." };
+      return { ok: false, error: tx("pickAClientForKeyword") };
     }
     const [client] = await db
       .select({ id: clients.id })
       .from(clients)
       .where(eq(clients.id, input.clientId))
       .limit(1);
-    if (!client) return { ok: false, error: "Client not found" };
+    if (!client) return { ok: false, error: tx("clientNotFound") };
 
     for (const r of rows) {
       const query = pick(r, "keyword", "query", "search term", "search query");
@@ -235,7 +238,7 @@ export async function importCsv(input: {
     revalidatePath("/keywords");
   } else if (input.schema === "outreach") {
     if (!input.clientId) {
-      return { ok: false, error: "Pick a client for outreach import." };
+      return { ok: false, error: tx("pickAClientForOutreach") };
     }
     for (const r of rows) {
       const url =
@@ -272,7 +275,7 @@ export async function importCsv(input: {
     revalidatePath("/outreach");
   } else if (input.schema === "competitors") {
     if (!input.clientId) {
-      return { ok: false, error: "Pick a client for competitor import." };
+      return { ok: false, error: tx("pickAClientForCompetitor") };
     }
     for (const r of rows) {
       const url = pick(r, "competitor url", "url", "domain", "competitor");
@@ -303,7 +306,7 @@ export async function importCsv(input: {
     return {
       ok: false,
       error:
-        "Couldn't detect what this CSV is. Pick a schema manually or rename headers.",
+        tx("couldnTDetectWhatThis"),
     };
   }
 

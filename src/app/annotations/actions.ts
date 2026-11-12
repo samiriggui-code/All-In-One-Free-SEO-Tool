@@ -1,5 +1,6 @@
 "use server";
 
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -21,6 +22,7 @@ export async function addAnnotation(
   formData: FormData,
 ): Promise<CreateState> {
   await requireSignedIn();
+  const tx = await actionTx("ui.app_annotations_actions");
   const label = String(formData.get("label") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const eventDateRaw = String(formData.get("eventDate") ?? "").trim();
@@ -30,10 +32,10 @@ export async function addAnnotation(
   const keywordIdRaw = String(formData.get("keywordId") ?? "").trim();
   const pageUrl = String(formData.get("pageUrl") ?? "").trim();
 
-  if (!label) return { ok: false, error: "Label is required." };
+  if (!label) return { ok: false, error: tx("labelIsRequired") };
   const eventDate = eventDateRaw ? new Date(eventDateRaw) : null;
   if (!eventDate || Number.isNaN(eventDate.getTime()))
-    return { ok: false, error: "Event date is required." };
+    return { ok: false, error: tx("eventDateIsRequired") };
 
   const scope = (
     ["global", "client", "keyword", "page"].includes(scopeRaw)
@@ -42,11 +44,11 @@ export async function addAnnotation(
   ) as "global" | "client" | "keyword" | "page";
 
   if (scope === "client" && !clientIdRaw)
-    return { ok: false, error: "Client scope needs a client." };
+    return { ok: false, error: tx("clientScopeNeedsAClient") };
   if (scope === "keyword" && !keywordIdRaw)
-    return { ok: false, error: "Keyword scope needs a keyword id." };
+    return { ok: false, error: tx("keywordScopeNeedsAKeyword") };
   if (scope === "page" && !pageUrl)
-    return { ok: false, error: "Page scope needs a URL." };
+    return { ok: false, error: tx("pageScopeNeedsAUrl") };
 
   try {
     const id = await createAnnotation({
@@ -65,7 +67,7 @@ export async function addAnnotation(
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Failed to save annotation.",
+      error: e instanceof Error ? e.message : tx("failedToSaveAnnotation"),
     };
   }
 }
