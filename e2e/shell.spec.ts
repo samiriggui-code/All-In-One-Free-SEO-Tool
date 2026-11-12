@@ -24,9 +24,9 @@ test.describe("shell", () => {
     }
 
     const nav = isMobile ? page.getByRole("dialog") : page.locator("aside");
-    // The entries that are always showing. Audits now sits in a section
-    // that is collapsed until opened, so it is no longer one of them.
-    for (const label of ["Dashboard", "Clients", "Tasks", "All tools"]) {
+    // The agency menu: seven entries, all always showing. The tool
+    // catalogue is no longer one of them; it lives in Settings.
+    for (const label of ["Dashboard", "Clients", "Audits", "Tasks", "Reports", "Settings"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
     }
   });
@@ -87,8 +87,8 @@ test.describe("shell", () => {
     await page.getByRole("button", { name: "Open menu" }).click();
     const drawer = page.getByRole("dialog");
 
-    // Grouped, not the old flat list of 11 hardcoded links.
-    await expect(drawer.getByText("Essentials", { exact: true })).toBeVisible();
+    // Grouped under the same heading as the desktop sidebar.
+    await expect(drawer.getByText("Agency", { exact: true })).toBeVisible();
 
     await drawer.getByRole("searchbox").fill("report");
     await expect(drawer.getByRole("link", { name: /Reports/ })).toBeVisible();

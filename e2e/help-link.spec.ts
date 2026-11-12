@@ -19,8 +19,11 @@ test.describe("help link", () => {
     { path: "/audits", page: "/docs/audit" },
     { path: "/keywords", page: "/docs/keywords" },
     { path: "/reports", page: "/docs/monthly-report" },
-    { path: "/tools", page: "/docs#tools" },
-    { path: "/settings", page: "/docs/connect-ai" },
+    // /tools now redirects to Settings → Tools, and Settings is a window
+    // of its own without the page header, so neither carries the button
+    // any more. Two other mapped screens stand in for them.
+    { path: "/tasks", page: "/docs/audit" },
+    { path: "/clients", page: "/docs/first-client" },
   ];
 
   for (const c of CASES) {

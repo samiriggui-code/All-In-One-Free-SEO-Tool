@@ -1,62 +1,27 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * The tools hub — search, and the pin behaviour that moved from
- * useState+useEffect to useSyncExternalStore.
+ * The tool catalogue. The old /tools hub is gone: the catalogue lives in
+ * Settings → Tools, and /tools redirects there so old links still land.
  */
 
-test.describe("tools hub", () => {
-  test("lists tools and filters them", async ({ page }) => {
+test.describe("tool catalogue", () => {
+  test("/tools lands on the catalogue, which lists and filters tools", async ({ page }) => {
     await page.goto("/tools");
-    await expect(
-      page.getByRole("heading", { name: "Tools", exact: true }),
-    ).toBeVisible();
+    await expect(page).toHaveURL(/\/settings\/tools/);
 
-    const filter = page.getByPlaceholder(/Filter tools/);
+    const cards = page.locator("main button[aria-haspopup='dialog']");
+    await expect(cards.first()).toBeVisible();
+
+    const filter = page.getByPlaceholder("Search tools");
     await filter.fill("sitemap");
-    await expect(page.getByRole("link", { name: /sitemap/i }).first()).toBeVisible();
+    await expect(cards.filter({ hasText: /sitemap/i }).first()).toBeVisible();
 
     // A term no tool matches should empty the grid rather than silently
     // showing everything — the failure mode of a broken filter.
-    //
-    // Scoped to the grid's category sections. The "most used" and
-    // "recently run" rails above it are server-rendered from run history
-    // and deliberately outside the filter, so counting every /tools/ link
-    // on the page made this fail whenever any other spec left a tool run
-    // behind — a failure that pointed at the filter and was nothing to do
-    // with it.
     await filter.fill("zzzznotarealtool");
-    await expect(
-      page.locator("section[id^='cat-'] a[href^='/tools/']"),
-    ).toHaveCount(0);
-    await expect(page.getByText(/No tools match/)).toBeVisible();
-  });
-
-  test("pinned tools survive a reload", async ({ page, isMobile }) => {
-    test.skip(isMobile, "Pin buttons are hover-revealed on desktop only.");
-
-    await page.goto("/tools");
-    const filter = page.getByPlaceholder(/Filter tools/);
-    const pinnedHeading = page.getByRole("heading", { name: /^Pinned/ });
-
-    // Start clean — pins live in localStorage and persist across tests.
-    await page.evaluate(() => window.localStorage.removeItem("seo:tools-pinned"));
-    await page.reload();
-    await expect(pinnedHeading).toHaveCount(0);
-
-    await filter.fill("robots");
-    await page.getByRole("button", { name: "Pin tool" }).first().click();
-
-    // The pinned rail is deliberately hidden while a filter is active —
-    // the filtered grid takes over the viewport — so clear it first.
-    await filter.fill("");
-    await expect(pinnedHeading).toBeVisible();
-
-    // Same regression shape as the sidebar: the old code rendered zero
-    // pins, committed, then re-rendered with the real set, so pinned
-    // tools visibly jumped to the top a beat after load.
-    await page.reload();
-    await expect(pinnedHeading).toBeVisible();
+    await expect(cards).toHaveCount(0);
+    await expect(page.getByText("No tool matches.")).toBeVisible();
   });
 });
 
@@ -80,7 +45,8 @@ test.describe("core routes", () => {
     { path: "/audits", heading: /^Audits$/ },
     { path: "/keywords", heading: /^Keywords$/ },
     { path: "/reports", heading: /^Reports$/ },
-    { path: "/settings", heading: /^Settings$/ },
+    // Settings opens on its first section, and the section is the heading.
+    { path: "/settings", heading: /^General$/ },
     { path: "/welcome", heading: /Get started/ },
     { path: "/automations/overview", heading: /what's manual/i },
     // The cross-client ranked list. It runs a query per client per

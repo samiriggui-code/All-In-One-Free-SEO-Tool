@@ -29,10 +29,26 @@ const DB = path.resolve(process.cwd(), ".e2e/e2e.db");
 const CLIENT = "E2E Ranked Work Ltd";
 const SITE = "https://e2e-ranked-work.invalid";
 
+/**
+ * The rows are written in the workspace language (Settings → General),
+ * like reports, not in the browser's. It defaults to French, so pin it
+ * to English for this file and put back whatever was there afterwards.
+ */
+const LOCALE_KEY = "ui.locale";
+let previousLocale: string | null | undefined;
+
 function seed(): number {
   const db = new Database(DB);
   try {
     db.pragma("journal_mode = WAL");
+    const prev = db
+      .prepare("SELECT value FROM workspace_settings WHERE key = ?")
+      .get(LOCALE_KEY) as { value: string | null } | undefined;
+    previousLocale = prev ? prev.value : undefined;
+    db.prepare(
+      "INSERT INTO workspace_settings (key, value) VALUES (?, ?) " +
+        "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+    ).run(LOCALE_KEY, JSON.stringify("en"));
     db.prepare("DELETE FROM clients WHERE name = ?").run(CLIENT);
     const info = db
       .prepare("INSERT INTO clients (name, url) VALUES (?, ?)")
@@ -57,6 +73,14 @@ function unseed() {
   const db = new Database(DB);
   try {
     db.prepare("DELETE FROM clients WHERE name = ?").run(CLIENT);
+    if (previousLocale === undefined) {
+      db.prepare("DELETE FROM workspace_settings WHERE key = ?").run(LOCALE_KEY);
+    } else {
+      db.prepare("UPDATE workspace_settings SET value = ? WHERE key = ?").run(
+        previousLocale,
+        LOCALE_KEY,
+      );
+    }
   } finally {
     db.close();
   }
@@ -191,8 +215,14 @@ test.describe("a client's own page", () => {
     // On that client's own page the name is the one thing the reader
     // already knows, and it crowded out the part they did not.
     await page.goto(`/clients/${clientId}`);
-    const p = panel(page);
+    // The list moved off the page into the "Action plan" sheet, behind
+    // one button at the top of the tools rail.
+    await page.getByRole("button", { name: /Action plan/ }).first().click();
+    const sheet = page.getByRole("dialog");
+    await sheet.getByRole("tab", { name: /Recommendations/ }).click();
+    const p = sheet.getByRole("tabpanel");
     await expect(p).toBeVisible();
+    await expect(p).toContainText(/first audit/i);
     await expect(p).not.toContainText(CLIENT);
   });
 
