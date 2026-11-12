@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -34,7 +34,7 @@ export async function researchAction(
   formData: FormData,
 ): Promise<ResearchActionResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_keywords_actions");
+  const tx = await actionTx("ui.app_keywords_actions");
   const seed = String(formData.get("seed") ?? "").trim();
   // normaliseCountry maps the "UK" the old form used onto GB, and
   // refuses anything a search engine would not accept.

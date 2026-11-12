@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -54,7 +54,7 @@ export async function saveGoogleCredentials(
 export async function clearGoogleCredentials() {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_google_actions");
+  const tx = await actionTx("ui.app_settings_google_actions");
   await disconnectGoogle();
   await Promise.all([
     deleteSetting("google.client_id"),
@@ -71,7 +71,7 @@ export async function clearGoogleCredentials() {
 export async function disconnectGoogleAccount() {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_google_actions");
+  const tx = await actionTx("ui.app_settings_google_actions");
   await disconnectGoogle();
   await logActivity({
     kind: "google.disconnected",
@@ -94,7 +94,7 @@ export async function saveServiceAccount(
 ): Promise<{ ok: boolean; error?: string; email?: string }> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_google_actions");
+  const tx = await actionTx("ui.app_settings_google_actions");
   const { saveServiceAccountKey } = await import("@/lib/google-service-account");
   const raw = String(formData.get("json") ?? "");
   const result = await saveServiceAccountKey(raw);
@@ -114,7 +114,7 @@ export async function saveServiceAccount(
 export async function removeServiceAccount() {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_google_actions");
+  const tx = await actionTx("ui.app_settings_google_actions");
   const { clearServiceAccount } = await import("@/lib/google-service-account");
   await clearServiceAccount();
   await logActivity({
@@ -139,7 +139,7 @@ export async function testServiceAccount(): Promise<{
 }> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_google_actions");
+  const tx = await actionTx("ui.app_settings_google_actions");
   const { serviceAccountAccessToken, serviceAccountEmail } = await import(
     "@/lib/google-service-account"
   );

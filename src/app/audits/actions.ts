@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
@@ -91,7 +91,7 @@ export async function runAuditForClient(
   input?: FormData | AuditMode,
 ) {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_audits_actions");
+  const tx = await actionTx("ui.app_audits_actions");
   const requested = input instanceof FormData ? input.get("mode") : input;
   const mode: AuditMode = isAuditMode(requested) ? requested : "quick";
   const [client] = await db

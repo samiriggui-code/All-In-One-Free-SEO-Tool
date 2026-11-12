@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -21,7 +21,7 @@ export async function rotateEdgeTokenAction(): Promise<
 > {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_edge_actions");
+  const tx = await actionTx("ui.app_settings_edge_actions");
   try {
     const token = await rotateEdgeToken();
     await logActivity({

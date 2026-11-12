@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -117,7 +117,7 @@ export async function parseAndStoreLog(input: {
   clientId?: number | null;
 }): Promise<ParseResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_bot-logs_actions");
+  const tx = await actionTx("ui.app_bot-logs_actions");
   if (!input.text || input.text.length === 0) {
     return { ok: false, error: tx("emptyFile") };
   }

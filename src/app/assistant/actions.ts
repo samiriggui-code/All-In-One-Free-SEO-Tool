@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { desc, eq, ne, count } from "drizzle-orm";
@@ -288,7 +288,7 @@ async function callOllama(
 
 export async function chat(history: ChatMessage[]): Promise<ChatResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_assistant_actions");
+  const tx = await actionTx("ui.app_assistant_actions");
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return { ok: false, error: tx("noUserMessageToRespond") };
   }

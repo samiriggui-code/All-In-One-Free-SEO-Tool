@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -52,7 +52,7 @@ export async function setTaskStatus(
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_tasks_actions");
+  const tx = await actionTx("ui.app_tasks_actions");
   if ((await editableTaskIds([taskId])).length === 0) return;
 
   const [existing] = await db
@@ -145,7 +145,7 @@ export async function createTask(
   formData: FormData,
 ): Promise<CreateTaskResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_tasks_actions");
+  const tx = await actionTx("ui.app_tasks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     title: formData.get("title"),
@@ -228,7 +228,7 @@ export async function logTaskTime(input: {
   minutes: number;
 }): Promise<{ ok: true; total: number } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_tasks_actions");
+  const tx = await actionTx("ui.app_tasks_actions");
   if ((await editableTaskIds([input.taskId])).length === 0) {
     return { ok: false, error: tx("taskNotFound") };
   }
@@ -323,7 +323,7 @@ export async function applyPlaybookToClient(input: {
   clientId: number;
 }): Promise<{ ok: true; created: number } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_tasks_actions");
+  const tx = await actionTx("ui.app_tasks_actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
     return { ok: false, error: tx("invalidClient") };
   }
@@ -370,7 +370,7 @@ export async function setTaskPageDone(
   done: boolean,
 ): Promise<{ ok: true; pages: TaskPage[]; status: string } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_tasks_actions");
+  const tx = await actionTx("ui.app_tasks_actions");
   if ((await editableTaskIds([taskId])).length === 0) return { ok: false, error: tx("taskNotFound") };
   const [task] = await db
     .select({ pages: tasks.pages, status: tasks.status, title: tasks.title, clientId: tasks.clientId })

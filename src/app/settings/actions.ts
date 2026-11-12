@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireEditor, requireSettingsAdmin } from "@/lib/auth";
@@ -25,7 +25,7 @@ export async function saveWebhookUrl(
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_actions");
+  const tx = await actionTx("ui.app_settings_actions");
   const raw = String(formData.get("url") ?? "").trim();
 
   if (raw === "") {
@@ -54,7 +54,7 @@ export async function testWebhook(
 ): Promise<WebhookActionResult> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_actions");
+  const tx = await actionTx("ui.app_settings_actions");
   const raw = String(formData.get("url") ?? "").trim();
 
   const parsed = webhookSchema.safeParse(raw);

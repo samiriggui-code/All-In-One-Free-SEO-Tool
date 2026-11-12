@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -29,7 +29,7 @@ export async function findLinkProspects(
   formData: FormData,
 ): Promise<ProspectSearchResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_link-building_prospects_actions");
+  const tx = await actionTx("ui.app_link-building_prospects_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     topic: formData.get("topic"),
@@ -73,7 +73,7 @@ export async function findLinkProspects(
  */
 export async function trackProspect(formData: FormData): Promise<void> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_link-building_prospects_actions");
+  const tx = await actionTx("ui.app_link-building_prospects_actions");
   const url = String(formData.get("url") ?? "").trim();
   const clientId = Number(formData.get("clientId"));
   const strategy = String(formData.get("strategy") ?? "resource_pages");

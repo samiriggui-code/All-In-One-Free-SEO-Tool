@@ -7,7 +7,8 @@ import { revalidatePath } from "next/cache";
 import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { classifyIntent } from "@/lib/keyword-research";
 import { and, count, desc, eq } from "drizzle-orm";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { z } from "zod";
 import { db } from "@/db/client";
 import {
@@ -81,7 +82,7 @@ export async function buildProposal(input: {
   leadId?: number;
 }): Promise<CreateResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_proposals_actions");
+  const tx = await actionTx("ui.app_proposals_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
@@ -260,7 +261,7 @@ export async function updateProposal(
   rawPatch: ProposalPatch,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_proposals_actions");
+  const tx = await actionTx("ui.app_proposals_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   const parsed = patchSchema.safeParse(rawPatch);
@@ -318,7 +319,7 @@ export async function deleteProposal(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_proposals_actions");
+  const tx = await actionTx("ui.app_proposals_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   const [existing] = await db
@@ -353,7 +354,7 @@ export async function createInvoiceFromProposal(
   proposalId: number,
 ): Promise<InvoiceFromProposalResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_proposals_actions");
+  const tx = await actionTx("ui.app_proposals_actions");
   if (await assertCanEdit(tx)) return { ok: false, error: "readOnly" };
   if (!Number.isInteger(proposalId)) return { ok: false, error: "notFound" };
 
@@ -441,7 +442,7 @@ export async function buildKickoffReport(
   clientId: number,
 ): Promise<CreateResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_proposals_actions");
+  const tx = await actionTx("ui.app_proposals_actions");
   const base = await buildProposal({ clientId });
   if (!base.ok) return base;
 

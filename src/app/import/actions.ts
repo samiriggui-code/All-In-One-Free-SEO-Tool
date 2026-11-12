@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -31,7 +31,7 @@ export async function extractScreenshotText(
   formData: FormData,
 ): Promise<OcrResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_import_actions");
+  const tx = await actionTx("ui.app_import_actions");
   const dataUrl = String(formData.get("imageDataUrl") ?? "");
   if (!dataUrl.startsWith("data:image/")) {
     return { ok: false, error: tx("noImageProvided") };

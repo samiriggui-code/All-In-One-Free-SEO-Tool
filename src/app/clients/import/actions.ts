@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -131,7 +131,7 @@ export async function importSelectedProperties(opts: {
   keys: string[];
 }): Promise<ImportResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_import_actions");
+  const tx = await actionTx("ui.app_clients_import_actions");
   const errors: string[] = [];
   let imported = 0;
   let skipped = 0;

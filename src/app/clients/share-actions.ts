@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -64,7 +64,7 @@ export async function emailPortalLink(input: {
   baseUrl: string;
 }): Promise<EmailPortalResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_share-actions");
+  const tx = await actionTx("ui.app_clients_share-actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
     return { ok: false, error: tx("invalidClient") };
   }

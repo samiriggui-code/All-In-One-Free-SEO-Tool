@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -18,7 +18,7 @@ export async function createSchedule(
   formData: FormData,
 ): Promise<CreateScheduleState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_automations_actions");
+  const tx = await actionTx("ui.app_clients_id_automations_actions");
   const clientId = Number(formData.get("clientId"));
   const kind = String(formData.get("kind") ?? "");
   const cadenceDays = Math.max(1, Math.min(90, Number(formData.get("cadenceDays") ?? 1)));
@@ -127,7 +127,7 @@ export async function runScheduleNow(
   clientId: number,
 ): Promise<{ ok: boolean; message: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_automations_actions");
+  const tx = await actionTx("ui.app_clients_id_automations_actions");
   const [s] = await db
     .select()
     .from(dailySchedules)

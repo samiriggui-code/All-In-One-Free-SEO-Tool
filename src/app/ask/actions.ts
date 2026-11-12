@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { canSeeClient, currentUser } from "@/lib/auth";
 
@@ -116,7 +116,7 @@ export async function askTheTool(input: {
   conversationId?: number | null;
 }): Promise<AskResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_ask_actions");
+  const tx = await actionTx("ui.app_ask_actions");
   const question = input.question.trim();
   if (!question) {
     return { ok: false, error: tx("typeAQuestionFirst") };

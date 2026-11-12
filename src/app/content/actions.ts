@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -512,7 +512,7 @@ export async function publishToWordPress(input: {
   mode: "draft" | "publish";
 }): Promise<PublishState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_content_actions");
+  const tx = await actionTx("ui.app_content_actions");
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const mode = input.mode === "publish" ? "publish" : "draft";

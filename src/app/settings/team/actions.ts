@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -33,7 +33,7 @@ export async function inviteMember(input: {
   role: Role;
 }): Promise<ActionResult & { link?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_team_actions");
+  const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -53,7 +53,7 @@ export async function inviteMember(input: {
 
 export async function cancelInvite(id: number): Promise<ActionResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_team_actions");
+  const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
   revokeInvite(id);
@@ -66,7 +66,7 @@ export async function changeRole(
   role: Role,
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_team_actions");
+  const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -97,7 +97,7 @@ export async function setActive(
   active: boolean,
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_team_actions");
+  const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 
@@ -130,7 +130,7 @@ export async function setClientAccess(
   clientIds: number[],
 ): Promise<ActionResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_team_actions");
+  const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
 

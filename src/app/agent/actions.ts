@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -94,7 +94,7 @@ export async function reopenSuggestion(suggestionId: number) {
  */
 export async function suggestionToTask(suggestionId: number) {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_actions");
+  const tx = await actionTx("ui.app_agent_actions");
   const [s] = await db
     .select()
     .from(aiSuggestions)

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -27,7 +27,7 @@ export async function runAuthorScan(
   formData: FormData,
 ): Promise<ScanState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_author-authority_actions");
+  const tx = await actionTx("ui.app_author-authority_actions");
   const clientId = Number(formData.get("clientId"));
   const domain = String(formData.get("domain") ?? "")
     .trim()

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -27,7 +27,7 @@ export async function runKpCapture(
   formData: FormData,
 ): Promise<CaptureState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_knowledge-panel_actions");
+  const tx = await actionTx("ui.app_knowledge-panel_actions");
   const clientId = Number(formData.get("clientId"));
   const queryRaw = String(formData.get("query") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)

@@ -4,7 +4,7 @@ import { isSignedIn, requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
 import { randomBytes } from "node:crypto";
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { longAgo } from "@/lib/relative-time";
 import { revalidatePath } from "next/cache";
 import { setSetting, getSetting } from "@/lib/settings-store";
@@ -100,7 +100,7 @@ async function readMcpStatus(): Promise<McpStatus> {
     connected,
     // Coarse on purpose: "4 minutes ago" is the answer, not the timestamp.
     lastSeenLabel: Number.isFinite(seenMs)
-      ? longAgo(Date.now() - seenMs, await getTranslations("time"))
+      ? longAgo(Date.now() - seenMs, await actionTx("time"))
       : null,
   };
 }

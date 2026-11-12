@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -22,7 +22,7 @@ export async function sendDigest(
   formData: FormData,
 ): Promise<SendState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_digest_actions");
+  const tx = await actionTx("ui.app_digest_actions");
   const parsed = sendSchema.safeParse({
     to: formData.get("to"),
     subject: formData.get("subject") || tx("weeklySeoDigest"),
@@ -60,7 +60,7 @@ export async function setSchedule(
   formData: FormData,
 ): Promise<ScheduleState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_digest_actions");
+  const tx = await actionTx("ui.app_digest_actions");
   const enabled = formData.get("enabled") === "on";
   const email = String(formData.get("email") ?? "").trim();
   if (enabled) {

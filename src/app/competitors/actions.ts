@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -30,7 +30,7 @@ export async function addCompetitor(
   formData: FormData,
 ): Promise<AddCompetitorResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_competitors_actions");
+  const tx = await actionTx("ui.app_competitors_actions");
   const raw = {
     clientId: formData.get("clientId"),
     name: formData.get("name"),

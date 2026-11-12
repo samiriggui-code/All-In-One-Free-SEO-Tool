@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -38,7 +38,7 @@ export async function addMonitoredPage(
   formData: FormData,
 ): Promise<AddMonitorResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_monitor_actions");
+  const tx = await actionTx("ui.app_monitor_actions");
   const parsed = addSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -223,13 +223,13 @@ async function checkPageChangesInternal(
 
 export async function checkPageChanges(monitoredPageId: number) {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_monitor_actions");
+  const tx = await actionTx("ui.app_monitor_actions");
   await checkPageChangesInternal(tx, monitoredPageId);
 }
 
 export async function checkAllMonitoredPages() {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_monitor_actions");
+  const tx = await actionTx("ui.app_monitor_actions");
   const pages = await db
     .select({ id: monitoredPages.id })
     .from(monitoredPages)

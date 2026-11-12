@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -19,7 +19,7 @@ export async function chooseAutonomyAction(
   level: AutonomyLevel,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_autonomy-actions");
+  const tx = await actionTx("ui.app_autonomy-actions");
   const allowed: AutonomyLevel[] = ["off", "suggest", "apply_safe", "apply_all"];
   if (!allowed.includes(level)) {
     return { ok: false, error: tx("unknownAutonomyLevel") };

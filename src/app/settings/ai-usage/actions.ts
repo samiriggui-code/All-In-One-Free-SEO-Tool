@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -17,7 +17,7 @@ export async function saveCap(
 ): Promise<SaveCapState> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_ai-usage_actions");
+  const tx = await actionTx("ui.app_settings_ai-usage_actions");
   const raw = String(formData.get("cap") ?? "").trim();
   if (raw === "") {
     await deleteSetting("ai.monthly_cap_usd");

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { callAIVision, type VisionMessage } from "@/lib/ai-vision";
@@ -117,7 +117,7 @@ export async function seoChat(
   conversationId?: number | null,
 ): Promise<SeoChatResearchResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_seo-chat_actions");
+  const tx = await actionTx("ui.app_seo-chat_actions");
   if (history.length === 0 || history[history.length - 1].role !== "user") {
     return { ok: false, error: tx("noQuestionToAnswer") };
   }

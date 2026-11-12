@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -127,7 +127,7 @@ export async function previewCsv(text: string): Promise<
   | { ok: false; error: string }
 > {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_csv-import_actions");
+  const tx = await actionTx("ui.app_csv-import_actions");
   const rows = parseCsv(text);
   if (rows.length === 0) {
     return { ok: false, error: tx("noRowsDetectedIsThis") };
@@ -161,7 +161,7 @@ export async function importCsv(input: {
   clientId?: number;
 }): Promise<ImportResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_csv-import_actions");
+  const tx = await actionTx("ui.app_csv-import_actions");
   const rows = parseCsv(input.text);
   if (rows.length === 0) {
     return { ok: false, error: tx("noRows") };

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -31,7 +31,7 @@ export async function captureBrandSerp(
   clientId: number,
 ): Promise<BrandSerpResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_brand-serp_actions");
+  const tx = await actionTx("ui.app_brand-serp_actions");
   const [client] = await db
     .select()
     .from(clients)

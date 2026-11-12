@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -87,7 +87,7 @@ export async function compareDomains(
   urlB: string,
 ): Promise<CompareResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_compare_actions");
+  const tx = await actionTx("ui.app_compare_actions");
   if (!urlA?.trim() || !urlB?.trim()) {
     return { ok: false, error: tx("twoUrlsAreRequired") };
   }

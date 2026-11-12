@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -28,7 +28,7 @@ export async function runGbpScrape(
   clientId: number,
 ): Promise<RunGbpResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -97,7 +97,7 @@ export async function generateReviewReply(opts: {
   reviewText: string;
 }): Promise<GenerateReplyResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   if (!opts.reviewText.trim()) {
     return { ok: false, error: tx("reviewTextIsEmpty") };
   }
@@ -146,7 +146,7 @@ export async function loadGbpForClient(
   selectedLocation?: string,
 ): Promise<GbpApiState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -208,7 +208,7 @@ export async function postGbpReply(opts: {
   comment: string;
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   if (!opts.comment.trim()) return { ok: false, error: tx("replyIsEmpty") };
   return await replyToGbpReview({
     reviewName: opts.reviewName,
@@ -244,7 +244,7 @@ export async function composeGbpPost(opts: {
   ctaUrl?: string;
 }): Promise<ComposePostResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   if (!opts.topic.trim())
     return { ok: false, error: tx("topicAngleIsRequired") };
 
@@ -310,7 +310,7 @@ export async function generateGbpPostIdeas(opts: {
   description?: string | null;
 }): Promise<IdeasResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_actions");
+  const tx = await actionTx("ui.app_gbp_actions");
   const userPrompt = [
     `Business: ${opts.clientName}`,
     opts.businessType ? `Business type: ${opts.businessType}` : "",

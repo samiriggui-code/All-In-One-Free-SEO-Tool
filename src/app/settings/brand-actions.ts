@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireEditor } from "@/lib/auth";
@@ -48,7 +48,7 @@ export async function saveBrand(
 ): Promise<BrandActionResult> {
   await requireEditor();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_brand-actions");
+  const tx = await actionTx("ui.app_settings_brand-actions");
   const raw = {
     name: formData.get("name") ?? "",
     color: formData.get("color") ?? "",

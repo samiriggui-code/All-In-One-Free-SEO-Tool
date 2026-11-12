@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -54,7 +54,7 @@ export async function addOutreachContact(
   formData: FormData,
 ): Promise<AddContactResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_outreach_actions");
+  const tx = await actionTx("ui.app_outreach_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     name: formData.get("name"),
@@ -90,7 +90,7 @@ export async function setContactStatus(
   status: "prospect" | "contacted" | "replied" | "won" | "lost",
 ) {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_outreach_actions");
+  const tx = await actionTx("ui.app_outreach_actions");
   if (!Number.isFinite(contactId) || contactId <= 0) return;
   const updates: {
     status: typeof status;
@@ -170,7 +170,7 @@ export async function saveOutreachTemplate(
   formData: FormData,
 ): Promise<SaveTemplateResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_outreach_actions");
+  const tx = await actionTx("ui.app_outreach_actions");
   const idRaw = formData.get("id");
   const id = idRaw ? Number(idRaw) : null;
 
@@ -272,7 +272,7 @@ export async function sendOutreachAction(
   formData: FormData,
 ): Promise<SendResultState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_outreach_actions");
+  const tx = await actionTx("ui.app_outreach_actions");
   const parsed = sendSchema.safeParse({
     contactId: formData.get("contactId"),
     templateId: formData.get("templateId") || undefined,

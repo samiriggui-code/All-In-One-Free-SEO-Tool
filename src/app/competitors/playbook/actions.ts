@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -40,7 +40,7 @@ export async function runCompetitorAnalysis(
   formData: FormData,
 ): Promise<PlaybookState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_competitors_playbook_actions");
+  const tx = await actionTx("ui.app_competitors_playbook_actions");
   const parsed = inputSchema.safeParse({
     competitorUrl: formData.get("competitorUrl"),
     myUrl: formData.get("myUrl") ?? undefined,
@@ -72,7 +72,7 @@ export async function playbookToTasks(opts: {
   synthesis: string;
 }): Promise<{ ok: boolean; created: number; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_competitors_playbook_actions");
+  const tx = await actionTx("ui.app_competitors_playbook_actions");
   if (!opts.synthesis?.trim())
     return { ok: false, created: 0, error: tx("emptySynthesis") };
   if (!Number.isFinite(opts.clientId) || opts.clientId <= 0)

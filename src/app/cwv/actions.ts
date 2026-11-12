@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -24,7 +24,7 @@ export async function runCwvScan(opts: {
   strategy: "mobile" | "desktop";
 }): Promise<RunCwvResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_cwv_actions");
+  const tx = await actionTx("ui.app_cwv_actions");
   const url = opts.url.trim();
   if (!url) return { ok: false, error: tx("urlIsRequired") };
   const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;

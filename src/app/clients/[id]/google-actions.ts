@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -48,7 +48,7 @@ export async function saveGoogleProperties(opts: {
   ga4PropertyId: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_google-actions");
+  const tx = await actionTx("ui.app_clients_id_google-actions");
   if (!Number.isFinite(opts.clientId) || opts.clientId < 1) {
     return { ok: false, error: tx("invalidClient") };
   }

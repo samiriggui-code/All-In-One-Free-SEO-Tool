@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -28,7 +28,7 @@ export async function runGrid(
   formData: FormData,
 ): Promise<GridState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_local-grid_actions");
+  const tx = await actionTx("ui.app_local-grid_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     query: formData.get("query"),
@@ -109,7 +109,7 @@ export async function createGridSchedule(
   formData: FormData,
 ): Promise<CreateScheduleResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_local-grid_actions");
+  const tx = await actionTx("ui.app_local-grid_actions");
   const { localGridSchedules } = await import("@/db/schema");
   const parsed = scheduleSchema.safeParse({
     clientId: formData.get("clientId"),

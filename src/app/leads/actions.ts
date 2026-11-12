@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -25,7 +25,7 @@ export async function setLeadStatus(
   status: LeadStatus,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_leads_actions");
+  const tx = await actionTx("ui.app_leads_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
@@ -45,7 +45,7 @@ export async function setLeadNotes(
   notes: string,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_leads_actions");
+  const tx = await actionTx("ui.app_leads_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
@@ -68,7 +68,7 @@ export async function convertLeadToClient(
   id: number,
 ): Promise<{ ok: boolean; clientId?: number; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_leads_actions");
+  const tx = await actionTx("ui.app_leads_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
@@ -109,7 +109,7 @@ export async function deleteLead(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_leads_actions");
+  const tx = await actionTx("ui.app_leads_actions");
   const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   await db.delete(graderLeads).where(eq(graderLeads.id, id));

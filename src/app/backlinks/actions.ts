@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -39,7 +39,7 @@ export async function addBacklink(
   formData: FormData,
 ): Promise<AddBacklinkResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_backlinks_actions");
+  const tx = await actionTx("ui.app_backlinks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -158,7 +158,7 @@ export async function logBuiltLink(
   formData: FormData,
 ): Promise<LogLinkResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_backlinks_actions");
+  const tx = await actionTx("ui.app_backlinks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -279,7 +279,7 @@ export async function importAhrefsBacklinks(
   csvText: string,
 ): Promise<AhrefsImportResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_backlinks_actions");
+  const tx = await actionTx("ui.app_backlinks_actions");
   if (!Number.isFinite(clientId) || clientId <= 0) {
     return { ok: false, error: tx("invalidClientid") };
   }

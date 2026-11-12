@@ -4,6 +4,7 @@ import { requireSignedIn } from "@/lib/action-guard";
 
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -77,7 +78,7 @@ export async function fetchClientMetadata(
   rawUrl: string,
 ): Promise<ClientMetadataResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_actions");
+  const tx = await actionTx("ui.app_clients_actions");
   const trimmed = rawUrl?.trim();
   if (!trimmed) {
     return { ok: false, error: tx("enterAUrlFirst") };
@@ -106,7 +107,7 @@ export async function createClient(
   formData: FormData,
 ): Promise<CreateClientResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_actions");
+  const tx = await actionTx("ui.app_clients_actions");
   const raw = {
     name: formData.get("name"),
     url: formData.get("url"),
@@ -329,7 +330,7 @@ export async function updateClient(
   formData: FormData,
 ): Promise<UpdateClientResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_actions");
+  const tx = await actionTx("ui.app_clients_actions");
   const raw = {
     id: formData.get("id"),
     name: formData.get("name"),
@@ -407,7 +408,7 @@ export async function refreshClientMetadata(
   clientId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_actions");
+  const tx = await actionTx("ui.app_clients_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -594,7 +595,7 @@ export async function deleteClient(
   id: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_actions");
+  const tx = await actionTx("ui.app_clients_actions");
   const me = await currentUser();
   if (!userMayEdit(me)) {
     return { ok: false, error: tx("youHaveReadOnlyAccess") };

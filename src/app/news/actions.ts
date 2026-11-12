@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq, desc, and, inArray, lt } from "drizzle-orm";
@@ -86,7 +86,7 @@ export async function addFeed(input: {
   name?: string;
 }): Promise<AddFeedResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_news_actions");
+  const tx = await actionTx("ui.app_news_actions");
   const parsed = addFeedSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };

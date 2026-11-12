@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -40,7 +40,7 @@ export async function saveWpCreds(
   formData: FormData,
 ): Promise<SaveCredsResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_wp-actions");
+  const tx = await actionTx("ui.app_clients_id_wp-actions");
   const parsed = credsSchema.safeParse({
     clientId: formData.get("clientId"),
     endpoint: formData.get("endpoint"),
@@ -133,7 +133,7 @@ export async function pushWpFix(
   formData: FormData,
 ): Promise<WpFixResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_wp-actions");
+  const tx = await actionTx("ui.app_clients_id_wp-actions");
   const parsed = fixSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -212,7 +212,7 @@ export async function pushImageAltFix(opts: {
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
   await requireClientAccess(opts.clientId, { edit: true });
-  const tx = await getTranslations("ui.app_clients_id_wp-actions");
+  const tx = await actionTx("ui.app_clients_id_wp-actions");
   const creds = await getClientWpCreds(opts.clientId);
   if (!creds) return { ok: false, error: tx("wordpressBridgeNotConnected") };
   const r = await setAttachmentAlt(creds, opts.attachmentId, opts.alt);

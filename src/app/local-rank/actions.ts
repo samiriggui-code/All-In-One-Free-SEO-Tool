@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -19,7 +19,7 @@ export async function runLocalRanks(opts: {
   country?: string;
 }): Promise<RunLocalRankResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_local-rank_actions");
+  const tx = await actionTx("ui.app_local-rank_actions");
   if (!opts.query.trim()) return { ok: false, error: tx("queryIsRequired") };
   if (opts.cities.length === 0)
     return { ok: false, error: tx("atLeastOneCity") };

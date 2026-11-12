@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -33,7 +33,7 @@ export async function analyzeContentGap(opts: {
   clientId: number;
 }): Promise<GapResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_content-gap_actions");
+  const tx = await actionTx("ui.app_content-gap_actions");
   const [client] = await db
     .select()
     .from(clients)

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -18,7 +18,7 @@ export async function startAiAudit(
   formData: FormData,
 ): Promise<StartState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_ai-audit_actions");
+  const tx = await actionTx("ui.app_clients_id_ai-audit_actions");
   const clientId = Number(formData.get("clientId"));
   const url = String(formData.get("url") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)

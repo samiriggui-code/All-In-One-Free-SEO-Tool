@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -31,7 +31,7 @@ export type RunCheckResult =
 
 export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_ai-visibility_actions");
+  const tx = await actionTx("ui.app_ai-visibility_actions");
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
     return { ok: false, error: tx("invalidKeywordId") };
   }

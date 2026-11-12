@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -22,7 +22,7 @@ export async function addAnnotation(
   formData: FormData,
 ): Promise<CreateState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_annotations_actions");
+  const tx = await actionTx("ui.app_annotations_actions");
   const label = String(formData.get("label") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const eventDateRaw = String(formData.get("eventDate") ?? "").trim();

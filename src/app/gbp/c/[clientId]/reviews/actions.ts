@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 /**
@@ -92,7 +92,7 @@ export async function listLocationChoices(
   clientId: number,
 ): Promise<LocationChoices> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_c_clientId_reviews_actions");
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -129,7 +129,7 @@ export async function chooseLocation(
   locationName: string,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_c_clientId_reviews_actions");
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   if (!/^accounts\/[^/]+\/locations\/[^/]+$/.test(locationName)) {
     return { ok: false, error: tx("thatIsNotALocation") };
   }
@@ -147,7 +147,7 @@ export type SyncResult =
 
 export async function syncReviews(clientId: number): Promise<SyncResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_c_clientId_reviews_actions");
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -207,7 +207,7 @@ export async function draftNextReplies(opts: {
   redraft?: boolean;
 }): Promise<DraftBatchState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_c_clientId_reviews_actions");
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const [client] = await db
     .select()
     .from(clients)
@@ -261,7 +261,7 @@ export async function publishAllDrafts(
   clientId: number,
 ): Promise<PublishAllResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_gbp_c_clientId_reviews_actions");
+  const tx = await actionTx("ui.app_gbp_c_clientId_reviews_actions");
   const out = await sendAllDrafts({ clientId });
   if (out.sent > 0) {
     await appendResearchLog(

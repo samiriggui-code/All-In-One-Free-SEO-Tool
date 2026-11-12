@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
@@ -87,7 +87,7 @@ export type RunNowResult = {
 
 export async function runNow(clientId?: number): Promise<RunNowResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_autopilot_actions");
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const settings = await getAgentSettings();
   if (settings.level === "off") {
     return {
@@ -162,7 +162,7 @@ export async function approveAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_autopilot_actions");
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
   const action = guard.action;
@@ -208,7 +208,7 @@ export async function rejectAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_autopilot_actions");
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
 
@@ -224,7 +224,7 @@ export async function undoAction(
   actionId: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_autopilot_actions");
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const guard = await assertMayTouch(tx, actionId);
   if (!guard.ok) return guard;
 
@@ -243,7 +243,7 @@ export async function undoRun(
   runId: number,
 ): Promise<{ ok: boolean; undone: number; failed: number; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_agent_autopilot_actions");
+  const tx = await actionTx("ui.app_agent_autopilot_actions");
   const rows = await db
     .select({ id: agentActions.id, clientId: agentActions.clientId })
     .from(agentActions)

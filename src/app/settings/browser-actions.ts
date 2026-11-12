@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -18,7 +18,7 @@ export async function saveBrowserSettings(
 ): Promise<BrowserSettingsState> {
   await requireSettingsAdmin();
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_settings_browser-actions");
+  const tx = await actionTx("ui.app_settings_browser-actions");
   const concRaw = formData.get("maxConcurrency");
   const conc = concRaw ? Number(concRaw) : 4;
   if (!Number.isFinite(conc) || conc < 1 || conc > 16) {

@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -64,7 +64,7 @@ export async function importKeywords(
   formData: FormData,
 ): Promise<ImportResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_keywords_import-actions");
+  const tx = await actionTx("ui.app_keywords_import-actions");
   const csv = String(formData.get("csv") ?? "").trim();
   const targetClientId = Number(formData.get("clientId"));
   if (!csv) return { ok: false, error: tx("csvIsEmpty") };

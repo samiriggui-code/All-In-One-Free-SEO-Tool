@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -41,7 +41,7 @@ export async function saveSchedule(
   formData: FormData,
 ): Promise<SaveScheduleResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_schedule-actions");
+  const tx = await actionTx("ui.app_clients_id_schedule-actions");
   const parsed = scheduleInput.safeParse({
     clientId: formData.get("clientId"),
     template: formData.get("template"),
@@ -134,7 +134,7 @@ export async function sendReportNow(opts: {
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
   await requireClientAccess(opts.clientId, { edit: true });
-  const tx = await getTranslations("ui.app_clients_id_schedule-actions");
+  const tx = await actionTx("ui.app_clients_id_schedule-actions");
   const smtp = await getSmtpConfig();
   if (!smtp) {
     return {

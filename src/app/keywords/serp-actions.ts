@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { desc, eq } from "drizzle-orm";
@@ -17,7 +17,7 @@ export async function runSerpScan(
   keywordId: number,
 ): Promise<RunSerpScanResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_keywords_serp-actions");
+  const tx = await actionTx("ui.app_keywords_serp-actions");
   const [k] = await db
     .select()
     .from(keywords)

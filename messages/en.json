@@ -7660,13 +7660,6 @@
       "validRecipientEmailRequiredTo": "Valid recipient email required to enable.",
       "autoSendDisabled": "Auto-send disabled."
     },
-    "app_embed_grader_actions": {
-      "thatDoesnTLookLike": "That doesn't look like a website address.",
-      "thatSAFewAudits": "That's a few audits in quick succession. Try again in {mins} {mins, plural, one {minute} other {minutes}}.",
-      "couldnTReachThatSite": "Couldn't reach that site. Check it loads in a browser and retry.",
-      "somethingWentWrongReRun": "Something went wrong — re-run the audit.",
-      "thatEmailDoesnTLook": "That email doesn't look right."
-    },
     "app_gbp_actions": {
       "clientNotFound": "Client not found",
       "noGoogleBusinessProfileUrl": "No Google Business Profile URL on this client. Add it in Edit → GBP profile.",

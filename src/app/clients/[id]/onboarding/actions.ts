@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -43,7 +43,7 @@ export async function saveBrandStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = brandSchema.safeParse({
     clientId: formData.get("clientId"),
     description: formData.get("description") ?? undefined,
@@ -89,7 +89,7 @@ export async function saveTargetingStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = targetingSchema.safeParse({
     clientId: formData.get("clientId"),
     country: formData.get("country"),
@@ -137,7 +137,7 @@ export async function saveSurfacesStep(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const clientId = Number(formData.get("clientId"));
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: tx("invalidClient") };
@@ -179,7 +179,7 @@ export async function runKeywordDiscovery(
   formData: FormData,
 ): Promise<DiscoverState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const id = Number(formData.get("clientId"));
   if (!Number.isFinite(id) || id <= 0)
     return { ok: false, error: tx("invalidClient2") };
@@ -248,7 +248,7 @@ export async function acceptDiscoveredKeywords(
   formData: FormData,
 ): Promise<SaveBrandResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   const parsed = acceptKeywordsSchema.safeParse({
     clientId: formData.get("clientId"),
     selected: formData.get("selected"),
@@ -321,7 +321,7 @@ export async function generateMonthlyCalendar(
   clientId: number,
 ): Promise<GenerateCalendarResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_clients_id_onboarding_actions");
+  const tx = await actionTx("ui.app_clients_id_onboarding_actions");
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: tx("invalidClient2") };
 

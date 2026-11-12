@@ -7660,13 +7660,6 @@
       "validRecipientEmailRequiredTo": "Il faut une adresse de destinataire valide pour activer l’envoi.",
       "autoSendDisabled": "Envoi automatique désactivé."
     },
-    "app_embed_grader_actions": {
-      "thatDoesnTLookLike": "Cela ne ressemble pas à une adresse de site web.",
-      "thatSAFewAudits": "Plusieurs audits viennent d’être lancés coup sur coup. Réessayez dans {mins, plural, one {# minute} other {# minutes}}.",
-      "couldnTReachThatSite": "Impossible de joindre ce site. Vérifiez qu’il s’ouvre dans un navigateur, puis réessayez.",
-      "somethingWentWrongReRun": "Une erreur s’est produite : relancez l’audit.",
-      "thatEmailDoesnTLook": "Cette adresse e-mail semble incorrecte."
-    },
     "app_gbp_actions": {
       "clientNotFound": "Projet introuvable",
       "noGoogleBusinessProfileUrl": "Ce projet n’a pas d’URL de fiche Google Business Profile. Ajoutez-la dans Modifier → Fiche Google.",

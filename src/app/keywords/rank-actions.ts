@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
@@ -58,7 +58,7 @@ export async function checkRankAction(
   snapshot?: GscRankLookup | null,
 ): Promise<CheckRankResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_keywords_rank-actions");
+  const tx = await actionTx("ui.app_keywords_rank-actions");
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
     return { ok: false, error: tx("invalidKeywordId") };
   }

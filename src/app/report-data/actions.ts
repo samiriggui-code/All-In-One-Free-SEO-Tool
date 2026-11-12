@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -58,7 +58,7 @@ export async function parseReportDataPaste(
   formData: FormData,
 ): Promise<ParseState> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_report-data_actions");
+  const tx = await actionTx("ui.app_report-data_actions");
   const clientId = Number(formData.get("clientId"));
   const rawText = String(formData.get("rawText") ?? "").trim();
 

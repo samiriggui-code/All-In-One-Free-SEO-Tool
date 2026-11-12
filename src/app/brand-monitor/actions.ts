@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -15,7 +15,7 @@ export type RunResult =
 
 export async function runBrandMonitor(clientId: number): Promise<RunResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_brand-monitor_actions");
+  const tx = await actionTx("ui.app_brand-monitor_actions");
   if (!Number.isFinite(clientId) || clientId <= 0)
     return { ok: false, error: tx("invalidClient") };
 
@@ -68,7 +68,7 @@ export async function mentionToOutreach(opts: {
   url: string;
 }): Promise<{ ok: boolean; contactId?: number; error?: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_brand-monitor_actions");
+  const tx = await actionTx("ui.app_brand-monitor_actions");
   const { outreachContacts } = await import("@/db/schema");
   const { logActivity } = await import("@/lib/activity");
 

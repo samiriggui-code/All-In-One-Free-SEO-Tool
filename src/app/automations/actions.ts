@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { guardedFetch } from "@/lib/url-guard";
 
@@ -43,7 +43,7 @@ export async function createAutomation(
   formData: FormData,
 ): Promise<SaveAutomationResult> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_automations_actions");
+  const tx = await actionTx("ui.app_automations_actions");
   const parsed = inputSchema.safeParse({
     name: formData.get("name"),
     trigger: formData.get("trigger"),
@@ -124,7 +124,7 @@ export async function testWebhook(url: string): Promise<
   | { ok: false; error: string }
 > {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_automations_actions");
+  const tx = await actionTx("ui.app_automations_actions");
   if (!/^https?:\/\//i.test(url)) {
     return { ok: false, error: tx("webhookUrlMustStartWith") };
   }
@@ -164,7 +164,7 @@ export async function installWorkflowTemplate(input: {
   webhookUrl?: string;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   await requireSignedIn();
-  const tx = await getTranslations("ui.app_automations_actions");
+  const tx = await actionTx("ui.app_automations_actions");
   const tmpl = workflowTemplates.find((t) => t.id === input.templateId);
   if (!tmpl) return { ok: false, error: tx("unknownTemplate") };
 
