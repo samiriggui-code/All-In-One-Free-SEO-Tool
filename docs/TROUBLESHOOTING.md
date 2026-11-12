@@ -147,9 +147,6 @@ lsof -ti :3000 | xargs kill -9
 
 # Windows PowerShell
 Get-NetTCPConnection -LocalPort 3000 | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
-
-# Or use the in-app shutdown button
-# Settings → System health → Shutdown server
 ```
 
 ### Browser doesn't auto-open after install
