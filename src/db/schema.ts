@@ -2166,6 +2166,11 @@ export const users = sqliteTable("users", {
     .notNull()
     .default(sql`(unixepoch())`),
   lastLoginAt: integer("last_login_at", { mode: "timestamp" }),
+  /**
+   * Profile photo as a `data:image/…;base64,` URL, 256 px square, at most
+   * 200 KB. Set in Settings → My profile; null shows the initial.
+   */
+  avatar: text("avatar"),
 });
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

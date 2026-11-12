@@ -10,6 +10,7 @@
  */
 
 export type SettingsSectionId =
+  | "profile"
   | "general"
   | "ai"
   | "ai-usage"
@@ -30,6 +31,7 @@ export type SettingsSectionId =
   | "privacy";
 
 export type SettingsIconName =
+  | "user"
   | "settings"
   | "sparkles"
   | "gauge"
@@ -58,11 +60,16 @@ export type SettingsNavItem = {
 };
 
 export type SettingsNavGroup = {
-  id: "general" | "ai" | "tools" | "integrations" | "agency" | "system" | "about";
+  id: "account" | "general" | "ai" | "tools" | "integrations" | "agency" | "system" | "about";
   items: SettingsNavItem[];
 };
 
 export const SETTINGS_NAV: SettingsNavGroup[] = [
+  {
+    // What belongs to the person, not the workspace (GsKnora's "Account").
+    id: "account",
+    items: [{ id: "profile", href: "/settings/profile", icon: "user" }],
+  },
   {
     id: "general",
     items: [{ id: "general", href: "/settings", icon: "settings" }],
@@ -118,6 +125,7 @@ export const SETTINGS_NAV: SettingsNavGroup[] = [
  * the like; the window sends them to the section's own URL.
  */
 export const LEGACY_ANCHORS: Record<string, string> = {
+  profile: "/settings/profile",
   ai: "/settings/ai",
   google: "/settings/google",
   integrations: "/settings/google",

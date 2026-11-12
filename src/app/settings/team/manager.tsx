@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Check, Copy, Link2, Loader2, Trash2, UserPlus } from "lucide-react";
+import { UserAvatar } from "@/components/shell/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +34,7 @@ type UserRow = {
   role: Role;
   active: boolean;
   lastLoginAt: string | null;
+  avatarUrl: string | null;
 };
 
 export function TeamManager({
@@ -267,6 +269,8 @@ function PersonRow({
   return (
     <li className="py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+        <UserAvatar src={user.avatarUrl} name={user.name || user.email} className="size-8 text-xs" />
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">
             {user.name || user.email}
@@ -283,6 +287,7 @@ function PersonRow({
               ? ` · ${t("lastSignedIn", { date: format.dateTime(new Date(user.lastLoginAt), { dateStyle: "short" }) })}`
               : ` · ${t("neverSignedIn")}`}
           </p>
+        </div>
         </div>
 
         <div className="flex items-center gap-2">

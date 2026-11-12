@@ -10,6 +10,9 @@ import { getTranslations } from "next-intl/server";
 import { pendingInvites } from "@/lib/invites";
 import { TeamManager } from "./manager";
 import { requireSettingsPage } from "../access";
+import { AccessJournal } from "./access-journal";
+import { RoleRights } from "./role-rights";
+import { avatarVersion } from "../profile/avatar";
 
 export default async function TeamPage() {
   const me = await requireSettingsPage("/settings/team");
@@ -84,6 +87,7 @@ export default async function TeamPage() {
           role: u.role,
           active: u.active,
           lastLoginAt: u.lastLoginAt ? u.lastLoginAt.toISOString() : null,
+          avatarUrl: u.avatar ? `/api/auth/avatar/${u.id}?v=${avatarVersion(u.avatar)}` : null,
         }))}
         clients={allClients}
         assignments={assignments.map((a) => ({
@@ -92,6 +96,8 @@ export default async function TeamPage() {
         }))}
         invites={invites}
       />
+      <RoleRights />
+      {canManageTeam(me?.role ?? "member") ? <AccessJournal /> : null}
     </div>
   );
 }

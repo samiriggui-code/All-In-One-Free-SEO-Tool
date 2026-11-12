@@ -303,7 +303,8 @@
         "agency": "Agency",
         "system": "System",
         "about": "About",
-        "tools": "Tools"
+        "tools": "Tools",
+        "account": "Account"
       },
       "items": {
         "general": "General",
@@ -323,7 +324,8 @@
         "health": "System health",
         "errors": "Error log",
         "privacy": "Privacy",
-        "tools": "Tools"
+        "tools": "Tools",
+        "profile": "My profile"
       }
     },
     "general": {
@@ -2594,7 +2596,8 @@
       "docs": "Documentation",
       "learn": "Learn SEO",
       "knowledge": "Knowledge hub",
-      "help": "Help"
+      "help": "Help",
+      "openProfile": "Open my profile"
     },
     "nextStep": {
       "ai": {
@@ -3452,7 +3455,39 @@
     "reactivate": "Reactivate",
     "accessHint": "{name} sees only the clients ticked here. Everything else in the app is filtered to match — dashboard, tasks, reports, keywords.",
     "noClients": "No clients yet — add one first.",
-    "saveAccess": "Save access"
+    "saveAccess": "Save access",
+    "rights": {
+      "title": "Who can do what",
+      "hint": "The rules the server applies to each role. A member or a client viewer only sees the clients assigned to them.",
+      "what": "Action",
+      "rows": {
+        "clients": "See clients",
+        "work": "Do the work: audits, tasks, content",
+        "reports": "Read reports, audits and keywords",
+        "tools": "Use the tools, the agent and the assistant",
+        "profile": "Set their own profile and password",
+        "settings": "Workspace settings: keys, integrations, backups",
+        "team": "Invite people, change roles and access"
+      },
+      "values": {
+        "yes": "Yes",
+        "assigned": "Assigned clients",
+        "read": "Read-only",
+        "no": "No"
+      }
+    },
+    "journal": {
+      "title": "Access journal",
+      "hint": "Invitations, role changes, deactivated accounts, client access and password changes. Visible to the owner only.",
+      "empty": "Nothing yet: the next changes will show up here.",
+      "by": "by {name}",
+      "invited": "Invited {email} as {role, select, owner {owner} manager {manager} member {member} other {client viewer}}",
+      "inviteCancelled": "Cancelled the invitation for {email}",
+      "roleChanged": "{name} moved from {from, select, owner {owner} manager {manager} member {member} other {client viewer}} to {to, select, owner {owner} manager {manager} member {member} other {client viewer}}",
+      "deactivated": "Deactivated {name}'s account",
+      "reactivated": "Reactivated {name}'s account",
+      "accessChanged": "{name}'s access: {count, plural, =0 {no clients} one {# client} other {# clients}}"
+    }
   },
   "landing": {
     "metaTitle": "{name} · Your complete SEO office",
@@ -8165,5 +8200,63 @@
     "backlink_sync": "Backlink discovery",
     "google_updates": "Google ranking updates",
     "retention_cleanup": "Data retention cleanup"
+  },
+  "settingsProfile": {
+    "title": "My profile",
+    "description": "Your photo, your name and your password. These settings are yours alone.",
+    "noAccounts": "This install has no accounts yet: nobody signs in under their own name, so there is no profile to set.",
+    "setUpTeam": "Set up the team and accounts",
+    "identityTitle": "Identity",
+    "identityHint": "What the team sees of you in the account menu and the team list.",
+    "photoLabel": "Photo",
+    "photoHint": "PNG, JPG or WebP. The photo is cropped square and shrunk before upload.",
+    "photoUpload": "Upload a photo",
+    "photoReplace": "Change",
+    "photoRemove": "Remove",
+    "photoSaved": "Photo saved.",
+    "photoRemoved": "Photo removed.",
+    "photoBadFile": "Pick a PNG, JPG or WebP image under 10 MB.",
+    "nameLabel": "Name",
+    "nameHint": "Shown instead of your e-mail in the app and on the tasks you complete.",
+    "nameSheetTitle": "Edit name",
+    "editName": "Edit name",
+    "nameSaved": "Name saved.",
+    "notSet": "Not set",
+    "passwordLabel": "Password",
+    "passwordHint": "Changing it signs out your other devices.",
+    "changePassword": "Change password",
+    "passwordSheetHint": "Enter your current password, then the new one twice. Your other sessions will be closed.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordHint": "At least 10 characters. A phrase you'll remember beats a short jumble.",
+    "confirmPassword": "Confirm new password",
+    "passwordSaved": "Password changed. Your other sessions were closed.",
+    "accountTitle": "Account",
+    "emailLabel": "E-mail",
+    "emailHint": "Your sign-in.",
+    "roleLabel": "Role",
+    "roleHint": "What you can do in the workspace. Details in Team and access.",
+    "createdLabel": "Joined",
+    "lastLoginLabel": "Last sign-in",
+    "never": "Never",
+    "idLabel": "ID",
+    "idHint": "Useful for the API and support.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "errors": {
+      "noAccount": "Sign in with your account to edit your profile.",
+      "nameTooLong": "The name can't be longer than 80 characters.",
+      "badAvatar": "This image isn't accepted: PNG, JPG or WebP under 200 KB after shrinking.",
+      "tooManyTries": "Too many tries. Try again in a quarter of an hour.",
+      "wrongCurrent": "The current password is wrong.",
+      "tooShort": "The new password must be at least {min} characters.",
+      "tooLong": "The new password is longer than 200 characters.",
+      "mismatch": "The two new passwords don't match.",
+      "sameAsCurrent": "The new password must differ from the current one."
+    },
+    "journal": {
+      "passwordChanged": "{name} changed their password"
+    }
   }
 }
