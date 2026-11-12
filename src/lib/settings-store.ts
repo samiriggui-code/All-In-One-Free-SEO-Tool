@@ -64,6 +64,8 @@ export type SettingKey =
   | "guardrails.mode"
   | "guardrails.blocked_terms"
   | "ai.charter"
+  /** "on_request" (default) or "auto": see lib/assistant/memory.ts. */
+  | "memory.mode"
   | `memory.user_off.${number}`
   | "api.openai"
   | "api.anthropic"

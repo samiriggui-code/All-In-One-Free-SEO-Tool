@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import type { AiPurpose } from "@/lib/ai-purpose";
 import type { GuardrailMode } from "@/lib/guardrails";
-import { saveCharter, saveGuardrails, savePurposeModel } from "./defaults-actions";
+import { saveCharter, saveGuardrails, saveMemoryMode, savePurposeModel } from "./defaults-actions";
 
 export type ModelOption = { provider: string; model: string; label: string };
 
@@ -231,6 +231,42 @@ export function CharterForm({ charter }: { charter: string }) {
           >
             {pending ? t("saving") : t("saveCharter")}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MemoryModeRow({ mode: initial }: { mode: "on_request" | "auto" }) {
+  const t = useTranslations("settings.aiDefaults");
+  const router = useRouter();
+  const [mode, setMode] = useState(initial);
+  const [pending, start] = useTransition();
+  return (
+    <div className="gsk-row">
+      <div className="gsk-row-info">
+        <span className="gsk-row-label">{t("memoryMode")}</span>
+        <p className="gsk-row-desc">{t(`memoryModes.${mode}.hint`)}</p>
+      </div>
+      <div className="gsk-row-control">
+        <div className="gsk-segmented" role="group" aria-label={t("memoryMode")}>
+          {(["on_request", "auto"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={mode === m}
+              disabled={pending}
+              onClick={() =>
+                start(async () => {
+                  setMode(m);
+                  await saveMemoryMode(m);
+                  router.refresh();
+                })
+              }
+            >
+              {t(`memoryModes.${m}.label`)}
+            </button>
+          ))}
         </div>
       </div>
     </div>

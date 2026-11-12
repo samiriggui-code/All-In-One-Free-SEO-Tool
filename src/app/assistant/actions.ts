@@ -3,6 +3,7 @@
 import { actionTx } from "@/lib/action-tx";
 import { requireSignedIn } from "@/lib/action-guard";
 import { getLocale } from "next-intl/server";
+import { after } from "next/server";
 import { PROVIDER_LABEL } from "@/lib/ai-model-presets";
 import { currentUser, requireClientAccess } from "@/lib/auth";
 import { db } from "@/db/client";
@@ -89,6 +90,13 @@ export async function chat(
       userMessage: last.content,
       assistantReply: shown,
     }).catch(() => opts.conversationId ?? null);
+    // Automatic memory (Settings → AI): propose what is worth keeping,
+    // after the answer has gone back.
+    const me = await currentUser();
+    after(async () => {
+      const { extractMemories } = await import("@/lib/assistant/memory");
+      await extractMemories(me, opts.clientId ?? null, { userMessage: last.content, reply: shown }).catch(() => 0);
+    });
     return { ok: true, reply: res.reply, provider: label, steps: res.steps, pending: res.pending, conversationId };
   }
   return {

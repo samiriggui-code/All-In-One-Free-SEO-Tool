@@ -49,6 +49,7 @@ export type AiFeatureName =
   | "geo_swot"
   | "assistant"
   | "import_extract"
+  | "memory_extract"
   | "general";
 
 export type AiCallOptions = {

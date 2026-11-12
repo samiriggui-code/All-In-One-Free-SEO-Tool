@@ -1054,7 +1054,18 @@
       "charter": "Charte",
       "charterHint": "Ton, vocabulaire, interdits. 2 000 caractères au plus.",
       "charterPlaceholder": "Ex. : Vouvoyer. Ne jamais promettre de position. Citer la source de chaque chiffre.",
-      "saveCharter": "Enregistrer la charte"
+      "saveCharter": "Enregistrer la charte",
+      "memoryMode": "Mémoire de l’assistant",
+      "memoryModes": {
+        "on_request": {
+          "label": "Sur demande",
+          "hint": "L’assistant ne retient que ce qu’on lui demande (« Retiens que… »)."
+        },
+        "auto": {
+          "label": "Automatique",
+          "hint": "Après chaque échange, l’assistant propose aussi ce qui lui semble utile à retenir. Rien ne sert avant d’être gardé dans Ma mémoire."
+        }
+      }
     }
   },
   "reports": {

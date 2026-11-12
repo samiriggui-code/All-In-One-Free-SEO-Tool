@@ -65,3 +65,13 @@ export async function saveCharter(text: string): Promise<DefaultsResult> {
   revalidatePath("/settings/ai");
   return { ok: true };
 }
+
+/** Memory mode (IA-4): "on_request" keeps only what people ask for, "auto" also proposes memories to confirm. */
+export async function saveMemoryMode(mode: "on_request" | "auto"): Promise<DefaultsResult> {
+  await requireSettingsAdmin();
+  await requireSignedIn();
+  await setSetting("memory.mode", mode === "auto" ? "auto" : "on_request");
+  revalidatePath("/settings/ai");
+  revalidatePath("/settings/memory");
+  return { ok: true };
+}

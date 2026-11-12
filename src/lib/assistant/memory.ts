@@ -210,3 +210,74 @@ export async function memoryPrompt(user: User | null, clientId: number | null): 
   }
   return parts.join("\n\n");
 }
+
+export type MemoryMode = "on_request" | "auto";
+
+export async function memoryMode(): Promise<MemoryMode> {
+  return (await getSetting<string>("memory.mode")) === "auto" ? "auto" : "on_request";
+}
+
+const EXTRACT_SYSTEM = `You read one exchange between a person and an SEO assistant and pick out what is worth remembering for future conversations.
+Keep only lasting things the PERSON said: a preference about how they want answers, a rule for their work, or a stable fact about a client (tone, audience, constraints, what to avoid).
+Never keep: questions, one-off requests, numbers from reports, anything the assistant said, secrets, personal data about third parties.
+Most exchanges contain nothing to keep: then answer [].
+Answer with JSON only: an array of at most 3 objects {"text": "plain statement, max 200 chars, in the person's language", "scope": "me" | "client", "category": "preference" | "fact" | "instruction"}.`;
+
+/** The JSON array in a model answer, or [] when there is none. */
+export function parseExtracted(raw: string): { text: string; scope: "me" | "client"; category: MemoryCategory }[] {
+  const m = /\[[\s\S]*\]/.exec(raw);
+  if (!m) return [];
+  try {
+    const arr = JSON.parse(m[0]) as unknown;
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((x): x is { text: string; scope?: string; category?: string } => !!x && typeof (x as { text?: unknown }).text === "string")
+      .slice(0, 3)
+      .map((x) => ({
+        text: x.text.trim().slice(0, 200),
+        scope: x.scope === "client" ? ("client" as const) : ("me" as const),
+        category: (["preference", "fact", "instruction"].includes(String(x.category)) ? x.category : "fact") as MemoryCategory,
+      }))
+      .filter((x) => x.text.length >= 8);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Automatic mode: after a conversation turn, propose memories. They
+ * arrive as "pending" and are only used once the person keeps them in
+ * Ma mémoire; a refused one is never proposed again (addMemory dedupes
+ * against refused rows too). Background model, best effort.
+ */
+export async function extractMemories(
+  user: User | null,
+  clientId: number | null,
+  exchange: { userMessage: string; reply: string },
+): Promise<number> {
+  if ((await memoryMode()) !== "auto") return 0;
+  if (exchange.userMessage.trim().length < 20) return 0;
+  const { callAIResult } = await import("@/lib/ai-call");
+  const res = await callAIResult({
+    system: EXTRACT_SYSTEM,
+    user: `<person>\n${exchange.userMessage.slice(0, 3000)}\n</person>\n<assistant>\n${exchange.reply.slice(0, 1500)}\n</assistant>`,
+    feature: "memory_extract",
+    purpose: "background",
+    channel: "background",
+    clientId,
+    maxTokens: 300,
+    temperature: 0,
+    timeoutMs: 30_000,
+  });
+  if (!res.ok) return 0;
+  const personalOn = await memoryEnabledFor(user);
+  let added = 0;
+  for (const item of parseExtracted(res.text)) {
+    const scope: MemoryScope = item.scope === "client" && clientId ? "client" : "user";
+    if (scope === "user" && !personalOn) continue;
+    // Client memory needs edit rights; a member without them gets nothing proposed there.
+    const r = await addMemory(user, { scope, clientId, text: item.text, category: item.category, status: "pending", source: "auto" });
+    if (r.ok && !r.duplicate) added++;
+  }
+  return added;
+}
