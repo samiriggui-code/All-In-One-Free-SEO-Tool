@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -14,8 +15,9 @@ export type RunResult =
 
 export async function runBrandMonitor(clientId: number): Promise<RunResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_brand-monitor_actions");
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient") };
 
   const [c] = await db
     .select({
@@ -26,7 +28,7 @@ export async function runBrandMonitor(clientId: number): Promise<RunResult> {
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!c) return { ok: false, error: "Client not found" };
+  if (!c) return { ok: false, error: tx("clientNotFound") };
 
   let domain: string | null = null;
   try {
@@ -66,6 +68,7 @@ export async function mentionToOutreach(opts: {
   url: string;
 }): Promise<{ ok: boolean; contactId?: number; error?: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_brand-monitor_actions");
   const { outreachContacts } = await import("@/db/schema");
   const { logActivity } = await import("@/lib/activity");
 
@@ -74,7 +77,7 @@ export async function mentionToOutreach(opts: {
     .from(brandMentions)
     .where(eq(brandMentions.id, opts.mentionId))
     .limit(1);
-  if (!m) return { ok: false, error: "Mention not found" };
+  if (!m) return { ok: false, error: tx("mentionNotFound") };
 
   const note =
     `Found via ${m.source} brand monitor. Sentiment: ${m.sentiment > 0 ? "positive" : m.sentiment < 0 ? "negative" : "neutral"}.` +
@@ -85,7 +88,7 @@ export async function mentionToOutreach(opts: {
     .insert(outreachContacts)
     .values({
       clientId: opts.clientId,
-      name: opts.authorName ?? "Unknown author",
+      name: opts.authorName ?? tx("unknownAuthor"),
       website: opts.url,
       notes: note.slice(0, 500),
     })

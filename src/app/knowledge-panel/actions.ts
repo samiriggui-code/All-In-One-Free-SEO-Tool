@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -26,16 +27,17 @@ export async function runKpCapture(
   formData: FormData,
 ): Promise<CaptureState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_knowledge-panel_actions");
   const clientId = Number(formData.get("clientId"));
   const queryRaw = String(formData.get("query") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Pick a client first." };
+    return { ok: false, error: tx("pickAClientFirst") };
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   const query = queryRaw || client.name;
   try {
     const r = await captureAndStore({ clientId, query });
@@ -44,7 +46,7 @@ export async function runKpCapture(
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Capture failed.",
+      error: e instanceof Error ? e.message : tx("captureFailed"),
     };
   }
 }

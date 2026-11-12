@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -51,6 +52,7 @@ export async function setTaskStatus(
   status: "todo" | "in_progress" | "done" | "skipped",
 ) {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_tasks_actions");
   if ((await editableTaskIds([taskId])).length === 0) return;
 
   const [existing] = await db
@@ -75,7 +77,7 @@ export async function setTaskStatus(
   if (status === "done" && existing.status !== "done") {
     await logActivity({
       kind: "task.completed",
-      message: `Completed task: ${existing.title}`,
+      message: tx("completedTask", { title: existing.title }),
       level: "success",
       clientId: existing.clientId,
       entityType: "task",
@@ -143,6 +145,7 @@ export async function createTask(
   formData: FormData,
 ): Promise<CreateTaskResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_tasks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     title: formData.get("title"),
@@ -158,7 +161,7 @@ export async function createTask(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -167,7 +170,7 @@ export async function createTask(
     .from(clients)
     .where(eq(clients.id, parsed.data.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   await requireClientAccess(client.id, { edit: true });
 
   const dueDate =
@@ -190,7 +193,7 @@ export async function createTask(
 
   await logActivity({
     kind: "task.created",
-    message: `New task: ${parsed.data.title}`,
+    message: tx("newTask", { title: parsed.data.title }),
     clientId: parsed.data.clientId,
     entityType: "task",
     entityId: row.id,
@@ -225,18 +228,19 @@ export async function logTaskTime(input: {
   minutes: number;
 }): Promise<{ ok: true; total: number } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_tasks_actions");
   if ((await editableTaskIds([input.taskId])).length === 0) {
-    return { ok: false, error: "Task not found" };
+    return { ok: false, error: tx("taskNotFound") };
   }
   if (!Number.isFinite(input.minutes) || input.minutes === 0) {
-    return { ok: false, error: "Enter minutes" };
+    return { ok: false, error: tx("enterMinutes") };
   }
   const [t] = await db
     .select({ id: tasks.id, actualMinutes: tasks.actualMinutes })
     .from(tasks)
     .where(eq(tasks.id, input.taskId))
     .limit(1);
-  if (!t) return { ok: false, error: "Task not found" };
+  if (!t) return { ok: false, error: tx("taskNotFound") };
   const newTotal = Math.max(0, (t.actualMinutes ?? 0) + Math.round(input.minutes));
   await db
     .update(tasks)
@@ -319,18 +323,19 @@ export async function applyPlaybookToClient(input: {
   clientId: number;
 }): Promise<{ ok: true; created: number } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_tasks_actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient") };
   }
   const pb = getPlaybook(input.playbookId);
-  if (!pb) return { ok: false, error: "Unknown playbook" };
+  if (!pb) return { ok: false, error: tx("unknownPlaybook") };
 
   const [client] = await db
     .select({ id: clients.id })
     .from(clients)
     .where(eq(clients.id, input.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound2") };
   await requireClientAccess(client.id, { edit: true });
 
   const now = Date.now();
@@ -365,13 +370,14 @@ export async function setTaskPageDone(
   done: boolean,
 ): Promise<{ ok: true; pages: TaskPage[]; status: string } | { ok: false; error: string }> {
   await requireSignedIn();
-  if ((await editableTaskIds([taskId])).length === 0) return { ok: false, error: "Task not found" };
+  const tx = await getTranslations("ui.app_tasks_actions");
+  if ((await editableTaskIds([taskId])).length === 0) return { ok: false, error: tx("taskNotFound") };
   const [task] = await db
     .select({ pages: tasks.pages, status: tasks.status, title: tasks.title, clientId: tasks.clientId })
     .from(tasks)
     .where(eq(tasks.id, taskId))
     .limit(1);
-  if (!task?.pages?.some((p) => p.url === url)) return { ok: false, error: "Page not found" };
+  if (!task?.pages?.some((p) => p.url === url)) return { ok: false, error: tx("pageNotFound") };
 
   const pages = task.pages.map((p) => (p.url === url ? { ...p, done } : p));
   const finished = allPagesDone(pages);
@@ -389,7 +395,7 @@ export async function setTaskPageDone(
   if (status === "done" && task.status !== "done") {
     await logActivity({
       kind: "task.completed",
-      message: `Completed task: ${task.title}`,
+      message: tx("completedTask2", { title: task.title }),
       level: "success",
       clientId: task.clientId,
       entityType: "task",

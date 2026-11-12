@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -23,8 +24,9 @@ export async function runCwvScan(opts: {
   strategy: "mobile" | "desktop";
 }): Promise<RunCwvResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_cwv_actions");
   const url = opts.url.trim();
-  if (!url) return { ok: false, error: "URL is required" };
+  if (!url) return { ok: false, error: tx("urlIsRequired") };
   const normalised = /^https?:\/\//i.test(url) ? url : `https://${url}`;
 
   const [client] = await db
@@ -32,7 +34,7 @@ export async function runCwvScan(opts: {
     .from(clients)
     .where(eq(clients.id, opts.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const result = await scanCwv({ url: normalised, strategy: opts.strategy });
 
@@ -61,7 +63,7 @@ export async function runCwvScan(opts: {
   revalidatePath(`/cwv/c/${opts.clientId}`);
 
   if (!result.ok) {
-    return { ok: false, error: result.error ?? "Scan failed" };
+    return { ok: false, error: result.error ?? tx("scanFailed") };
   }
   return {
     ok: true,

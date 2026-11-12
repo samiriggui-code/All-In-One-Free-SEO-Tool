@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -93,6 +94,7 @@ export async function reopenSuggestion(suggestionId: number) {
  */
 export async function suggestionToTask(suggestionId: number) {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_agent_actions");
   const [s] = await db
     .select()
     .from(aiSuggestions)
@@ -102,19 +104,19 @@ export async function suggestionToTask(suggestionId: number) {
   await requireClientAccess(s.clientId, { edit: true });
 
   const titleByType: Record<string, string> = {
-    title_rewrite: "Update page title",
-    meta_description_rewrite: "Update meta description",
-    h1_rewrite: "Update H1",
-    quick_win_action: "Quick win optimization",
-    content_idea: "Write new content",
-    internal_link: "Add internal link",
-    schema_markup: "Add structured data",
-    general: "AI suggestion",
+    title_rewrite: tx("updatePageTitle"),
+    meta_description_rewrite: tx("updateMetaDescription"),
+    h1_rewrite: tx("updateH1"),
+    quick_win_action: tx("quickWinOptimization"),
+    content_idea: tx("writeNewContent"),
+    internal_link: tx("addInternalLink"),
+    schema_markup: tx("addStructuredData"),
+    general: tx("aiSuggestion"),
   };
 
   await db.insert(tasks).values({
     clientId: s.clientId,
-    title: `${titleByType[s.type] ?? "AI suggestion"}${s.targetUrl ? ` — ${new URL(s.targetUrl).pathname}` : ""}`,
+    title: `${titleByType[s.type] ?? tx("aiSuggestion")}${s.targetUrl ? ` — ${new URL(s.targetUrl).pathname}` : ""}`,
     description: s.suggestedValue,
     whyItMatters: s.rationale ?? undefined,
     priority: s.priority,

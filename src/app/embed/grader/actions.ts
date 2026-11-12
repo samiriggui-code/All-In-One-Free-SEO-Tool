@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -64,9 +65,10 @@ export async function gradeForVisitor(input: {
   ip: string | null;
   referer: string | null;
 }): Promise<PublicGradeResult> {
+  const tx = await getTranslations("ui.app_embed_grader_actions");
   const parsed = urlSchema.safeParse(input.url);
   if (!parsed.success) {
-    return { ok: false, error: "That doesn't look like a website address." };
+    return { ok: false, error: tx("thatDoesnTLookLike") };
   }
 
   const prefix = ipPrefix(input.ip);
@@ -76,7 +78,7 @@ export async function gradeForVisitor(input: {
     const mins = Math.ceil(limit.retryAfterSec / 60);
     return {
       ok: false,
-      error: `That's a few audits in quick succession. Try again in ${mins} minute${mins === 1 ? "" : "s"}.`,
+      error: tx("thatSAFewAudits", { mins }),
     };
   }
 
@@ -89,7 +91,7 @@ export async function gradeForVisitor(input: {
   } catch {
     return {
       ok: false,
-      error: "Couldn't reach that site. Check it loads in a browser and retry.",
+      error: tx("couldnTReachThatSite"),
     };
   }
 
@@ -99,7 +101,7 @@ export async function gradeForVisitor(input: {
     // caller "that address is internal" confirms the address exists.
     return {
       ok: false,
-      error: "Couldn't reach that site. Check it loads in a browser and retry.",
+      error: tx("couldnTReachThatSite"),
     };
   }
 
@@ -183,11 +185,12 @@ export async function captureLead(input: {
   email: string;
   name?: string;
 }): Promise<{ ok: boolean; error?: string }> {
+  const tx = await getTranslations("ui.app_embed_grader_actions");
   if (!Number.isInteger(input.leadId) || input.leadId <= 0) {
-    return { ok: false, error: "Something went wrong — re-run the audit." };
+    return { ok: false, error: tx("somethingWentWrongReRun") };
   }
   if (!looksLikeEmail(input.email)) {
-    return { ok: false, error: "That email doesn't look right." };
+    return { ok: false, error: tx("thatEmailDoesnTLook") };
   }
 
   // Only fills in contact details on a row this endpoint created. It

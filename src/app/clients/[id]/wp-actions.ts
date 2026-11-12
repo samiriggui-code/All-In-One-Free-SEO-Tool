@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -39,13 +40,14 @@ export async function saveWpCreds(
   formData: FormData,
 ): Promise<SaveCredsResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_wp-actions");
   const parsed = credsSchema.safeParse({
     clientId: formData.get("clientId"),
     endpoint: formData.get("endpoint"),
     key: formData.get("key"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
   await requireClientAccess(parsed.data.clientId, { edit: true });
 
@@ -80,7 +82,7 @@ export async function saveWpCreds(
 
   await logActivity({
     kind: "client.created",
-    message: `Connected WordPress bridge.`,
+    message: tx("connectedWordpressBridge"),
     level: "success",
     clientId: parsed.data.clientId,
     entityType: "wp_bridge",
@@ -131,6 +133,7 @@ export async function pushWpFix(
   formData: FormData,
 ): Promise<WpFixResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_wp-actions");
   const parsed = fixSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -138,7 +141,7 @@ export async function pushWpFix(
     value: formData.get("value"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
   await requireClientAccess(parsed.data.clientId, { edit: true });
 
@@ -147,7 +150,7 @@ export async function pushWpFix(
     return {
       ok: false,
       error:
-        "WordPress bridge not connected. Connect it on the client detail page first.",
+        tx("wordpressBridgeNotConnectedConnect"),
     };
   }
 
@@ -155,7 +158,7 @@ export async function pushWpFix(
   if (!postId) {
     return {
       ok: false,
-      error: `Couldn't resolve ${parsed.data.url} to a WordPress post.`,
+      error: tx("couldnTResolveToA", { url: parsed.data.url }),
     };
   }
 
@@ -181,16 +184,16 @@ export async function pushWpFix(
       result = await setPostSchema(creds, postId, parsed.data.value);
       break;
     default:
-      result = { ok: false, error: "Unsupported fix type" };
+      result = { ok: false, error: tx("unsupportedFixType") };
   }
 
   if (!result.ok) {
-    return { ok: false, error: result.error ?? "WP push failed" };
+    return { ok: false, error: result.error ?? tx("wpPushFailed") };
   }
 
   await logActivity({
     kind: "task.completed",
-    message: `Pushed ${parsed.data.fixType.replace("_", " ")} update to WordPress (post #${postId})`,
+    message: tx("pushedUpdateToWordpressPost", { v: parsed.data.fixType.replace("_", " "), postId }),
     level: "success",
     clientId: parsed.data.clientId,
     entityType: "wp_bridge",
@@ -209,13 +212,14 @@ export async function pushImageAltFix(opts: {
 }): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
   await requireClientAccess(opts.clientId, { edit: true });
+  const tx = await getTranslations("ui.app_clients_id_wp-actions");
   const creds = await getClientWpCreds(opts.clientId);
-  if (!creds) return { ok: false, error: "WordPress bridge not connected." };
+  if (!creds) return { ok: false, error: tx("wordpressBridgeNotConnected") };
   const r = await setAttachmentAlt(creds, opts.attachmentId, opts.alt);
   if (!r.ok) return { ok: false, error: r.error };
   await logActivity({
     kind: "task.completed",
-    message: `Pushed alt text to WordPress media #${opts.attachmentId}`,
+    message: tx("pushedAltTextToWordpress", { attachmentId: opts.attachmentId }),
     clientId: opts.clientId,
     entityType: "wp_bridge",
     entityId: opts.attachmentId,

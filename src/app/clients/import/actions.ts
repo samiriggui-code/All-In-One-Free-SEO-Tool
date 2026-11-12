@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -130,12 +131,13 @@ export async function importSelectedProperties(opts: {
   keys: string[];
 }): Promise<ImportResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_import_actions");
   const errors: string[] = [];
   let imported = 0;
   let skipped = 0;
 
   if (opts.keys.length === 0) {
-    return { imported: 0, skipped: 0, errors: ["Nothing selected."] };
+    return { imported: 0, skipped: 0, errors: [tx("nothingSelected")] };
   }
 
   // Reload the importable list so we have full pair info from the keys

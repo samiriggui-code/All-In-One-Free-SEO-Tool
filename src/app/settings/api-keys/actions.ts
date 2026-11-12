@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -19,14 +20,15 @@ export async function createApiKey(
 ): Promise<CreateApiKeyState> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_api-keys_actions");
   const name = String(formData.get("name") ?? "").trim();
   const scope = String(formData.get("scope") ?? "read").trim();
 
   if (name.length < 2 || name.length > 80) {
-    return { ok: false, error: "Name must be 2-80 chars." };
+    return { ok: false, error: tx("nameMustBe280") };
   }
   if (!["read", "write", "admin"].includes(scope)) {
-    return { ok: false, error: "Invalid scope." };
+    return { ok: false, error: tx("invalidScope") };
   }
 
   const { raw, hash, prefix } = generateKey();
@@ -39,7 +41,7 @@ export async function createApiKey(
       scopes: [scope as "read" | "write" | "admin"],
     })
     .returning();
-  if (!row) return { ok: false, error: "DB insert failed." };
+  if (!row) return { ok: false, error: tx("dbInsertFailed") };
 
   revalidatePath("/settings");
   return { ok: true, rawKey: raw, keyId: row.id };

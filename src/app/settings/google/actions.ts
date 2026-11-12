@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -53,6 +54,7 @@ export async function saveGoogleCredentials(
 export async function clearGoogleCredentials() {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_google_actions");
   await disconnectGoogle();
   await Promise.all([
     deleteSetting("google.client_id"),
@@ -60,7 +62,7 @@ export async function clearGoogleCredentials() {
   ]);
   await logActivity({
     kind: "google.credentials_cleared",
-    message: "Cleared Google OAuth credentials.",
+    message: tx("clearedGoogleOauthCredentials"),
     level: "info",
   });
   revalidatePath("/settings/google");
@@ -69,10 +71,11 @@ export async function clearGoogleCredentials() {
 export async function disconnectGoogleAccount() {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_google_actions");
   await disconnectGoogle();
   await logActivity({
     kind: "google.disconnected",
-    message: "Disconnected Google account.",
+    message: tx("disconnectedGoogleAccount"),
     level: "info",
   });
   revalidatePath("/settings/google");
@@ -91,6 +94,7 @@ export async function saveServiceAccount(
 ): Promise<{ ok: boolean; error?: string; email?: string }> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_google_actions");
   const { saveServiceAccountKey } = await import("@/lib/google-service-account");
   const raw = String(formData.get("json") ?? "");
   const result = await saveServiceAccountKey(raw);
@@ -100,7 +104,7 @@ export async function saveServiceAccount(
     kind: "google.service_account_saved",
     // The email, not the key. It is the thing the user must go and paste
     // into Search Console, so it is worth having in the log.
-    message: `Connected Google with service account ${result.email}.`,
+    message: tx("connectedGoogleWithServiceAccount", { email: result.email }),
     level: "info",
   });
   revalidatePath("/settings/google");
@@ -110,11 +114,12 @@ export async function saveServiceAccount(
 export async function removeServiceAccount() {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_google_actions");
   const { clearServiceAccount } = await import("@/lib/google-service-account");
   await clearServiceAccount();
   await logActivity({
     kind: "google.service_account_cleared",
-    message: "Removed the Google service account key.",
+    message: tx("removedTheGoogleServiceAccount"),
     level: "info",
   });
   revalidatePath("/settings/google");
@@ -134,12 +139,13 @@ export async function testServiceAccount(): Promise<{
 }> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_google_actions");
   const { serviceAccountAccessToken, serviceAccountEmail } = await import(
     "@/lib/google-service-account"
   );
   try {
     const token = await serviceAccountAccessToken();
-    if (!token) return { ok: false, detail: "No service account key saved yet." };
+    if (!token) return { ok: false, detail: tx("noServiceAccountKeySaved") };
     const email = await serviceAccountEmail();
     const res = await fetch(
       "https://www.googleapis.com/webmasters/v3/sites",
@@ -148,7 +154,7 @@ export async function testServiceAccount(): Promise<{
     if (!res.ok) {
       return {
         ok: false,
-        detail: `Google accepted the key but refused Search Console (${res.status}). Add ${email} as a user on the property in Search Console, then try again.`,
+        detail: tx("googleAcceptedTheKeyBut", { status: res.status, email: email ?? "" }),
       };
     }
     const body = (await res.json()) as { siteEntry?: { siteUrl: string }[] };
@@ -156,7 +162,7 @@ export async function testServiceAccount(): Promise<{
     if (sites.length === 0) {
       return {
         ok: false,
-        detail: `The key works, but this service account can see no properties. In Search Console open Settings, Users and permissions, and add ${email} as a user.`,
+        detail: tx("theKeyWorksButThis", { email: email ?? "" }),
       };
     }
     return {

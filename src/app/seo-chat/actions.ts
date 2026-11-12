@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { callAIVision, type VisionMessage } from "@/lib/ai-vision";
@@ -116,8 +117,9 @@ export async function seoChat(
   conversationId?: number | null,
 ): Promise<SeoChatResearchResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_seo-chat_actions");
   if (history.length === 0 || history[history.length - 1].role !== "user") {
-    return { ok: false, error: "No question to answer." };
+    return { ok: false, error: tx("noQuestionToAnswer") };
   }
 
   // Validate image
@@ -125,14 +127,14 @@ export async function seoChat(
   if (imageDataUrl) {
     const match = imageDataUrl.match(/^data:([^;]+);base64,(.+)$/);
     if (!match) {
-      return { ok: false, error: "Invalid image data URL." };
+      return { ok: false, error: tx("invalidImageDataUrl") };
     }
     const [, mime, b64] = match;
     if (!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(mime)) {
-      return { ok: false, error: "Image must be PNG, JPEG, GIF, or WebP." };
+      return { ok: false, error: tx("imageMustBePngJpeg") };
     }
     if (b64.length * 0.75 > MAX_IMAGE_BYTES) {
-      return { ok: false, error: "Image too large (>4MB)." };
+      return { ok: false, error: tx("imageTooLarge4mb") };
     }
     parsedImage = { mimeType: mime, base64: b64 };
   }
@@ -243,7 +245,7 @@ export async function seoChat(
     return {
       ok: false,
       error:
-        "AI provider didn't respond. Open Settings → AI provider → click Test next to your provider to see the exact error.",
+        tx("aiProviderDidnTRespond"),
     };
   }
 

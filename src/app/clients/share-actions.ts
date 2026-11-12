@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -63,8 +64,9 @@ export async function emailPortalLink(input: {
   baseUrl: string;
 }): Promise<EmailPortalResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_share-actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient") };
   }
   await requireClientAccess(input.clientId, { edit: true });
   const [client] = await db
@@ -72,11 +74,11 @@ export async function emailPortalLink(input: {
     .from(clients)
     .where(eq(clients.id, input.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
   if (!client.shareToken) {
     return {
       ok: false,
-      error: "Generate a share link first.",
+      error: tx("generateAShareLinkFirst"),
     };
   }
   const recipient =
@@ -85,14 +87,14 @@ export async function emailPortalLink(input: {
     return {
       ok: false,
       error:
-        "Need a recipient email — set one on the client, or pass it explicitly.",
+        tx("needARecipientEmailSet"),
     };
   }
 
-  const brandName = (await getSetting<string>("brand.name")) ?? "Your SEO team";
+  const brandName = (await getSetting<string>("brand.name")) ?? tx("yourSeoTeam");
   const portalUrl = `${input.baseUrl.replace(/\/$/, "")}/portal/${client.shareToken}`;
 
-  const subject = `Your ${client.name} SEO progress — live link`;
+  const subject = tx("yourSeoProgressLiveLink", { name: client.name });
   const text = `Hi,
 
 Here's your live SEO progress portal for ${client.name}:

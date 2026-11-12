@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireEditor } from "@/lib/auth";
@@ -47,6 +48,7 @@ export async function saveBrand(
 ): Promise<BrandActionResult> {
   await requireEditor();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_brand-actions");
   const raw = {
     name: formData.get("name") ?? "",
     color: formData.get("color") ?? "",
@@ -62,7 +64,7 @@ export async function saveBrand(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -103,7 +105,7 @@ export async function saveBrand(
   }
 
   revalidatePath("/settings");
-  return { ok: true, message: "Brand saved." };
+  return { ok: true, message: tx("brandSaved") };
 }
 
 export async function clearLogo(): Promise<void> {

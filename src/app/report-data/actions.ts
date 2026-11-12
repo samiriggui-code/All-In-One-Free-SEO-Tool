@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -57,19 +58,20 @@ export async function parseReportDataPaste(
   formData: FormData,
 ): Promise<ParseState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_report-data_actions");
   const clientId = Number(formData.get("clientId"));
   const rawText = String(formData.get("rawText") ?? "").trim();
 
   if (!Number.isFinite(clientId) || clientId <= 0) {
-    return { ok: false, error: "Pick a client first." };
+    return { ok: false, error: tx("pickAClientFirst") };
   }
   if (!rawText) {
-    return { ok: false, error: "Paste some text to extract." };
+    return { ok: false, error: tx("pasteSomeTextToExtract") };
   }
   if (rawText.length > 20_000) {
     return {
       ok: false,
-      error: "Too much text at once — paste up to ~20,000 chars per run.",
+      error: tx("tooMuchTextAtOnce"),
     };
   }
 
@@ -78,7 +80,7 @@ export async function parseReportDataPaste(
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const raw = await callAI({
     system: SYSTEM,
@@ -93,7 +95,7 @@ export async function parseReportDataPaste(
     return {
       ok: false,
       error:
-        lastAiFailure()?.message ?? "AI provider didn't respond. Configure one in Settings → AI, or click Test next to your provider to see the actual error.",
+        lastAiFailure()?.message ?? tx("aiProviderDidnTRespond"),
     };
   }
 
@@ -113,14 +115,14 @@ export async function parseReportDataPaste(
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    return { ok: false, error: "AI returned malformed JSON. Try again." };
+    return { ok: false, error: tx("aiReturnedMalformedJsonTry") };
   }
 
   const items = parsed.items ?? [];
   if (items.length === 0) {
     return {
       ok: false,
-      error: "AI found no actionable items in the pasted text.",
+      error: tx("aiFoundNoActionableItems"),
     };
   }
 
@@ -154,7 +156,7 @@ export async function parseReportDataPaste(
     }));
 
   if (rows.length === 0) {
-    return { ok: false, error: "All items failed validation." };
+    return { ok: false, error: tx("allItemsFailedValidation") };
   }
 
   await db.insert(manualReportData).values(rows);

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -17,12 +18,13 @@ export async function saveBrowserSettings(
 ): Promise<BrowserSettingsState> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_browser-actions");
   const concRaw = formData.get("maxConcurrency");
   const conc = concRaw ? Number(concRaw) : 4;
   if (!Number.isFinite(conc) || conc < 1 || conc > 16) {
     return {
       ok: false,
-      error: "Concurrency must be between 1 and 16.",
+      error: tx("concurrencyMustBeBetween1"),
     };
   }
   const proxiesRaw = String(formData.get("proxies") ?? "")
@@ -59,7 +61,7 @@ export async function saveBrowserSettings(
   await closeBrowser();
 
   revalidatePath("/settings");
-  return { ok: true, message: "Saved. Browser will relaunch on next use." };
+  return { ok: true, message: tx("savedBrowserWillRelaunchOn") };
 }
 
 type StoredCookie = {

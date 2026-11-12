@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { desc, eq } from "drizzle-orm";
@@ -16,12 +17,13 @@ export async function runSerpScan(
   keywordId: number,
 ): Promise<RunSerpScanResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_keywords_serp-actions");
   const [k] = await db
     .select()
     .from(keywords)
     .where(eq(keywords.id, keywordId))
     .limit(1);
-  if (!k) return { ok: false, error: "Keyword not found" };
+  if (!k) return { ok: false, error: tx("keywordNotFound") };
 
   const [client] = await db
     .select()
@@ -89,7 +91,7 @@ export async function runSerpScan(
   revalidatePath(`/keywords/${k.id}/serp`);
 
   if (!result.ok) {
-    return { ok: false, error: result.error ?? "SERP scan failed" };
+    return { ok: false, error: result.error ?? tx("serpScanFailed") };
   }
 
   return {

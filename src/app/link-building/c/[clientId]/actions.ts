@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -33,16 +34,17 @@ export async function fetchBespokeIdeas(
   formData: FormData,
 ): Promise<IdeasState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_link-building_c_clientId_actions");
   const clientId = Number(formData.get("clientId"));
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Bad client id." };
+    return { ok: false, error: tx("badClientId") };
 
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   try {
     const ideas = await aiBespokeBacklinkIdeas(
@@ -59,13 +61,13 @@ export async function fetchBespokeIdeas(
       return {
         ok: false,
         error:
-          "No AI bespoke ideas generated — check that an AI provider is configured in Settings.",
+          tx("noAiBespokeIdeasGenerated"),
       };
     return { ok: true, ideas };
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "AI call failed.",
+      error: e instanceof Error ? e.message : tx("aiCallFailed"),
     };
   }
 }

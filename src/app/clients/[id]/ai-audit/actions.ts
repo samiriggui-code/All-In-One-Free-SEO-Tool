@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -17,21 +18,22 @@ export async function startAiAudit(
   formData: FormData,
 ): Promise<StartState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_ai-audit_actions");
   const clientId = Number(formData.get("clientId"));
   const url = String(formData.get("url") ?? "").trim();
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Invalid client ID." };
-  if (!url) return { ok: false, error: "URL required." };
+    return { ok: false, error: tx("invalidClientId") };
+  if (!url) return { ok: false, error: tx("urlRequired") };
 
   try {
     const r = await runAiSiteAudit({ clientId, url });
     if (!r.ok || !r.auditId)
-      return { ok: false, error: r.error ?? "Audit failed" };
+      return { ok: false, error: r.error ?? tx("auditFailed") };
     revalidatePath(`/clients/${clientId}/ai-audit`);
     revalidatePath(`/clients/${clientId}/ai-audit/${r.auditId}`);
     return { ok: true, auditId: r.auditId };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Audit failed" };
+    return { ok: false, error: (err as Error).message ?? tx("auditFailed") };
   }
 }
 

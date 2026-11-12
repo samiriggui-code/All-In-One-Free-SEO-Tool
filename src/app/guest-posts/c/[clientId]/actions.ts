@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -34,6 +35,7 @@ export async function generateGuestPost(
   formData: FormData,
 ): Promise<GenerateState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_guest-posts_c_clientId_actions");
   const clientId = Number(formData.get("clientId"));
   const siteId = String(formData.get("siteId") ?? "");
   const topic = String(formData.get("topic") ?? "").trim();
@@ -45,21 +47,21 @@ export async function generateGuestPost(
   const aiModel = String(formData.get("aiModel") ?? "").trim();
 
   if (!Number.isFinite(clientId) || clientId <= 0)
-    return { ok: false, error: "Bad client id." };
-  if (!siteId) return { ok: false, error: "Pick a target platform." };
-  if (!topic) return { ok: false, error: "Topic is required." };
+    return { ok: false, error: tx("badClientId") };
+  if (!siteId) return { ok: false, error: tx("pickATargetPlatform") };
+  if (!topic) return { ok: false, error: tx("topicIsRequired") };
   if (!targetKeyword)
-    return { ok: false, error: "Target keyword is required." };
+    return { ok: false, error: tx("targetKeywordIsRequired") };
 
   const site = getGuestPostSiteById(siteId);
-  if (!site) return { ok: false, error: `Unknown platform: ${siteId}` };
+  if (!site) return { ok: false, error: tx("unknownPlatform", { siteId }) };
 
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const result = await writeGuestPost({
     siteId,
@@ -224,6 +226,7 @@ export async function suggestGuestPostTitles(
   formData: FormData,
 ): Promise<SuggestTitlesState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_guest-posts_c_clientId_actions");
   const clientId = Number(formData.get("clientId"));
   const siteId = String(formData.get("siteId") ?? "");
   const targetKeyword = String(formData.get("targetKeyword") ?? "").trim();
@@ -231,20 +234,20 @@ export async function suggestGuestPostTitles(
     formData.get("additionalContext") ?? "",
   ).trim();
 
-  if (!Number.isFinite(clientId)) return { ok: false, error: "Bad client id." };
-  if (!siteId) return { ok: false, error: "Pick a target platform first." };
+  if (!Number.isFinite(clientId)) return { ok: false, error: tx("badClientId") };
+  if (!siteId) return { ok: false, error: tx("pickATargetPlatformFirst") };
   if (!targetKeyword)
-    return { ok: false, error: "A target keyword guides the titles." };
+    return { ok: false, error: tx("aTargetKeywordGuidesThe") };
 
   const site = getGuestPostSiteById(siteId);
-  if (!site) return { ok: false, error: `Unknown platform: ${siteId}` };
+  if (!site) return { ok: false, error: tx("unknownPlatform", { siteId }) };
 
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const system = `You are a senior editor for ${site.name} (${site.domain}). Suggest exactly 6 guest-post titles a contributor could pitch.
 
@@ -287,7 +290,7 @@ Return the JSON.`;
     return {
       ok: false,
       error:
-        "AI provider not configured — set one up in Settings → AI first.",
+        tx("aiProviderNotConfiguredSet"),
     };
   }
 
@@ -301,13 +304,13 @@ Return the JSON.`;
       titles?: { title: string; angle: string }[];
     };
     if (!parsed.titles || parsed.titles.length === 0) {
-      return { ok: false, error: "AI returned no titles. Try again." };
+      return { ok: false, error: tx("aiReturnedNoTitlesTry") };
     }
     return { ok: true, titles: parsed.titles };
   } catch {
     return {
       ok: false,
-      error: "Couldn't parse the AI's response — try again.",
+      error: tx("couldnTParseTheAi"),
     };
   }
 }

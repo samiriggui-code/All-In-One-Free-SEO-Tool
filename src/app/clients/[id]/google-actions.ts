@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -47,8 +48,9 @@ export async function saveGoogleProperties(opts: {
   ga4PropertyId: string | null;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_google-actions");
   if (!Number.isFinite(opts.clientId) || opts.clientId < 1) {
-    return { ok: false, error: "Invalid client" };
+    return { ok: false, error: tx("invalidClient") };
   }
   // Which Search Console and Analytics a project reads is an edit of that
   // project: same check as the WordPress and report-schedule actions.

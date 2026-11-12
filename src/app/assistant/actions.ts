@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { desc, eq, ne, count } from "drizzle-orm";
@@ -287,8 +288,9 @@ async function callOllama(
 
 export async function chat(history: ChatMessage[]): Promise<ChatResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_assistant_actions");
   if (history.length === 0 || history[history.length - 1].role !== "user") {
-    return { ok: false, error: "No user message to respond to." };
+    return { ok: false, error: tx("noUserMessageToRespond") };
   }
 
   const context = await loadContext();
@@ -315,14 +317,14 @@ export async function chat(history: ChatMessage[]): Promise<ChatResult> {
         error:
           `This assistant calls a model directly, so it needs a key — ${ai.client ?? "your chat app"} is connected, but that works the other way round: it calls in here.\n\n` +
           "You can ask the same question in that app right now — it can see your clients, audits, keywords and rankings.\n\n" +
-          "To answer it here instead, add a free Gemini or Groq key in Settings → AI connection.",
+          tx("toAnswerItHereInstead"),
       };
     }
 
     return {
       ok: false,
       error:
-        "No active AI provider. Open Settings → AI connection, add a free Gemini or Groq key, then pick it as active.",
+        tx("noActiveAiProviderOpen"),
     };
   }
 
@@ -368,7 +370,7 @@ export async function chat(history: ChatMessage[]): Promise<ChatResult> {
 
   return {
     ok: false,
-    error: `Active provider "${active}" didn't respond. Check the key in Settings or pick a different provider as active.`,
+    error: tx("activeProviderDidnTRespond", { active }),
   };
 }
 

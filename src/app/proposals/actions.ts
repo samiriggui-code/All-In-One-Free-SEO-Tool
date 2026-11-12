@@ -1,12 +1,13 @@
 "use server";
 
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
 import { splitSurfaces, surfacesFor } from "@/lib/engagement-surfaces";
 import { classifyIntent } from "@/lib/keyword-research";
 import { and, count, desc, eq } from "drizzle-orm";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { db } from "@/db/client";
 import {
@@ -25,12 +26,12 @@ import { SEVERITIES, deriveScope, unmappedFindingTypes } from "@/lib/proposal-sc
 import { DEFAULT_HOURLY_RATE, DEFAULT_QUOTE, type QuoteSettings } from "@/lib/quote";
 import { getSetting } from "@/lib/settings-store";
 
-async function assertCanEdit(): Promise<string | null> {
+async function assertCanEdit(tx: Tx): Promise<string | null> {
   const me = await currentUser();
   // A signed-out caller on a workspace with accounts is not the local
   // single user: it must not be allowed to write.
-  if (!me && accountsEnabled()) return "You have read-only access.";
-  if (me && !canEdit(me.role)) return "You have read-only access.";
+  if (!me && accountsEnabled()) return tx("youHaveReadOnlyAccess");
+  if (me && !canEdit(me.role)) return tx("youHaveReadOnlyAccess");
   return null;
 }
 
@@ -80,7 +81,8 @@ export async function buildProposal(input: {
   leadId?: number;
 }): Promise<CreateResult> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await getTranslations("ui.app_proposals_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
 
   let prospectName = "";
@@ -93,14 +95,14 @@ export async function buildProposal(input: {
 
   if (input.clientId) {
     if (!(await canSeeClient(await currentUser(), input.clientId))) {
-      return { ok: false, error: "No such client." };
+      return { ok: false, error: tx("noSuchClient") };
     }
     const [client] = await db
       .select()
       .from(clients)
       .where(eq(clients.id, input.clientId))
       .limit(1);
-    if (!client) return { ok: false, error: "No such client." };
+    if (!client) return { ok: false, error: tx("noSuchClient") };
 
     prospectName = client.name;
     prospectUrl = client.url;
@@ -119,7 +121,7 @@ export async function buildProposal(input: {
       return {
         ok: false,
         error:
-          "Run an audit for this client first — a proposal built from nothing would just be a template.",
+          tx("runAnAuditForThis"),
       };
     }
 
@@ -138,7 +140,7 @@ export async function buildProposal(input: {
       .from(graderLeads)
       .where(eq(graderLeads.id, input.leadId))
       .limit(1);
-    if (!lead) return { ok: false, error: "No such lead." };
+    if (!lead) return { ok: false, error: tx("noSuchLead") };
 
     try {
       prospectName = lead.name ?? new URL(lead.url).hostname.replace(/^www\./i, "");
@@ -154,7 +156,7 @@ export async function buildProposal(input: {
       severity: f.severity,
     }));
   } else {
-    return { ok: false, error: "Pick a client or a lead." };
+    return { ok: false, error: tx("pickAClientOrA") };
   }
 
   const locale = await docLocale();
@@ -258,10 +260,11 @@ export async function updateProposal(
   rawPatch: ProposalPatch,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await getTranslations("ui.app_proposals_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   const parsed = patchSchema.safeParse(rawPatch);
-  if (!parsed.success) return { ok: false, error: "Invalid input." };
+  if (!parsed.success) return { ok: false, error: tx("invalidInput") };
   const { offers, quote, ...patch } = parsed.data;
 
   const [existing] = await db
@@ -269,12 +272,12 @@ export async function updateProposal(
     .from(proposals)
     .where(eq(proposals.id, id))
     .limit(1);
-  if (!existing) return { ok: false, error: "No such proposal." };
+  if (!existing) return { ok: false, error: tx("noSuchProposal") };
   if (
     existing.clientId &&
     !(await canSeeClient(await currentUser(), existing.clientId))
   ) {
-    return { ok: false, error: "No such proposal." };
+    return { ok: false, error: tx("noSuchProposal") };
   }
 
   await db
@@ -315,16 +318,17 @@ export async function deleteProposal(
   id: number,
 ): Promise<{ ok: boolean; error?: string }> {
   await requireSignedIn();
-  const denied = await assertCanEdit();
+  const tx = await getTranslations("ui.app_proposals_actions");
+  const denied = await assertCanEdit(tx);
   if (denied) return { ok: false, error: denied };
   const [existing] = await db
     .select({ clientId: proposals.clientId })
     .from(proposals)
     .where(eq(proposals.id, id))
     .limit(1);
-  if (!existing) return { ok: false, error: "No such proposal." };
+  if (!existing) return { ok: false, error: tx("noSuchProposal") };
   if (existing.clientId && !(await canSeeClient(await currentUser(), existing.clientId))) {
-    return { ok: false, error: "No such proposal." };
+    return { ok: false, error: tx("noSuchProposal") };
   }
   await db.delete(proposals).where(eq(proposals.id, id));
   revalidatePath("/proposals");
@@ -349,7 +353,8 @@ export async function createInvoiceFromProposal(
   proposalId: number,
 ): Promise<InvoiceFromProposalResult> {
   await requireSignedIn();
-  if (await assertCanEdit()) return { ok: false, error: "readOnly" };
+  const tx = await getTranslations("ui.app_proposals_actions");
+  if (await assertCanEdit(tx)) return { ok: false, error: "readOnly" };
   if (!Number.isInteger(proposalId)) return { ok: false, error: "notFound" };
 
   const [p] = await db.select().from(proposals).where(eq(proposals.id, proposalId)).limit(1);
@@ -436,6 +441,7 @@ export async function buildKickoffReport(
   clientId: number,
 ): Promise<CreateResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_proposals_actions");
   const base = await buildProposal({ clientId });
   if (!base.ok) return base;
 
@@ -444,7 +450,7 @@ export async function buildKickoffReport(
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "No such client." };
+  if (!client) return { ok: false, error: tx("noSuchClient") };
 
   const baseline = await keywordBaselineFor(clientId);
   const timeline = await timelineFor(clientId);

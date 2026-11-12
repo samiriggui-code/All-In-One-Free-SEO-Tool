@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -100,6 +101,7 @@ function resolveConfigPath(): string {
 export async function installDesktopConfig(): Promise<InstallResult> {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_desktop-config-actions");
   try {
     const root = process.cwd();
 
@@ -124,7 +126,7 @@ export async function installDesktopConfig(): Promise<InstallResult> {
       if (!fs.existsSync(p)) {
         return {
           ok: false,
-          error: `Can't write the config: ${p} does not exist. Run the install once (pnpm install) and try again.`,
+          error: tx("canTWriteTheConfig", { p }),
         };
       }
     }
@@ -150,7 +152,7 @@ export async function installDesktopConfig(): Promise<InstallResult> {
           // read; the backup above means nothing is lost either way.
           return {
             ok: false,
-            error: `${configPath} isn't valid JSON, so your existing settings can't be read. A copy is saved at ${backupPath}. Fix or delete the file, then try again.`,
+            error: tx("isnTValidJsonSo", { configPath, backupPath }),
           };
         }
       }

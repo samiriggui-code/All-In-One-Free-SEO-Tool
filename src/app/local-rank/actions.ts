@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -18,16 +19,17 @@ export async function runLocalRanks(opts: {
   country?: string;
 }): Promise<RunLocalRankResult> {
   await requireSignedIn();
-  if (!opts.query.trim()) return { ok: false, error: "Query is required" };
+  const tx = await getTranslations("ui.app_local-rank_actions");
+  if (!opts.query.trim()) return { ok: false, error: tx("queryIsRequired") };
   if (opts.cities.length === 0)
-    return { ok: false, error: "At least one city" };
+    return { ok: false, error: tx("atLeastOneCity") };
 
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, opts.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   // Run in parallel — Playwright contexts are isolated per-call
   const results = await Promise.all(

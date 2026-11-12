@@ -1,5 +1,7 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { createWorker } from "tesseract.js";
@@ -29,18 +31,19 @@ export async function extractScreenshotText(
   formData: FormData,
 ): Promise<OcrResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_import_actions");
   const dataUrl = String(formData.get("imageDataUrl") ?? "");
   if (!dataUrl.startsWith("data:image/")) {
-    return { ok: false, error: "No image provided." };
+    return { ok: false, error: tx("noImageProvided") };
   }
 
   const m = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
   if (!m) {
-    return { ok: false, error: "Invalid image data." };
+    return { ok: false, error: tx("invalidImageData") };
   }
   const buffer = Buffer.from(m[2], "base64");
   if (buffer.length > 8 * 1024 * 1024) {
-    return { ok: false, error: "Image too large (>8 MB)." };
+    return { ok: false, error: tx("imageTooLarge8Mb") };
   }
 
   let text = "";
@@ -52,7 +55,7 @@ export async function extractScreenshotText(
   } catch (err) {
     return {
       ok: false,
-      error: `OCR failed: ${(err as Error).message}`,
+      error: tx("ocrFailed", { message: (err as Error).message }),
     };
   }
 
@@ -60,14 +63,14 @@ export async function extractScreenshotText(
     return {
       ok: false,
       error:
-        "Couldn't read any text from this image. Try a higher-resolution screenshot.",
+        tx("couldnTReadAnyText"),
     };
   }
 
   // Try to enrich with LLM structured extraction; fall back to heuristic
   const llm = await tryLlmExtraction(text);
-  const structured = llm ?? heuristicExtract(text);
-  const provider = llm ? "AI extraction" : "Heuristic parser";
+  const structured = llm ?? heuristicExtract(tx, text);
+  const provider = llm ? tx("aiExtraction") : tx("heuristicParser");
 
   return { ok: true, text, structured, provider };
 }
@@ -176,7 +179,7 @@ Reply with just the JSON object, no preamble.`;
   }
 }
 
-function heuristicExtract(text: string): ExtractedFields {
+function heuristicExtract(tx: Tx, text: string): ExtractedFields {
   // Pull "Label: Value" pairs and try to detect metric blocks
   const metrics: ExtractedFields["metrics"] = [];
   const lines = text.split(/[\n\r]+/).map((l) => l.trim()).filter(Boolean);
@@ -197,7 +200,7 @@ function heuristicExtract(text: string): ExtractedFields {
     queries: [],
     date: dateMatch?.[0],
     notes: metrics.length === 0
-      ? "No obvious key:value pairs found. Try connecting an API key for smarter extraction."
+      ? tx("noObviousKeyValuePairs")
       : undefined,
   };
 }

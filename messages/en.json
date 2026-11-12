@@ -7407,6 +7407,491 @@
     },
     "app_tools_rank-where_page": {
       "aiOverview": "AI Overview"
+    },
+    "app_agent_actions": {
+      "updatePageTitle": "Update page title",
+      "updateMetaDescription": "Update meta description",
+      "updateH1": "Update H1",
+      "quickWinOptimization": "Quick win optimization",
+      "writeNewContent": "Write new content",
+      "addInternalLink": "Add internal link",
+      "addStructuredData": "Add structured data",
+      "aiSuggestion": "AI suggestion"
+    },
+    "app_agent_autopilot_actions": {
+      "noSuchChange": "No such change.",
+      "theAgentIsTurnedOff": "The agent is turned off. Pick a level above to enable it.",
+      "noSuchClient": "No such client.",
+      "thatChangeIsnTWaiting": "That change isn't waiting for approval.",
+      "thatChangeHasNothingTo": "That change has nothing to apply.",
+      "supersededApprovedAndApplied": "Superseded — approved and applied.",
+      "rejectedByYou": "Rejected by you.",
+      "noSuchRun": "No such run."
+    },
+    "app_ai-visibility_actions": {
+      "invalidKeywordId": "Invalid keyword id",
+      "keywordOrClientNotFound": "Keyword or client not found",
+      "noAiProviderConfiguredOpen": "No AI provider configured. Open Settings → AI provider keys and paste a free Gemini, Groq, or Perplexity key — or enable browser-mode AI-search checks in Settings.",
+      "aiVisibilityCheckOnRan": "AI visibility check on \"{query}\" ran across {length} providers · {mentionsFound} mentioned {clientName}."
+    },
+    "app_annotations_actions": {
+      "labelIsRequired": "Label is required.",
+      "eventDateIsRequired": "Event date is required.",
+      "clientScopeNeedsAClient": "Client scope needs a client.",
+      "keywordScopeNeedsAKeyword": "Keyword scope needs a keyword id.",
+      "pageScopeNeedsAUrl": "Page scope needs a URL.",
+      "failedToSaveAnnotation": "Failed to save annotation."
+    },
+    "app_ask_actions": {
+      "typeAQuestionFirst": "Type a question first.",
+      "questionIsTooLongMax": "Question is too long (max 2000 chars).",
+      "noSuchClient": "No such client.",
+      "noAiProviderRespondedConfigure": "No AI provider responded. Configure an API key in Settings → AI."
+    },
+    "app_assistant_actions": {
+      "noUserMessageToRespond": "No user message to respond to.",
+      "toAnswerItHereInstead": "To answer it here instead, add a free Gemini or Groq key in Settings → AI connection.",
+      "noActiveAiProviderOpen": "No active AI provider. Open Settings → AI connection, add a free Gemini or Groq key, then pick it as active.",
+      "activeProviderDidnTRespond": "Active provider \"{active}\" didn't respond. Check the key in Settings or pick a different provider as active."
+    },
+    "app_audits_actions": {
+      "auditFailedFor": "Audit failed for {name}",
+      "couldnTReachTryRunning": "Couldn't reach {url}. Try running the audit again, or check the site is online.",
+      "client": "Client",
+      "auditFailedForSiteUnreachable": "Audit failed for {name} — site unreachable.",
+      "scoreDropped": "Score dropped",
+      "scoreImproved": "Score improved",
+      "auditCompleted": "Audit completed",
+      "score": "Score",
+      "issues": "Issues",
+      "found": "{issuesCount} found",
+      "auditRunOn": "Audit ({mode}) run on {url}.",
+      "auditForScore100Issues": "Audit #{id} for {name} ({mode}) — score {score}/100, {issuesCount} issues."
+    },
+    "app_audits_wp-apply-actions": {
+      "appliedFixViaWordpressBridge": "Applied {field} fix via WordPress bridge for {pageUrl}"
+    },
+    "app_author-authority_actions": {
+      "pickAClientFirst": "Pick a client first.",
+      "domainRequired": "Domain required.",
+      "clientNotFound": "Client not found.",
+      "scanFailed": "Scan failed."
+    },
+    "app_automations_actions": {
+      "invalidInput": "Invalid input",
+      "webhookUrlRequired": "Webhook URL required.",
+      "webhookUrlMustBeHttp": "Webhook URL must be http(s).",
+      "taskTitleRequired": "Task title required.",
+      "logMessageRequired": "Log message required.",
+      "webhookUrlMustStartWith": "Webhook URL must start with http(s)://",
+      "webhookReturned": "Webhook returned {status}.",
+      "networkFailure": "Network failure",
+      "unknownTemplate": "Unknown template",
+      "thisTemplateNeedsASlack": "This template needs a Slack/Discord webhook URL.",
+      "couldnTInstallTemplate": "Couldn't install template."
+    },
+    "app_autonomy-actions": {
+      "unknownAutonomyLevel": "Unknown autonomy level.",
+      "autonomySetToFromThe": "Autonomy set to \"{level}\" from the first-run prompt."
+    },
+    "app_backlinks_actions": {
+      "invalidInput": "Invalid input",
+      "invalidClientid": "Invalid clientId",
+      "csvIsEmptyOrToo": "CSV is empty or too short",
+      "csvMustHaveAHeader": "CSV must have a header row and at least one data row",
+      "csvIsMissingAReferring": "CSV is missing a 'Referring page URL' column — this doesn't look like an Ahrefs WMT export.",
+      "ahrefsWmtImportNewOther": "Ahrefs WMT import: +{inserted} new {inserted, plural, one {backlink} other {backlinks}} ({duplicates} duplicates, {skipped} skipped)"
+    },
+    "app_backlinks_bing-actions": {
+      "noSuchClient": "No such client."
+    },
+    "app_bot-logs_actions": {
+      "emptyFile": "Empty file"
+    },
+    "app_brand-monitor_actions": {
+      "invalidClient": "Invalid client",
+      "clientNotFound": "Client not found",
+      "mentionNotFound": "Mention not found",
+      "unknownAuthor": "Unknown author"
+    },
+    "app_brand-serp_actions": {
+      "noClient": "(no client)",
+      "clientNotFound": "Client not found",
+      "serpScanFailed": "SERP scan failed"
+    },
+    "app_capture_actions": {
+      "pasteAUrl": "Paste a URL",
+      "notAValidUrl": "Not a valid URL",
+      "couldnTReachThatUrl": "Couldn't reach that URL — check it's correct and publicly accessible.",
+      "pickAClient": "Pick a client",
+      "nameAndUrlRequired": "Name and URL required",
+      "clientNotFound": "Client not found",
+      "urlRequired": "URL required"
+    },
+    "app_clients_id_ai-audit_actions": {
+      "invalidClientId": "Invalid client ID.",
+      "urlRequired": "URL required.",
+      "auditFailed": "Audit failed"
+    },
+    "app_clients_id_automations_actions": {
+      "badClient": "Bad client.",
+      "pickAKind": "Pick a kind.",
+      "scheduleNotFound": "Schedule not found.",
+      "generatedOtherCheckTheReview": "Generated {generated} {generated, plural, one {item} other {items}}. Check the review queue.",
+      "nothingWasGeneratedCheckThe": "Nothing was generated. Check the activity log for the reason."
+    },
+    "app_clients_id_google-actions": {
+      "invalidClient": "Invalid client"
+    },
+    "app_clients_id_onboarding_actions": {
+      "invalidInput": "Invalid input",
+      "invalidClient": "Invalid client.",
+      "invalidClient2": "Invalid client",
+      "clientNotFound": "Client not found",
+      "keywordDiscoveryFoundFromSeeds": "Keyword discovery: {length} found from {length2} seeds",
+      "badSelectionPayload": "Bad selection payload",
+      "pickAtLeastOneKeyword": "Pick at least one keyword to track.",
+      "generated30DaySeoCalendar": "Generated 30-day SEO calendar ({length} tasks)."
+    },
+    "app_clients_id_per-client-google-actions": {
+      "disconnectedPerClientGoogleAccount": "Disconnected per-client Google account."
+    },
+    "app_clients_id_queue_actions": {
+      "queueItemNotFound": "Queue item not found.",
+      "approvedPublishesOnTheNext": "Approved. Publishes on the next daily-agent tick (≤24h).",
+      "alreadyPublished": "Already published.",
+      "published": "Published.",
+      "approvedButNotPickedUp": "Approved but not picked up immediately. Will retry on the next tick."
+    },
+    "app_clients_id_schedule-actions": {
+      "invalidInput": "Invalid input",
+      "noValidEmailAddressesFound": "No valid email addresses found",
+      "smtpNotConfiguredSetIt": "SMTP not configured. Set it up in Settings → Email delivery first.",
+      "addAtLeastOneValid": "Add at least one valid email address."
+    },
+    "app_clients_id_wp-actions": {
+      "invalidInput": "Invalid input",
+      "connectedWordpressBridge": "Connected WordPress bridge.",
+      "wordpressBridgeNotConnectedConnect": "WordPress bridge not connected. Connect it on the client detail page first.",
+      "couldnTResolveToA": "Couldn't resolve {url} to a WordPress post.",
+      "unsupportedFixType": "Unsupported fix type",
+      "wpPushFailed": "WP push failed",
+      "pushedUpdateToWordpressPost": "Pushed {v} update to WordPress (post #{postId})",
+      "wordpressBridgeNotConnected": "WordPress bridge not connected.",
+      "pushedAltTextToWordpress": "Pushed alt text to WordPress media #{attachmentId}"
+    },
+    "app_clients_actions": {
+      "enterAUrlFirst": "Enter a URL first.",
+      "couldnTReachThatUrl": "Couldn't reach that URL. Check it loads in a browser, then try again.",
+      "fetchFailed": "Fetch failed.",
+      "thisSiteIsAlreadyIn": "This site is already in your workspace as “{name}” (client #{id}).",
+      "addedClient": "Added client {name} ({url}).",
+      "updatedClient": "Updated client {name}.",
+      "clientNotFound": "Client not found",
+      "couldnTReachTheSite": "Couldn't reach the site. Check the URL and try again.",
+      "refreshedMetadataFor": "Refreshed metadata for {name}.",
+      "youHaveReadOnlyAccess": "You have read-only access and cannot delete clients.",
+      "youDoNotHaveAccess": "You do not have access to this client.",
+      "deleteFailed": "Delete failed"
+    },
+    "app_clients_import-actions": {
+      "csvIsEmpty": "CSV is empty.",
+      "noRowsParsed": "No rows parsed.",
+      "importedClient": "Imported client {name}."
+    },
+    "app_clients_import_actions": {
+      "nothingSelected": "Nothing selected."
+    },
+    "app_clients_share-actions": {
+      "invalidClient": "Invalid client",
+      "clientNotFound": "Client not found",
+      "generateAShareLinkFirst": "Generate a share link first.",
+      "needARecipientEmailSet": "Need a recipient email — set one on the client, or pass it explicitly.",
+      "yourSeoTeam": "Your SEO team",
+      "yourSeoProgressLiveLink": "Your {name} SEO progress — live link"
+    },
+    "app_compare_actions": {
+      "auditFailed": "Audit failed",
+      "twoUrlsAreRequired": "Two URLs are required.",
+      "couldnTReachEitherSite": "Couldn't reach either site. Check the URLs and try again."
+    },
+    "app_competitors_actions": {
+      "invalidInput": "Invalid input"
+    },
+    "app_competitors_playbook_actions": {
+      "invalidInput": "Invalid input",
+      "analysisFailed": "Analysis failed",
+      "emptySynthesis": "Empty synthesis",
+      "invalidClient": "Invalid client",
+      "noBulletsParsed": "No bullets parsed",
+      "fromCompetitorAnalysisOf": "From competitor analysis of {host}.",
+      "importedTasksFromCompetitorAnalysis": "Imported {length} tasks from competitor analysis of {host}"
+    },
+    "app_content-gap_actions": {
+      "clientNotFound": "Client not found",
+      "connectGoogleSearchConsoleFirst": "Connect Google Search Console first — gap analysis needs the client's real query data."
+    },
+    "app_content_actions": {
+      "published": "Published",
+      "sentAsAWordpressDraft": "Sent as a WordPress draft"
+    },
+    "app_csv-import_actions": {
+      "noRowsDetectedIsThis": "No rows detected. Is this a valid CSV?",
+      "noRows": "No rows",
+      "pickAClientForKeyword": "Pick a client for keyword import.",
+      "clientNotFound": "Client not found",
+      "pickAClientForOutreach": "Pick a client for outreach import.",
+      "pickAClientForCompetitor": "Pick a client for competitor import.",
+      "couldnTDetectWhatThis": "Couldn't detect what this CSV is. Pick a schema manually or rename headers."
+    },
+    "app_cwv_actions": {
+      "urlIsRequired": "URL is required",
+      "clientNotFound": "Client not found",
+      "scanFailed": "Scan failed"
+    },
+    "app_digest_actions": {
+      "weeklySeoDigest": "Weekly SEO digest",
+      "invalidEmailAddress": "Invalid email address",
+      "sendFailed": "Send failed",
+      "validRecipientEmailRequiredTo": "Valid recipient email required to enable.",
+      "autoSendDisabled": "Auto-send disabled."
+    },
+    "app_embed_grader_actions": {
+      "thatDoesnTLookLike": "That doesn't look like a website address.",
+      "thatSAFewAudits": "That's a few audits in quick succession. Try again in {mins} {mins, plural, one {minute} other {minutes}}.",
+      "couldnTReachThatSite": "Couldn't reach that site. Check it loads in a browser and retry.",
+      "somethingWentWrongReRun": "Something went wrong — re-run the audit.",
+      "thatEmailDoesnTLook": "That email doesn't look right."
+    },
+    "app_gbp_actions": {
+      "clientNotFound": "Client not found",
+      "noGoogleBusinessProfileUrl": "No Google Business Profile URL on this client. Add it in Edit → GBP profile.",
+      "theBrowserBasedGbpScraper": "The browser-based GBP scraper is disabled to save memory. Use the official GBP API (connect Google with business.manage scope under Settings → Google), or enable the scraper under Settings → Browser pool.",
+      "scrapeFailed": "Scrape failed",
+      "reviewTextIsEmpty": "Review text is empty",
+      "aiProviderDidnTRespond": "AI provider didn't respond. Set up a key in Settings.",
+      "replyIsEmpty": "Reply is empty",
+      "topicAngleIsRequired": "Topic / angle is required",
+      "aiReturnedAnUnexpectedFormat": "AI returned an unexpected format.",
+      "aiReturnedAnEmptyList": "AI returned an empty list.",
+      "aiReturnedNoValidIdeas": "AI returned no valid ideas.",
+      "couldnTParseAiResponse": "Couldn't parse AI response."
+    },
+    "app_gbp_c_clientId_reviews_actions": {
+      "clientNotFound": "Client not found.",
+      "googleIsConnectedButNo": "Google is connected but no Business Profile accounts came back. The account you connected may not manage any listings.",
+      "thatIsNotALocation": "That is not a location name.",
+      "pickWhichBusinessProfileLocation": "Pick which Business Profile location this client is first.",
+      "pulledBusinessProfileReviewsSeen": "Pulled Business Profile reviews: {seen} seen, {added} new, {removed} gone",
+      "repliedToBusinessProfileOther": "Replied to {sent} Business Profile {sent, plural, one {review} other {reviews}}"
+    },
+    "app_grader_actions": {
+      "enterAValidUrl": "Enter a valid URL.",
+      "couldnTReachThatUrl": "Couldn't reach that URL. Check it loads in a normal browser, then try again."
+    },
+    "app_guest-posts_c_clientId_actions": {
+      "badClientId": "Bad client id.",
+      "pickATargetPlatform": "Pick a target platform.",
+      "topicIsRequired": "Topic is required.",
+      "targetKeywordIsRequired": "Target keyword is required.",
+      "unknownPlatform": "Unknown platform: {siteId}",
+      "clientNotFound": "Client not found.",
+      "pickATargetPlatformFirst": "Pick a target platform first.",
+      "aTargetKeywordGuidesThe": "A target keyword guides the titles.",
+      "aiProviderNotConfiguredSet": "AI provider not configured — set one up in Settings → AI first.",
+      "aiReturnedNoTitlesTry": "AI returned no titles. Try again.",
+      "couldnTParseTheAi": "Couldn't parse the AI's response — try again."
+    },
+    "app_import_actions": {
+      "noImageProvided": "No image provided.",
+      "invalidImageData": "Invalid image data.",
+      "imageTooLarge8Mb": "Image too large (>8 MB).",
+      "ocrFailed": "OCR failed: {message}",
+      "couldnTReadAnyText": "Couldn't read any text from this image. Try a higher-resolution screenshot.",
+      "aiExtraction": "AI extraction",
+      "heuristicParser": "Heuristic parser",
+      "noObviousKeyValuePairs": "No obvious key:value pairs found. Try connecting an API key for smarter extraction."
+    },
+    "app_keywords_actions": {
+      "enterAtLeast2Characters": "Enter at least 2 characters.",
+      "seedIsTooLong": "Seed is too long."
+    },
+    "app_keywords_import-actions": {
+      "csvIsEmpty": "CSV is empty.",
+      "pickATargetClient": "Pick a target client.",
+      "clientNotFound": "Client not found.",
+      "noRowsParsed": "No rows parsed."
+    },
+    "app_keywords_rank-actions": {
+      "invalidKeywordId": "Invalid keyword id",
+      "keywordOrClientNotFound": "Keyword or client not found",
+      "keyword": "Keyword",
+      "source": "Source",
+      "searchConsole": "Search Console ({dataDate})",
+      "liveSerpCheck": "Live SERP check",
+      "change": "Change"
+    },
+    "app_keywords_serp-actions": {
+      "keywordNotFound": "Keyword not found",
+      "serpScanFailed": "SERP scan failed"
+    },
+    "app_knowledge-panel_actions": {
+      "pickAClientFirst": "Pick a client first.",
+      "clientNotFound": "Client not found.",
+      "captureFailed": "Capture failed."
+    },
+    "app_leads_actions": {
+      "youHaveReadOnlyAccess": "You have read-only access.",
+      "noSuchLead": "No such lead."
+    },
+    "app_link-building_c_clientId_actions": {
+      "badClientId": "Bad client id.",
+      "clientNotFound": "Client not found.",
+      "noAiBespokeIdeasGenerated": "No AI bespoke ideas generated — check that an AI provider is configured in Settings.",
+      "aiCallFailed": "AI call failed."
+    },
+    "app_link-building_prospects_actions": {
+      "invalidInput": "Invalid input",
+      "clientNotFound": "Client not found",
+      "searchFailed": "Search failed",
+      "discoveredViaProspecting": "Discovered via prospecting: {strategy}"
+    },
+    "app_links_actions": {
+      "invalidInput": "Invalid input",
+      "slugIsAlreadyTakenPick": "Slug \"{slug}\" is already taken — pick another.",
+      "createdShortLinkR": "Created short link /r/{slug}"
+    },
+    "app_local-grid_actions": {
+      "invalidInput": "Invalid input",
+      "clientNotFound": "Client not found",
+      "gridRunFailed": "Grid run failed"
+    },
+    "app_local-rank_actions": {
+      "queryIsRequired": "Query is required",
+      "atLeastOneCity": "At least one city",
+      "clientNotFound": "Client not found"
+    },
+    "app_meta-rewrite_actions": {
+      "invalidInput": "Invalid input",
+      "findFailed": "Find failed",
+      "titlePushFailed": "Title push failed — {error}",
+      "titlePushedButMetaDescription": "Title pushed, but meta description failed — {error}",
+      "metaRewriteAppliedTo": "Meta rewrite applied to {url}"
+    },
+    "app_monitor_actions": {
+      "invalidInput": "Invalid input",
+      "pageNotFound": "Page not found",
+      "criticalPageChange": "Critical page change",
+      "pageChanged": "Page changed"
+    },
+    "app_news_actions": {
+      "invalidInput": "Invalid input",
+      "couldnTFindAnRss": "Couldn't find an RSS feed at that URL. Some sites don't expose one — try pasting the RSS feed URL directly.",
+      "feedUrlAlreadyExists": "Feed URL already exists."
+    },
+    "app_outreach_actions": {
+      "invalidInput": "Invalid input",
+      "outreachContacted": "Outreach: contacted {name}."
+    },
+    "app_proposals_actions": {
+      "youHaveReadOnlyAccess": "You have read-only access.",
+      "noSuchClient": "No such client.",
+      "runAnAuditForThis": "Run an audit for this client first — a proposal built from nothing would just be a template.",
+      "noSuchLead": "No such lead.",
+      "pickAClientOrA": "Pick a client or a lead.",
+      "invalidInput": "Invalid input.",
+      "noSuchProposal": "No such proposal."
+    },
+    "app_report-data_actions": {
+      "pickAClientFirst": "Pick a client first.",
+      "pasteSomeTextToExtract": "Paste some text to extract.",
+      "tooMuchTextAtOnce": "Too much text at once — paste up to ~20,000 chars per run.",
+      "clientNotFound": "Client not found.",
+      "aiProviderDidnTRespond": "AI provider didn't respond. Configure one in Settings → AI, or click Test next to your provider to see the actual error.",
+      "aiReturnedMalformedJsonTry": "AI returned malformed JSON. Try again.",
+      "aiFoundNoActionableItems": "AI found no actionable items in the pasted text.",
+      "allItemsFailedValidation": "All items failed validation."
+    },
+    "app_seo-chat_actions": {
+      "noQuestionToAnswer": "No question to answer.",
+      "invalidImageDataUrl": "Invalid image data URL.",
+      "imageMustBePngJpeg": "Image must be PNG, JPEG, GIF, or WebP.",
+      "imageTooLarge4mb": "Image too large (>4MB).",
+      "aiProviderDidnTRespond": "AI provider didn't respond. Open Settings → AI provider → click Test next to your provider to see the exact error."
+    },
+    "app_settings_actions": {
+      "webhookRemoved": "Webhook removed.",
+      "enterAValidHttpS": "Enter a valid http(s) URL.",
+      "webhookSaved": "Webhook saved.",
+      "saveAValidWebhookUrl": "Save a valid webhook URL first.",
+      "ifYouSeeThisMessage": "If you see this message, your webhook is wired up correctly. You'll get notifications here when audits complete or scores drop.",
+      "service": "Service",
+      "sentAt": "Sent at",
+      "testSentSuccessfullyHttpFormat": "Test sent successfully (HTTP {status}, {kind} format)."
+    },
+    "app_settings_ai-usage_actions": {
+      "capRemoved": "Cap removed.",
+      "capMustBeANon": "Cap must be a non-negative number.",
+      "capSetToMo": "Cap set to ${n}/mo."
+    },
+    "app_settings_api-keys_actions": {
+      "nameMustBe280": "Name must be 2-80 chars.",
+      "invalidScope": "Invalid scope.",
+      "dbInsertFailed": "DB insert failed."
+    },
+    "app_settings_brand-actions": {
+      "invalidInput": "Invalid input",
+      "brandSaved": "Brand saved."
+    },
+    "app_settings_browser-actions": {
+      "concurrencyMustBeBetween1": "Concurrency must be between 1 and 16.",
+      "savedBrowserWillRelaunchOn": "Saved. Browser will relaunch on next use."
+    },
+    "app_settings_desktop-config-actions": {
+      "canTWriteTheConfig": "Can't write the config: {p} does not exist. Run the install once (pnpm install) and try again.",
+      "isnTValidJsonSo": "{configPath} isn't valid JSON, so your existing settings can't be read. A copy is saved at {backupPath}. Fix or delete the file, then try again."
+    },
+    "app_settings_edge_actions": {
+      "generatedANewEdgeWorker": "Generated a new edge worker token. Any existing worker will stop applying fixes until it is updated."
+    },
+    "app_settings_google_actions": {
+      "clearedGoogleOauthCredentials": "Cleared Google OAuth credentials.",
+      "disconnectedGoogleAccount": "Disconnected Google account.",
+      "connectedGoogleWithServiceAccount": "Connected Google with service account {email}.",
+      "removedTheGoogleServiceAccount": "Removed the Google service account key.",
+      "noServiceAccountKeySaved": "No service account key saved yet.",
+      "googleAcceptedTheKeyBut": "Google accepted the key but refused Search Console ({status}). Add {email} as a user on the property in Search Console, then try again.",
+      "theKeyWorksButThis": "The key works, but this service account can see no properties. In Search Console open Settings, Users and permissions, and add {email} as a user."
+    },
+    "app_settings_inbound-webhooks_actions": {
+      "nameMustBe280": "Name must be 2-80 chars.",
+      "dbInsertFailed": "DB insert failed."
+    },
+    "app_settings_smtp-actions": {
+      "seoToolSmtpTest": "SEO Tool — SMTP test",
+      "ifYouReceivedThisYour": "If you received this, your SMTP configuration is working. Reports will go out from this address."
+    },
+    "app_settings_team_actions": {
+      "youNeedToBeSigned": "You need to be signed in.",
+      "onlyTheOwnerCanManage": "Only the owner can manage the team.",
+      "youReTheOnlyOwner": "You're the only owner. Promote someone else to owner first, then change your own role.",
+      "youCanTDeactivateYour": "You can't deactivate your own account.",
+      "thatSTheOnlyActive": "That's the only active owner.",
+      "noSuchUser": "No such user.",
+      "clientSAssigned": "{length} client(s) assigned."
+    },
+    "app_tasks_actions": {
+      "completedTask": "Completed task: {title}",
+      "invalidInput": "Invalid input",
+      "clientNotFound": "Client not found.",
+      "newTask": "New task: {title}",
+      "taskNotFound": "Task not found",
+      "enterMinutes": "Enter minutes",
+      "invalidClient": "Invalid client",
+      "unknownPlaybook": "Unknown playbook",
+      "clientNotFound2": "Client not found",
+      "pageNotFound": "Page not found",
+      "completedTask2": "Completed task: {title}"
     }
   },
   "integrations": {

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -27,8 +28,9 @@ export async function approveQueueItem(
   edits?: { title?: string; body?: string },
 ): Promise<{ ok: boolean; message: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_queue_actions");
   const item = await ownItem(itemId, clientId);
-  if (!item) return { ok: false, message: "Queue item not found." };
+  if (!item) return { ok: false, message: tx("queueItemNotFound") };
   if (item.status !== "pending_review") {
     return { ok: false, message: `Already ${item.status.replace("_", " ")}.` };
   }
@@ -44,7 +46,7 @@ export async function approveQueueItem(
   revalidatePath(`/clients/${clientId}/queue`);
   return {
     ok: true,
-    message: "Approved. Publishes on the next daily-agent tick (≤24h).",
+    message: tx("approvedPublishesOnTheNext"),
   };
 }
 
@@ -59,10 +61,11 @@ export async function approveAndPublishNow(
   edits?: { title?: string; body?: string },
 ): Promise<{ ok: boolean; message: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_queue_actions");
   const item = await ownItem(itemId, clientId);
-  if (!item) return { ok: false, message: "Queue item not found." };
+  if (!item) return { ok: false, message: tx("queueItemNotFound") };
   if (item.status === "published") {
-    return { ok: false, message: "Already published." };
+    return { ok: false, message: tx("alreadyPublished") };
   }
   await db
     .update(publishQueue)
@@ -76,7 +79,7 @@ export async function approveAndPublishNow(
   const { tickQueuePublish } = await import("@/lib/daily-automations");
   const r = await tickQueuePublish();
   revalidatePath(`/clients/${clientId}/queue`);
-  if (r.published > 0) return { ok: true, message: "Published." };
+  if (r.published > 0) return { ok: true, message: tx("published") };
   if (r.failed > 0) {
     // Re-read to surface the error message
     const [post] = await db
@@ -92,7 +95,7 @@ export async function approveAndPublishNow(
   return {
     ok: true,
     message:
-      "Approved but not picked up immediately. Will retry on the next tick.",
+      tx("approvedButNotPickedUp"),
   };
 }
 

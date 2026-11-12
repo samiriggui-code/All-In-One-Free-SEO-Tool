@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -32,18 +33,19 @@ export async function analyzeContentGap(opts: {
   clientId: number;
 }): Promise<GapResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_content-gap_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, opts.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   if (!client.gscProperty) {
     return {
       ok: false,
       error:
-        "Connect Google Search Console first — gap analysis needs the client's real query data.",
+        tx("connectGoogleSearchConsoleFirst"),
     };
   }
 

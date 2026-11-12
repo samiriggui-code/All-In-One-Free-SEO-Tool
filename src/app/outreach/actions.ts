@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -53,6 +54,7 @@ export async function addOutreachContact(
   formData: FormData,
 ): Promise<AddContactResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_outreach_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     name: formData.get("name"),
@@ -63,7 +65,7 @@ export async function addOutreachContact(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -88,6 +90,7 @@ export async function setContactStatus(
   status: "prospect" | "contacted" | "replied" | "won" | "lost",
 ) {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_outreach_actions");
   if (!Number.isFinite(contactId) || contactId <= 0) return;
   const updates: {
     status: typeof status;
@@ -110,7 +113,7 @@ export async function setContactStatus(
     if (status === "contacted") {
       await logActivity({
         kind: "outreach.contacted",
-        message: `Outreach: contacted ${row.name}.`,
+        message: tx("outreachContacted", { name: row.name }),
         clientId: row.clientId,
         entityType: "outreach",
         entityId: row.id,
@@ -167,6 +170,7 @@ export async function saveOutreachTemplate(
   formData: FormData,
 ): Promise<SaveTemplateResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_outreach_actions");
   const idRaw = formData.get("id");
   const id = idRaw ? Number(idRaw) : null;
 
@@ -179,7 +183,7 @@ export async function saveOutreachTemplate(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -268,6 +272,7 @@ export async function sendOutreachAction(
   formData: FormData,
 ): Promise<SendResultState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_outreach_actions");
   const parsed = sendSchema.safeParse({
     contactId: formData.get("contactId"),
     templateId: formData.get("templateId") || undefined,
@@ -277,7 +282,7 @@ export async function sendOutreachAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 

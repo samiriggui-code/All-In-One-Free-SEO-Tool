@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -24,11 +25,12 @@ export async function findCandidates(
   formData: FormData,
 ): Promise<FindState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_meta-rewrite_actions");
   const parsed = findSchema.safeParse({
     clientId: formData.get("clientId"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
   try {
     const result = await findLowCtrCandidates({
@@ -37,7 +39,7 @@ export async function findCandidates(
     });
     return { ok: true, result };
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Find failed" };
+    return { ok: false, error: (err as Error).message ?? tx("findFailed") };
   }
 }
 
@@ -62,6 +64,7 @@ export async function applyRewrite(
   formData: FormData,
 ): Promise<ApplyState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_meta-rewrite_actions");
   const parsed = applySchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -69,7 +72,7 @@ export async function applyRewrite(
     meta: formData.get("meta"),
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const { clientId, url, title, meta } = parsed.data;
@@ -86,19 +89,19 @@ export async function applyRewrite(
 
   const titleResult = await push("title", title);
   if (!titleResult.ok) {
-    return { ok: false, error: `Title push failed — ${titleResult.error}` };
+    return { ok: false, error: tx("titlePushFailed", { error: titleResult.error }) };
   }
   const metaResult = await push("meta_description", meta);
   if (!metaResult.ok) {
     return {
       ok: false,
-      error: `Title pushed, but meta description failed — ${metaResult.error}`,
+      error: tx("titlePushedButMetaDescription", { error: metaResult.error }),
     };
   }
 
   await logActivity({
     kind: "task.completed",
-    message: `Meta rewrite applied to ${url}`,
+    message: tx("metaRewriteAppliedTo", { url }),
     level: "success",
     clientId: clientId,
     entityType: "wp_bridge",

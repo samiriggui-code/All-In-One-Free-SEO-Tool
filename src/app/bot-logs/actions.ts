@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -116,8 +117,9 @@ export async function parseAndStoreLog(input: {
   clientId?: number | null;
 }): Promise<ParseResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_bot-logs_actions");
   if (!input.text || input.text.length === 0) {
-    return { ok: false, error: "Empty file" };
+    return { ok: false, error: tx("emptyFile") };
   }
   const lines = input.text.split(/\r?\n/);
   const counts = new Map<string, number>();

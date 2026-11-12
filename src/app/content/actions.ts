@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -511,6 +512,7 @@ export async function publishToWordPress(input: {
   mode: "draft" | "publish";
 }): Promise<PublishState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_content_actions");
   const ctx = await loadForDistribution(input);
   if ("error" in ctx) return { ok: false, error: ctx.error };
   const mode = input.mode === "publish" ? "publish" : "draft";
@@ -551,7 +553,7 @@ export async function publishToWordPress(input: {
   }
   await logActivity({
     kind: "task.completed",
-    message: `${mode === "publish" ? "Published" : "Sent as a WordPress draft"}: ${exp.title}`,
+    message: `${mode === "publish" ? tx("published") : tx("sentAsAWordpressDraft")}: ${exp.title}`,
     level: "success",
     clientId: ctx.clientId,
     entityType: "content_post",

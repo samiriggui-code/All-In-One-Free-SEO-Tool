@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 import { requireClientAccess } from "@/lib/auth";
 
@@ -13,6 +14,7 @@ export async function disconnectPerClientGoogle(
   clientId: number,
 ): Promise<void> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_clients_id_per-client-google-actions");
   if (!Number.isFinite(clientId) || clientId <= 0) return;
   await requireClientAccess(clientId, { edit: true });
   await db
@@ -27,7 +29,7 @@ export async function disconnectPerClientGoogle(
 
   await logActivity({
     kind: "google.disconnected",
-    message: "Disconnected per-client Google account.",
+    message: tx("disconnectedPerClientGoogleAccount"),
     level: "info",
     clientId,
   });

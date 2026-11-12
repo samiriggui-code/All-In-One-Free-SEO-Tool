@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -30,8 +31,9 @@ export type RunCheckResult =
 
 export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_ai-visibility_actions");
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
-    return { ok: false, error: "Invalid keyword id" };
+    return { ok: false, error: tx("invalidKeywordId") };
   }
 
   const [row] = await db
@@ -48,7 +50,7 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
     .limit(1);
 
   if (!row || !row.clientUrl) {
-    return { ok: false, error: "Keyword or client not found" };
+    return { ok: false, error: tx("keywordOrClientNotFound") };
   }
 
   const { ids } = await configuredProviders();
@@ -68,7 +70,7 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
     return {
       ok: false,
       error:
-        "No AI provider configured. Open Settings → AI provider keys and paste a free Gemini, Groq, or Perplexity key — or enable browser-mode AI-search checks in Settings.",
+        tx("noAiProviderConfiguredOpen"),
     };
   }
 
@@ -119,7 +121,7 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
 
   await logActivity({
     kind: "audit.completed",
-    message: `AI visibility check on "${row.query}" ran across ${results.length} providers · ${mentionsFound} mentioned ${row.clientName}.`,
+    message: tx("aiVisibilityCheckOnRan", { query: row.query, length: results.length, mentionsFound, clientName: row.clientName ?? "" }),
     level: mentionsFound > 0 ? "success" : "info",
     clientId: row.clientId,
     entityType: "ai_visibility",

@@ -3,6 +3,8 @@ import { CheckCircle2, CircleDashed, Loader2, TriangleAlert } from "lucide-react
 import { schedulerStatus } from "@/lib/scheduler";
 import { shortAgoDays, shortEvery } from "@/lib/relative-time";
 
+const elapsed = (ts: number) => Date.now() - ts;
+
 /**
  * Live state of every background runner.
  *
@@ -17,7 +19,6 @@ export async function SchedulerStatusPanel() {
   const tx = await getTranslations("ui.app_automations_overview_scheduler-status");
   const tTime = await getTranslations("time");
   const tJobs = await getTranslations("schedulerJobs");
-  const now = Date.now();
   let rows: Awaited<ReturnType<typeof schedulerStatus>> = [];
   try {
     rows = await schedulerStatus();
@@ -78,7 +79,7 @@ export async function SchedulerStatusPanel() {
                 {r.running
                   ? tTime("runningNow")
                   : r.lastFinishedAt
-                    ? shortAgoDays(now - r.lastFinishedAt, tTime)
+                    ? shortAgoDays(elapsed(r.lastFinishedAt), tTime)
                     : tTime("never")}
               </span>
               <span className="block opacity-60">{shortEvery(r.everyMs, tTime)}</span>

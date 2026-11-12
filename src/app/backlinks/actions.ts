@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -38,6 +39,7 @@ export async function addBacklink(
   formData: FormData,
 ): Promise<AddBacklinkResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_backlinks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -48,7 +50,7 @@ export async function addBacklink(
   };
   const parsed = backlinkInput.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const sourceDomain = new URL(parsed.data.sourceUrl).hostname.replace(
@@ -156,6 +158,7 @@ export async function logBuiltLink(
   formData: FormData,
 ): Promise<LogLinkResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_backlinks_actions");
   const raw = {
     clientId: formData.get("clientId"),
     sourceUrl: formData.get("sourceUrl"),
@@ -169,7 +172,7 @@ export async function logBuiltLink(
   };
   const parsed = linkLogInput.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const sourceDomain = new URL(parsed.data.sourceUrl).hostname.replace(
@@ -276,18 +279,19 @@ export async function importAhrefsBacklinks(
   csvText: string,
 ): Promise<AhrefsImportResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_backlinks_actions");
   if (!Number.isFinite(clientId) || clientId <= 0) {
-    return { ok: false, error: "Invalid clientId" };
+    return { ok: false, error: tx("invalidClientid") };
   }
   if (!csvText || csvText.length < 10) {
-    return { ok: false, error: "CSV is empty or too short" };
+    return { ok: false, error: tx("csvIsEmptyOrToo") };
   }
 
   // Minimal CSV parser — Ahrefs exports use comma + double-quoted
   // fields with escaped inner quotes. Stays in-process; no extra dep.
   const rows = parseCsv(csvText);
   if (rows.length < 2) {
-    return { ok: false, error: "CSV must have a header row and at least one data row" };
+    return { ok: false, error: tx("csvMustHaveAHeader") };
   }
 
   const header = rows[0].map((h) => h.toLowerCase().trim());
@@ -300,7 +304,7 @@ export async function importAhrefsBacklinks(
     return {
       ok: false,
       error:
-        "CSV is missing a 'Referring page URL' column — this doesn't look like an Ahrefs WMT export.",
+        tx("csvIsMissingAReferring"),
     };
   }
 
@@ -380,7 +384,7 @@ export async function importAhrefsBacklinks(
 
   await logActivity({
     kind: "task.completed",
-    message: `Ahrefs WMT import: +${inserted} new backlink${inserted === 1 ? "" : "s"} (${duplicates} duplicates, ${skipped} skipped)`,
+    message: tx("ahrefsWmtImportNewOther", { inserted, duplicates, skipped }),
     level: "success",
     clientId,
     entityType: "backlink",

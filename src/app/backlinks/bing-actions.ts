@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -13,6 +14,7 @@ export async function importBingBacklinksAction(
   clientId: number,
 ): Promise<BingImportResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_backlinks_bing-actions");
   // A server action is a public endpoint with a nicer calling
   // convention. Without this a member could import — and therefore
   // read — backlink data for any client in the agency by passing an id.
@@ -22,7 +24,7 @@ export async function importBingBacklinksAction(
       added: 0,
       updated: 0,
       scannedPages: 0,
-      error: "No such client.",
+      error: tx("noSuchClient"),
     };
   }
 

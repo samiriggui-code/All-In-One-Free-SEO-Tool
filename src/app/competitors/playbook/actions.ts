@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { z } from "zod";
@@ -39,13 +40,14 @@ export async function runCompetitorAnalysis(
   formData: FormData,
 ): Promise<PlaybookState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_competitors_playbook_actions");
   const parsed = inputSchema.safeParse({
     competitorUrl: formData.get("competitorUrl"),
     myUrl: formData.get("myUrl") ?? undefined,
     country: formData.get("country") ?? undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   try {
@@ -59,7 +61,7 @@ export async function runCompetitorAnalysis(
   } catch (err) {
     return {
       ok: false,
-      error: (err as Error).message ?? "Analysis failed",
+      error: (err as Error).message ?? tx("analysisFailed"),
     };
   }
 }
@@ -70,10 +72,11 @@ export async function playbookToTasks(opts: {
   synthesis: string;
 }): Promise<{ ok: boolean; created: number; error?: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_competitors_playbook_actions");
   if (!opts.synthesis?.trim())
-    return { ok: false, created: 0, error: "Empty synthesis" };
+    return { ok: false, created: 0, error: tx("emptySynthesis") };
   if (!Number.isFinite(opts.clientId) || opts.clientId <= 0)
-    return { ok: false, created: 0, error: "Invalid client" };
+    return { ok: false, created: 0, error: tx("invalidClient") };
 
   const { db } = await import("@/db/client");
   const { tasks } = await import("@/db/schema");
@@ -85,7 +88,7 @@ export async function playbookToTasks(opts: {
     .filter((l) => l.length > 8 && l.length < 400);
 
   if (bullets.length === 0)
-    return { ok: false, created: 0, error: "No bullets parsed" };
+    return { ok: false, created: 0, error: tx("noBulletsParsed") };
 
   let host = "";
   try {
@@ -99,7 +102,7 @@ export async function playbookToTasks(opts: {
   const inserts = bullets.slice(0, 12).map((b, i) => ({
     clientId: opts.clientId,
     title: b,
-    whyItMatters: `From competitor analysis of ${host}.`,
+    whyItMatters: tx("fromCompetitorAnalysisOf", { host }),
     priority: (i < 3 ? "high" : i < 7 ? "medium" : "low") as
       | "high"
       | "medium"
@@ -114,7 +117,7 @@ export async function playbookToTasks(opts: {
 
   await logActivity({
     kind: "task.created",
-    message: `Imported ${inserts.length} tasks from competitor analysis of ${host}`,
+    message: tx("importedTasksFromCompetitorAnalysis", { length: inserts.length, host }),
     level: "success",
     clientId: opts.clientId,
     entityType: "competitor",

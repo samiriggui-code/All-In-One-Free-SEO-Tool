@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -29,6 +30,7 @@ export async function addCompetitor(
   formData: FormData,
 ): Promise<AddCompetitorResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_competitors_actions");
   const raw = {
     clientId: formData.get("clientId"),
     name: formData.get("name"),
@@ -37,7 +39,7 @@ export async function addCompetitor(
   };
   const parsed = competitorInput.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const [row] = await db

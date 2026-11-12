@@ -35,6 +35,7 @@ export async function applyFixViaWp(opts: {
   newValue: string;
 }): Promise<WpApplyResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_audits_wp-apply-actions");
   const { clientId, pageUrl, issueType, newValue } = opts;
   const t = await getTranslations("auditUi.fix");
 
@@ -108,7 +109,7 @@ export async function applyFixViaWp(opts: {
 
   await logActivity({
     kind: "task.completed",
-    message: `Applied ${field} fix via WordPress bridge for ${pageUrl}`,
+    message: tx("appliedFixViaWordpressBridge", { field, pageUrl }),
     level: "success",
     clientId,
   }).catch(() => undefined);

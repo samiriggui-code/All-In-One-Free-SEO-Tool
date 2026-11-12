@@ -1,5 +1,7 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
+import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -36,6 +38,7 @@ export async function addMonitoredPage(
   formData: FormData,
 ): Promise<AddMonitorResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_monitor_actions");
   const parsed = addSchema.safeParse({
     clientId: formData.get("clientId"),
     url: formData.get("url"),
@@ -44,7 +47,7 @@ export async function addMonitoredPage(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: parsed.error.issues[0]?.message ?? tx("invalidInput"),
     };
   }
 
@@ -58,7 +61,7 @@ export async function addMonitoredPage(
     .returning({ id: monitoredPages.id });
 
   // Take initial snapshot so future checks can diff against it
-  await checkPageChangesInternal(row.id, /* silent */ true);
+  await checkPageChangesInternal(tx, row.id, /* silent */ true);
 
   revalidatePath("/monitor");
   return { ok: true, id: row.id };
@@ -85,6 +88,7 @@ export async function setMonitorStatus(
 }
 
 async function checkPageChangesInternal(
+  tx: Tx,
   monitoredPageId: number,
   silent = false,
 ): Promise<{ changes: number; error?: string }> {
@@ -110,7 +114,7 @@ async function checkPageChangesInternal(
     .where(eq(monitoredPages.id, monitoredPageId))
     .limit(1);
 
-  if (!page) return { changes: 0, error: "Page not found" };
+  if (!page) return { changes: 0, error: tx("pageNotFound") };
 
   const fetched = await fetchSnapshot(page.url);
   if (!fetched.ok) {
@@ -186,7 +190,7 @@ async function checkPageChangesInternal(
     if (alerts.length > 0) {
       const critical = alerts.filter((d) => d.severity === "critical").length;
       notify({
-        title: `${critical > 0 ? "Critical page change" : "Page changed"} — ${page.clientName ?? "Client"}`,
+        title: `${critical > 0 ? tx("criticalPageChange") : tx("pageChanged")} — ${page.clientName ?? "Client"}`,
         body: `${alerts.length} change${alerts.length === 1 ? "" : "s"} on ${label}${critical > 0 ? `, ${critical} critical` : ""}.`,
         level: critical > 0 ? "error" : "warning",
         fields: alerts.slice(0, 4).map((d) => ({
@@ -219,11 +223,13 @@ async function checkPageChangesInternal(
 
 export async function checkPageChanges(monitoredPageId: number) {
   await requireSignedIn();
-  await checkPageChangesInternal(monitoredPageId);
+  const tx = await getTranslations("ui.app_monitor_actions");
+  await checkPageChangesInternal(tx, monitoredPageId);
 }
 
 export async function checkAllMonitoredPages() {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_monitor_actions");
   const pages = await db
     .select({ id: monitoredPages.id })
     .from(monitoredPages)
@@ -231,7 +237,7 @@ export async function checkAllMonitoredPages() {
 
   // Sequential — keeps load light on a 2-core CPU and avoids hitting one host hard
   for (const p of pages) {
-    await checkPageChangesInternal(p.id);
+    await checkPageChangesInternal(tx, p.id);
   }
   revalidatePath("/monitor");
 }

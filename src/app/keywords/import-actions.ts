@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -63,11 +64,12 @@ export async function importKeywords(
   formData: FormData,
 ): Promise<ImportResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_keywords_import-actions");
   const csv = String(formData.get("csv") ?? "").trim();
   const targetClientId = Number(formData.get("clientId"));
-  if (!csv) return { ok: false, error: "CSV is empty." };
+  if (!csv) return { ok: false, error: tx("csvIsEmpty") };
   if (!Number.isFinite(targetClientId) || targetClientId <= 0) {
-    return { ok: false, error: "Pick a target client." };
+    return { ok: false, error: tx("pickATargetClient") };
   }
 
   const [client] = await db
@@ -75,10 +77,10 @@ export async function importKeywords(
     .from(clients)
     .where(eq(clients.id, targetClientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found." };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const rows = parseCsv(csv);
-  if (rows.length === 0) return { ok: false, error: "No rows parsed." };
+  if (rows.length === 0) return { ok: false, error: tx("noRowsParsed") };
 
   // Detect header — accept several common shapes:
   //   query

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -27,6 +28,7 @@ export async function runGrid(
   formData: FormData,
 ): Promise<GridState> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_local-grid_actions");
   const parsed = inputSchema.safeParse({
     clientId: formData.get("clientId"),
     query: formData.get("query"),
@@ -36,7 +38,7 @@ export async function runGrid(
     spacingM: formData.get("spacingM") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
 
   const [c] = await db
@@ -44,7 +46,7 @@ export async function runGrid(
     .from(clients)
     .where(eq(clients.id, parsed.data.clientId))
     .limit(1);
-  if (!c) return { ok: false, error: "Client not found" };
+  if (!c) return { ok: false, error: tx("clientNotFound") };
 
   let result: GridResult;
   try {
@@ -59,7 +61,7 @@ export async function runGrid(
       language: c.language ?? "en",
     });
   } catch (err) {
-    return { ok: false, error: (err as Error).message ?? "Grid run failed" };
+    return { ok: false, error: (err as Error).message ?? tx("gridRunFailed") };
   }
 
   await db.insert(localGridChecks).values({
@@ -107,6 +109,7 @@ export async function createGridSchedule(
   formData: FormData,
 ): Promise<CreateScheduleResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_local-grid_actions");
   const { localGridSchedules } = await import("@/db/schema");
   const parsed = scheduleSchema.safeParse({
     clientId: formData.get("clientId"),
@@ -118,7 +121,7 @@ export async function createGridSchedule(
     cadence: formData.get("cadence") || undefined,
   });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? tx("invalidInput") };
   }
   const [row] = await db
     .insert(localGridSchedules)

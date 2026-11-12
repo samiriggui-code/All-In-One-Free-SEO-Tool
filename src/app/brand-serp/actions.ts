@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { eq } from "drizzle-orm";
@@ -30,12 +31,13 @@ export async function captureBrandSerp(
   clientId: number,
 ): Promise<BrandSerpResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_brand-serp_actions");
   const [client] = await db
     .select()
     .from(clients)
     .where(eq(clients.id, clientId))
     .limit(1);
-  if (!client) return empty("(no client)", "Client not found");
+  if (!client) return empty(tx("noClient"), tx("clientNotFound"));
 
   const brand = client.name;
   const ownDomain = (() => {
@@ -49,7 +51,7 @@ export async function captureBrandSerp(
 
   try {
     const serp = await scanSerp({ query: brand, country: client.country ?? "US" });
-    if (!serp.ok) return empty(brand, serp.error ?? "SERP scan failed");
+    if (!serp.ok) return empty(brand, serp.error ?? tx("serpScanFailed"));
 
     const results = serp.topResults.map((r) => {
       let isOwned: "domain" | "social" | "knowledge" | "third-party" = "third-party";

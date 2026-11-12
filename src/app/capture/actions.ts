@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { revalidatePath } from "next/cache";
@@ -14,19 +15,20 @@ export type CaptureResult =
 
 export async function captureUrl(rawUrl: string): Promise<CaptureResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_capture_actions");
   const trimmed = rawUrl.trim();
-  if (!trimmed) return { ok: false, error: "Paste a URL" };
+  if (!trimmed) return { ok: false, error: tx("pasteAUrl") };
   try {
     new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
   } catch {
-    return { ok: false, error: "Not a valid URL" };
+    return { ok: false, error: tx("notAValidUrl") };
   }
   const metadata = await fetchSiteMetadata(trimmed);
   if (!metadata.reachable) {
     return {
       ok: false,
       error:
-        "Couldn't reach that URL — check it's correct and publicly accessible.",
+        tx("couldnTReachThatUrl"),
     };
   }
   return { ok: true, metadata };
@@ -39,18 +41,19 @@ export async function saveAsCompetitor(input: {
   notes?: string;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_capture_actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
-    return { ok: false, error: "Pick a client" };
+    return { ok: false, error: tx("pickAClient") };
   }
   if (!input.name?.trim() || !input.url?.trim()) {
-    return { ok: false, error: "Name and URL required" };
+    return { ok: false, error: tx("nameAndUrlRequired") };
   }
   const [client] = await db
     .select({ id: clients.id })
     .from(clients)
     .where(eq(clients.id, input.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const [row] = await db
     .insert(competitors)
@@ -73,17 +76,18 @@ export async function saveAsMonitoredPage(input: {
   label?: string;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_capture_actions");
   if (!Number.isFinite(input.clientId) || input.clientId <= 0) {
-    return { ok: false, error: "Pick a client" };
+    return { ok: false, error: tx("pickAClient") };
   }
-  if (!input.url?.trim()) return { ok: false, error: "URL required" };
+  if (!input.url?.trim()) return { ok: false, error: tx("urlRequired") };
 
   const [client] = await db
     .select({ id: clients.id })
     .from(clients)
     .where(eq(clients.id, input.clientId))
     .limit(1);
-  if (!client) return { ok: false, error: "Client not found" };
+  if (!client) return { ok: false, error: tx("clientNotFound") };
 
   const [row] = await db
     .insert(monitoredPages)

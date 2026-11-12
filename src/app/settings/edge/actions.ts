@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { requireSettingsAdmin } from "@/lib/auth";
@@ -20,13 +21,14 @@ export async function rotateEdgeTokenAction(): Promise<
 > {
   await requireSettingsAdmin();
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_settings_edge_actions");
   try {
     const token = await rotateEdgeToken();
     await logActivity({
       kind: "edge.token_rotated",
       // The token itself is deliberately absent. An activity log is a
       // place people paste into support threads.
-      message: "Generated a new edge worker token. Any existing worker will stop applying fixes until it is updated.",
+      message: tx("generatedANewEdgeWorker"),
       level: "warning",
     });
     revalidatePath("/settings/edge");

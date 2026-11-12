@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { safeRevalidatePath } from "@/lib/safe-revalidate";
@@ -57,8 +58,9 @@ export async function checkRankAction(
   snapshot?: GscRankLookup | null,
 ): Promise<CheckRankResult> {
   await requireSignedIn();
+  const tx = await getTranslations("ui.app_keywords_rank-actions");
   if (!Number.isFinite(keywordId) || keywordId <= 0) {
-    return { ok: false, error: "Invalid keyword id" };
+    return { ok: false, error: tx("invalidKeywordId") };
   }
 
   const [row] = await db
@@ -82,7 +84,7 @@ export async function checkRankAction(
     .limit(1);
 
   if (!row || !row.clientUrl) {
-    return { ok: false, error: "Keyword or client not found" };
+    return { ok: false, error: tx("keywordOrClientNotFound") };
   }
 
   // Locale precedence: keyword-specific > client-level > default US/en.
@@ -194,16 +196,16 @@ export async function checkRankAction(
       body: `"${row.query}" fell from #${previousPosition} to #${result.position}.`,
       level: "warning",
       fields: [
-        { label: "Keyword", value: row.query },
+        { label: tx("keyword"), value: row.query },
         {
-          label: "Source",
+          label: tx("source"),
           value:
             result.source === "gsc"
-              ? `Search Console (${result.dataDate})`
-              : "Live SERP check",
+              ? tx("searchConsole", { dataDate: result.dataDate ?? "" })
+              : tx("liveSerpCheck"),
         },
         {
-          label: "Change",
+          label: tx("change"),
           value: `▼ ${result.position - previousPosition} positions`,
         },
       ],
