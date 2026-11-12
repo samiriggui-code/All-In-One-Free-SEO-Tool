@@ -66,7 +66,7 @@ export default function KeywordDifficultyPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <Link
-        href="/tools"
+        href="/settings/tools"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />

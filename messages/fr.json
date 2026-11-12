@@ -96,10 +96,6 @@
         "member": "Membre",
         "viewer": "Client (lecture seule)"
       }
-    },
-    "toolbox": {
-      "title": "Toutes les rubriques",
-      "hint": "Les pages de chaque spécialité, par étape du travail. La recherche (Ctrl+K) les trouve aussi."
     }
   },
   "dashboard": {
@@ -307,7 +303,8 @@
         "integrations": "Intégrations",
         "agency": "Agence",
         "system": "Système",
-        "about": "À propos"
+        "about": "À propos",
+        "tools": "Outils"
       },
       "items": {
         "general": "Général",
@@ -326,7 +323,8 @@
         "edge": "Edge worker",
         "health": "Santé du système",
         "errors": "Journal des erreurs",
-        "privacy": "Confidentialité"
+        "privacy": "Confidentialité",
+        "tools": "Outils"
       }
     },
     "general": {
@@ -778,6 +776,160 @@
       "genericWhat": "L'application n'a pas d'explication toute prête pour cette erreur. Le message et la trace ci-dessous disent où elle s'est produite.",
       "genericStep1": "Refaites l'action : beaucoup d'erreurs sont passagères.",
       "genericStep2": "Toujours là ? Copiez les détails et transmettez-les à la personne qui maintient votre installation."
+    },
+    "tools": {
+      "title": "Outils",
+      "description": "Tous les outils de l’agence, classés par type de mission. Ouvrez une carte pour voir ce qu’il faut configurer, puis activez ou désactivez l’outil.",
+      "search": "Rechercher un outil",
+      "tab_all": "Tous",
+      "tab_ready": "Prêts",
+      "tab_setup": "À configurer",
+      "tab_off": "Désactivés",
+      "ready": "Prêt",
+      "setup": "À configurer",
+      "off": "Désactivé",
+      "empty": "Aucun outil ne correspond.",
+      "sheetNeeds": "Ce qu’il faut",
+      "needAi": "Clé IA",
+      "needAiRequired": "Requise : l’outil ne fonctionne pas sans clé.",
+      "needAiPartial": "Facultative : une partie de l’outil s’en sert.",
+      "needAiNone": "Pas nécessaire.",
+      "needGsc": "Google Search Console",
+      "needGscOk": "Connecté.",
+      "needGscMissing": "À connecter : l’outil lit les données de la Search Console.",
+      "needBrowser": "Navigateur sur le serveur",
+      "needBrowserHint": "L’outil ouvre les pages dans le navigateur du serveur. Aucun coût par utilisation.",
+      "configured": "Configurée.",
+      "missing": "Manquante.",
+      "configure": "Configurer",
+      "enabled": "Outil activé",
+      "enabledHint": "Désactivé, l’outil n’apparaît plus dans les projets, la recherche ni le menu des clients. Sa page n’est pas supprimée.",
+      "adminOnly": "Seul le propriétaire de l’espace peut activer ou désactiver un outil.",
+      "open": "Ouvrir l’outil",
+      "close": "Fermer",
+      "count": "{count, plural, one {# outil} other {# outils}}",
+      "categories": {
+        "prospecting": {
+          "label": "Prospection et vente",
+          "description": "Repérer, convaincre et chiffrer avant la signature."
+        },
+        "setup": {
+          "label": "Mise en place du client",
+          "description": "Connecter les comptes et importer les données du client."
+        },
+        "audit": {
+          "label": "Audit et diagnostic technique",
+          "description": "Trouver ce qui bloque : performance, liens, indexation, sécurité."
+        },
+        "strategy": {
+          "label": "Mots-clés et stratégie",
+          "description": "Choisir les requêtes à viser et les concurrents à suivre."
+        },
+        "content": {
+          "label": "Contenu et optimisation des pages",
+          "description": "Écrire, noter et améliorer les pages."
+        },
+        "links": {
+          "label": "Netlinking et maillage",
+          "description": "Obtenir des liens et organiser le maillage interne."
+        },
+        "local": {
+          "label": "SEO local",
+          "description": "Fiche Google, annuaires et positions locales."
+        },
+        "ai": {
+          "label": "Visibilité IA (GEO)",
+          "description": "Être cité par ChatGPT, Perplexity et les AI Overviews."
+        },
+        "ads": {
+          "label": "Publicité",
+          "description": "Campagnes payantes et attribution."
+        },
+        "reporting": {
+          "label": "Suivi et reporting",
+          "description": "Mesurer chaque mois et rendre compte au client."
+        },
+        "special": {
+          "label": "Projets spéciaux",
+          "description": "Migrations, international, développement : utiles quelques fois par an."
+        },
+        "agency": {
+          "label": "Cabinet et automatisation",
+          "description": "Piloter l’agence, l’équipe et les tâches automatiques."
+        }
+      },
+      "titles": {
+        "csv-import": "Import CSV",
+        "landing-perf": "Performance des pages d’atterrissage",
+        "image-audit": "Audit SEO des images",
+        "content-gap": "Content gap",
+        "tools_youtube": "Recherche de mots-clés YouTube",
+        "author-authority": "Autorité des auteurs",
+        "bot-logs": "Logs des robots IA",
+        "report-data": "Ajouter du travail aux rapports",
+        "brand-serp": "SERP de marque",
+        "knowledge-panel": "Knowledge Panel",
+        "annotations": "Annotations des graphiques",
+        "ask": "Questions sur vos données",
+        "capture": "Capture universelle",
+        "links": "Liens courts"
+      },
+      "descriptions": {
+        "grader": "Un audit rapide d’un site prospect, à montrer pendant le premier rendez-vous.",
+        "compare": "Compare deux sites côte à côte pour montrer l’écart avec un concurrent.",
+        "proposals": "Propositions commerciales et devis à envoyer au prospect.",
+        "connect": "Connecte Google Search Console, Analytics et les autres comptes du client.",
+        "import": "Importe des données depuis des captures d’écran d’outils tiers.",
+        "csv-import": "Importe un CSV (clients, mots-clés, prospects, concurrents) en détectant son contenu.",
+        "cwv": "Suivi des Core Web Vitals par client, dans le temps.",
+        "landing-perf": "Croise les clics GSC et les conversions GA4 pour trouver les pages qui ne convertissent pas.",
+        "broken-links": "Liens cassés trouvés sur les sites des clients.",
+        "cannibalization": "Pages d’un même client qui se disputent les mêmes requêtes.",
+        "image-audit": "Vérifie le poids, le format, le texte alternatif et le lazy-load des images d’une page.",
+        "keywords": "Mots-clés suivis par client, avec l’évolution des positions.",
+        "competitors": "Concurrents suivis pour chaque client.",
+        "content-gap": "Requêtes où le site apparaît mais perd le clic : les contenus à retravailler en priorité.",
+        "serp-scans": "Archive des pages de résultats Google déjà relevées.",
+        "tools_youtube": "Idées de mots-clés pour les vidéos YouTube.",
+        "content": "Studio de rédaction : briefs, articles et publication.",
+        "title-tests": "Tests A/B de balises title, mesurés sur les clics.",
+        "meta-rewrite": "Réécrit en lot les meta des pages à faible taux de clic.",
+        "author-authority": "Note les auteurs d’un domaine sur les signaux E-E-A-T.",
+        "backlinks": "Profil de liens entrants de chaque client.",
+        "link-building": "Bibliothèque de sites où obtenir des liens, et suivi des liens obtenus.",
+        "outreach": "Campagnes de prise de contact pour obtenir des liens.",
+        "gbp": "Gestion de la fiche Google Business Profile du client.",
+        "citations": "Présence du client dans les annuaires locaux.",
+        "local-rank": "Positions dans le pack local Google.",
+        "local-grid": "Carte des positions locales, point par point autour de l’adresse.",
+        "ai-visibility": "Mesure si ChatGPT, Perplexity et les AI Overviews citent le client.",
+        "bot-logs": "Compte les passages des robots IA et de recherche dans un log serveur.",
+        "reports_batch": "Génère en une fois les rapports de tous les clients.",
+        "reports_archive": "Rapports déjà envoyés.",
+        "report-data": "Colle du texte libre et l’IA en tire les actions à ajouter au rapport du mois.",
+        "digest": "Résumé hebdomadaire envoyé par e-mail.",
+        "monitor": "Surveille les changements sur des pages choisies.",
+        "snapshots": "Instantanés enregistrés, à comparer avant et après.",
+        "brand-monitor": "Mentions et visibilité de la marque du client.",
+        "brand-serp": "Part de la première page Google que la marque contrôle sur son propre nom.",
+        "knowledge-panel": "Relève le Knowledge Panel de la marque et signale ce qui a changé.",
+        "annotations": "Repères sur les graphiques pour relier une variation à un événement.",
+        "algorithm-updates": "Chronologie des mises à jour de l’algorithme Google.",
+        "news": "Actualité du SEO.",
+        "morning": "Ce qui demande votre attention aujourd’hui, tous clients confondus.",
+        "agent": "Agent IA qui exécute des tâches SEO sur les sites des clients.",
+        "agent_autopilot": "Ce que l’agent fait seul, avec la possibilité d’annuler.",
+        "automations": "Tâches planifiées : audits, rapports, alertes.",
+        "capacity": "Charge de travail de l’équipe.",
+        "activity": "Journal de tout ce qui a été fait dans l’app.",
+        "invoices": "Factures clients.",
+        "history": "Historique des outils lancés.",
+        "chats": "Historique des conversations avec l’IA.",
+        "ask": "Pose une question sur les audits, mots-clés et tâches d’un client.",
+        "capture": "Extrait d’une URL le titre, la marque, le logo, les coordonnées et le schema.",
+        "links": "Liens courts avec suivi des clics, pour l’outreach et les réseaux.",
+        "knowledge": "Ressources pour apprendre et former l’équipe."
+      }
     }
   },
   "reports": {

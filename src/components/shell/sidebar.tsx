@@ -146,7 +146,7 @@ export function Sidebar({
   // via `guided: true`. Pinned groups stay visible even after filtering
   // (Essentials + Account) so the rail always has anchors at top + bottom;
   // non-pinned groups with no surviving items are hidden entirely.
-  // Eight entries for everyone (mainNavForRole): the guided/pro filter no
+  // Seven entries for everyone (mainNavForRole): the guided/pro filter no
   // longer has anything to hide here. `uiMode` still drives the page
   // chrome through data-ui-mode on <html>.
   void uiMode;

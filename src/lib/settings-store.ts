@@ -36,6 +36,8 @@ export type SettingKey =
   | "brand.phone"
   | "brand.footer_text"
   | "ui.mode"
+  /** Tool pages turned off in Settings → Tools: a JSON list of hrefs. */
+  | "tools.disabled"
   /** "light" | "dark" | "system" — defaults to "system". */
   | "ui.theme"
   /** "fr" | "en" — UI locale; defaults to "fr". */

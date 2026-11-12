@@ -25,7 +25,7 @@ export default async function NotFound() {
   const popular = [
     { href: "/", label: t("links.dashboard"), icon: Home },
     { href: "/welcome", label: t("links.getStarted"), icon: Compass },
-    { href: "/tools", label: t("links.tools"), icon: Wrench },
+    { href: "/settings/tools", label: t("links.tools"), icon: Wrench },
     { href: "/audits", label: t("links.audits"), icon: ClipboardList },
     { href: "/reports", label: t("links.reports"), icon: FileDown },
     { href: "/agent", label: t("links.agent"), icon: Bot },

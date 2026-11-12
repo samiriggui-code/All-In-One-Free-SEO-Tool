@@ -6,6 +6,8 @@ import { and, desc, eq, inArray, like, or } from "drizzle-orm";
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import { currentUser, visibleClientIds } from "@/lib/auth";
 import { db } from "@/db/client";
+import { getDisabledTools } from "@/lib/tool-activation";
+import { isToolDisabled } from "@/lib/tool-catalog";
 import {
   audits,
   clients,
@@ -151,8 +153,11 @@ export async function search(rawQuery: string): Promise<SearchResults> {
   // Tools — first-class hit type so users can jump to any of the 90+
   // tools from the top search bar. In-memory match against title +
   // subtitle + keyword tags. Limited to 8 to keep the palette tidy.
+  // Tools turned off in Settings → Tools are not offered.
+  const disabled = await getDisabledTools();
   let toolIdx = 0;
   for (const t of TOOL_INDEX) {
+    if (isToolDisabled(t.href, disabled)) continue;
     const hay = `${t.title} ${t.subtitle} ${t.keywords}`.toLowerCase();
     if (hay.includes(qLc)) {
       hits.push({
