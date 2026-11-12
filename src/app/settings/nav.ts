@@ -11,6 +11,7 @@
 
 export type SettingsSectionId =
   | "profile"
+  | "memory"
   | "general"
   | "ai"
   | "ai-usage"
@@ -68,7 +69,10 @@ export const SETTINGS_NAV: SettingsNavGroup[] = [
   {
     // What belongs to the person, not the workspace (GsKnora's "Account").
     id: "account",
-    items: [{ id: "profile", href: "/settings/profile", icon: "user" }],
+    items: [
+      { id: "profile", href: "/settings/profile", icon: "user" },
+      { id: "memory", href: "/settings/memory", icon: "brain" },
+    ],
   },
   {
     id: "general",

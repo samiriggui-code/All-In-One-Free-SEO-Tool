@@ -1564,6 +1564,28 @@ export const aiApprovals = sqliteTable("ai_approvals", {
   decidedAt: integer("decided_at", { mode: "timestamp" }),
 });
 export type AiApproval = typeof aiApprovals.$inferSelect;
+
+/**
+ * What the assistant remembers (IA-4). A memory belongs to one person
+ * ("user"), the whole team ("team") or one client ("client"). Anything
+ * guessed from a conversation waits as "pending" until a person accepts
+ * it; a "rejected" row is kept so the same guess is not offered again.
+ */
+export const aiMemories = sqliteTable("ai_memories", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  scope: text("scope", { enum: ["user", "team", "client"] }).notNull(),
+  userId: integer("user_id"),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }),
+  text: text("text").notNull(),
+  category: text("category", { enum: ["preference", "fact", "instruction"] }).notNull().default("fact"),
+  status: text("status", { enum: ["active", "pending", "rejected"] }).notNull().default("active"),
+  source: text("source", { enum: ["manual", "conversation", "auto"] }).notNull().default("manual"),
+  edited: integer("edited", { mode: "boolean" }).notNull().default(false),
+  createdBy: integer("created_by"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+});
+export type AiMemory = typeof aiMemories.$inferSelect;
 export type NewAiCall = typeof aiCalls.$inferInsert;
 
 // =============== SERP feature snapshots ===============

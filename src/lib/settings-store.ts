@@ -63,6 +63,8 @@ export type SettingKey =
   /** Local guardrails: "off" | "mask" | "block", and the workspace's blocked terms. See guardrails.ts. */
   | "guardrails.mode"
   | "guardrails.blocked_terms"
+  | "ai.charter"
+  | `memory.user_off.${number}`
   | "api.openai"
   | "api.anthropic"
   | "api.gemini"

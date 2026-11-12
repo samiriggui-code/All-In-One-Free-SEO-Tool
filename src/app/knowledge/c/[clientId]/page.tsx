@@ -3,7 +3,9 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
-import { BookOpen } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, Brain } from "lucide-react";
+import { listVisibleMemories } from "@/lib/assistant/memory";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
@@ -36,6 +38,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ clie
     stats = await knowledgeStats(clientId);
   }
   const docs = await listDocuments(clientId);
+  const memories = (await listVisibleMemories(me, { clientId })).filter((m) => m.status !== "rejected");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -61,6 +64,30 @@ export default async function KnowledgePage({ params }: { params: Promise<{ clie
           updatedAt: d.updatedAt.toISOString(),
         }))}
       />
+      {/* IA-4: what the assistant keeps about this client, changed in Settings → Ma mémoire. */}
+      <section className="rounded-2xl border border-border/60 bg-card/60 p-5">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="m-0 inline-flex items-center gap-1.5 text-sm font-semibold">
+            <Brain className="size-4 text-muted-foreground" />
+            {t("memoryTitle")}
+          </h2>
+          <Link href="/settings/memory" className="text-xs text-muted-foreground underline-offset-2 hover:underline">
+            {t("memoryManage")}
+          </Link>
+        </div>
+        {memories.length === 0 ? (
+          <p className="m-0 text-sm text-muted-foreground">{t("memoryEmpty")}</p>
+        ) : (
+          <ul className="m-0 list-disc space-y-1 pl-5 text-sm">
+            {memories.map((m) => (
+              <li key={m.id}>
+                {m.text}
+                {m.status === "pending" ? <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">{t("memoryPending")}</span> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

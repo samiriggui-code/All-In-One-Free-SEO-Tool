@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import type { AiPurpose } from "@/lib/ai-purpose";
 import type { GuardrailMode } from "@/lib/guardrails";
-import { saveGuardrails, savePurposeModel } from "./defaults-actions";
+import { saveCharter, saveGuardrails, savePurposeModel } from "./defaults-actions";
 
 export type ModelOption = { provider: string; model: string; label: string };
 
@@ -174,5 +174,65 @@ export function GuardrailsForm({
         </div>
       </div>
     </>
+  );
+}
+
+export function CharterForm({ charter }: { charter: string }) {
+  const t = useTranslations("settings.aiDefaults");
+  const router = useRouter();
+  const [text, setText] = useState(charter);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <div className="gsk-row gsk-row--stacked">
+      <div className="gsk-row-info">
+        <span className="gsk-row-label">{t("charter")}</span>
+        <p className="gsk-row-desc">{t("charterHint")}</p>
+      </div>
+      <div className="gsk-row-control flex w-full flex-col items-end gap-2">
+        <textarea
+          className="gsk-textarea w-full"
+          rows={5}
+          maxLength={2000}
+          value={text}
+          placeholder={t("charterPlaceholder")}
+          aria-label={t("charter")}
+          onChange={(e) => {
+            setText(e.target.value);
+            setSaved(false);
+          }}
+        />
+        <div className="flex items-center gap-2">
+          {error ? (
+            <span className="gsk-help gsk-status-error inline-flex items-center gap-1">
+              <AlertCircle className="size-3.5" />
+              {error}
+            </span>
+          ) : saved && !pending ? (
+            <span className="gsk-help gsk-status-ok inline-flex items-center gap-1">
+              <CheckCircle2 className="size-3.5" />
+              {t("saved")}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            className="gsk-btn gsk-btn--primary"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                setError(null);
+                const r = await saveCharter(text);
+                if (!r.ok) return setError(r.error);
+                setSaved(true);
+                router.refresh();
+              })
+            }
+          >
+            {pending ? t("saving") : t("saveCharter")}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
