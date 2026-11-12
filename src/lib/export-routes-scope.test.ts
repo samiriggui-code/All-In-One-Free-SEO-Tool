@@ -21,7 +21,7 @@ function exportRoutes(dir: string, out: string[] = []): string[] {
     if (statSync(full).isDirectory()) {
       if (name === "api") continue; // API routes have their own prefixes and checks.
       exportRoutes(full, out);
-    } else if (name === "route.ts" && /(\.csv|\.pdf|\.md|export)$/.test(path.basename(dir))) {
+    } else if (name === "route.ts" && /(\.[a-z]+|export)$/.test(path.basename(dir))) {
       out.push(full);
     }
   }

@@ -68,6 +68,9 @@ export default defineConfig({
       SEO_DB_PATH: ".e2e/e2e.db",
       SEO_DATA_DIR: ".e2e",
       SEO_DISABLE_SCHEDULER: "1",
+      // The specs drive the app without signing in; only this throwaway
+      // instance may run without an account (see middleware.ts).
+      SEO_ALLOW_OPEN_MODE: "1",
     },
   },
 });

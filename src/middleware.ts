@@ -238,9 +238,16 @@ export async function middleware(req: NextRequest) {
   const required = process.env.APP_PASSWORD;
   const accountsEnabled = await accountsAreEnabled(req.nextUrl.origin);
 
-  // Neither accounts nor a password → open mode, unchanged from before.
-  // Still forward the x-embed header so the layout sees it.
-  if (!accountsEnabled && !required) return passthrough();
+  // Neither accounts nor a password: there used to be an "open mode"
+  // where anyone reaching the server used the whole app with no account
+  // ("Local · single user"). Not any more: until the first account
+  // exists, the only way in is creating it (/register, which makes it the
+  // owner and closes itself afterwards). The e2e suite runs on a
+  // throwaway database and opts back in explicitly; nothing else does.
+  if (!accountsEnabled && !required) {
+    if (process.env.SEO_ALLOW_OPEN_MODE === "1") return passthrough();
+    return challenge(req, pathname, "/register");
+  }
 
   if (accountsEnabled) {
     const secret = process.env.SEO_SESSION_SECRET;
@@ -330,8 +337,13 @@ export const config = {
      * Run on every path EXCEPT:
      *  - /_next/static (static assets)
      *  - /_next/image (image optimization)
-     *  - any file with an extension (.png, .jpg, etc.)
+     *  - static files: images, fonts, styles, scripts.
+     *
+     * It used to skip "any path with a dot", which also skipped every
+     * export route (/clients/export.csv, /tasks/export.csv, plan.pdf,
+     * disavow.txt...): those answered anyone, signed in or not. Only real
+     * asset extensions are skipped now; everything else is gated.
      */
-    "/((?!_next/static|_next/image|.*\\..*).*)",
+    "/((?!_next/static|_next/image|.*\\.(?:png|jpe?g|gif|svg|ico|webp|avif|css|js|map|woff2?|ttf|otf)$).*)",
   ],
 };
