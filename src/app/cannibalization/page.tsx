@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { asc } from "drizzle-orm";
 import { GitMerge } from "lucide-react";
 import { db } from "@/db/client";
@@ -9,6 +10,7 @@ import { ClientToolGrid } from "@/components/shell/client-tool-grid";
 import { clientScope } from "@/lib/client-scope";
 
 export default async function CannibalizationPickerPage() {
+  const t = await getTranslations("pickers.cannibalization");
   const allClients = await db
     .select({
       id: clients.id,
@@ -25,8 +27,8 @@ export default async function CannibalizationPickerPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Keyword cannibalization"
-        description="Finds queries where two or more of your pages are competing in the SERP. Splitting clicks across duplicate pages confuses Google about which URL is the canonical answer — consolidate or differentiate."
+        title={t("title")}
+        description={t("description")}
         icon={GitMerge}
         accent="rose"
       />
@@ -37,14 +39,14 @@ export default async function CannibalizationPickerPage() {
           url: c.url,
           logoUrl: c.logoUrl,
           niche: c.niche,
-          primary: c.gscProperty ? "GSC connected" : "GSC needed",
+          primary: c.gscProperty ? t("gscConnected") : t("gscNeeded"),
           primaryTone: c.gscProperty ? "emerald" : "amber",
           badges: c.gscProperty
-            ? [{ label: "Ready to scan", tone: "emerald" }]
-            : [{ label: "Connect GSC first", tone: "amber" }],
+            ? [{ label: t("badgeReady"), tone: "emerald" }]
+            : [{ label: t("badgeSetup"), tone: "amber" }],
         }))}
         basePath="/cannibalization/c"
-        emptyHint="Connect Google Search Console for a client first — cannibalization is detected from real per-query, per-page GSC data."
+        emptyHint={t("emptyHint")}
       />
     </div>
   );

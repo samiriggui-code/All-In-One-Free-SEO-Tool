@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Image as ImageIcon } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function ImageAuditIndexPage() {
+  const t = await getTranslations("pickers.imageAudit");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = all.map((c) => ({
@@ -20,16 +22,16 @@ export default async function ImageAuditIndexPage() {
     url: c.url,
     logoUrl: c.logoUrl,
     niche: c.niche,
-    primary: "Run audit",
+    primary: t("primary"),
     primaryTone: "violet" as const,
-    secondary: "Alt text, dimensions, lazy-load, format, size — all images per page",
+    secondary: t("secondary"),
   }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Image SEO audit"
-        description="Pick a client. Paste any page URL — we extract every image, fetch HEAD requests for size + format, classify alt-text/dimension/lazy-load issues."
+        title={t("title")}
+        description={t("description")}
         icon={ImageIcon}
         accent="amber"
       />

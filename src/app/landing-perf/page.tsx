@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Target } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function LandingPerfIndexPage() {
+  const t = await getTranslations("pickers.landingPerf");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = all.map((c) => {
@@ -25,24 +27,24 @@ export default async function LandingPerfIndexPage() {
       niche: c.niche,
       primary:
         hasGsc && hasGa4
-          ? "GSC + GA4 ready"
+          ? t("both")
           : hasGsc
-            ? "GSC only"
-            : "Google not connected",
+            ? t("gscOnly")
+            : t("none"),
       primaryTone: (
         hasGsc && hasGa4 ? "emerald" : hasGsc ? "amber" : "neutral"
       ) as "emerald" | "amber" | "neutral",
       secondary: hasGsc
-        ? "Click to see clicks vs conversions"
-        : "Connect Google first",
+        ? t("secondaryReady")
+        : t("secondarySetup"),
     };
   });
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Landing-page performance"
-        description="Joins GSC clicks with GA4 conversions per URL. Surfaces the pages that get traffic but don't convert — usually the highest-ROI fixes you can make."
+        title={t("title")}
+        description={t("description")}
         icon={Target}
         accent="emerald"
       />

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Send } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, outreachContacts } from "@/db/schema";
@@ -13,6 +14,7 @@ import { GmailScopeBanner } from "@/components/gmail-scope-banner";
 import { clientScope } from "@/lib/client-scope";
 
 export default async function OutreachIndexPage() {
+  const t = await getTranslations("pickers.outreach");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -36,10 +38,10 @@ export default async function OutreachIndexPage() {
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "Empty" : `${total} contact${total === 1 ? "" : "s"}`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "violet" : "neutral",
         secondary:
-          won > 0 ? `${won} won` : total > 0 ? "Click to manage" : "Click to add the first",
+          won > 0 ? t("won", { count: won }) : total > 0 ? t("secondarySome") : t("secondaryNone"),
       };
     }),
   );
@@ -47,8 +49,8 @@ export default async function OutreachIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Outreach"
-        description="Pick a client to manage their outreach pipeline — prospects, contacted, replied, won, lost."
+        title={t("title")}
+        description={t("description")}
         icon={Send}
         accent="violet"
       />

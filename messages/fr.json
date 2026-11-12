@@ -5223,5 +5223,161 @@
       }
     },
     "start": "Commencer →"
+  },
+  "pickers": {
+    "brokenLinks": {
+      "title": "Liens cassés",
+      "description": "Choisissez un projet. Collez une URL de son site : la page est chargée, tous ses liens sont extraits, puis le code de réponse de chacun est vérifié en parallèle.",
+      "primary": "Lancer l’analyse",
+      "secondary": "Charge une page et vérifie chaque lien : erreurs 404 et redirections"
+    },
+    "imageAudit": {
+      "title": "Audit SEO des images",
+      "description": "Choisissez un projet. Collez l’URL d’une page : chaque image est extraite, son poids et son format sont lus, et les problèmes de texte alternatif, de dimensions et de chargement différé sont signalés.",
+      "primary": "Lancer l’audit",
+      "secondary": "Texte alternatif, dimensions, chargement différé, format, poids : toutes les images de la page"
+    },
+    "metaRewrite": {
+      "title": "Réécriture des balises en lot",
+      "description": "Repère les pages qui s’affichent souvent mais sont peu cliquées. L’IA réécrit le titre et la meta description à partir des requêtes sur lesquelles Google montre déjà la page. Envoi en un clic par la passerelle WordPress.",
+      "ready": "Prêt",
+      "gscNeeded": "Search Console requise",
+      "secondaryReady": "Cliquez pour trouver les pages peu cliquées",
+      "secondarySetup": "Connectez d’abord la Search Console"
+    },
+    "contentGap": {
+      "title": "Contenus à renforcer",
+      "description": "Choisissez un projet. Repère les requêtes où le site s’affiche mais perd le clic : les contenus qui valent le plus d’être repris.",
+      "ready": "Prêt",
+      "gscNeeded": "Search Console requise",
+      "secondaryReady": "Cliquez pour trouver les mots-clés sous-exploités",
+      "secondarySetup": "Connectez d’abord la Search Console sur ce projet"
+    },
+    "gbp": {
+      "title": "Fiche Google Business Profile",
+      "description": "Choisissez un projet. Lit sa fiche Google publique (note, nombre d’avis, horaires, avis récents), puis l’IA rédige des réponses personnalisées à coller dans la fiche.",
+      "linked": "Fiche reliée",
+      "notLinked": "Non reliée",
+      "secondaryReady": "Cliquez pour récupérer les avis et préparer des réponses",
+      "secondarySetup": "Ajoutez d’abord l’URL de la fiche sur la page du projet",
+      "badgeReady": "Prêt",
+      "badgeSetup": "À configurer"
+    },
+    "competitors": {
+      "title": "Concurrents",
+      "description": "Choisissez un projet pour voir ses concurrents, avec des notes et le contexte de recherche de chacun.",
+      "none": "Aucun suivi",
+      "count": "{count, plural, one {# concurrent} other {# concurrents}}",
+      "secondarySome": "Cliquez pour les voir et en ajouter",
+      "secondaryNone": "Cliquez pour ajouter le premier"
+    },
+    "brandMonitor": {
+      "title": "Veille de marque",
+      "description": "Analyse quotidienne de Reddit, Hacker News, Bluesky et Mastodon à la recherche de mentions de chaque projet. Fait ressortir les mentions sans lien (occasions de backlinks) et la tendance du ton. Gratuit, sans clé API.",
+      "none": "Jamais analysé",
+      "count": "{count, plural, one {# mention} other {# mentions}}",
+      "secondarySome": "Cliquez pour les consulter",
+      "secondaryNone": "Cliquez pour analyser Reddit, Hacker News, Bluesky, Mastodon"
+    },
+    "localGrid": {
+      "title": "Carte du pack local",
+      "description": "Relève le classement Google sur une grille de 5×5 points dans la zone de chalandise. Montre précisément où l’établissement est dans le top 3 et où il est invisible. Gratuit, fait dans un navigateur (sans API de recherche payante).",
+      "none": "Aucune grille",
+      "count": "{count, plural, one {# relevé} other {# relevés}}",
+      "secondarySome": "Cliquez pour lancer ou consulter",
+      "secondaryNone": "Cliquez pour cartographier la visibilité locale"
+    },
+    "cannibalization": {
+      "title": "Cannibalisation de mots-clés",
+      "description": "Repère les requêtes où deux pages du site ou plus se font concurrence dans les résultats. Des clics répartis sur des pages en double laissent Google hésiter sur la bonne URL : fusionnez-les ou différenciez-les.",
+      "gscConnected": "Search Console connectée",
+      "gscNeeded": "Search Console requise",
+      "badgeReady": "Prêt à analyser",
+      "badgeSetup": "Connectez d’abord la Search Console",
+      "emptyHint": "Connectez d’abord la Google Search Console d’un projet : la cannibalisation se détecte à partir des vraies données Search Console, par requête et par page."
+    },
+    "landingPerf": {
+      "title": "Performance des pages d’arrivée",
+      "description": "Croise les clics Search Console et les conversions GA4, URL par URL. Fait ressortir les pages qui reçoivent du trafic sans convertir, souvent les corrections les plus rentables.",
+      "both": "Search Console + GA4 prêts",
+      "gscOnly": "Search Console seule",
+      "none": "Google non connecté",
+      "secondaryReady": "Cliquez pour voir les clics face aux conversions",
+      "secondarySetup": "Connectez d’abord Google"
+    },
+    "monitor": {
+      "title": "Surveillance de pages",
+      "description": "Choisissez un projet pour suivre les changements de titre, de description, de H1, de canonique et de contenu sur ses pages clés.",
+      "none": "Aucune page suivie",
+      "count": "{count, plural, one {# page} other {# pages}}",
+      "active": "{count, plural, one {# active} other {# actives}}",
+      "secondaryNone": "Cliquez pour surveiller une page"
+    },
+    "outreach": {
+      "title": "Prospection de liens",
+      "description": "Choisissez un projet pour gérer sa prospection : prospects, contactés, réponses, gagnés, perdus.",
+      "none": "Vide",
+      "count": "{count, plural, one {# contact} other {# contacts}}",
+      "won": "{count, plural, one {# gagné} other {# gagnés}}",
+      "secondarySome": "Cliquez pour gérer",
+      "secondaryNone": "Cliquez pour ajouter le premier"
+    },
+    "localRank": {
+      "title": "Positions par ville",
+      "description": "Choisissez un projet. Vérifie sa position dans plusieurs villes pour un même mot-clé, pour repérer les zones où le référencement local est faible.",
+      "hasAddress": "Adresse renseignée",
+      "noAddress": "Pas encore d’adresse",
+      "secondary": "Cliquez pour vérifier les positions par ville"
+    },
+    "aiVisibility": {
+      "title": "Visibilité dans les IA",
+      "description": "Choisissez un projet pour suivre si ChatGPT, Claude, Gemini, Perplexity et les autres citent son domaine sur les requêtes suivies.",
+      "mentions": "{count, plural, one {# mention} other {# mentions}}",
+      "noMentions": "Aucune mention pour l’instant",
+      "noKeywords": "Aucun mot-clé",
+      "tracked": "{count, plural, one {# mot-clé suivi} other {# mots-clés suivis}}",
+      "addKeywords": "Ajoutez d’abord des mots-clés"
+    },
+    "cwv": {
+      "title": "Core Web Vitals",
+      "description": "Choisissez un projet pour lancer des analyses PageSpeed Insights gratuites sur n’importe quelle URL : scores Lighthouse, verdicts LCP, INP et CLS, et optimisations classées par gain.",
+      "none": "Jamais analysé",
+      "secondaryNone": "Cliquez pour lancer la première analyse",
+      "reports": "{count, plural, one {# rapport} other {# rapports}} · dernier le {date}",
+      "pass": "Web Vitals réussis",
+      "fail": "Web Vitals en échec"
+    },
+    "citations": {
+      "title": "Annuaires et SEO local",
+      "description": "Choisissez un projet pour gérer ses inscriptions dans les annuaires locaux. Suit la cohérence du nom, de l’adresse et du téléphone, avec plus de 5 000 annuaires préchargés.",
+      "napReady": "Coordonnées complètes à {percent} %",
+      "live": "{live}/{total} en ligne",
+      "secondaryStart": "Cliquez pour commencer les inscriptions",
+      "secondaryNap": "Ajoutez l’adresse et le téléphone pour tirer parti du SEO local",
+      "tracked": "{count, plural, one {# inscription suivie} other {# inscriptions suivies}}"
+    },
+    "backlinks": {
+      "title": "Backlinks",
+      "description": "Choisissez un projet pour gérer son profil de backlinks, marquer les liens perdus ou à désavouer, et générer le fichier de désaveu.",
+      "none": "Aucun suivi",
+      "count": "{count, plural, one {# lien} other {# liens}}",
+      "active": "{count, plural, one {# actif} other {# actifs}}",
+      "secondaryNone": "Cliquez pour ajouter le premier",
+      "exportCsv": "Exporter CSV",
+      "honestTitle": "Ce que ces données montrent vraiment",
+      "honestBody": "Les backlinks affichés ici viennent de la Google Search Console (liens confirmés vers votre propre site) et d’une extraction de Common Crawl. C’est volontairement plus étroit qu’un index payant comme Ahrefs ou Semrush, qui coûtent des millions par an à construire. Pour une couverture complète, ajoutez <link>Ahrefs Webmaster Tools</link> (gratuit pour les propriétaires de sites vérifiés) et importez son CSV ici."
+    },
+    "agent": {
+      "title": "Agent IA",
+      "description": "Choisissez un projet. L’agent lit les constats de son audit et ses données Search Console, puis prépare des réécritures de titres, des meta descriptions, des gains rapides et des idées de contenus, avec votre fournisseur d’IA actif.",
+      "allAddressed": "Tout est traité",
+      "readyToRun": "Prêt à lancer",
+      "suggestions": "{count, plural, one {# suggestion} other {# suggestions}}",
+      "applied": "{count, plural, one {# appliquée jusqu’ici} other {# appliquées jusqu’ici}}",
+      "secondaryReview": "Cliquez pour relire et appliquer",
+      "secondaryRun": "Cliquez pour lancer l’agent",
+      "pending": "{count} en attente",
+      "noProvider": "<b>Aucun fournisseur d’IA configuré.</b> Ajoutez une clé API gratuite (Gemini, Groq ou OpenRouter) dans <link>Paramètres → IA</link> pour lancer l’agent."
+    }
   }
 }

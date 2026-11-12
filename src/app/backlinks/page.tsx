@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Link2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { db } from "@/db/client";
@@ -18,6 +19,7 @@ export default async function BacklinksIndexPage({
 }: {
   searchParams: Promise<{ clientId?: string; embed?: string }>;
 }) {
+  const t = await getTranslations("pickers.backlinks");
   // Opened from a client, so the client is already chosen.
   //
   // The "Tools for this client" rail links here with ?clientId=, and
@@ -51,9 +53,9 @@ export default async function BacklinksIndexPage({
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "None tracked" : `${total} link${total === 1 ? "" : "s"}`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "emerald" : "neutral",
-        secondary: total > 0 ? `${active} active` : "Click to add the first",
+        secondary: total > 0 ? t("active", { count: active }) : t("secondaryNone"),
       };
     }),
   );
@@ -61,8 +63,8 @@ export default async function BacklinksIndexPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Backlinks"
-        description="Pick a client to manage their backlink profile, mark lost/disavow, and generate disavow files."
+        title={t("title")}
+        description={t("description")}
         icon={Link2}
         accent="emerald"
         actions={
@@ -70,7 +72,7 @@ export default async function BacklinksIndexPage({
             href="/backlinks/export.csv"
             className="inline-flex h-9 items-center rounded-md border border-white/10 bg-white/5 px-3 text-xs font-medium text-muted-foreground hover:bg-white/10 hover:text-foreground"
           >
-            Export CSV
+            {t("exportCsv")}
           </a>
         }
       />
@@ -83,23 +85,21 @@ export default async function BacklinksIndexPage({
           Tools (also free) for full coverage. */}
       <section className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-[12px]">
         <div className="font-semibold text-amber-300">
-          Honest about what this shows
+          {t("honestTitle")}
         </div>
         <p className="mt-1 leading-relaxed text-amber-200/80">
-          Backlink data here comes from Google Search Console (your own
-          site&apos;s confirmed inbound links) plus Common Crawl
-          extraction. It is intentionally narrower than a paid index
-          like Ahrefs or Semrush — building one of those at scale costs
-          millions per year. For comprehensive coverage, pair this with{" "}
-          <a
-            href="https://ahrefs.com/webmaster-tools"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-amber-100"
-          >
-            Ahrefs Webmaster Tools
-          </a>{" "}
-          (free for verified site owners) and import the CSV here.
+          {t.rich("honestBody", {
+            link: (chunks) => (
+              <a
+                href="https://ahrefs.com/webmaster-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-amber-100"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
         </p>
       </section>
 

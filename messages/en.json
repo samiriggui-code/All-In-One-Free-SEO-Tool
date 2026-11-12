@@ -5223,5 +5223,161 @@
       }
     },
     "start": "Start →"
+  },
+  "pickers": {
+    "brokenLinks": {
+      "title": "Broken link finder",
+      "description": "Pick a project. Paste any URL on its site: we fetch it, extract every link, then check the status code of each one in parallel.",
+      "primary": "Run scan",
+      "secondary": "Fetches a page, checks every link for 404s and redirects"
+    },
+    "imageAudit": {
+      "title": "Image SEO audit",
+      "description": "Pick a project. Paste any page URL: we extract every image, read its size and format, and flag alt text, dimension and lazy-load issues.",
+      "primary": "Run audit",
+      "secondary": "Alt text, dimensions, lazy-load, format, size: every image on the page"
+    },
+    "metaRewrite": {
+      "title": "Meta rewrite batch",
+      "description": "Find pages that get impressions but few clicks. The AI rewrites the title and meta description from the queries Google already shows the page for. One click to push through the WordPress bridge.",
+      "ready": "Ready",
+      "gscNeeded": "Search Console needed",
+      "secondaryReady": "Click to find low-CTR pages",
+      "secondarySetup": "Connect Search Console first"
+    },
+    "contentGap": {
+      "title": "Content gap finder",
+      "description": "Pick a project. Find the queries where the site is shown but loses the click: the content most worth refreshing.",
+      "ready": "Ready",
+      "gscNeeded": "Search Console needed",
+      "secondaryReady": "Click to find under-performing keywords",
+      "secondarySetup": "Connect Search Console on this project first"
+    },
+    "gbp": {
+      "title": "Google Business Profile",
+      "description": "Pick a project. Read its public Google Business Profile (rating, review count, hours, recent reviews), then let the AI draft personal replies you can paste back into the profile.",
+      "linked": "Profile linked",
+      "notLinked": "Not linked",
+      "secondaryReady": "Click to fetch reviews and draft AI replies",
+      "secondarySetup": "Add the profile URL on the project page first",
+      "badgeReady": "Ready",
+      "badgeSetup": "Setup needed"
+    },
+    "competitors": {
+      "title": "Competitors",
+      "description": "Pick a project to see who it is up against, with notes and search context for each competitor.",
+      "none": "None tracked",
+      "count": "{count, plural, one {# competitor} other {# competitors}}",
+      "secondarySome": "Click to view and add more",
+      "secondaryNone": "Click to add the first one"
+    },
+    "brandMonitor": {
+      "title": "Brand monitoring",
+      "description": "A daily scan of Reddit, Hacker News, Bluesky and Mastodon for mentions of each project. Surfaces mentions without a link (link opportunities) and sentiment trends. Free, no API key.",
+      "none": "Not scanned",
+      "count": "{count, plural, one {# mention} other {# mentions}}",
+      "secondarySome": "Click to review",
+      "secondaryNone": "Click to scan Reddit, Hacker News, Bluesky, Mastodon"
+    },
+    "localGrid": {
+      "title": "Local pack heatmap",
+      "description": "Samples the Google ranking from a 5×5 grid across the service area. Shows exactly where the business is in the top 3 and where it is invisible. Free, done in a browser (no paid search API).",
+      "none": "No grid yet",
+      "count": "{count, plural, one {# grid run} other {# grid runs}}",
+      "secondarySome": "Click to run or view",
+      "secondaryNone": "Click to map local pack visibility"
+    },
+    "cannibalization": {
+      "title": "Keyword cannibalization",
+      "description": "Finds queries where two or more pages of the site compete in the results. Clicks split across duplicate pages leave Google unsure which URL is the answer: merge them or make them different.",
+      "gscConnected": "Search Console connected",
+      "gscNeeded": "Search Console needed",
+      "badgeReady": "Ready to scan",
+      "badgeSetup": "Connect Search Console first",
+      "emptyHint": "Connect Google Search Console for a project first: cannibalization is detected from real Search Console data, per query and per page."
+    },
+    "landingPerf": {
+      "title": "Landing page performance",
+      "description": "Joins Search Console clicks with GA4 conversions for each URL. Surfaces the pages that get traffic but do not convert, usually the most profitable fixes.",
+      "both": "Search Console + GA4 ready",
+      "gscOnly": "Search Console only",
+      "none": "Google not connected",
+      "secondaryReady": "Click to see clicks against conversions",
+      "secondarySetup": "Connect Google first"
+    },
+    "monitor": {
+      "title": "Page monitor",
+      "description": "Pick a project to track title, description, H1, canonical and content changes on its key pages.",
+      "none": "Not monitoring",
+      "count": "{count, plural, one {# page} other {# pages}}",
+      "active": "{count, plural, one {# active} other {# active}}",
+      "secondaryNone": "Click to monitor a page"
+    },
+    "outreach": {
+      "title": "Outreach",
+      "description": "Pick a project to manage its outreach pipeline: prospects, contacted, replied, won, lost.",
+      "none": "Empty",
+      "count": "{count, plural, one {# contact} other {# contacts}}",
+      "won": "{count, plural, one {# won} other {# won}}",
+      "secondarySome": "Click to manage",
+      "secondaryNone": "Click to add the first"
+    },
+    "localRank": {
+      "title": "Local rank tracker",
+      "description": "Pick a project. Check where it ranks in different cities for the same keyword, to spot the areas where local SEO is weak.",
+      "hasAddress": "Address on file",
+      "noAddress": "No address yet",
+      "secondary": "Click to check rankings by city"
+    },
+    "aiVisibility": {
+      "title": "AI visibility",
+      "description": "Pick a project to track whether ChatGPT, Claude, Gemini, Perplexity and others mention its domain on the tracked queries.",
+      "mentions": "{count, plural, one {# mention} other {# mentions}}",
+      "noMentions": "No mentions yet",
+      "noKeywords": "No keywords",
+      "tracked": "{count, plural, one {# tracked keyword} other {# tracked keywords}}",
+      "addKeywords": "Add keywords first"
+    },
+    "cwv": {
+      "title": "Core Web Vitals",
+      "description": "Pick a project to run free PageSpeed Insights scans on any URL: Lighthouse scores, LCP, INP and CLS verdicts, and optimizations ranked by gain.",
+      "none": "Not scanned",
+      "secondaryNone": "Click to run the first scan",
+      "reports": "{count, plural, one {# report} other {# reports}} · last on {date}",
+      "pass": "Web Vitals passed",
+      "fail": "Web Vitals failed"
+    },
+    "citations": {
+      "title": "Citations and local SEO",
+      "description": "Pick a project to manage its listings across local directories. Tracks the consistency of name, address and phone, with more than 5,000 directories preloaded.",
+      "napReady": "Details {percent}% complete",
+      "live": "{live}/{total} live",
+      "secondaryStart": "Click to start the submissions",
+      "secondaryNap": "Add the address and phone to get the most from local SEO",
+      "tracked": "{count, plural, one {# listing tracked} other {# listings tracked}}"
+    },
+    "backlinks": {
+      "title": "Backlinks",
+      "description": "Pick a project to manage its backlink profile, mark lost links or links to disavow, and generate the disavow file.",
+      "none": "None tracked",
+      "count": "{count, plural, one {# link} other {# links}}",
+      "active": "{count, plural, one {# active} other {# active}}",
+      "secondaryNone": "Click to add the first",
+      "exportCsv": "Export CSV",
+      "honestTitle": "What this really shows",
+      "honestBody": "The backlink data here comes from Google Search Console (confirmed links to your own site) plus an extraction from Common Crawl. It is deliberately narrower than a paid index such as Ahrefs or Semrush, which cost millions a year to build. For full coverage, add <link>Ahrefs Webmaster Tools</link> (free for verified site owners) and import its CSV here."
+    },
+    "agent": {
+      "title": "AI agent",
+      "description": "Pick a project. The agent reads its audit findings and Search Console data, then drafts concrete title rewrites, meta descriptions, quick wins and content ideas, using your active AI provider.",
+      "allAddressed": "All handled",
+      "readyToRun": "Ready to run",
+      "suggestions": "{count, plural, one {# suggestion} other {# suggestions}}",
+      "applied": "{count, plural, one {# applied so far} other {# applied so far}}",
+      "secondaryReview": "Click to review and apply",
+      "secondaryRun": "Click to run the agent",
+      "pending": "{count} pending",
+      "noProvider": "<b>No AI provider configured.</b> Add a free API key (Gemini, Groq or OpenRouter) in <link>Settings → AI</link> to run the agent."
+    }
   }
 }

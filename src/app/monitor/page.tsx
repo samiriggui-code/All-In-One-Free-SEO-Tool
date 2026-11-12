@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Activity } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, monitoredPages } from "@/db/schema";
@@ -13,6 +14,7 @@ import { markSectionSeen } from "@/lib/unread-counts";
 import { clientScope } from "@/lib/client-scope";
 
 export default async function MonitorIndexPage() {
+  const t = await getTranslations("pickers.monitor");
   await markSectionSeen("page_changes").catch(() => {});
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
@@ -37,9 +39,9 @@ export default async function MonitorIndexPage() {
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "Not monitoring" : `${total} page${total === 1 ? "" : "s"}`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "violet" : "neutral",
-        secondary: total > 0 ? `${active} active` : "Click to monitor a page",
+        secondary: total > 0 ? t("active", { count: active }) : t("secondaryNone"),
       };
     }),
   );
@@ -47,8 +49,8 @@ export default async function MonitorIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Page monitor"
-        description="Pick a client to track meta titles, descriptions, H1s, canonicals, and content changes on key pages."
+        title={t("title")}
+        description={t("description")}
         icon={Activity}
         accent="violet"
       />
