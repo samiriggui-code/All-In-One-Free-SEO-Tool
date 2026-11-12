@@ -156,6 +156,19 @@ export default async function PortalPage({
       .orderBy(desc(invoices.issueDate))
       .limit(12),
   ]);
+  // Drafts the agency opened for a read before they go live.
+  const toReview = await db
+    .select({ id: contentPosts.id, title: contentPosts.title, keyword: contentPosts.primaryKeyword, date: contentPosts.publishDate })
+    .from(contentPosts)
+    .where(
+      and(
+        eq(contentPosts.clientId, client.id),
+        isNotNull(contentPosts.reviewSharedAt),
+        inArray(contentPosts.status, ["idea", "outline_approved", "draft", "scheduled"]),
+      ),
+    )
+    .orderBy(desc(contentPosts.reviewSharedAt))
+    .limit(12);
   const quoteInput = quote ? await cartInputFor(quote) : null;
   const t = await getTranslations("portal");
   const locale = await getLocale();
@@ -385,6 +398,11 @@ export default async function PortalPage({
           posts={posts
             .filter((p) => p.url)
             .map((p) => ({ id: p.id, title: p.title ?? p.url!, url: p.url!, date: p.date ? day(p.date) : null }))}
+          reviews={toReview.map((p) => ({
+            id: p.id,
+            title: p.title ?? p.keyword ?? `#${p.id}`,
+            date: p.date ? p.date.toLocaleDateString(locale, { timeZone: "UTC" }) : null,
+          }))}
           invoices={bills.map((i) => ({
             id: i.id,
             number: i.invoiceNumber,

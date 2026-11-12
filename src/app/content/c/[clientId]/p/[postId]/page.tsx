@@ -14,6 +14,7 @@ import { canEdit, currentUser } from "@/lib/auth";
 import { getPost } from "@/lib/content-studio/store";
 import { outlineToText } from "@/lib/content-studio/outline-text";
 import { ArticleStudio } from "./article-studio";
+import { ReviewLink } from "./review-link";
 
 export default async function ArticlePage({
   params,
@@ -27,7 +28,13 @@ export default async function ArticlePage({
 
   const [[client], post, t, me] = await Promise.all([
     db
-      .select({ id: clients.id, name: clients.name, wpEndpoint: clients.wpEndpoint, wpKey: clients.wpKey })
+      .select({
+        id: clients.id,
+        name: clients.name,
+        wpEndpoint: clients.wpEndpoint,
+        wpKey: clients.wpKey,
+        shareToken: clients.shareToken,
+      })
       .from(clients).where(eq(clients.id, clientId)).limit(1),
     getPost(clientId, postId),
     getTranslations("content"),
@@ -49,6 +56,16 @@ export default async function ArticlePage({
         ]}
       />
       {editable && <AiRequiredNotice because={t("aiBecause")} />}
+      {editable && (
+        <ReviewLink
+          clientId={client.id}
+          postId={post.id}
+          hasDraft={Boolean(post.draftMarkdown?.trim())}
+          initialPath={
+            post.reviewSharedAt && client.shareToken ? `/portal/${client.shareToken}/articles/${post.id}` : null
+          }
+        />
+      )}
       <ArticleStudio
         clientId={client.id}
         postId={post.id}
