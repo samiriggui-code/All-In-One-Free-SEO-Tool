@@ -25,7 +25,6 @@ import {
 } from "@/lib/auth";
 import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
 import { AuthShell } from "@/components/auth/auth-shell";
-import { getUiMode } from "./settings/ui-actions";
 import { getThemePreference } from "./settings/theme-actions";
 import { FONT_SCALES, FONT_SIZE_COOKIE, parseFontSize } from "@/lib/font-size";
 import "./globals.css";
@@ -84,7 +83,6 @@ export default async function RootLayout({
     unreadByHref = {};
   }
 
-  const uiMode = await getUiMode();
   const me = await currentUser().catch(() => null);
   const userRole = me?.role ?? null;
 
@@ -142,7 +140,6 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      data-ui-mode={uiMode}
       data-theme={theme}
       data-font-size={fontSize}
       style={
@@ -191,7 +188,6 @@ export default async function RootLayout({
                   <div className="flex h-full">
                     <Sidebar
                       unreadByHref={unreadByHref}
-                      uiMode={uiMode}
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
                       theme={theme}

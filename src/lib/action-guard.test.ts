@@ -23,7 +23,6 @@ const OPEN_READS = new Set([
   "getAiConnectionStatus",
   "getThemePreference",
   "getLocalePreference",
-  "getUiMode",
 ]);
 
 type Fn = ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction;

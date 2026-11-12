@@ -11,7 +11,6 @@
     "navigate": "Navigation",
     "filterPlaceholder": "Filtrer les pages…",
     "showAllTools": "Afficher tous les outils",
-    "guidedMode": "Mode guidé",
     "groups": {
       "essentials": "Essentiels",
       "prospecting": "1. Prospection & vente",
@@ -1296,10 +1295,6 @@
     "addClientFirstHint": "Ajoutez d’abord un client — chaque outil est rattaché à un site.",
     "nothingMatches": "Aucun résultat pour « {query} ».",
     "tapOutsideClose": "Appuyez à l’extérieur pour fermer",
-    "guided": "Guidé",
-    "pro": "Pro",
-    "guidedTitle": "Mode guidé — explications et repères débutant",
-    "proTitle": "Mode pro — données denses, sans surcouche",
     "severity": {
       "critical": "Critique",
       "high": "Élevé",
@@ -2461,10 +2456,6 @@
     "sidebar": {
       "accountSettings": "Compte · Paramètres",
       "newCount": "{count} nouveau(x)",
-      "revealAllTitle": "Afficher tous les outils dans la barre latérale",
-      "guidedTitle": "Masquer les outils avancés et garder l’essentiel",
-      "pro": "Pro",
-      "easy": "Simple",
       "selfHosted": "Auto-hébergé · vos données restent sur votre serveur"
     },
     "toolDot": {
@@ -5742,10 +5733,6 @@
       "toolRunsInThisDrawer": "L’outil s’ouvre dans ce volet : le projet reste affiché à gauche.",
       "standaloneView": "Vue pleine page"
     },
-    "app_clients_id_client-tools-launcher": {
-      "toolsForThisClient": "Outils pour ce projet",
-      "everyToolBelowIsPre": "Chaque outil ci-dessous est déjà réglé sur l’URL ou les comptes connectés de ce projet. Astuce : ⌘K ouvre la recherche et mène à n’importe quel outil."
-    },
     "app_clients_id_edit_page": {
       "backTo": "Retour à {name}",
       "editClient": "Modifier le projet",
@@ -6356,9 +6343,6 @@
     "components_ui_ai-required-notice": {
       "thisToolNeedsAnAi": "Cet outil a besoin d’un fournisseur d’IA pour produire un résultat."
     },
-    "components_ui_area-chart": {
-      "notEnoughDataYet": "Pas encore assez de données"
-    },
     "components_ui_confirm-dialog": {
       "close": "Fermer"
     },
@@ -6455,38 +6439,6 @@
       "definitelyFix": "À corriger",
       "probablyWorthIt": "Vaut sans doute le coup",
       "worthTesting": "À tester"
-    },
-    "components_ui_jargon-term": {
-      "aSignalToGoogleAbout": "Un signal donné à Google sur la version principale de cette page quand des pages proches existent. Évite que des contenus en double se fassent concurrence.",
-      "theSnippetOfTextShown": "Le court texte affiché sous le titre d’une page dans les résultats Google. Pas un critère de classement direct, mais il pèse beaucoup sur le taux de clic.",
-      "thePageTitleShownIn": "Le titre de la page, affiché dans l’onglet du navigateur et comme lien cliquable dans les résultats de recherche. L’élément SEO le plus important de la page.",
-      "searchEngineResultsPageThe": "Search Engine Results Page : la page que Google affiche après une recherche.",
-      "coreWebVitalsGoogleS": "Core Web Vitals : les trois mesures de vitesse et de confort de Google, LCP (chargement), INP (réactivité) et CLS (stabilité visuelle).",
-      "largestContentfulPaintHowLong": "Largest Contentful Paint : le temps que met le plus gros élément de la page (souvent l’image principale) à s’afficher. Objectif : moins de 2,5 secondes.",
-      "cumulativeLayoutShiftHowMuch": "Cumulative Layout Shift : à quel point les éléments bougent pendant le chargement. Objectif : moins de 0,1.",
-      "interactionToNextPaintHow": "Interaction to Next Paint : la rapidité de réaction de la page quand on touche ou clique. Objectif : moins de 200 ms.",
-      "structuredDataJsonLdYou": "Des données structurées (JSON-LD) intégrées à la page pour que Google affiche des résultats enrichis : étoiles d’avis, FAQ dépliables, fiches recettes, prix de produits, etc.",
-      "anEnhancedGoogleSearchListing": "Un résultat Google enrichi (étoiles, prix, FAQ, images), alimenté par les données structurées.",
-      "theDescriptiveTextOnAn": "Le texte qui décrit une image, lu par les lecteurs d’écran et affiché si l’image ne se charge pas. Utile pour l’accessibilité ET pour la recherche d’images.",
-      "anHtmlTagThatTells": "Une balise HTML qui indique à Google quelle version de langue ou de région montrer à chaque visiteur. Utilisée par les sites internationaux.",
-      "aFileAtTheRoot": "Un fichier à la racine du site qui indique aux robots les pages qu’ils ont le droit de lire.",
-      "anXmlFileListingEvery": "Un fichier XML qui liste toutes les pages du site, fourni à Google pour qu’il les découvre et les relise plus vite.",
-      "whenTwoOrMorePages": "Quand deux pages ou plus du même site visent la même requête : elles se font concurrence et aucune ne se classe bien.",
-      "theSlowDropInTraffic": "La lente baisse de trafic d’une page qui marchait bien. Le plus souvent, le contenu a vieilli ou les concurrents ont mis le leur à jour.",
-      "aKeywordYouRankFor": "Un mot-clé classé en positions 11 à 20 : assez près de la première page pour qu’une petite retouche du contenu suffise à y entrer.",
-      "yourSliceOfTotalSearch": "Votre part du total des impressions dans les résultats de recherche pour un ensemble de mots-clés suivis, face à vos concurrents.",
-      "experienceExpertiseAuthoritativenessTrustworthinessGoogle": "Expérience, Expertise, Autorité, Fiabilité : les critères de Google pour juger qu’un contenu mérite d’être classé.",
-      "googleSAiGeneratedAnswer": "La réponse générée par l’IA de Google, affichée au-dessus des résultats classiques sur les requêtes commerciales. Présente aujourd’hui sur environ 47 % des requêtes.",
-      "generativeEngineOptimizationGettingYour": "Generative Engine Optimization : faire citer vos contenus dans les réponses générées par les IA (ChatGPT, Perplexity, Claude, Gemini, AI Overviews de Google).",
-      "aProposedPlainTextFile": "Un fichier texte proposé (sur le modèle de robots.txt) qui permet à un site de dire aux IA quels contenus elles peuvent utiliser et comment.",
-      "aLinkFromSomeoneElse": "Un lien d’un autre site vers le vôtre. Toujours l’un des signaux de classement les plus forts.",
-      "theClickableTextOfA": "Le texte cliquable d’un lien. Il indique à Google le sujet de la page visée.",
-      "nameAddressPhoneTheThree": "Nom, adresse, téléphone : les trois coordonnées qui doivent être strictement identiques partout en ligne (fiche Google, annuaires, votre site, etc.) pour le SEO local.",
-      "googleBusinessProfileYourBusiness": "Google Business Profile : la fiche de votre établissement dans Google Maps et le pack local.",
-      "googleSearchConsoleGoogleS": "Google Search Console : le tableau de bord gratuit de Google qui montre combien de fois vos pages apparaissent dans la recherche, qui clique et sur quelles requêtes.",
-      "googleAnalytics4TheCurrent": "Google Analytics 4 : la version actuelle de Google Analytics, qui suit le trafic, le comportement et les conversions sur votre site.",
-      "whetherGoogleIsAllowedTo": "Le fait que Google ait le droit d’ajouter une page à son index (elle est explorable et n’est pas bloquée par un noindex ou une canonique).",
-      "googleSBundleOfUx": "L’ensemble des signaux d’expérience de Google : Core Web Vitals, compatibilité mobile, HTTPS et absence d’interstitiels envahissants."
     },
     "app_algorithm-updates_page": {
       "core": "Core",

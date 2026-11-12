@@ -74,7 +74,7 @@ export function PageHeader({
         </div>
 
         {description && (
-          <p className="pro-hide-help max-w-3xl text-sm text-muted-foreground">
+          <p className="max-w-3xl text-sm text-muted-foreground">
             {description}
           </p>
         )}

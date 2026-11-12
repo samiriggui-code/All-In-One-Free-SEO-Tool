@@ -11,7 +11,6 @@
     "navigate": "Navigate",
     "filterPlaceholder": "Filter pages…",
     "showAllTools": "Show all tools",
-    "guidedMode": "Guided mode",
     "groups": {
       "essentials": "Essentials",
       "prospecting": "1. Prospecting & sales",
@@ -1296,10 +1295,6 @@
     "addClientFirstHint": "Add a client first — every tool here is scoped to one client.",
     "nothingMatches": "Nothing matches \"{query}\".",
     "tapOutsideClose": "Tap outside to close",
-    "guided": "Guided",
-    "pro": "Pro",
-    "guidedTitle": "Guided mode — explanations and beginner cues",
-    "proTitle": "Pro mode — dense data, no hand-holding",
     "severity": {
       "critical": "Critical",
       "high": "High",
@@ -2461,10 +2456,6 @@
     "sidebar": {
       "accountSettings": "Account · Settings",
       "newCount": "{count} new",
-      "revealAllTitle": "Reveal every tool in the sidebar",
-      "guidedTitle": "Hide advanced tools — keep the essentials only",
-      "pro": "Pro",
-      "easy": "Easy",
       "selfHosted": "Self-hosted · your data stays on your server"
     },
     "toolDot": {
@@ -5742,10 +5733,6 @@
       "toolRunsInThisDrawer": "Tool runs in this drawer — the client context (left sidebar) stays put.",
       "standaloneView": "Standalone view"
     },
-    "app_clients_id_client-tools-launcher": {
-      "toolsForThisClient": "Tools for this client",
-      "everyToolBelowIsPre": "Every tool below is pre-wired with this client's URL or connected accounts. Tip: ⌘K opens search and jumps to any tool."
-    },
     "app_clients_id_edit_page": {
       "backTo": "Back to {name}",
       "editClient": "Edit client",
@@ -6356,9 +6343,6 @@
     "components_ui_ai-required-notice": {
       "thisToolNeedsAnAi": "This tool needs an AI provider to produce anything."
     },
-    "components_ui_area-chart": {
-      "notEnoughDataYet": "Not enough data yet"
-    },
     "components_ui_confirm-dialog": {
       "close": "Close"
     },
@@ -6455,38 +6439,6 @@
       "definitelyFix": "Definitely fix",
       "probablyWorthIt": "Probably worth it",
       "worthTesting": "Worth testing"
-    },
-    "components_ui_jargon-term": {
-      "aSignalToGoogleAbout": "A signal to Google about the main version of this page when similar pages exist. Prevents duplicate content from competing with itself.",
-      "theSnippetOfTextShown": "The snippet of text shown under a page's title in Google search results. Not a direct ranking factor, but heavily influences click-through rate.",
-      "thePageTitleShownIn": "The page title shown in the browser tab and as the clickable headline in search results. Most important on-page SEO element.",
-      "searchEngineResultsPageThe": "Search Engine Results Page — the page Google shows after someone runs a search.",
-      "coreWebVitalsGoogleS": "Core Web Vitals — Google's three speed/UX metrics: LCP (loading), INP (responsiveness), CLS (visual stability).",
-      "largestContentfulPaintHowLong": "Largest Contentful Paint — how long it takes for the biggest element on the page (usually a hero image) to load. Target: under 2.5 seconds.",
-      "cumulativeLayoutShiftHowMuch": "Cumulative Layout Shift — how much elements jump around as the page loads. Target: under 0.1.",
-      "interactionToNextPaintHow": "Interaction to Next Paint — how quickly the page responds when you tap or click something. Target: under 200ms.",
-      "structuredDataJsonLdYou": "Structured data (JSON-LD) you embed on a page so Google can show rich results — review stars, FAQ accordions, recipe cards, product prices, etc.",
-      "anEnhancedGoogleSearchListing": "An enhanced Google search listing — stars, prices, FAQs, images — driven by structured data.",
-      "theDescriptiveTextOnAn": "The descriptive text on an image used by screen readers and shown when an image fails to load. Helps accessibility AND image-search ranking.",
-      "anHtmlTagThatTells": "An HTML tag that tells Google which language/region version of a page to show different visitors. Used by international sites.",
-      "aFileAtTheRoot": "A file at the root of your site that tells crawlers which pages they're allowed to fetch.",
-      "anXmlFileListingEvery": "An XML file listing every page on your site, given to Google so it can discover and re-crawl pages faster.",
-      "whenTwoOrMorePages": "When two or more pages on the same site target the same query — they end up competing with each other and neither ranks well.",
-      "theSlowDropInTraffic": "The slow drop in traffic to a page that used to perform well. Usually means the content has gone stale or competitors have updated theirs.",
-      "aKeywordYouRankFor": "A keyword you rank for in positions 11-20 — close enough to page one that a small content tweak can push you over.",
-      "yourSliceOfTotalSearch": "Your slice of total search-result impressions for a set of tracked keywords, vs your competitors.",
-      "experienceExpertiseAuthoritativenessTrustworthinessGoogle": "Experience, Expertise, Authoritativeness, Trustworthiness — Google's guidelines for what makes content worth ranking.",
-      "googleSAiGeneratedAnswer": "Google's AI-generated answer that appears above the regular search results on commercial queries. Now shows on roughly 47% of queries.",
-      "generativeEngineOptimizationGettingYour": "Generative Engine Optimization — getting your content cited inside AI-generated answers (ChatGPT, Perplexity, Claude, Gemini, Google AI Overviews).",
-      "aProposedPlainTextFile": "A proposed plain-text file (analogous to robots.txt) that lets a site tell LLMs which content they can use and how.",
-      "aLinkFromSomeoneElse": "A link from someone else's website to yours. Still one of the strongest ranking signals.",
-      "theClickableTextOfA": "The clickable text of a link. Tells Google what the linked page is about.",
-      "nameAddressPhoneTheThree": "Name, Address, Phone — the three pieces of business info that need to match exactly everywhere online (Google Business Profile, Yelp, your site, etc.) for local SEO.",
-      "googleBusinessProfileYourBusiness": "Google Business Profile — your business listing in Google Maps and the local pack.",
-      "googleSearchConsoleGoogleS": "Google Search Console — Google's free dashboard showing how often your pages appear in search, who clicks, and what queries trigger them.",
-      "googleAnalytics4TheCurrent": "Google Analytics 4 — the current version of Google Analytics; tracks traffic, behavior, and conversions on your site.",
-      "whetherGoogleIsAllowedTo": "Whether Google is allowed to add a page to its search index (it can crawl + isn't blocked by noindex/canonical).",
-      "googleSBundleOfUx": "Google's bundle of UX signals: Core Web Vitals + mobile-friendliness + HTTPS + no intrusive interstitials."
     },
     "app_algorithm-updates_page": {
       "core": "Core",
