@@ -6400,7 +6400,10 @@
       "close": "Fermer"
     },
     "components_ui_freshness-badge": {
-      "noDataYet": "pas encore de données"
+      "noDataYet": "pas encore de données",
+      "noDataYetSource": "{source} : pas encore de données",
+      "captured": "relevé le {when}",
+      "capturedSource": "{source}, relevé le {when}"
     },
     "components_ui_needs-connection": {
       "connectMinFree": "Connecter {label} ({minutes} min, gratuit)",
@@ -7533,5 +7536,37 @@
       "free-tier": "Offre gratuite",
       "paid": "Payant"
     }
+  },
+  "time": {
+    "never": "jamais",
+    "justNow": "à l’instant",
+    "runningNow": "en cours",
+    "s": "il y a {n} s",
+    "m": "il y a {n} min",
+    "h": "il y a {n} h",
+    "d": "il y a {n} j",
+    "w": "il y a {n} sem.",
+    "mo": "il y a {n} mois",
+    "everyD": "tous les {n} j",
+    "everyH": "toutes les {n} h",
+    "everyM": "toutes les {n} min",
+    "minutesAgo": "il y a {n, plural, one {# minute} other {# minutes}}",
+    "hoursAgo": "il y a {n, plural, one {# heure} other {# heures}}",
+    "daysAgo": "il y a {n, plural, one {# jour} other {# jours}}"
+  },
+  "schedulerJobs": {
+    "daily_agent": "Agent quotidien",
+    "autonomous_agent": "Agent autonome",
+    "schedule_runner": "Rapports planifiés",
+    "uptime_ping": "Contrôles de disponibilité",
+    "page_monitor": "Surveillance des pages",
+    "weekly_digest": "Digest hebdomadaire",
+    "auto_backup": "Sauvegarde automatique",
+    "tool_sweep": "Passage automatique des outils",
+    "gbp_monitor": "Contrôles de la fiche Google",
+    "tool_sweep_weekly": "Contrôles hebdomadaires par exploration",
+    "backlink_sync": "Découverte de backlinks",
+    "google_updates": "Mises à jour du classement Google",
+    "retention_cleanup": "Nettoyage des données anciennes"
   }
 }

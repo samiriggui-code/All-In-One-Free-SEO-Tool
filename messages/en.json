@@ -6400,7 +6400,10 @@
       "close": "Close"
     },
     "components_ui_freshness-badge": {
-      "noDataYet": "no data yet"
+      "noDataYet": "no data yet",
+      "noDataYetSource": "{source}: no data yet",
+      "captured": "captured {when}",
+      "capturedSource": "{source} captured {when}"
     },
     "components_ui_needs-connection": {
       "connectMinFree": "Connect {label} ({minutes} min, free)",
@@ -7533,5 +7536,37 @@
       "free-tier": "Free tier",
       "paid": "Paid"
     }
+  },
+  "time": {
+    "never": "never",
+    "justNow": "just now",
+    "runningNow": "running now",
+    "s": "{n}s ago",
+    "m": "{n}m ago",
+    "h": "{n}h ago",
+    "d": "{n}d ago",
+    "w": "{n}w ago",
+    "mo": "{n}mo ago",
+    "everyD": "every {n}d",
+    "everyH": "every {n}h",
+    "everyM": "every {n}m",
+    "minutesAgo": "{n, plural, one {# minute} other {# minutes}} ago",
+    "hoursAgo": "{n, plural, one {# hour} other {# hours}} ago",
+    "daysAgo": "{n, plural, one {# day} other {# days}} ago"
+  },
+  "schedulerJobs": {
+    "daily_agent": "Daily agent",
+    "autonomous_agent": "Autonomous agent",
+    "schedule_runner": "Scheduled reports",
+    "uptime_ping": "Uptime checks",
+    "page_monitor": "Page monitor",
+    "weekly_digest": "Weekly digest",
+    "auto_backup": "Automatic backup",
+    "tool_sweep": "Unattended tool sweep",
+    "gbp_monitor": "Business Profile checks",
+    "tool_sweep_weekly": "Weekly crawl-based checks",
+    "backlink_sync": "Backlink discovery",
+    "google_updates": "Google ranking updates",
+    "retention_cleanup": "Data retention cleanup"
   }
 }

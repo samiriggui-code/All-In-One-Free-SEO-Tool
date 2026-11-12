@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { shortAgo } from "@/lib/relative-time";
 
 /**
  * Tiny pill that shows how stale a piece of data is. Use anywhere a
@@ -34,6 +35,7 @@ export function FreshnessBadge({
   className?: string;
 }) {
   const tx = useTranslations("ui.components_ui_freshness-badge");
+  const tTime = useTranslations("time");
   if (capturedAt === null || capturedAt === undefined) {
     return (
       <span
@@ -41,7 +43,7 @@ export function FreshnessBadge({
           "inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-border",
           className,
         )}
-        title={source ? `${source}: no data yet` : "no data yet"}
+        title={source ? tx("noDataYetSource", { source }) : tx("noDataYet")}
       >
         <span className="size-1.5 rounded-full bg-muted-foreground/50" />
         {tx("noDataYet")}
@@ -52,7 +54,7 @@ export function FreshnessBadge({
   const date =
     capturedAt instanceof Date ? capturedAt : new Date(capturedAt);
   const ms = Date.now() - date.getTime();
-  const label = relativeLabel(ms);
+  const label = shortAgo(ms, tTime, { seconds: true });
   const tier = tierFor(ms);
   const tierCls = {
     fresh: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30",
@@ -74,7 +76,11 @@ export function FreshnessBadge({
         tierCls,
         className,
       )}
-      title={`${source ? `${source} ` : ""}captured ${date.toLocaleString()}`}
+      title={
+        source
+          ? tx("capturedSource", { source, when: date.toLocaleString() })
+          : tx("captured", { when: date.toLocaleString() })
+      }
     >
       <span className={cn("size-1.5 rounded-full", dotCls)} />
       {label}
@@ -89,19 +95,4 @@ function tierFor(ms: number): "fresh" | "today" | "week" | "stale" {
   if (ms <= DAY) return "today";
   if (ms <= DAY * 7) return "week";
   return "stale";
-}
-
-function relativeLabel(ms: number): string {
-  const sec = Math.max(0, Math.floor(ms / 1000));
-  if (sec < 60) return `${sec}s ago`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  const days = Math.floor(hr / 24);
-  if (days < 7) return `${days}d ago`;
-  const weeks = Math.floor(days / 7);
-  if (weeks < 5) return `${weeks}w ago`;
-  const months = Math.floor(days / 30);
-  return `${months}mo ago`;
 }

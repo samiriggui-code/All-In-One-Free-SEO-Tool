@@ -1,23 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { CheckCircle2, CircleDashed, Loader2, TriangleAlert } from "lucide-react";
 import { schedulerStatus } from "@/lib/scheduler";
-
-function ago(ts: number | null): string {
-  if (!ts) return "never";
-  const mins = Math.round((Date.now() - ts) / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.round(hours / 24)}d ago`;
-}
-
-function every(ms: number): string {
-  const hours = ms / 3_600_000;
-  if (hours >= 24) return `every ${Math.round(hours / 24)}d`;
-  if (hours >= 1) return `every ${Math.round(hours)}h`;
-  return `every ${Math.round(ms / 60_000)}m`;
-}
+import { shortAgoDays, shortEvery } from "@/lib/relative-time";
 
 /**
  * Live state of every background runner.
@@ -31,6 +15,9 @@ function every(ms: number): string {
  */
 export async function SchedulerStatusPanel() {
   const tx = await getTranslations("ui.app_automations_overview_scheduler-status");
+  const tTime = await getTranslations("time");
+  const tJobs = await getTranslations("schedulerJobs");
+  const now = Date.now();
   let rows: Awaited<ReturnType<typeof schedulerStatus>> = [];
   try {
     rows = await schedulerStatus();
@@ -68,7 +55,7 @@ export async function SchedulerStatusPanel() {
                 <CircleDashed className="size-4 shrink-0 text-muted-foreground" />
               )}
               <span className="min-w-0">
-                <span className="block truncate">{r.label}</span>
+                <span className="block truncate">{tJobs.has(r.id) ? tJobs(r.id) : r.label}</span>
                 {r.lastError ? (
                   <span className="block truncate text-[11px] text-rose-300/80">
                     {r.lastError}
@@ -88,9 +75,13 @@ export async function SchedulerStatusPanel() {
             </span>
             <span className="shrink-0 text-right text-[11px] text-muted-foreground">
               <span className="block">
-                {r.running ? "running now" : ago(r.lastFinishedAt)}
+                {r.running
+                  ? tTime("runningNow")
+                  : r.lastFinishedAt
+                    ? shortAgoDays(now - r.lastFinishedAt, tTime)
+                    : tTime("never")}
               </span>
-              <span className="block opacity-60">{every(r.everyMs)}</span>
+              <span className="block opacity-60">{shortEvery(r.everyMs, tTime)}</span>
             </span>
           </li>
         ))}
