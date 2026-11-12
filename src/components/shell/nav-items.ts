@@ -57,16 +57,6 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   /**
-   * Items marked `guided: true` are visible in Guided mode (the default
-   * for new users). Items without the flag are Pro-only — they still
-   * exist and are reachable by direct URL or via /tools, but the
-   * sidebar hides them so beginners aren't drowning in 80 leaf nodes.
-   *
-   * The "Show all tools" footer toggle flips ui.mode from guided to pro
-   * (or back). Settings → UI mode is the explicit knob.
-   */
-  guided?: boolean;
-  /**
    * Opens in a new tab and is never treated as the current page.
    *
    * For a link to a tool outside this app. No entry uses it today:
@@ -95,27 +85,27 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Essentials",
     pinned: true,
     items: [
-      { href: "/", label: "Dashboard", icon: LayoutDashboard, guided: true },
-      { href: "/clients", label: "Clients", icon: Users, guided: true },
-      { href: "/tasks", label: "Tasks", icon: ListChecks, guided: true },
-      { href: "/seo-chat", label: "SEO chat", icon: Bot, guided: true },
+      { href: "/", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/clients", label: "Clients", icon: Users },
+      { href: "/tasks", label: "Tasks", icon: ListChecks },
+      { href: "/seo-chat", label: "SEO chat", icon: Bot },
     ],
   },
   {
     id: "prospecting",
     title: "1. Prospecting & sales",
     items: [
-      { href: "/leads", label: "Leads", icon: Inbox, guided: true },
-      { href: "/grader", label: "Instant audit", icon: Sparkles, guided: true },
+      { href: "/leads", label: "Leads", icon: Inbox },
+      { href: "/grader", label: "Instant audit", icon: Sparkles },
       { href: "/compare", label: "Site compare", icon: GitCompare },
-      { href: "/proposals", label: "Proposals", icon: FileSignature, guided: true },
+      { href: "/proposals", label: "Proposals", icon: FileSignature },
     ],
   },
   {
     id: "onboarding",
     title: "2. Client setup",
     items: [
-      { href: "/connect", label: "Connect accounts", icon: Plug, guided: true },
+      { href: "/connect", label: "Connect accounts", icon: Plug },
       { href: "/import", label: "Import (all sources)", icon: ScanText },
     ],
   },
@@ -123,7 +113,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "audit",
     title: "3. Audit & diagnosis",
     items: [
-      { href: "/audits", label: "Audits", icon: ClipboardList, guided: true },
+      { href: "/audits", label: "Audits", icon: ClipboardList },
       { href: "/cwv", label: "Core Web Vitals", icon: Gauge },
       { href: "/broken-links", label: "Broken links", icon: Link2 },
       { href: "/cannibalization", label: "Cannibalization", icon: GitMerge },
@@ -133,7 +123,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "strategy",
     title: "4. Strategy & keywords",
     items: [
-      { href: "/keywords", label: "Tracked keywords", icon: Search, guided: true },
+      { href: "/keywords", label: "Tracked keywords", icon: Search },
       { href: "/competitors", label: "Competitors", icon: Network },
       { href: "/brand-monitor", label: "Brand visibility", icon: Network },
       { href: "/serp-scans", label: "SERP scans archive", icon: Globe },
@@ -144,7 +134,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "5. Content production",
     items: [
       // BlogPilot's writing pipeline, ported in (src/lib/content-studio).
-      { href: "/content", label: "Writing", icon: PenLine, guided: true },
+      { href: "/content", label: "Writing", icon: PenLine },
       { href: "/title-tests", label: "Title A/B tests", icon: Wand2 },
       { href: "/meta-rewrite", label: "Meta rewrite batch", icon: Wand2 },
     ],
@@ -153,7 +143,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "backlinks",
     title: "6. Link building",
     items: [
-      { href: "/backlinks", label: "Backlinks", icon: Link2, guided: true },
+      { href: "/backlinks", label: "Backlinks", icon: Link2 },
       { href: "/link-building", label: "Link building", icon: Link2 },
       { href: "/outreach", label: "Outreach", icon: Send },
     ],
@@ -162,7 +152,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "local",
     title: "7. Local SEO",
     items: [
-      { href: "/gbp", label: "Google Business Profile", icon: Building, guided: true },
+      { href: "/gbp", label: "Google Business Profile", icon: Building },
       { href: "/citations", label: "Citations", icon: MapPin },
       { href: "/local-rank", label: "Local rank tracker", icon: MapPin },
       { href: "/local-grid", label: "Local rank heatmap", icon: MapPin },
@@ -187,8 +177,8 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "delivery",
     title: "9. Delivery & reporting",
     items: [
-      { href: "/reports", label: "Reports", icon: FileDown, guided: true },
-      { href: "/reports/batch", label: "Generate all reports", icon: FileStack, guided: true },
+      { href: "/reports", label: "Reports", icon: FileDown },
+      { href: "/reports/batch", label: "Generate all reports", icon: FileStack },
       { href: "/reports/archive", label: "Report archive", icon: FileDown },
       { href: "/automations", label: "Automations", icon: Workflow },
       { href: "/digest", label: "Weekly digest", icon: Send },
@@ -211,13 +201,13 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "agency",
     title: "11. Running the agency",
     items: [
-      { href: "/morning", label: "Morning briefing", icon: Activity, guided: true },
+      { href: "/morning", label: "Morning briefing", icon: Activity },
       { href: "/agent", label: "AI agent", icon: Bot },
       // Guided, because "what is this thing doing to my sites while I'm
       // not looking" is a question a beginner needs answered more
       // urgently than an expert does — and the answer, including the
       // undo button, is on this page.
-      { href: "/agent/autopilot", label: "Autopilot", icon: ShieldCheck, guided: true },
+      { href: "/agent/autopilot", label: "Autopilot", icon: ShieldCheck },
       { href: "/capacity", label: "Capacity", icon: Gauge },
       { href: "/activity", label: "Activity log", icon: History },
       { href: "/invoices", label: "Invoices", icon: Receipt },
@@ -228,10 +218,10 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "Account",
     pinned: true,
     items: [
-      { href: "/welcome", label: "Get started", icon: Sparkles, guided: true },
-      { href: "/settings", label: "Settings", icon: Settings, guided: true },
-      { href: "/docs", label: "Docs", icon: BookOpen, guided: true },
-      { href: "/learn", label: "Learn", icon: GraduationCap, guided: true },
+      { href: "/welcome", label: "Get started", icon: Sparkles },
+      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/docs", label: "Docs", icon: BookOpen },
+      { href: "/learn", label: "Learn", icon: GraduationCap },
       { href: "/knowledge", label: "Knowledge hub", icon: GraduationCap },
     ],
   },

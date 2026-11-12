@@ -14,7 +14,6 @@ const OPEN_READS = new Set([
   "getAiConnectionStatus",
   "getThemePreference",
   "getLocalePreference",
-  "getUiMode",
 ]);
 
 const GUARD = /^\s*(await (requireEditor|requireSettingsAdmin)\(\);|if \(!\(await mayEdit\(\)\)\) return;)/;

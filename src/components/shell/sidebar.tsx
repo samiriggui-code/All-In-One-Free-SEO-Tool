@@ -78,7 +78,6 @@ function isActive(pathname: string, href: string) {
 
 export function Sidebar({
   unreadByHref,
-  uiMode = "guided",
   hasAiKey = false,
   userRole = null,
   theme = "system",
@@ -93,13 +92,6 @@ export function Sidebar({
    * dot would only be noise.
    */
   hasAiKey?: boolean;
-  /**
-   * "guided" (default for new users): filters nav to only items marked
-   * `guided: true`. Empty groups collapse out of view. ~15 items total
-   * across ~7 groups.
-   * "pro": shows everything (the historical sidebar).
-   */
-  uiMode?: "guided" | "pro";
 } = {}) {
   const groups = mainNavForRole(userRole);
   const tShell = useTranslations("shell.sidebar");
@@ -142,20 +134,13 @@ export function Sidebar({
   const openGroups = { ...storedOpenGroups, ...routeOpened };
   const unread = unreadByHref ?? {};
 
-  // Apply the guided/pro filter. In guided mode every item must opt-in
-  // via `guided: true`. Pinned groups stay visible even after filtering
-  // (Essentials + Account) so the rail always has anchors at top + bottom;
-  // non-pinned groups with no surviving items are hidden entirely.
-  // Seven entries for everyone (mainNavForRole): the guided/pro filter no
-  // longer has anything to hide here. `uiMode` still drives the page
-  // chrome through data-ui-mode on <html>.
-  void uiMode;
+  // Seven entries for everyone (mainNavForRole).
   const visibleGroups: NavGroup[] = groups;
 
   // Auto-open the group containing the current route — even if the user
   // had it collapsed — so navigation context is always visible. We
   // iterate the FULL groups list (not visibleGroups) because the active
-  // route may live in a hidden-by-guided-mode group and we still want
+  // route may live in a group that is not shown and we still want
   // to surface it when the user lands there via direct URL.
   // Derived during render rather than in an effect: which group holds
   // the current route is a pure function of `pathname`, so computing it
