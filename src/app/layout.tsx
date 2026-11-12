@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Sidebar } from "@/components/shell/sidebar";
 import { FamilyTabs } from "@/components/shell/family-tabs";
+import { ProjectReturnBar } from "@/components/shell/project-return-bar";
 import { NeedsKeyBanner } from "@/components/shell/needs-key-banner";
 import { IntlProvider } from "@/components/shell/intl-provider";
 import { getAiAvailability } from "@/lib/ai-availability";
@@ -210,6 +211,7 @@ export default async function RootLayout({
                           hasSubscription={aiAvailability.hasSubscription}
                           client={aiAvailability.client}
                         />
+                        <ProjectReturnBar />
                         <FamilyTabs />
                         {children}
                       </main>

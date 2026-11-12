@@ -123,7 +123,6 @@ export default async function AutomationsPage() {
             title="No automations yet"
             body="If-this-then-that rules across audits, rankings, content, and outreach. Replaces a Zapier subscription for SEO-shaped workflows."
             primary={{ href: "/automations/templates", label: "Browse 8 templates" }}
-            secondary={{ href: "/automations/new", label: "Build from scratch" }}
           />
         </div>
       ) : (

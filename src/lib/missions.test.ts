@@ -41,13 +41,13 @@ describe("suggestMission", () => {
     expect(suggestMission(facts({ score: 65 }))?.kind).toBe("full");
   });
 
-  it("a weak or unreachable site gets a redesign, then monitoring", () => {
+  it("a weak site gets a redesign, then monitoring; an unreachable one gets no suggestion", () => {
     expect(suggestMission(facts({ score: 35 }))).toEqual({
       kind: "redesign",
       reason: "weak_site",
       then: "monitoring",
     });
-    expect(suggestMission(facts({ score: 0, pagesCrawled: 0 }))?.reason).toBe("unreachable");
+    expect(suggestMission(facts({ score: 0, pagesCrawled: 0 }))).toBeNull();
   });
 
   it("the thresholds are the report's: 50 and 80", () => {

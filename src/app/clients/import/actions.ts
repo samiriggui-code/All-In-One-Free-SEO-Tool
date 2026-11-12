@@ -15,9 +15,8 @@ import { fetchSiteMetadata } from "@/lib/site-metadata";
 import { detectTechStack } from "@/lib/tech-detect";
 import { logActivity } from "@/lib/activity";
 import {
-  applyNicheTemplatesForClient,
-  applyStackTemplatesForClient,
   siteFactsFor,
+  seedTemplatesForNewProject,
 } from "@/lib/apply-task-templates";
 
 export type ImportablePair = {
@@ -201,8 +200,7 @@ async function createSingleClientFromPair(pair: ImportablePair): Promise<void> {
 
   // Read the site once so the checklist skips work it already does.
   const facts = await siteFactsFor(meta?.url ?? pair.url);
-  await applyNicheTemplatesForClient(row.id, niche, facts);
-  await applyStackTemplatesForClient(row.id, techStack, facts);
+  await seedTemplatesForNewProject(row.id, niche, techStack, facts);
 
   await logActivity({
     kind: "client.created",

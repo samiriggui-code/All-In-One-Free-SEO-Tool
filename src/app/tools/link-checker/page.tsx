@@ -1,10 +1,10 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   ArrowRight,
   ExternalLink,
   Link as LinkIcon,
@@ -28,7 +28,7 @@ const FILTER_LABEL_KEY = {
 export default function LinkCheckerPage() {
   const t = useTranslations("tools.ui.link-checker");
   const tCommon = useTranslations("tools.common");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [result, setResult] = useState<LinkAnalysisResult | null>(null);
   const [filter, setFilter] = useState<"all" | "internal" | "external" | "nofollow" | "follow">(
     "all",
@@ -58,13 +58,7 @@ export default function LinkCheckerPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

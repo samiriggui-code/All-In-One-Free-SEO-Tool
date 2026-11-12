@@ -1797,7 +1797,9 @@
       "saved": "Enregistré",
       "download": "Télécharger",
       "close": "Fermer",
-      "optional": "Optionnel"
+      "optional": "Optionnel",
+      "backToProject": "Retour au projet",
+      "backToProjectNamed": "Retour au projet {name}"
     },
     "geoScore": {
       "clientOptional": "Associer à un client (optionnel)",
@@ -2093,7 +2095,15 @@
     "whatThisUses": "Ce que ce guide utilise",
     "next": "Suivant",
     "notFound": "Introuvable",
-    "guideMetaTitle": "{title} · docs"
+    "guideMetaTitle": "{title} · docs",
+    "more": {
+      "label": "Voir aussi",
+      "getStarted": "Premiers pas",
+      "learn": "Apprendre le SEO",
+      "knowledge": "Centre de connaissances",
+      "chat": "Ce que l’assistant sait faire",
+      "automated": "Ce qui tourne tout seul"
+    }
   },
   "proposals": {
     "title": "Propositions et devis",
@@ -2508,7 +2518,8 @@
       "getStarted": "Bien démarrer",
       "docs": "Documentation",
       "learn": "Apprendre le SEO",
-      "knowledge": "Base de connaissances"
+      "knowledge": "Base de connaissances",
+      "help": "Aide"
     },
     "nextStep": {
       "ai": {
@@ -3031,7 +3042,7 @@
       "title": "Outils du projet",
       "featured": "Utiles maintenant",
       "allTools": "Tous les outils ({count})",
-      "toolbox": "Boîte à outils →",
+      "toolbox": "Activer ou couper des outils →",
       "filter": "Chercher parmi les {count} outils…",
       "clearFilter": "Effacer la recherche",
       "matches": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
@@ -3039,7 +3050,176 @@
       "needSetup": "{count, plural, one {# à configurer} other {# à configurer}}",
       "outOfScope": "Hors de cette mission",
       "autoRuns": "S'exécute seul chaque nuit : ses résultats arrivent dans le plan d'action sans l'ouvrir.",
-      "close": "Fermer"
+      "close": "Fermer",
+      "items": {
+        "audits_c": {
+          "title": "Lancer un audit complet",
+          "blurb": "Exploration du site et contrôles SEO, comparés au dernier audit."
+        },
+        "tools_health-check": {
+          "title": "Contrôle d'une page",
+          "blurb": "Santé d'une page : balises, données structurées, vitesse, en-têtes de sécurité."
+        },
+        "tools_eeat-audit": {
+          "title": "Audit E-E-A-T",
+          "blurb": "Expérience, expertise, autorité et confiance."
+        },
+        "tools_geo-score": {
+          "title": "Score GEO",
+          "blurb": "Visibilité dans les moteurs de recherche IA."
+        },
+        "tools_sxo": {
+          "title": "Audit SXO",
+          "blurb": "Expérience de recherche et réponse à l'intention."
+        },
+        "clients_ai-audit": {
+          "title": "Audit IA du site",
+          "blurb": "Liste de contrôles IA, corrections appliquées via le pont WordPress."
+        },
+        "keywords_c": {
+          "title": "Mots-clés suivis",
+          "blurb": "Positions triables, mobile et ordinateur."
+        },
+        "tools_rank-where": {
+          "title": "Où suis-je positionné ?",
+          "blurb": "Position par pays et citation dans les aperçus IA, pour toute requête."
+        },
+        "tools_serp-features": {
+          "title": "Fonctionnalités des SERP",
+          "blurb": "Présence dans les aperçus IA, extraits optimisés et pack local."
+        },
+        "tools_traffic-drop": {
+          "title": "Analyse de chute de trafic",
+          "blurb": "Diagnostiquer une perte soudaine de trafic organique."
+        },
+        "tools_branded-split": {
+          "title": "Marque / hors marque",
+          "blurb": "Séparer le trafic Search Console pour voir la vraie croissance organique."
+        },
+        "tools_serp-volatility": {
+          "title": "Volatilité des SERP",
+          "blurb": "Variations de positions d'un jour à l'autre, pour repérer les mises à jour de Google."
+        },
+        "tools_cannibalization": {
+          "title": "Cannibalisation de mots-clés",
+          "blurb": "Requêtes où plusieurs pages se font concurrence."
+        },
+        "content_c": {
+          "title": "Studio de rédaction",
+          "blurb": "Mot-clé, plan, puis article IA noté face au top 10."
+        },
+        "tools_ads-funnel": {
+          "title": "Tunnel publicitaire",
+          "blurb": "Meta, Google, LinkedIn, TikTok, YouTube : textes, visuels, mots-clés, tunnel et budget."
+        },
+        "tools_internal-linking": {
+          "title": "Opportunités de maillage interne",
+          "blurb": "Pages existantes qui devraient pointer vers une URL cible."
+        },
+        "tools_link-graph": {
+          "title": "Graphe des liens internes",
+          "blurb": "Visualiser la structure de liens du site."
+        },
+        "tools_pagerank": {
+          "title": "PageRank interne",
+          "blurb": "Répartition de l'autorité entre les pages du site."
+        },
+        "backlinks_c": {
+          "title": "Backlinks",
+          "blurb": "Backlinks suivis pour ce projet."
+        },
+        "link-building_library": {
+          "title": "Bibliothèque de prospects (314 sites)",
+          "blurb": "Sites sélectionnés pour obtenir des liens, dans plus de 35 pays."
+        },
+        "tools_anchor-distribution": {
+          "title": "Répartition des ancres",
+          "blurb": "Contrôler le texte d'ancre des backlinks."
+        },
+        "gbp_c": {
+          "title": "Fiche Google Business",
+          "blurb": "Avis, publications, horaires, brouillons de réponse IA."
+        },
+        "citations_c": {
+          "title": "Suivi des citations",
+          "blurb": "Cohérence du nom, de l'adresse et du téléphone dans les annuaires locaux."
+        },
+        "local-grid_c": {
+          "title": "Grille de positions locales",
+          "blurb": "Positions par zone géographique, à l'échelle de la ville."
+        },
+        "local-rank_c": {
+          "title": "Positions locales",
+          "blurb": "Suivre les positions dans le pack local."
+        },
+        "tools_local-cwv": {
+          "title": "Core Web Vitals",
+          "blurb": "Mesure LCP, CLS et INP sur ce site."
+        },
+        "tools_security": {
+          "title": "En-têtes de sécurité et SSL",
+          "blurb": "Mozilla Observatory et SSL Labs."
+        },
+        "tools_wp-hack-scan": {
+          "title": "Scan de piratage WordPress",
+          "blurb": "Recherche de portes dérobées, de malware et de cloaking."
+        },
+        "tools_render": {
+          "title": "Contrôle du rendu",
+          "blurb": "Voir comment Googlebot affiche la page."
+        },
+        "tools_robots": {
+          "title": "Robots.txt et sitemap",
+          "blurb": "Blocages d'exploration, sitemaps absents ou cassés."
+        },
+        "tools_ai-robots": {
+          "title": "Règles pour les robots IA",
+          "blurb": "Ce que robots.txt autorise aux robots IA."
+        },
+        "tools_code-generator": {
+          "title": "Générateur de code",
+          "blurb": "Extensions WordPress, .htaccess, HTML Elementor, données structurées."
+        },
+        "tools_meta-tag-generator": {
+          "title": "Générateur de balises meta",
+          "blurb": "Propositions de titre et de description, avec aperçu Google."
+        },
+        "tools_schema": {
+          "title": "Générateur de schéma",
+          "blurb": "JSON-LD pour tout type schema.org."
+        },
+        "tools_og-image": {
+          "title": "Image Open Graph",
+          "blurb": "Images de partage générées automatiquement."
+        },
+        "reports_c": {
+          "title": "Générer un rapport",
+          "blurb": "Synthèse IA, PDF et lien d'accès au portail client."
+        },
+        "clients_onboarding": {
+          "title": "Assistant de démarrage",
+          "blurb": "Marque, mots-clés et ciblage."
+        },
+        "automations": {
+          "title": "Automatisations",
+          "blurb": "Déclencher Slack, une tâche ou un webhook sur un événement."
+        },
+        "digest": {
+          "title": "Résumé hebdomadaire",
+          "blurb": "Synthèse envoyée par e-mail chaque semaine."
+        }
+      },
+      "groups": {
+        "run_an_audit": "Auditer",
+        "rank_tracking_research": "Positions et recherche",
+        "content_writing": "Contenu et rédaction",
+        "paid_ads_growth": "Publicité",
+        "links_internal_outbound": "Liens internes et externes",
+        "local_seo_gbp": "SEO local",
+        "technical_speed": "Technique et vitesse",
+        "generators": "Générateurs",
+        "reports_automation": "Rapports et automatisation"
+      }
     },
     "tabs": {
       "aria": "Sections du projet",
@@ -3098,7 +3278,8 @@
       "cancel": "Annuler",
       "create": "Créer la mission",
       "saving": "Création…"
-    }
+    },
+    "lastAuditFailed": "Le dernier audit a échoué : le site n'a pas répondu. Vérifiez qu'il est en ligne et qu'il ne bloque pas les robots, puis relancez l'audit."
   },
   "settingsTeam": {
     "title": "Équipe",
@@ -4793,7 +4974,9 @@
         "tracking": "Suivi",
         "field": "Terrain (CrUX)",
         "lab": "Labo",
-        "budgets": "Budgets"
+        "budgets": "Budgets",
+        "origin": "Résumé par origine",
+        "archive": "Archive"
       }
     },
     "brokenLinks": {
@@ -4814,7 +4997,8 @@
       "title": "robots.txt",
       "tabs": {
         "search": "Moteurs de recherche",
-        "ai": "Robots IA"
+        "ai": "Robots IA",
+        "history": "Historique"
       }
     },
     "cannibalization": {
@@ -4854,7 +5038,8 @@
       "title": "Balises meta",
       "tabs": {
         "one": "Une page",
-        "bulk": "En lot"
+        "bulk": "En lot",
+        "pixels": "Aperçu en pixels"
       }
     },
     "schema": {
@@ -4862,7 +5047,8 @@
       "tabs": {
         "generator": "Par type",
         "fromUrl": "Depuis une URL",
-        "person": "Auteur (Person)"
+        "person": "Auteur (Person)",
+        "validate": "Validation"
       }
     },
     "eeat": {
@@ -4893,7 +5079,9 @@
         "opportunities": "Liens à ajouter",
         "orphans": "Pages orphelines",
         "pagerank": "PageRank",
-        "anchors": "Ancres"
+        "anchors": "Ancres",
+        "recommend": "Recommandations",
+        "auto": "Maillage automatique"
       }
     },
     "localRank": {
@@ -4976,6 +5164,64 @@
         "ask": "Poser une question",
         "history": "Conversations"
       }
+    },
+    "redirects": {
+      "title": "Redirections",
+      "tabs": {
+        "manager": "Gestion",
+        "bulk": "Contrôle en masse"
+      }
+    },
+    "hreflang": {
+      "title": "Hreflang",
+      "tabs": {
+        "audit": "Contrôle",
+        "generator": "Générateur"
+      }
+    },
+    "competitors": {
+      "title": "Concurrents",
+      "tabs": {
+        "tracked": "Suivis",
+        "playbook": "Plan d'attaque"
+      }
     }
+  },
+  "welcomePage": {
+    "title": "Premiers pas",
+    "description": "Chaque étape débloque une partie de l’outil. Vous pouvez en passer une et y revenir plus tard, mais l’ordre proposé est le plus simple.",
+    "progress": "{done} sur {total} terminées",
+    "skip": "Passer pour l’instant et voir le tableau de bord →",
+    "more": "D’autres connexions sont possibles : Bing pour les backlinks et les volumes de recherche, WordPress pour que l’agent applique les corrections, l’e-mail pour envoyer les rapports.",
+    "moreLink": "Les voir toutes, avec leurs guides",
+    "doneTitle": "Tout est en place.",
+    "doneBody": "Tous les outils sont connectés et prêts. Revenez au tableau de bord : l’agent quotidien y fait remonter ce qui demande votre attention.",
+    "steps": {
+      "client": {
+        "title": "Ajouter votre premier site",
+        "description": "Collez une URL. L’outil détecte la technologie et le secteur, puis lance un premier audit. Aucune clé n’est nécessaire."
+      },
+      "audit": {
+        "title": "Lancer votre premier audit",
+        "description": "Des contrôles classés par gravité, en une minute environ. Cela fonctionne sans rien configurer d’autre : le moyen le plus rapide de voir ce que l’outil trouve."
+      },
+      "ai": {
+        "title": "Ajouter un fournisseur d’IA (facultatif)",
+        "description": "Transforme les constats d’audit en explications et corrections claires, et débloque le chat, les synthèses et les outils de contenu. Gemini et Groq sont gratuits : trois minutes environ, les étapes sont détaillées."
+      },
+      "google": {
+        "title": "Connecter Google (Search Console et Analytics)",
+        "description": "Facultatif mais très utile. De vraies données de positions, le trafic organique et des gains rapides. Cinq minutes, gratuit, étapes détaillées."
+      },
+      "keywords": {
+        "title": "Suivre des mots-clés",
+        "description": "Relevé quotidien des positions depuis le navigateur (gratuit). Mobile et ordinateur, par ville pour le SEO local."
+      },
+      "report": {
+        "title": "Générer un rapport",
+        "description": "PDF en marque blanche, synthèse rédigée par l’IA, journal du travail réalisé. Envoi mensuel programmable."
+      }
+    },
+    "start": "Commencer →"
   }
 }

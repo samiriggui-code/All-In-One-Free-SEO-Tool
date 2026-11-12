@@ -1,15 +1,14 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useActionState } from "react";
-import Link from "next/link";
-import { ArrowLeft, ExternalLink, GitBranch, Loader2 } from "lucide-react";
+import { ExternalLink, GitBranch, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runOpenPr, type PrState } from "./actions";
 
 export default function GithubPrPage() {
   const t = useTranslations("tools.ui.github-pr");
-  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<PrState, FormData>(
     runOpenPr,
     null,
@@ -17,13 +16,7 @@ export default function GithubPrPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("title")}

@@ -1797,7 +1797,9 @@
       "saved": "Saved",
       "download": "Download",
       "close": "Close",
-      "optional": "Optional"
+      "optional": "Optional",
+      "backToProject": "Back to the project",
+      "backToProjectNamed": "Back to {name}"
     },
     "geoScore": {
       "clientOptional": "Tag to client (optional)",
@@ -2093,7 +2095,15 @@
     "whatThisUses": "What this uses",
     "next": "Next",
     "notFound": "Not found",
-    "guideMetaTitle": "{title} — docs"
+    "guideMetaTitle": "{title} — docs",
+    "more": {
+      "label": "See also",
+      "getStarted": "Get started",
+      "learn": "Learn SEO",
+      "knowledge": "Knowledge hub",
+      "chat": "What the assistant can do",
+      "automated": "What runs on its own"
+    }
   },
   "proposals": {
     "title": "Proposals and quotes",
@@ -2508,7 +2518,8 @@
       "getStarted": "Get started",
       "docs": "Documentation",
       "learn": "Learn SEO",
-      "knowledge": "Knowledge hub"
+      "knowledge": "Knowledge hub",
+      "help": "Help"
     },
     "nextStep": {
       "ai": {
@@ -3031,7 +3042,7 @@
       "title": "Project tools",
       "featured": "Useful now",
       "allTools": "All tools ({count})",
-      "toolbox": "Toolbox →",
+      "toolbox": "Turn tools on or off →",
       "filter": "Search the {count} tools…",
       "clearFilter": "Clear search",
       "matches": "{count, plural, =0 {No match} one {# match} other {# matches}}",
@@ -3039,7 +3050,176 @@
       "needSetup": "{count, plural, one {# needs setup} other {# need setup}}",
       "outOfScope": "Not in this engagement",
       "autoRuns": "Runs on its own every night — findings appear in the action plan without you opening this.",
-      "close": "Close"
+      "close": "Close",
+      "items": {
+        "audits_c": {
+          "title": "Run a full audit",
+          "blurb": "Crawl + 30 SEO checks. Compare to last audit."
+        },
+        "tools_health-check": {
+          "title": "Single-page health check",
+          "blurb": "Full-page health: meta, schema, CWV, security headers."
+        },
+        "tools_eeat-audit": {
+          "title": "E-E-A-T audit",
+          "blurb": "Experience / Expertise / Authority / Trust."
+        },
+        "tools_geo-score": {
+          "title": "GEO composite score",
+          "blurb": "AI search visibility scorecard."
+        },
+        "tools_sxo": {
+          "title": "SXO audit",
+          "blurb": "Search experience + intent satisfaction."
+        },
+        "clients_ai-audit": {
+          "title": "AI site audit",
+          "blurb": "AI checklist with apply-via-WP-bridge fixes."
+        },
+        "keywords_c": {
+          "title": "Tracked keywords",
+          "blurb": "Sortable rank table with mobile/desktop split."
+        },
+        "tools_rank-where": {
+          "title": "Where do I rank?",
+          "blurb": "Country-aware rank + AIO citation for any query."
+        },
+        "tools_serp-features": {
+          "title": "SERP feature tracker",
+          "blurb": "AI Overview / Featured Snippet / Local Pack presence."
+        },
+        "tools_traffic-drop": {
+          "title": "Traffic-drop analyzer",
+          "blurb": "Diagnose sudden organic-traffic losses."
+        },
+        "tools_branded-split": {
+          "title": "Branded vs non-branded",
+          "blurb": "Split GSC traffic to see real organic growth."
+        },
+        "tools_serp-volatility": {
+          "title": "SERP volatility tracker",
+          "blurb": "Day-over-day position shifts across tracked keywords — spot algorithm updates."
+        },
+        "tools_cannibalization": {
+          "title": "Keyword cannibalization",
+          "blurb": "Find queries where multiple pages compete and hurt each other."
+        },
+        "content_c": {
+          "title": "Writing studio",
+          "blurb": "Keyword → outline → AI article, scored against the top 10."
+        },
+        "tools_ads-funnel": {
+          "title": "Ad Funnel Architect ⭐",
+          "blurb": "Meta / Google / LinkedIn / TikTok / YouTube — copy, image prompts, keywords, funnel + budget split."
+        },
+        "tools_internal-linking": {
+          "title": "Internal linking opportunities",
+          "blurb": "Existing pages that should link to a target URL."
+        },
+        "tools_link-graph": {
+          "title": "Internal link graph",
+          "blurb": "Visualize the site's link structure."
+        },
+        "tools_pagerank": {
+          "title": "Internal PageRank",
+          "blurb": "Distribute authority across this site's pages."
+        },
+        "backlinks_c": {
+          "title": "Backlink hub",
+          "blurb": "Tracked backlinks for this client."
+        },
+        "link-building_library": {
+          "title": "Prospects library (314 sites)",
+          "blurb": "Curated backlink prospects, 35+ countries."
+        },
+        "tools_anchor-distribution": {
+          "title": "Anchor distribution",
+          "blurb": "Audit the anchor text of the client's backlinks."
+        },
+        "gbp_c": {
+          "title": "Google Business Profile",
+          "blurb": "Reviews, posts, hours, AI reply drafts."
+        },
+        "citations_c": {
+          "title": "Citations tracker",
+          "blurb": "NAP consistency across local directories."
+        },
+        "local-grid_c": {
+          "title": "Local rank grid",
+          "blurb": "Geo-grid rank tracking (city-level)."
+        },
+        "local-rank_c": {
+          "title": "Local rank tracker",
+          "blurb": "Track local-pack positions for this client."
+        },
+        "tools_local-cwv": {
+          "title": "Core Web Vitals",
+          "blurb": "LCP / CLS / INP measurement on this client."
+        },
+        "tools_security": {
+          "title": "Security headers + SSL",
+          "blurb": "Mozilla Observatory + SSL Labs."
+        },
+        "tools_wp-hack-scan": {
+          "title": "WordPress hack scan",
+          "blurb": "Backdoor / malware / cloaking probe."
+        },
+        "tools_render": {
+          "title": "Render check",
+          "blurb": "See how Googlebot renders the page."
+        },
+        "tools_robots": {
+          "title": "Robots.txt + sitemap",
+          "blurb": "Crawl blocks, missing or broken sitemaps."
+        },
+        "tools_ai-robots": {
+          "title": "AI crawler policy",
+          "blurb": "Which AI crawlers robots.txt has decided about."
+        },
+        "tools_code-generator": {
+          "title": "Code / plugin generator",
+          "blurb": "WP plugins, .htaccess, Elementor HTML, schema."
+        },
+        "tools_meta-tag-generator": {
+          "title": "Meta tag generator",
+          "blurb": "Title + description options with SERP preview."
+        },
+        "tools_schema": {
+          "title": "Schema generator",
+          "blurb": "JSON-LD for any schema.org type."
+        },
+        "tools_og-image": {
+          "title": "OG image generator",
+          "blurb": "Auto-generated Open Graph images."
+        },
+        "reports_c": {
+          "title": "Generate report",
+          "blurb": "AI exec summary + PDF + client portal magic link."
+        },
+        "clients_onboarding": {
+          "title": "Onboarding wizard",
+          "blurb": "Brand + keywords + targeting setup."
+        },
+        "automations": {
+          "title": "Automations",
+          "blurb": "Trigger Slack / task / webhook on events."
+        },
+        "digest": {
+          "title": "Weekly digest",
+          "blurb": "Auto-mailed weekly summary."
+        }
+      },
+      "groups": {
+        "run_an_audit": "Run an audit",
+        "rank_tracking_research": "Rank tracking + research",
+        "content_writing": "Content + writing",
+        "paid_ads_growth": "Paid ads & growth",
+        "links_internal_outbound": "Links — internal + outbound",
+        "local_seo_gbp": "Local SEO + GBP",
+        "technical_speed": "Technical + speed",
+        "generators": "Generators",
+        "reports_automation": "Reports + automation"
+      }
     },
     "tabs": {
       "aria": "Project sections",
@@ -3098,7 +3278,8 @@
       "cancel": "Cancel",
       "create": "Create mission",
       "saving": "Creating…"
-    }
+    },
+    "lastAuditFailed": "The last audit failed: the site did not answer. Check that it is online and not blocking crawlers, then run the audit again."
   },
   "settingsTeam": {
     "title": "Team",
@@ -4793,7 +4974,9 @@
         "tracking": "Tracking",
         "field": "Field (CrUX)",
         "lab": "Lab",
-        "budgets": "Budgets"
+        "budgets": "Budgets",
+        "origin": "Origin summary",
+        "archive": "Archive"
       }
     },
     "brokenLinks": {
@@ -4814,7 +4997,8 @@
       "title": "robots.txt",
       "tabs": {
         "search": "Search engines",
-        "ai": "AI crawlers"
+        "ai": "AI crawlers",
+        "history": "History"
       }
     },
     "cannibalization": {
@@ -4854,7 +5038,8 @@
       "title": "Meta tags",
       "tabs": {
         "one": "One page",
-        "bulk": "In bulk"
+        "bulk": "In bulk",
+        "pixels": "Pixel preview"
       }
     },
     "schema": {
@@ -4862,7 +5047,8 @@
       "tabs": {
         "generator": "By type",
         "fromUrl": "From a URL",
-        "person": "Author (Person)"
+        "person": "Author (Person)",
+        "validate": "Validation"
       }
     },
     "eeat": {
@@ -4893,7 +5079,9 @@
         "opportunities": "Links to add",
         "orphans": "Orphan pages",
         "pagerank": "PageRank",
-        "anchors": "Anchors"
+        "anchors": "Anchors",
+        "recommend": "Recommendations",
+        "auto": "Auto-linking"
       }
     },
     "localRank": {
@@ -4976,6 +5164,64 @@
         "ask": "Ask a question",
         "history": "Conversations"
       }
+    },
+    "redirects": {
+      "title": "Redirects",
+      "tabs": {
+        "manager": "Manager",
+        "bulk": "Bulk check"
+      }
+    },
+    "hreflang": {
+      "title": "Hreflang",
+      "tabs": {
+        "audit": "Check",
+        "generator": "Generator"
+      }
+    },
+    "competitors": {
+      "title": "Competitors",
+      "tabs": {
+        "tracked": "Tracked",
+        "playbook": "Playbook"
+      }
     }
+  },
+  "welcomePage": {
+    "title": "Get started",
+    "description": "Each step unlocks more of the tool. You can skip any step and come back to it later, but doing them in order works best.",
+    "progress": "{done} of {total} complete",
+    "skip": "Skip for now and explore the dashboard →",
+    "more": "There are a few more optional connections: Bing for backlinks and keyword volume, WordPress so the agent can apply fixes, email for sending reports.",
+    "moreLink": "See all of them, with setup guides",
+    "doneTitle": "You're fully set up.",
+    "doneBody": "Every tool is now connected and ready. Head back to the dashboard and let the daily agent surface what needs your attention.",
+    "steps": {
+      "client": {
+        "title": "Add your first site",
+        "description": "Just paste a URL. We detect the tech stack and niche, and run a first audit. No keys needed."
+      },
+      "audit": {
+        "title": "Run your first audit",
+        "description": "Checks sorted by severity, in about a minute. This works with nothing else configured: the fastest way to see what the tool finds."
+      },
+      "ai": {
+        "title": "Add an AI provider (optional)",
+        "description": "Turns audit findings into plain explanations and fixes, and unlocks chat, executive summaries and content tools. Gemini and Groq are free: about three minutes, with the steps written out."
+      },
+      "google": {
+        "title": "Connect Google (Search Console + Analytics)",
+        "description": "Optional but high-leverage. Real ranking data instead of scraped, plus organic traffic and quick wins. Five minutes, free, steps included."
+      },
+      "keywords": {
+        "title": "Track keywords",
+        "description": "Daily rank checks in browser mode (free). Mobile and desktop, per city for local SEO."
+      },
+      "report": {
+        "title": "Generate a report",
+        "description": "White-label PDF, AI-written executive summary, log of the work done. Can be scheduled monthly."
+      }
+    },
+    "start": "Start →"
   }
 }

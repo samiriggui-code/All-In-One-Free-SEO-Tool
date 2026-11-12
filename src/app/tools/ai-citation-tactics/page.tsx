@@ -1,8 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import {
@@ -28,7 +29,6 @@ const EFFORT_TONE = {
 
 export default function AiCitationTacticsPage() {
   const t = useTranslations("tools.ui.ai-citation-tactics");
-  const tCommon = useTranslations("tools.common");
   const [niche, setNiche] = useState<string | null>(null);
   const nicheLabel = NICHE_LABELS.find((n) => n.id === niche)?.label;
   const priorities = priorityForNiche(niche);
@@ -42,13 +42,7 @@ export default function AiCitationTacticsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("title")}

@@ -35,12 +35,12 @@ describe("featuredToolKeys", () => {
 
   it("starts with the audit when nothing is sold yet", () => {
     const keys = featuredToolKeys("overview", []);
-    expect(keys[0]).toBe("/audits");
+    expect(keys[0]).toBe("/audits/c/:id");
     expect(keys.length).toBeGreaterThanOrEqual(3);
   });
 
   it("follows the mission", () => {
-    expect(featuredToolKeys("overview", [{ kind: "monitoring", status: "active" }])[0]).toBe("/keywords");
+    expect(featuredToolKeys("overview", [{ kind: "monitoring", status: "active" }])[0]).toBe("/keywords/c/:id");
     expect(featuredToolKeys("overview", [{ kind: "redesign", status: "proposed" }])).toContain("/tools/render");
   });
 
@@ -58,7 +58,7 @@ describe("featuredToolKeys", () => {
       { kind: "redesign", status: "active" },
       { kind: "monitoring", status: "active" },
     ]);
-    expect(keys.slice(0, 2)).toEqual(["/audits", "/keywords"]);
+    expect(keys.slice(0, 2)).toEqual(["/audits/c/:id", "/keywords/c/:id"]);
     expect(new Set(keys).size).toBe(keys.length);
   });
 
@@ -72,6 +72,6 @@ describe("featuredToolKeys", () => {
 
   it("picks by tab outside the overview", () => {
     expect(featuredToolKeys("settings", [{ kind: "full", status: "active" }])).toContain("/tools/robots");
-    expect(featuredToolKeys("missions", [])[0]).toBe("/audits");
+    expect(featuredToolKeys("missions", [])[0]).toBe("/audits/c/:id");
   });
 });

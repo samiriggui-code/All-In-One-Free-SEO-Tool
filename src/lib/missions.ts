@@ -51,7 +51,8 @@ export type MissionSuggestion = {
  * The mission the full audit points to. A suggestion: the agency decides,
  * and "audit only" is always available when the client wants nothing more.
  *
- *   score below 50, or the site could not be crawled  -> redesign, then monitoring
+ *   the site could not be crawled                     -> no suggestion
+ *   score below 50                                    -> redesign, then monitoring
  *   score below 80, or any critical finding           -> the whole circuit
  *   otherwise                                         -> monthly monitoring
  *
@@ -60,7 +61,9 @@ export type MissionSuggestion = {
  */
 export function suggestMission(a: AuditFacts): MissionSuggestion | null {
   if (!a.fullAuditDone || a.score === null) return null;
-  if (a.pagesCrawled === 0) return { kind: "redesign", reason: "unreachable", then: "monitoring" };
+  // Nothing was read: there is nothing to base a suggestion on. The site
+  // may only be refusing the crawler (firewall, bot protection).
+  if (a.pagesCrawled === 0) return null;
   if (a.score < 50) return { kind: "redesign", reason: "weak_site", then: "monitoring" };
   if (a.score < 80 || a.critical > 0) return { kind: "full", reason: "many_fixable" };
   return { kind: "monitoring", reason: "healthy" };

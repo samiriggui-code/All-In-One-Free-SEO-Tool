@@ -1,10 +1,10 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
-import Link from "next/link";
 import {
-  ArrowLeft,
   ChevronDown,
   ChevronUp,
   Copy,
@@ -38,7 +38,6 @@ Real-world INP comes from CrUX. Lab tests like Lighthouse can flag slow scripts 
 
 export default function AioPassagePage() {
   const t = useTranslations("tools.ui.aio-passage");
-  const tCommon = useTranslations("tools.common");
   const [mode, setMode] = useState<"paste" | "url">("paste");
   const [pasteState, pasteAction, pastePending] = useActionState<
     AnalyzeState,
@@ -51,18 +50,12 @@ export default function AioPassagePage() {
   const state = mode === "paste" ? pasteState : urlState;
   const pending = mode === "paste" ? pastePending : urlPending;
   const [markdown, setMarkdown] = useState(SAMPLE);
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const refreshKey = useRunRefreshKey(state?.ok ? state : null);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("pageTitle")}

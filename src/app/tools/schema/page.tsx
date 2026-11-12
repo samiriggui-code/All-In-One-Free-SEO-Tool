@@ -1,11 +1,10 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
 import { usePresetUrl } from "@/components/use-preset-url";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   Code2,
   Copy,
@@ -64,13 +63,7 @@ export default function SchemaGeneratorPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

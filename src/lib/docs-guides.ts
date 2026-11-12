@@ -41,32 +41,6 @@ export type DocGuide = {
 
 export const DOC_GUIDES: DocGuide[] = [
   {
-    slug: "install",
-    title: "Install and start it",
-    summary: "Download, double-click one file, and you are running.",
-    minutes: 5,
-    group: "start",
-    steps: [
-      {
-        do: "Download the ZIP from the releases page and unzip it anywhere.",
-        then: "One folder, and one file you need: SEO Tool.cmd on Windows, SEO Tool.command on Mac.",
-      },
-      {
-        do: "Double-click that file.",
-        then: "A control panel opens in your browser. The first run installs and builds — 3 to 5 minutes, once.",
-      },
-      {
-        do: "Click Start.",
-        then: "The app opens on its own port and stays there.",
-      },
-      {
-        do: "Use Add to Desktop in the control panel.",
-        then: "From then on it is one click from your desktop.",
-      },
-    ],
-    note: "Node 20 or newer must be installed. Nothing else — no database to set up, no API keys.",
-  },
-  {
     slug: "first-client",
     title: "Add your first website",
     summary: "What happens when you click Add client, and what to do while it works.",
@@ -381,32 +355,30 @@ export const DOC_GUIDES: DocGuide[] = [
   },
   {
     slug: "update-backup",
-    title: "Update, back up, move machines",
-    summary: "All three from the control panel. No terminal.",
+    title: "Back up, restore, update",
+    summary: "Backups are made in the app. Updates are made on the server.",
     minutes: 4,
     group: "running",
     steps: [
       {
-        do: "Double-click SEO Tool.cmd (or .command) to open the control panel.",
+        do: "Open Settings, then Backup.",
+        then: "Owner of the workspace only.",
       },
       {
-        do: "Click Update.",
-        then: "Pulls the latest version and rebuilds. Your database is untouched.",
+        do: "Download a backup before anything risky.",
+        then: "One file holds the whole database: projects, audits, tasks, settings.",
       },
       {
-        do: "Click Backup before anything risky.",
-        then: "Writes a timestamped copy of the database into backups/.",
+        do: "To go back, restore that file from the same page.",
+        then: "The current database is replaced by the one in the file.",
       },
       {
-        do: "To move machines: back up, copy the whole folder across, double-click the same file there.",
-        then: "Everything lives in that folder. Nothing is installed anywhere else.",
-      },
-      {
-        do: "On a server running Docker, update from the app folder with git pull, then docker compose up -d --build.",
-        then: "The database sits in a Docker volume, so the rebuild keeps it.",
+        do: "Updating is done on the server, from the app folder: git pull, then docker compose up -d --build.",
+        then: "The database sits in a Docker volume, so the rebuild keeps it. The app never updates itself.",
       },
     ],
-    note: "Your data never leaves the machine or server you run it on. There is no cloud account and nothing to sync with.",
+    related: ["/settings/backup"],
+    note: "Your data never leaves the server you run it on. There is no cloud account and nothing to sync with.",
   },
 ];
 

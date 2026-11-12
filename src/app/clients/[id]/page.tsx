@@ -637,7 +637,7 @@ export default async function ClientDetailPage({
                       </>
                     ) : (
                       <span>
-                        {t("runToScore")}
+                        {recentAudits[0]?.status === "failed" ? t("lastAuditFailed") : t("runToScore")}
                       </span>
                     )}
                   </dd>
@@ -940,7 +940,7 @@ export default async function ClientDetailPage({
               </button>
             </form>
             <Link
-              href={`/keywords?clientId=${client.id}`}
+              href={`/keywords/c/${client.id}`}
               className="group flex flex-col items-start gap-2 rounded-xl border border-violet-500/30 bg-violet-500/[0.04] p-4 transition-colors hover:bg-violet-500/[0.10]"
             >
               <span className="grid size-8 place-items-center rounded-lg bg-violet-500/15 text-violet-300 ring-1 ring-inset ring-violet-500/30">

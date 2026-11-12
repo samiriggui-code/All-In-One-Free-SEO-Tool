@@ -1,9 +1,8 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useActionState, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   CheckCircle2,
   Copy,
   Loader2,
@@ -171,13 +170,7 @@ export default function PersonSchemaPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("title")}

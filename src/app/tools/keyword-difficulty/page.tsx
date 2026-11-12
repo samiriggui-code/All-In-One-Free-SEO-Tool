@@ -1,10 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   Gauge,
   Loader2,
   Search,
@@ -49,7 +48,6 @@ const INTENT_LABEL_KEY: Record<string, string> = {
 
 export default function KeywordDifficultyPage() {
   const t = useTranslations("tools.ui.keyword-difficulty");
-  const tCommon = useTranslations("tools.common");
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DifficultyApiResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -65,13 +63,7 @@ export default function KeywordDifficultyPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

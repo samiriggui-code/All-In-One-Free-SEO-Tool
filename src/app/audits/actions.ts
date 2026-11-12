@@ -130,30 +130,10 @@ export async function runAuditForClient(
     })
     .returning({ id: audits.id });
 
-  let result;
-  try {
-    // Write the running page count as the crawl goes, so the client page
-    // and the onboarding wizard can show a real progress bar. A crawl can
-    // run for minutes; with no signal it is indistinguishable from a hang.
-    // Fire-and-forget: a slow write must never pace the crawler, and a
-    // failed one must never fail the audit.
-    let lastWrite = 0;
-    result = await runAudit(client.url, {
-      onProgress: (crawled) => {
-        const now = Date.now();
-        // 300ms, not 700: at 700 a fast 8-page crawl landed exactly one
-        // write, so the bar sat at 1 and then jumped to done. Writes are
-        // local SQLite and bounded by the crawl rate either way.
-        if (now - lastWrite < 300) return; // cap DB writes, not the crawl
-        lastWrite = now;
-        void db
-          .update(audits)
-          .set({ pagesCrawled: crawled })
-          .where(eq(audits.id, auditRow.id))
-          .catch(() => {});
-      },
-    });
-  } catch {
+  // A site that cannot be read is a failed audit, not a site scoring 0:
+  // a 0/100 would enter the portfolio average, mark the project as
+  // audited and suggest a redesign for what may be a firewall rule.
+  const failUnreachable = async () => {
     await db
       .update(audits)
       .set({
@@ -187,6 +167,38 @@ export async function runAuditForClient(
     });
 
     safeRevalidatePath(`/clients/${clientId}`);
+  };
+
+  let result;
+  try {
+    // Write the running page count as the crawl goes, so the client page
+    // and the onboarding wizard can show a real progress bar. A crawl can
+    // run for minutes; with no signal it is indistinguishable from a hang.
+    // Fire-and-forget: a slow write must never pace the crawler, and a
+    // failed one must never fail the audit.
+    let lastWrite = 0;
+    result = await runAudit(client.url, {
+      onProgress: (crawled) => {
+        const now = Date.now();
+        // 300ms, not 700: at 700 a fast 8-page crawl landed exactly one
+        // write, so the bar sat at 1 and then jumped to done. Writes are
+        // local SQLite and bounded by the crawl rate either way.
+        if (now - lastWrite < 300) return; // cap DB writes, not the crawl
+        lastWrite = now;
+        void db
+          .update(audits)
+          .set({ pagesCrawled: crawled })
+          .where(eq(audits.id, auditRow.id))
+          .catch(() => {});
+      },
+    });
+  } catch {
+    await failUnreachable();
+    return;
+  }
+  // The crawler does not throw when nothing answers: it returns no page.
+  if (result.pagesCrawled === 0) {
+    await failUnreachable();
     return;
   }
 

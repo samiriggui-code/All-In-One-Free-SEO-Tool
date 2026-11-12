@@ -1,10 +1,10 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   Loader2,
   Search,
@@ -22,7 +22,7 @@ import { analyzeAiOverview, type AiOverviewAnalysis } from "./actions";
 export default function AiOverviewPage() {
   const t = useTranslations("tools.ui.ai-overview");
   const tCommon = useTranslations("tools.common");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<AiOverviewAnalysis | null>(null);
 
@@ -36,13 +36,7 @@ export default function AiOverviewPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">
