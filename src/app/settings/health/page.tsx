@@ -131,7 +131,7 @@ export default async function HealthPage() {
           subtitle={tx("inLast24h", { errorsLast24h })}
           tone={errorCount === 0 ? "ok" : errorCount < 5 ? "warn" : "error"}
           href="/settings/errors"
-          ctaLabel="View log"
+          ctaLabel={tx("viewLog")}
         />
         <Card
           icon={Bot}
@@ -140,7 +140,7 @@ export default async function HealthPage() {
           subtitle={tx("otherConfigured", { length: configuredProviderIds.length })}
           tone={activeProvider ? "ok" : "warn"}
           href="/settings#ai"
-          ctaLabel="Manage"
+          ctaLabel={tx("manage")}
         />
         <Card
           icon={Cpu}
@@ -153,7 +153,7 @@ export default async function HealthPage() {
           }
           tone={aiErrorsLast24h === 0 ? "ok" : "warn"}
           href="/settings/ai-usage"
-          ctaLabel="Usage log"
+          ctaLabel={tx("usageLog")}
         />
         <Card
           icon={Globe}

@@ -6159,7 +6159,10 @@
       "aiUsageLog": "AI usage log",
       "everyAiCallCost": "Every AI call + cost",
       "automationOverview": "Automation overview",
-      "whatRunsOnItsOwn": "What runs on its own"
+      "whatRunsOnItsOwn": "What runs on its own",
+      "viewLog": "View log",
+      "manage": "Manage",
+      "usageLog": "Usage log"
     },
     "app_settings_inbound-webhooks_manager": {
       "eGGithubRepoActivity": "e.g. GitHub repo activity",

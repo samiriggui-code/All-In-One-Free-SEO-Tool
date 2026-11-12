@@ -6159,7 +6159,10 @@
       "aiUsageLog": "Journal de consommation IA",
       "everyAiCallCost": "Chaque appel à l’IA et son coût",
       "automationOverview": "Vue des automatisations",
-      "whatRunsOnItsOwn": "Ce qui tourne tout seul"
+      "whatRunsOnItsOwn": "Ce qui tourne tout seul",
+      "viewLog": "Voir le journal",
+      "manage": "Gérer",
+      "usageLog": "Journal de consommation"
     },
     "app_settings_inbound-webhooks_manager": {
       "eGGithubRepoActivity": "ex. activité du dépôt GitHub",
