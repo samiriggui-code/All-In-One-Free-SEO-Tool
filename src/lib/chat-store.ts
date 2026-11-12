@@ -17,7 +17,7 @@ import {
   type NewChatMessage,
 } from "@/db/schema";
 
-export type ChatKind = "seo_chat" | "ask_tool" | "portal_chat";
+export type ChatKind = "seo_chat" | "ask_tool" | "portal_chat" | "assistant";
 
 export type SaveTurnInput = {
   conversationId?: number | null;

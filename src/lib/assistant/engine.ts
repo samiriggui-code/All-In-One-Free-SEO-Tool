@@ -39,9 +39,79 @@ const KB_TOOL: ToolSpec = {
   readOnly: true,
 };
 
+type McpLikeResult = { ok: true; data: unknown } | { ok: false; error: string };
+
+/**
+ * Changes the assistant can propose that are not MCP tools. Like every
+ * write, they only run once the person confirms.
+ */
+const LOCAL_WRITE_TOOLS: (ToolSpec & { run: (a: Record<string, unknown>, userId: number | null) => Promise<McpLikeResult> })[] = [
+  {
+    name: "create_task",
+    description:
+      "Add a task to the client's to-do list (Tâches). Use when the person asks to plan or remember work to do on the site.",
+    inputSchema: {
+      properties: {
+        clientId: { type: "number" },
+        title: { type: "string" },
+        description: { type: "string" },
+        priority: { type: "string", enum: ["high", "medium", "low"] },
+        dueDate: { type: "string", description: "YYYY-MM-DD" },
+      },
+      required: ["clientId", "title"],
+    },
+    readOnly: false,
+    run: async (a) => {
+      const title = String(a.title ?? "").trim().slice(0, 200);
+      if (!title) return { ok: false, error: "A task needs a title." };
+      const due = typeof a.dueDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(a.dueDate) ? new Date(`${a.dueDate}T12:00:00Z`) : null;
+      const priority = ["high", "medium", "low"].includes(String(a.priority)) ? (a.priority as "high" | "medium" | "low") : "medium";
+      const { tasks } = await import("@/db/schema");
+      const [row] = await db
+        .insert(tasks)
+        .values({
+          clientId: Number(a.clientId),
+          title,
+          description: typeof a.description === "string" ? a.description.slice(0, 4000) : null,
+          priority,
+          dueDate: due,
+        })
+        .returning({ id: tasks.id });
+      return { ok: true, data: { taskId: row.id } };
+    },
+  },
+  {
+    name: "save_note",
+    description:
+      "Save a note in the client's knowledge base (Connaissances), so it can be found later. Use when the person asks to keep or write down something about the client.",
+    inputSchema: {
+      properties: { clientId: { type: "number" }, title: { type: "string" }, text: { type: "string" } },
+      required: ["clientId", "text"],
+    },
+    readOnly: false,
+    run: async (a, userId) => {
+      const text = String(a.text ?? "").trim().slice(0, 20_000);
+      if (!text) return { ok: false, error: "The note is empty." };
+      const { upsertDocument } = await import("@/lib/kb/store");
+      const { randomUUID } = await import("node:crypto");
+      const r = await upsertDocument({
+        clientId: Number(a.clientId),
+        sourceType: "note",
+        sourceId: randomUUID(),
+        title: String(a.title ?? "").trim().slice(0, 200) || text.split("\n")[0].slice(0, 80),
+        text,
+        manual: true,
+        createdBy: userId,
+      });
+      return { ok: true, data: r };
+    },
+  },
+];
+
 export function assistantTools(): ToolSpec[] {
   return [
     KB_TOOL,
+    ...LOCAL_WRITE_TOOLS.map(({ run: _run, ...spec }) => spec),
     ...MCP_TOOL_LIST.map((t) => ({
       name: t.name,
       description: t.description,
@@ -224,7 +294,8 @@ export async function decideApproval(
     .returning({ status: aiApprovals.status })
     .all();
   if (claimed.length === 0) return { ok: false, error: "already_decided" };
-  const tool = findMcpTool(row.tool);
+  const local = LOCAL_WRITE_TOOLS.find((t) => t.name === row.tool);
+  const tool = local ? { run: (a: Record<string, unknown>) => local.run(a, row.userId) } : findMcpTool(row.tool);
   let status = "failed";
   let result: unknown;
   try {

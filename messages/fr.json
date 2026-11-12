@@ -2768,7 +2768,9 @@
         "inspect_url": "inspection d’URL",
         "check_indexing": "indexation",
         "compare_search_periods": "comparaison Search Console",
-        "list_sitemaps": "sitemaps"
+        "list_sitemaps": "sitemaps",
+        "create_task": "créer une tâche",
+        "save_note": "enregistrer une note"
       }
     },
     "quickAdd": {
@@ -6972,7 +6974,8 @@
       "loadingTranscript": "Chargement de la conversation…",
       "noMessages": "Aucun message.",
       "upload": "fichier",
-      "allConversations": "toutes les conversations"
+      "allConversations": "toutes les conversations",
+      "assistant": "Assistant"
     },
     "app_chats_page": {
       "aiChatHistory": "Historique des conversations IA",

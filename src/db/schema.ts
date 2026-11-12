@@ -1898,7 +1898,7 @@ export type NewToolFinding = typeof toolFindings.$inferInsert;
 export const chatConversations = sqliteTable("chat_conversations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   kind: text("kind", {
-    enum: ["seo_chat", "ask_tool", "portal_chat"],
+    enum: ["seo_chat", "ask_tool", "portal_chat", "assistant"],
   }).notNull(),
   clientId: integer("client_id").references(() => clients.id, {
     onDelete: "set null",

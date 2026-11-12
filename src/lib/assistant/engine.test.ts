@@ -110,6 +110,19 @@ describe("assistant loop", () => {
     expect(row.status).toBe("approved");
   });
 
+  it("creates a task only after confirmation", async () => {
+    script.push(
+      `<tool_call>{"name":"create_task","arguments":{"clientId":${clientId},"title":"Raccourcir les titres","priority":"high","dueDate":"2026-12-01"}}</tool_call>`,
+    );
+    const r = await runAssistant([{ role: "user", content: "Crée une tâche pour corriger les titres trop longs" }], { user: null });
+    if (!r.ok || !r.pending) throw new Error("expected a proposal");
+    const { tasks } = await import("@/db/schema");
+    expect((await db.select().from(tasks).where(eq(tasks.clientId, clientId))).length).toBe(0);
+    expect((await decideApproval(r.pending.id, true)).ok).toBe(true);
+    const rows = await db.select().from(tasks).where(eq(tasks.clientId, clientId));
+    expect(rows.map((t) => [t.title, t.priority])).toEqual([["Raccourcir les titres", "high"]]);
+  });
+
   it("records a refusal without running anything", async () => {
     script.push(
       `<tool_call>{"name":"update_client_knowledge","arguments":{"clientId":${clientId},"notes":"à ne pas écrire"}}</tool_call>`,
