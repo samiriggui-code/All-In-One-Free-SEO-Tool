@@ -11,10 +11,8 @@
  * Distinct from /tools/link-graph which does TF-IDF orphan suggestions.
  */
 
+import { fetchHtml } from "./fetch-html";
 import { crawlSite } from "./sitemap-generator";
-
-const USER_AGENT =
-  "Mozilla/5.0 (compatible; SeoToolBot/1.0; +https://example.com/bot)";
 
 export type PageRankRow = {
   url: string;
@@ -184,26 +182,6 @@ function empty(error: string): PageRankResult {
     hubs: [],
     error,
   };
-}
-
-async function fetchHtml(url: string): Promise<string | null> {
-  const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 12_000);
-  try {
-    const res = await fetch(url, {
-      headers: { "user-agent": USER_AGENT, accept: "text/html" },
-      signal: ac.signal,
-      redirect: "follow",
-    });
-    if (!res.ok) return null;
-    const ct = res.headers.get("content-type") ?? "";
-    if (!/text\/html/i.test(ct)) return null;
-    return (await res.text()).slice(0, 800_000);
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(t);
-  }
 }
 
 function canonicalize(url: string): string {

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Check, Copy, Layers, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runProgram, type ProgState } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 const SAMPLE_CSV =
   "city,service,minPrice\nChicago,plumbing,89\nDenver,plumbing,79\nSeattle,plumbing,99\nChicago,electrical,99\nDenver,electrical,89\nSeattle,electrical,109";
@@ -138,9 +139,9 @@ export function ProgramForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label={t("statRows")} value={state.result.rows.toString()} />
-            <Stat label={t("statPages")} value={state.result.pages.length.toString()} tone="emerald" />
-            <Stat label={t("statDuplicates")} value={state.result.duplicates.length.toString()} tone={state.result.duplicates.length > 0 ? "rose" : "emerald"} />
+            <ToolStat label={t("statRows")} value={state.result.rows.toString()} />
+            <ToolStat label={t("statPages")} value={state.result.pages.length.toString()} tone="emerald" />
+            <ToolStat label={t("statDuplicates")} value={state.result.duplicates.length.toString()} tone={state.result.duplicates.length > 0 ? "rose" : "emerald"} />
           </div>
 
           {state.result.warnings.length > 0 && (
@@ -231,28 +232,6 @@ export function ProgramForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }
 

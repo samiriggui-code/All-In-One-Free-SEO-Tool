@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Loader2, Network, TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runPagerank, type PrState } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function PagerankForm() {
   const t = useTranslations("tools.ui.pagerank");
@@ -65,9 +66,9 @@ export function PagerankForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label={t("pagesCrawled")} value={state.result.totalPages.toString()} />
-            <Stat label={t("internalLinks")} value={state.result.totalLinks.toString()} />
-            <Stat label={t("iterations")} value={`${state.result.iterations} (d=${state.result.damping})`} />
+            <ToolStat label={t("pagesCrawled")} value={state.result.totalPages.toString()} />
+            <ToolStat label={t("internalLinks")} value={state.result.totalLinks.toString()} />
+            <ToolStat label={t("iterations")} value={`${state.result.iterations} (d=${state.result.damping})`} />
           </div>
 
           <Section
@@ -140,14 +141,5 @@ function Section({
         ))}
       </ul>
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
-    </div>
   );
 }

@@ -3,7 +3,7 @@
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { getTranslations } from "next-intl/server";
-import { fetchSiteMetadata, type SiteMetadata } from "@/lib/site-metadata";
+import { fetchSiteMetadata, jsonLdNodes, type SiteMetadata } from "@/lib/site-metadata";
 import { saveToolRun } from "@/lib/tool-runs";
 import { guardedFetch, guardUrl } from "@/lib/url-guard";
 
@@ -259,33 +259,10 @@ async function fetchRobots(
 
 function collectSchemaTypes(html: string): string[] {
   const types = new Set<string>();
-  const blocks = [
-    ...html.matchAll(
-      /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
-    ),
-  ];
-  for (const m of blocks) {
-    const body = m[1].trim();
-    if (!body) continue;
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(body);
-    } catch {
-      continue;
-    }
-    const items = Array.isArray(parsed) ? parsed : [parsed];
-    for (const item of items) {
-      if (!item || typeof item !== "object") continue;
-      const obj = item as Record<string, unknown>;
-      const graph = Array.isArray(obj["@graph"])
-        ? (obj["@graph"] as Record<string, unknown>[])
-        : [obj];
-      for (const node of graph) {
-        const t = node["@type"];
-        if (typeof t === "string") types.add(t);
-        else if (Array.isArray(t)) for (const x of t) types.add(String(x));
-      }
-    }
+  for (const node of jsonLdNodes(html)) {
+    const t = node["@type"];
+    if (typeof t === "string") types.add(t);
+    else if (Array.isArray(t)) for (const x of t) types.add(String(x));
   }
   return Array.from(types);
 }

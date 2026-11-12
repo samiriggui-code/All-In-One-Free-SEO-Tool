@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runCrux, type CruxState } from "./actions";
-import { ratingForMetric } from "@/lib/crux-thresholds";
+import { CWV_RATING_TONE, ratingForMetric } from "@/lib/crux-thresholds";
 
 export function CruxForm() {
   const t = useTranslations("tools.ui.crux");
@@ -138,12 +138,6 @@ export function CruxForm() {
   );
 }
 
-const RATING_TONE: Record<string, string> = {
-  good: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
-  needs_improvement: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
-  poor: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
-};
-
 const RATING_LABEL_KEY = {
   good: "ratingGood",
   needs_improvement: "ratingNeedsWork",
@@ -177,7 +171,7 @@ function MetricCard({
           </p>
         </div>
         <span
-          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${RATING_TONE[rating]}`}
+          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${CWV_RATING_TONE[rating]}`}
         >
           {t(RATING_LABEL_KEY[rating])}
         </span>

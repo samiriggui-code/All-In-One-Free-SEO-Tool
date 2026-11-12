@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, ShieldCheck, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runValidate, type ValidateState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function ValidateForm() {
   const t = useTranslations("tools.ui.schema-validate");
@@ -56,9 +57,9 @@ export function ValidateForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label={t("schemaBlocks")} value={state.result.blocks.length.toString()} />
-            <Stat label={t("errors")} value={state.result.totalErrors.toString()} tone={state.result.totalErrors > 0 ? "rose" : "emerald"} />
-            <Stat label={t("warnings")} value={state.result.totalWarnings.toString()} tone={state.result.totalWarnings > 0 ? "amber" : "emerald"} />
+            <ToolStat label={t("schemaBlocks")} value={state.result.blocks.length.toString()} />
+            <ToolStat label={t("errors")} value={state.result.totalErrors.toString()} tone={state.result.totalErrors > 0 ? "rose" : "emerald"} />
+            <ToolStat label={t("warnings")} value={state.result.totalWarnings.toString()} tone={state.result.totalWarnings > 0 ? "amber" : "emerald"} />
           </div>
 
           {state.result.blocks.length === 0 && (
@@ -131,27 +132,5 @@ export function ValidateForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }

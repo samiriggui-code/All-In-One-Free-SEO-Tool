@@ -13,10 +13,8 @@
  * No external services. Pure in-memory math, capped at 200 pages.
  */
 
+import { BOT_USER_AGENT, fetchHtml } from "./fetch-html";
 import { crawlSite } from "./sitemap-generator";
-
-const USER_AGENT =
-  "Mozilla/5.0 (compatible; SeoToolBot/1.0; +https://example.com/bot)";
 
 export type LinkAnalysis = {
   pages: AnalysedPage[];
@@ -90,7 +88,7 @@ async function sitemapUrls(origin: string): Promise<string[]> {
   // WordPress with Yoast, for instance, uses /sitemap_index.xml.
   try {
     const res = await fetch(`${origin}/robots.txt`, {
-      headers: { "user-agent": USER_AGENT },
+      headers: { "user-agent": BOT_USER_AGENT },
       signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
@@ -107,7 +105,7 @@ async function sitemapUrls(origin: string): Promise<string[]> {
   for (const sm of candidates.slice(0, 5)) {
     try {
       const res = await fetch(sm, {
-        headers: { "user-agent": USER_AGENT },
+        headers: { "user-agent": BOT_USER_AGENT },
         signal: AbortSignal.timeout(10_000),
       });
       if (!res.ok) continue;
@@ -274,19 +272,9 @@ async function fetchPageContent(
   html: string;
   outboundUrls: string[];
 } | null> {
-  const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 12_000);
+  const html = await fetchHtml(url);
+  if (html === null) return null;
   try {
-    const res = await fetch(url, {
-      headers: { "user-agent": USER_AGENT, accept: "text/html" },
-      signal: ac.signal,
-      redirect: "follow",
-    });
-    if (!res.ok) return null;
-    const ct = res.headers.get("content-type") ?? "";
-    if (!/text\/html/i.test(ct)) return null;
-    const html = (await res.text()).slice(0, 800_000);
-
     const title =
       (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? "").trim();
     const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
@@ -333,8 +321,6 @@ async function fetchPageContent(
     };
   } catch {
     return null;
-  } finally {
-    clearTimeout(t);
   }
 }
 

@@ -6,21 +6,15 @@ import { requireSignedIn } from "@/lib/action-guard";
 import { fetchGscPerformance } from "@/lib/google-oauth";
 import { recordToolRun } from "@/lib/tool-findings";
 import { cannibalFindings } from "@/lib/tool-finding-builders";
+import {
+  groupCannibalization,
+  TOOL_RULES,
+  type CannibalizationGroup,
+} from "@/lib/cannibalization";
 
-export type CannibalGroup = {
-  query: string;
-  pages: {
-    page: string;
-    clicks: number;
-    impressions: number;
-    position: number;
-    ctr: number;
-  }[];
-  totalClicks: number;
-  totalImpressions: number;
+export type CannibalGroup = CannibalizationGroup & {
   /** The single page that should "win" — currently the one with the best position. */
   recommendedKeeper: string;
-  severity: "high" | "medium" | "low";
 };
 
 export type CannibalState =
@@ -49,10 +43,7 @@ function daysAgo(n: number): string {
  * query, flag any query where 2+ pages each pull ≥5 impressions and
  * average position is in the top 30.
  *
- * Severity:
- *   high — ≥2 pages each with ≥10 impressions, all in top 20
- *   medium — ≥2 pages each with ≥10 impressions, mixed positions
- *   low — pages compete but one is clearly winning
+ * Severity rules: TOOL_RULES in lib/cannibalization.ts.
  *
  * The recommended keeper is the page with the best (lowest) average
  * position — usually the one Google is leaning toward anyway. The fix
@@ -77,63 +68,12 @@ export async function runCannibalScan(
       rowLimit: 5000,
     });
 
-    // Bucket by query → pages
-    const byQuery = new Map<
-      string,
-      Map<
-        string,
-        { clicks: number; impressions: number; position: number; ctr: number }
-      >
-    >();
-    for (const r of rows) {
-      const [query, page] = r.keys;
-      if (!query || !page) continue;
-      const pages = byQuery.get(query) ?? new Map();
-      pages.set(page, {
-        clicks: r.clicks,
-        impressions: r.impressions,
-        position: r.position,
-        ctr: r.ctr,
-      });
-      byQuery.set(query, pages);
-    }
-
-    const groups: CannibalGroup[] = [];
-    for (const [query, pageMap] of byQuery.entries()) {
-      const pages = Array.from(pageMap.entries())
-        .filter(([, v]) => v.impressions >= 5 && v.position <= 30)
-        .map(([page, v]) => ({ page, ...v }));
-      if (pages.length < 2) continue;
-
-      // Sort by best (lowest) position first
-      pages.sort((a, b) => a.position - b.position);
-
-      const seriousCompetitors = pages.filter((p) => p.impressions >= 10);
-      const allTop20 = pages.every((p) => p.position <= 20);
-      const severity: CannibalGroup["severity"] =
-        seriousCompetitors.length >= 2 && allTop20
-          ? "high"
-          : seriousCompetitors.length >= 2
-            ? "medium"
-            : "low";
-
-      groups.push({
-        query,
-        pages,
-        totalClicks: pages.reduce((s, p) => s + p.clicks, 0),
-        totalImpressions: pages.reduce((s, p) => s + p.impressions, 0),
-        recommendedKeeper: pages[0].page,
-        severity,
-      });
-    }
-
-    // Most impactful (most clicks at stake) first, with severity tiebreaker
-    const severityRank = { high: 0, medium: 1, low: 2 } as const;
-    groups.sort((a, b) => {
-      const s = severityRank[a.severity] - severityRank[b.severity];
-      if (s !== 0) return s;
-      return b.totalClicks - a.totalClicks;
-    });
+    const scan = groupCannibalization(rows, TOOL_RULES);
+    // The recommended keeper is the best-placed page, first in the list.
+    const groups: CannibalGroup[] = scan.groups.map((g) => ({
+      ...g,
+      recommendedKeeper: g.pages[0].page,
+    }));
 
     const highSeverity = groups.filter((g) => g.severity === "high").length;
 
@@ -144,7 +84,7 @@ export async function runCannibalScan(
       result: {
         groupsFound: groups.length,
         highSeverity,
-        queriesAnalyzed: byQuery.size,
+        queriesAnalyzed: scan.queriesAnalyzed,
       },
       findings: cannibalFindings(groups),
     });
@@ -156,7 +96,7 @@ export async function runCannibalScan(
       summary: {
         groupsFound: groups.length,
         highSeverity,
-        queriesAnalyzed: byQuery.size,
+        queriesAnalyzed: scan.queriesAnalyzed,
       },
     };
   } catch (e) {
