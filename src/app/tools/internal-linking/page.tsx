@@ -1,10 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ExternalLink,
   Link2,
@@ -23,7 +22,6 @@ import { useClientId } from "@/components/client-id-field";
 
 export default function InternalLinkingPage() {
   const t = useTranslations("tools.ui.internal-linking");
-  const tCommon = useTranslations("tools.common");
   const [targetUrl, setTargetUrl] = useState("");
   const [keyword, setKeyword] = useState("");
   const [result, setResult] = useState<InternalLinkResult | null>(null);
@@ -48,13 +46,7 @@ export default function InternalLinkingPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

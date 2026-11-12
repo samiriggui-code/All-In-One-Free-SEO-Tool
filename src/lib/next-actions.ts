@@ -165,7 +165,7 @@ export async function nextActions(opts: {
         score: blocking(100, 5),
         minutes: 5,
         owner: "agent",
-        href: `/audits?clientId=${c.id}`,
+        href: `/audits/c/${c.id}`,
         because: S.firstAuditBecause,
       });
       // Everything below reads from an audit. No point ranking it.
@@ -184,7 +184,7 @@ export async function nextActions(opts: {
         score: rank(60, 5),
         minutes: 5,
         owner: "agent",
-        href: `/audits?clientId=${c.id}`,
+        href: `/audits/c/${c.id}`,
         because: S.recrawlBecause(ageDays),
       });
     }
@@ -286,7 +286,7 @@ export async function nextActions(opts: {
         score: rank(worst.severity === "critical" ? 75 : 55, 45),
         minutes: 45,
         owner: "you",
-        href: `/audits?clientId=${c.id}`,
+        href: `/audits/c/${c.id}`,
         because: S.worstBecause(worst.count, sev(worst.severity)),
       });
     }
@@ -525,7 +525,7 @@ export async function nextActions(opts: {
         score: rank(70, 30),
         minutes: 30,
         owner: "you",
-        href: `/backlinks?clientId=${c.id}&status=lost`,
+        href: `/backlinks/c/${c.id}?status=lost`,
         because: S.lostLinksBecause(lost.n),
       });
     }

@@ -1,6 +1,6 @@
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import type { ReactNode } from "react";
-import Link from "next/link";
-import { ArrowLeft, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toolCatalogSlug } from "@/lib/i18n/tool-slug";
 
@@ -33,7 +33,6 @@ export function ToolPageChrome({
   children,
 }: ToolPageChromeProps) {
   const slug = toolCatalogSlug(toolHref);
-  const tCommon = useTranslations("tools.common");
   const tPage = useTranslations(`tools.pages.${slug}`);
   const tCatalog = useTranslations("tools.catalog");
 
@@ -48,13 +47,7 @@ export function ToolPageChrome({
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3 shrink-0" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-start gap-3">

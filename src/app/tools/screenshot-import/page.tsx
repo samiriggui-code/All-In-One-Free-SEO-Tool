@@ -1,9 +1,8 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useRef, useState, useTransition } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   ImagePlus,
   Loader2,
   ScanText,
@@ -79,13 +78,7 @@ export default function ScreenshotImportPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("pageTitle")}

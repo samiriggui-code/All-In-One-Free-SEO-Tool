@@ -61,7 +61,7 @@ function stepsFor(s: StartHereState, t: ReturnType<typeof useTranslations>): Ste
           ? t("s1Findings", { count: s.auditFindings })
           : t("s1Done")
         : t("s1NotRun"),
-      href: `/audits?clientId=${c}`,
+      href: `/audits/c/${c}`,
       cta: s.auditDone ? t("s1See") : t("s1Run"),
     },
     {

@@ -3,7 +3,14 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { NAV_GROUPS } from "@/components/shell/nav-items";
 import { isRetired } from "./tool-categories";
-import { TOOL_FAMILIES, familyEntry, familyOf } from "./tool-families";
+import {
+  PROJECT_VIEWS,
+  TOOL_FAMILIES,
+  familyEntry,
+  familyOf,
+  familyTabHref,
+  projectIdOfRoute,
+} from "./tool-families";
 import {
   DEFAULT_DISABLED,
   MISSION_CATEGORIES,
@@ -130,6 +137,26 @@ describe("tool families", () => {
         for (const m of f.members) expect(msgs[f.id]?.tabs?.[m.tab], `${lang} ${f.id}.${m.tab}`).toBeTruthy();
       }
     }
+  });
+
+  it("knows which members have a page inside a project", () => {
+    for (const f of TOOL_FAMILIES) {
+      for (const m of f.members) {
+        expect(PROJECT_VIEWS.has(m.href), m.href).toBe(pageExists(`${m.href}/c/[clientId]`));
+      }
+    }
+  });
+
+  it("keeps every tab inside the project", () => {
+    expect(familyTabHref("/cwv", null)).toBe("/cwv");
+    expect(familyTabHref("/cwv", { id: 4 })).toBe("/cwv/c/4");
+    expect(familyTabHref("/tools/crux", { id: 4, url: "https://a.fr/" })).toBe(
+      "/tools/crux?clientId=4&url=https%3A%2F%2Fa.fr%2F",
+    );
+    expect(projectIdOfRoute("/cwv/c/4")).toBe(4);
+    expect(projectIdOfRoute("/content/c/4/p/9")).toBe(4);
+    expect(projectIdOfRoute("/clients/4")).toBe(4);
+    expect(projectIdOfRoute("/tools/crux")).toBeNull();
   });
 
   it("matches sub-pages but not tools that share a prefix", () => {

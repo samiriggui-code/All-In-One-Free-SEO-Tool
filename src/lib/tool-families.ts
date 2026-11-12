@@ -151,3 +151,48 @@ export function familyOf(route: string): Hit | null {
 export function familyEntry(route: string): string | null {
   return familyOf(route)?.family.members[0].href ?? null;
 }
+
+/**
+ * Family members that have a page of their own inside a project
+ * (`<href>/c/<id>`). From a project, their tab opens that page; the other
+ * members are opened with the project in the address (`?clientId=`), so
+ * no tab leads out of the project. tool-catalog.test.ts checks this list
+ * against the pages that exist.
+ */
+export const PROJECT_VIEWS: ReadonlySet<string> = new Set([
+  "/cwv",
+  "/broken-links",
+  "/cannibalization",
+  "/competitors",
+  "/keywords",
+  "/content",
+  "/meta-rewrite",
+  "/backlinks",
+  "/local-rank",
+  "/local-grid",
+  "/monitor",
+  "/brand-monitor",
+  "/agent",
+]);
+
+/**
+ * Where a family tab leads. Outside a project: the member's own page.
+ * Inside one: the member's page for that project, or the tool opened for
+ * it, with the site's address when it is known so the form is not empty.
+ */
+export function familyTabHref(
+  href: string,
+  project: { id: number; url?: string | null } | null,
+): string {
+  if (!project) return href;
+  if (PROJECT_VIEWS.has(href)) return `${href}/c/${project.id}`;
+  const qs = new URLSearchParams({ clientId: String(project.id) });
+  if (project.url) qs.set("url", project.url);
+  return `${href}?${qs.toString()}`;
+}
+
+/** The project a route is about: `/x/c/12/...` or `/clients/12/...`. */
+export function projectIdOfRoute(route: string): number | null {
+  const m = /\/c\/(\d+)(?:\/|$)/.exec(route) ?? /^\/clients\/(\d+)(?:\/|$)/.exec(route);
+  return m ? Number(m[1]) : null;
+}

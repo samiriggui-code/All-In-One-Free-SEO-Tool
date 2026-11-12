@@ -1,9 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useActionState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
-import Link from "next/link";
-import { ArrowLeft, ExternalLink, Loader2, Network } from "lucide-react";
+import { ExternalLink, Loader2, Network } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runFacetTrap, type FacetTrapState } from "./actions";
@@ -17,7 +17,6 @@ const RISK_TONE = {
 
 export default function FacetTrapPage() {
   const t = useTranslations("tools.ui.facet-trap");
-  const tCommon = useTranslations("tools.common");
   const [state, formAction, pending] = useActionState<FacetTrapState, FormData>(
     runFacetTrap,
     null,
@@ -25,13 +24,7 @@ export default function FacetTrapPage() {
   const refreshKey = useRunRefreshKey(state?.ok ? state : null);
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("title")}

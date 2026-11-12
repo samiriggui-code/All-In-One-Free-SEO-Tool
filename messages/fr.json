@@ -1797,7 +1797,9 @@
       "saved": "Enregistré",
       "download": "Télécharger",
       "close": "Fermer",
-      "optional": "Optionnel"
+      "optional": "Optionnel",
+      "backToProject": "Retour au projet",
+      "backToProjectNamed": "Retour au projet {name}"
     },
     "geoScore": {
       "clientOptional": "Associer à un client (optionnel)",
@@ -2093,7 +2095,15 @@
     "whatThisUses": "Ce que ce guide utilise",
     "next": "Suivant",
     "notFound": "Introuvable",
-    "guideMetaTitle": "{title} · docs"
+    "guideMetaTitle": "{title} · docs",
+    "more": {
+      "label": "Voir aussi",
+      "getStarted": "Premiers pas",
+      "learn": "Apprendre le SEO",
+      "knowledge": "Centre de connaissances",
+      "chat": "Ce que l’assistant sait faire",
+      "automated": "Ce qui tourne tout seul"
+    }
   },
   "proposals": {
     "title": "Propositions et devis",
@@ -2508,7 +2518,8 @@
       "getStarted": "Bien démarrer",
       "docs": "Documentation",
       "learn": "Apprendre le SEO",
-      "knowledge": "Base de connaissances"
+      "knowledge": "Base de connaissances",
+      "help": "Aide"
     },
     "nextStep": {
       "ai": {
@@ -3041,7 +3052,7 @@
       "autoRuns": "S'exécute seul chaque nuit : ses résultats arrivent dans le plan d'action sans l'ouvrir.",
       "close": "Fermer",
       "items": {
-        "audits": {
+        "audits_c": {
           "title": "Lancer un audit complet",
           "blurb": "Exploration du site et contrôles SEO, comparés au dernier audit."
         },
@@ -3065,7 +3076,7 @@
           "title": "Audit IA du site",
           "blurb": "Liste de contrôles IA, corrections appliquées via le pont WordPress."
         },
-        "keywords": {
+        "keywords_c": {
           "title": "Mots-clés suivis",
           "blurb": "Positions triables, mobile et ordinateur."
         },
@@ -3113,7 +3124,7 @@
           "title": "PageRank interne",
           "blurb": "Répartition de l'autorité entre les pages du site."
         },
-        "backlinks": {
+        "backlinks_c": {
           "title": "Backlinks",
           "blurb": "Backlinks suivis pour ce projet."
         },
@@ -3129,15 +3140,15 @@
           "title": "Fiche Google Business",
           "blurb": "Avis, publications, horaires, brouillons de réponse IA."
         },
-        "citations": {
+        "citations_c": {
           "title": "Suivi des citations",
           "blurb": "Cohérence du nom, de l'adresse et du téléphone dans les annuaires locaux."
         },
-        "local-grid": {
+        "local-grid_c": {
           "title": "Grille de positions locales",
           "blurb": "Positions par zone géographique, à l'échelle de la ville."
         },
-        "local-rank": {
+        "local-rank_c": {
           "title": "Positions locales",
           "blurb": "Suivre les positions dans le pack local."
         },
@@ -3181,7 +3192,7 @@
           "title": "Image Open Graph",
           "blurb": "Images de partage générées automatiquement."
         },
-        "reports": {
+        "reports_c": {
           "title": "Générer un rapport",
           "blurb": "Synthèse IA, PDF et lien d'accès au portail client."
         },

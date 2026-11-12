@@ -1,10 +1,10 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Loader2,
@@ -25,7 +25,7 @@ import {
 export default function HeadersPage() {
   const t = useTranslations("tools.ui.headers");
   const tCommon = useTranslations("tools.common");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [pending, startTransition] = useTransition();
   const [savePending, startSave] = useTransition();
   const [result, setResult] = useState<HeadersResult | null>(null);
@@ -50,13 +50,7 @@ export default function HeadersPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

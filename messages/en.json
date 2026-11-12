@@ -1797,7 +1797,9 @@
       "saved": "Saved",
       "download": "Download",
       "close": "Close",
-      "optional": "Optional"
+      "optional": "Optional",
+      "backToProject": "Back to the project",
+      "backToProjectNamed": "Back to {name}"
     },
     "geoScore": {
       "clientOptional": "Tag to client (optional)",
@@ -2093,7 +2095,15 @@
     "whatThisUses": "What this uses",
     "next": "Next",
     "notFound": "Not found",
-    "guideMetaTitle": "{title} — docs"
+    "guideMetaTitle": "{title} — docs",
+    "more": {
+      "label": "See also",
+      "getStarted": "Get started",
+      "learn": "Learn SEO",
+      "knowledge": "Knowledge hub",
+      "chat": "What the assistant can do",
+      "automated": "What runs on its own"
+    }
   },
   "proposals": {
     "title": "Proposals and quotes",
@@ -2508,7 +2518,8 @@
       "getStarted": "Get started",
       "docs": "Documentation",
       "learn": "Learn SEO",
-      "knowledge": "Knowledge hub"
+      "knowledge": "Knowledge hub",
+      "help": "Help"
     },
     "nextStep": {
       "ai": {
@@ -3041,7 +3052,7 @@
       "autoRuns": "Runs on its own every night — findings appear in the action plan without you opening this.",
       "close": "Close",
       "items": {
-        "audits": {
+        "audits_c": {
           "title": "Run a full audit",
           "blurb": "Crawl + 30 SEO checks. Compare to last audit."
         },
@@ -3065,7 +3076,7 @@
           "title": "AI site audit",
           "blurb": "AI checklist with apply-via-WP-bridge fixes."
         },
-        "keywords": {
+        "keywords_c": {
           "title": "Tracked keywords",
           "blurb": "Sortable rank table with mobile/desktop split."
         },
@@ -3113,7 +3124,7 @@
           "title": "Internal PageRank",
           "blurb": "Distribute authority across this site's pages."
         },
-        "backlinks": {
+        "backlinks_c": {
           "title": "Backlink hub",
           "blurb": "Tracked backlinks for this client."
         },
@@ -3129,15 +3140,15 @@
           "title": "Google Business Profile",
           "blurb": "Reviews, posts, hours, AI reply drafts."
         },
-        "citations": {
+        "citations_c": {
           "title": "Citations tracker",
           "blurb": "NAP consistency across local directories."
         },
-        "local-grid": {
+        "local-grid_c": {
           "title": "Local rank grid",
           "blurb": "Geo-grid rank tracking (city-level)."
         },
-        "local-rank": {
+        "local-rank_c": {
           "title": "Local rank tracker",
           "blurb": "Track local-pack positions for this client."
         },
@@ -3181,7 +3192,7 @@
           "title": "OG image generator",
           "blurb": "Auto-generated Open Graph images."
         },
-        "reports": {
+        "reports_c": {
           "title": "Generate report",
           "blurb": "AI exec summary + PDF + client portal magic link."
         },

@@ -29,19 +29,19 @@ const LIVE: ReadonlySet<MissionStatus> = new Set<MissionStatus>(["active", "prop
  */
 const BY_MISSION: Record<MissionKind | "none", readonly string[]> = {
   // Nothing sold yet: every project starts with its audit (lib/missions.ts).
-  none: ["/audits", "/tools/health-check", "/tools/local-cwv", "/reports"],
-  audit: ["/audits", "/tools/health-check", "/tools/local-cwv", "/tools/security", "/reports"],
-  monitoring: ["/keywords", "/tools/rank-where", "/tools/traffic-drop", "/reports", "/audits"],
-  full: ["/keywords", "/content/c/:id", "/tools/internal-linking", "/backlinks", "/reports"],
+  none: ["/audits/c/:id", "/tools/health-check", "/tools/local-cwv", "/reports/c/:id"],
+  audit: ["/audits/c/:id", "/tools/health-check", "/tools/local-cwv", "/tools/security", "/reports/c/:id"],
+  monitoring: ["/keywords/c/:id", "/tools/rank-where", "/tools/traffic-drop", "/reports/c/:id", "/audits/c/:id"],
+  full: ["/keywords/c/:id", "/content/c/:id", "/tools/internal-linking", "/backlinks/c/:id", "/reports/c/:id"],
   // Before and after checks for the new site.
-  redesign: ["/audits", "/tools/render", "/tools/local-cwv", "/tools/robots", "/tools/schema"],
-  other: ["/audits", "/reports"],
+  redesign: ["/audits/c/:id", "/tools/render", "/tools/local-cwv", "/tools/robots", "/tools/schema"],
+  other: ["/audits/c/:id", "/reports/c/:id"],
 };
 
 /** The other tabs do not depend on the missions. */
 const BY_TAB: Record<Exclude<ProjectToolsTab, "overview">, readonly string[]> = {
   // Building or reviewing what is sold rests on the audit and the report.
-  missions: ["/audits", "/reports", "/clients/:id/onboarding"],
+  missions: ["/audits/c/:id", "/reports/c/:id", "/clients/:id/onboarding"],
   // How the project is connected and crawled.
   settings: ["/clients/:id/onboarding", "/tools/robots", "/tools/ai-robots", "/tools/security"],
 };

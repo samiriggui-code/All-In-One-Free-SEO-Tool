@@ -131,7 +131,7 @@ function buildGroups(client: {
       blurb: "Full SEO audits + scoring for this client.",
       tools: [
         {
-          href: `/audits?clientId=${id}`,
+          href: `/audits/c/${id}`,
           title: "Run a full audit",
           icon: ClipboardCheck,
           blurb: "Crawl + 30 SEO checks. Compare to last audit.",
@@ -173,7 +173,7 @@ function buildGroups(client: {
       blurb: "Keywords, rank checks, SERP analysis for this client.",
       tools: [
         {
-          href: `/keywords?clientId=${id}`,
+          href: `/keywords/c/${id}`,
           title: "Tracked keywords",
           icon: Target,
           blurb: "Sortable rank table with mobile/desktop split.",
@@ -268,7 +268,7 @@ function buildGroups(client: {
           blurb: "Distribute authority across this site's pages.",
         },
         {
-          href: `/backlinks?clientId=${id}`,
+          href: `/backlinks/c/${id}`,
           title: "Backlink hub",
           icon: LinkIcon,
           blurb: "Tracked backlinks for this client.",
@@ -299,19 +299,19 @@ function buildGroups(client: {
           needs: client.gbpUrl ? null : "gbp",
         },
         {
-          href: `/citations`,
+          href: `/citations/c/${id}`,
           title: "Citations tracker",
           icon: SearchIcon,
           blurb: "NAP consistency across local directories.",
         },
         {
-          href: `/local-grid`,
+          href: `/local-grid/c/${id}`,
           title: "Local rank grid",
           icon: Compass,
           blurb: "Geo-grid rank tracking (city-level).",
         },
         {
-          href: `/local-rank`,
+          href: `/local-rank/c/${id}`,
           title: "Local rank tracker",
           icon: Target,
           blurb: "Track local-pack positions for this client.",
@@ -398,7 +398,7 @@ function buildGroups(client: {
       blurb: "Client portal, scheduled reports, workflows.",
       tools: [
         {
-          href: `/reports?clientId=${id}`,
+          href: `/reports/c/${id}`,
           title: "Generate report",
           icon: FileText,
           blurb: "AI exec summary + PDF + client portal magic link.",

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -67,7 +68,7 @@ export default function LlmsTxtPage() {
 function Generator() {
   const t = useTranslations("tools.ui.llms-txt");
   const tCommon = useTranslations("tools.common");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [hint, setHint] = useState("");
   const [pending, startTransition] = useTransition();
   const [content, setContent] = useState<string | null>(null);
@@ -194,7 +195,7 @@ function Generator() {
 
 function Validator() {
   const t = useTranslations("tools.ui.llms-txt");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ValidateLlmsResult | null>(null);
 

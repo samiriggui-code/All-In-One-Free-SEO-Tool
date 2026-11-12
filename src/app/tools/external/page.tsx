@@ -1,9 +1,8 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   ExternalLink,
   Globe,
   Search,
@@ -342,7 +341,6 @@ function normalize(input: string): {
 
 export default function ExternalToolsLaunchpadPage() {
   const t = useTranslations("tools.ui.external");
-  const tCommon = useTranslations("tools.common");
   const [input, setInput] = useState("");
   const [filter, setFilter] = useState<"all" | "domain" | "keyword">("all");
 
@@ -358,13 +356,7 @@ export default function ExternalToolsLaunchpadPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

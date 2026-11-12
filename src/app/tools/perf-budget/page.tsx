@@ -1,9 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useActionState, useState } from "react";
 import { useRunRefreshKey } from "@/components/use-run-refresh-key";
-import Link from "next/link";
-import { ArrowLeft, Gauge, Loader2 } from "lucide-react";
+import { Gauge, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/shell/page-header";
 import { runBudget, type BudgetState } from "./actions";
@@ -34,13 +34,7 @@ export default function PerfBudgetPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <PageHeader
         title={t("title")}

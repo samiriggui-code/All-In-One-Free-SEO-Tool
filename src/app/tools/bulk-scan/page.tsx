@@ -1,10 +1,10 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -23,7 +23,6 @@ type SortKey = "url" | "score" | "performance" | "totalFindings";
 
 export default function BulkScanPage() {
   const t = useTranslations("tools.ui.bulk-scan");
-  const tCommon = useTranslations("tools.common");
   const [urls, setUrls] = useState("");
   const [save, setSave] = useState(true);
   const [pending, startTransition] = useTransition();
@@ -69,13 +68,7 @@ export default function BulkScanPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

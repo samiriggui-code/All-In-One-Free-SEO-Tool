@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
+import { useEffect } from "react";
 import { activeProjectPage, type ProjectTab } from "@/lib/project-nav";
+import { setProjectContext } from "@/lib/project-context";
 
 /**
  * The project's navigation, on every page of a project: where you are
@@ -26,6 +28,12 @@ export function ProjectNav({
   const tab = useSearchParams()?.get("tab") ?? null;
   const active = activeProjectPage(pathname, tab, project.id);
   const open = tabs.find((x) => x.group === active?.group) ?? null;
+
+  // Tell the rest of the shell which project is open, so the family tabs
+  // and a tool's back link stay in it (lib/project-context.ts).
+  useEffect(() => {
+    setProjectContext({ id: project.id, name: project.name, url: project.url });
+  }, [project.id, project.name, project.url]);
 
   return (
     <nav aria-label={t("aria")} className="mb-5 space-y-2">

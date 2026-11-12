@@ -1,16 +1,16 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState } from "react";
-import { ArrowLeft, Eye, Monitor, Smartphone } from "lucide-react";
-import Link from "next/link";
+import { Eye, Monitor, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function PixelPreviewPage() {
   const t = useTranslations("tools.ui.pixel-preview");
-  const tCommon = useTranslations("tools.common");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
 
   // Google truncates with ellipsis at ~600px wide. Char counts are
   // approximate but reliable enough for SEO purposes.
@@ -30,13 +30,7 @@ export default function PixelPreviewPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

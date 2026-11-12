@@ -6,17 +6,13 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   ExternalLink,
-  GraduationCap,
   Heart,
-  HelpCircle,
-  Library,
   LogIn,
   LogOut,
   Palette,
   Settings,
   Sparkles,
   Users2,
-  Workflow,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -215,24 +211,9 @@ export function ProfileMenu({
           ) : null}
 
           {/* Help and resources */}
-          <MenuGroup label={t("helpGroup")}>
-            <MenuLink href="/welcome" icon={Sparkles} onClick={close}>
-              {t("getStarted")}
-            </MenuLink>
+          <MenuGroup>
             <MenuLink href="/docs" icon={BookOpen} onClick={close}>
-              {t("docs")}
-            </MenuLink>
-            <MenuLink href="/learn" icon={GraduationCap} onClick={close}>
-              {t("learn")}
-            </MenuLink>
-            <MenuLink href="/knowledge" icon={Library} onClick={close}>
-              {t("knowledge")}
-            </MenuLink>
-            <MenuLink href="/seo-chat/capabilities" icon={HelpCircle} onClick={close}>
-              {t("chatCapabilities")}
-            </MenuLink>
-            <MenuLink href="/automations/overview" icon={Workflow} onClick={close}>
-              {t("automated")}
+              {t("help")}
             </MenuLink>
           </MenuGroup>
 

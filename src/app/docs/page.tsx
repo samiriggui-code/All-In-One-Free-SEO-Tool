@@ -66,6 +66,29 @@ export default async function DocsPage() {
         noHelp
       />
 
+      {/* The other help pages. They each had an entry in the account menu,
+          six lines for one need; the menu now has "Help" and they are here. */}
+      <nav aria-label={t("more.label")} className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-xs text-muted-foreground">{t("more.label")}</span>
+        {(
+          [
+            ["/welcome", "getStarted"],
+            ["/learn", "learn"],
+            ["/knowledge", "knowledge"],
+            ["/seo-chat/capabilities", "chat"],
+            ["/automations/overview", "automated"],
+          ] as const
+        ).map(([href, key]) => (
+          <Link
+            key={href}
+            href={href}
+            className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent hover:text-foreground"
+          >
+            {t(`more.${key}`)}
+          </Link>
+        ))}
+      </nav>
+
       {/* The one number worth leading with. */}
       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.05] p-4">
         <p className="text-sm leading-relaxed">

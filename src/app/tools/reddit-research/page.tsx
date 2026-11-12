@@ -1,10 +1,9 @@
 "use client";
 
+import { ToolBackLink } from "@/components/tools/tool-back-link";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   AlertCircle,
-  ArrowLeft,
   ExternalLink,
   Flame,
   Loader2,
@@ -20,7 +19,6 @@ import { searchReddit, type RedditResearchResult } from "./actions";
 
 export default function RedditResearchPage() {
   const t = useTranslations("tools.ui.reddit-research");
-  const tCommon = useTranslations("tools.common");
   const [query, setQuery] = useState("");
   const [subreddit, setSubreddit] = useState("");
   const [sort, setSort] = useState<"relevance" | "top" | "new" | "comments">(
@@ -47,13 +45,7 @@ export default function RedditResearchPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <Link
-        href="/settings/tools"
-        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-3" />
-        {tCommon("allTools")}
-      </Link>
+      <ToolBackLink />
 
       <header className="space-y-2">
         <div className="flex items-center gap-3">

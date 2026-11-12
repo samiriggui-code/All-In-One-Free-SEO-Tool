@@ -1,5 +1,6 @@
 "use client";
 
+import { usePresetUrl } from "@/components/use-preset-url";
 import { useState, useTransition } from "react";
 import { Copy, Loader2, AlertTriangle, CircleCheck, Info } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,7 +18,7 @@ const SOURCE_KEY: Record<FreshnessSignal["source"], string> = {
 
 export function FreshnessForm() {
   const t = useTranslations("tools.ui.freshness");
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(usePresetUrl());
   const [sitemap, setSitemap] = useState("");
   const [result, setResult] = useState<FreshnessAudit | null>(null);
   const [pending, startTransition] = useTransition();
