@@ -104,7 +104,7 @@ export function BulkPanel({
                     <Check className="size-3.5" />
                     {tx("applied", { applied: done.applied })}
                     {done.failed > 0 && `, ${done.failed} failed`}
-                    {done.skipped > 0 && `, ${done.skipped} left for review`}
+                    {done.skipped > 0 && tx("leftForReview", { skipped: done.skipped })}
                   </span>
                 ) : busy === g.kind ? (
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">

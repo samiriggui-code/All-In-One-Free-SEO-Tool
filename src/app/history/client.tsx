@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useTransition } from "react";
 import {
@@ -43,6 +44,7 @@ export function HistoryClient({
   currentTool: string;
   currentClient: number | null;
 }) {
+  const tx = useTranslations("ui.app_history_client");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -54,7 +56,7 @@ export function HistoryClient({
             href="/history"
             className={pillClass(currentTool === "" && currentClient === null)}
           >
-            All ({toolCounts.reduce((s, [, n]) => s + n, 0)})
+            {tx("all", { toolCounts: toolCounts.reduce((s, [, n]) => s + n, 0) })}
           </Link>
           {toolCounts.map(([toolId, n]) => (
             <Link
@@ -69,13 +71,13 @@ export function HistoryClient({
         {clients.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Client
+              {tx("client")}
             </span>
             <Link
               href={`/history${currentTool ? `?tool=${currentTool}` : ""}`}
               className={pillClass(currentClient === null)}
             >
-              Any
+              {tx("any")}
             </Link>
             {clients.map((c) => (
               <Link
@@ -95,10 +97,10 @@ export function HistoryClient({
               disabled={pending}
               onClick={async () => {
                 const ok = await confirmDialog({
-                  title: `Clear all unpinned runs for ${toolLabels[currentTool] ?? currentTool}?`,
+                  title: tx("clearAllUnpinnedRunsFor", { v: toolLabels[currentTool] ?? currentTool }),
                   description:
-                    "Pinned runs are preserved. This can't be undone.",
-                  confirmLabel: "Clear unpinned",
+                    tx("pinnedRunsArePreservedThis"),
+                  confirmLabel: tx("clearUnpinned"),
                   destructive: true,
                 });
                 if (!ok) return;
@@ -108,13 +110,13 @@ export function HistoryClient({
                     currentClient,
                   );
                   toast.success(
-                    `Cleared ${n} run${n === 1 ? "" : "s"}.`,
+                    tx("clearedOther", { n }),
                   );
                 });
               }}
               className="text-[11px] text-rose-300 hover:underline disabled:opacity-50"
             >
-              Clear unpinned for this tool
+              {tx("clearUnpinnedForThisTool")}
             </button>
           </div>
         )}
@@ -122,7 +124,7 @@ export function HistoryClient({
 
       {runs.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-          No runs match. Run a tool — its result will land here automatically.
+          {tx("noRunsMatchRunA")}
         </p>
       ) : (
         <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -155,7 +157,7 @@ export function HistoryClient({
                   href={TOOL_HREF[r.toolId]}
                   className="inline-flex items-center gap-1 text-[11px] text-violet-300 hover:underline"
                 >
-                  Open tool
+                  {tx("openTool")}
                   <ChevronRight className="size-3" />
                 </Link>
               )}
@@ -168,7 +170,7 @@ export function HistoryClient({
                   });
                 }}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-amber-500/15 hover:text-amber-300 disabled:opacity-50"
-                title={r.pinned ? "Unpin" : "Pin"}
+                title={r.pinned ? tx("unpin") : tx("pin")}
               >
                 {r.pinned ? (
                   <PinOff className="size-3.5" />
@@ -181,9 +183,9 @@ export function HistoryClient({
                 disabled={pending}
                 onClick={async () => {
                   const ok = await confirmDialog({
-                    title: "Delete this run?",
+                    title: tx("deleteThisRun"),
                     description:
-                      "The result is removed permanently. Re-run the tool to regenerate it.",
+                      tx("theResultIsRemovedPermanently"),
                     confirmLabel: "Delete",
                     destructive: true,
                   });
@@ -193,7 +195,7 @@ export function HistoryClient({
                   });
                 }}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-                title="Delete"
+                title={tx("delete")}
               >
                 <Trash2 className="size-3.5" />
               </button>

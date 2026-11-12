@@ -1,6 +1,5 @@
 "use client";
 
-import type { Tx } from "@/lib/tx";
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,7 +37,7 @@ type Tab = "all" | LoggedError["source"];
 // message is a better title (every unknown error would otherwise read the
 // same), and the fallback's own text points at a GitHub button this screen
 // does not have.
-const GENERIC_TITLE = (tx: Tx) => (tx("somethingWentWrong"));
+const GENERIC_TITLE = "Something went wrong";
 
 function firstLine(message: string) {
   const line = message.split("\n")[0]!.trim();
@@ -67,7 +66,6 @@ export function ErrorLog({
   clearResolved: () => Promise<void>;
   resolve: (id: number) => Promise<void>;
 }) {
-  const tx = useTranslations("ui.app_settings_errors_error-log");
   const t = useTranslations("settings.errorLog");
   const locale = useLocale();
   const router = useRouter();
@@ -144,7 +142,7 @@ export function ErrorLog({
               </div>
               {rows.map((e) => {
                 const fe = friendlyError(e.message, e.context, e.stack ?? undefined);
-                const title = fe.title === GENERIC_TITLE(tx) ? firstLine(e.message) : fe.title;
+                const title = fe.title === GENERIC_TITLE ? firstLine(e.message) : fe.title;
                 return (
                   <button key={e.id} type="button" className="gsk-table__row" onClick={() => setOpenId(e.id)}>
                     <span className="min-w-0">
@@ -198,10 +196,9 @@ function ErrorSheet({
   onClose: () => void;
   onResolved: () => void;
 }) {
-  const tx = useTranslations("ui.app_settings_errors_error-log");
   const t = useTranslations("settings.errorLog");
   const fe = useMemo(() => friendlyError(e.message, e.context, e.stack ?? undefined), [e]);
-  const generic = fe.title === GENERIC_TITLE(tx);
+  const generic = fe.title === GENERIC_TITLE;
   const title = generic ? firstLine(e.message) : fe.title;
   const explanation = generic ? t("genericWhat") : fe.explanation;
   const steps = generic ? [t("genericStep1"), t("genericStep2")] : fe.steps;

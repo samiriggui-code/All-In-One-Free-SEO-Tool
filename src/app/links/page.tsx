@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { ExternalLink, Link2, MousePointerClick, X } from "lucide-react";
 import { db } from "@/db/client";
@@ -13,6 +14,7 @@ import { CopyButton } from "./copy-button";
 import { deleteShortLink } from "./actions";
 
 export default async function ShortLinksPage() {
+  const tx = await getTranslations("ui.app_links_page");
   const [allClients, links, h] = await Promise.all([
     db
       .select({ id: clients.id, name: clients.name })
@@ -34,8 +36,8 @@ export default async function ShortLinksPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Smart links"
-        description="Self-hosted short links with click tracking and UTM helper. Drop them into outreach emails, social posts, or guest articles — every click logs back into the client report."
+        title={tx("smartLinks")}
+        description={tx("selfHostedShortLinksWith")}
         icon={Link2}
         accent="cyan"
       />
@@ -47,16 +49,15 @@ export default async function ShortLinksPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="text-base font-semibold">
-            Active links ({links.length})
+            {tx("activeLinks", { length: links.length })}
           </h2>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Click count updates instantly on every visit. Origin:{" "}
-            <code className="rounded bg-white/5 px-1.5 py-0.5">{origin}</code>
+            {tx.rich("clickCountUpdatesInstantlyOn", { origin, b0: (chunks) => <code className="rounded bg-white/5 px-1.5 py-0.5">{chunks}</code> })}
           </p>
         </header>
         {links.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-            No links yet. Create one above.
+            {tx("noLinksYetCreateOne")}
           </p>
         ) : (
           <ul className="divide-y divide-white/[0.05]">
@@ -83,7 +84,7 @@ export default async function ShortLinksPage() {
                         {l.clientId && (
                           <span className="rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] text-violet-300 ring-1 ring-inset ring-violet-500/30">
                             {clientName.get(l.clientId) ??
-                              `Client #${l.clientId}`}
+                              tx("client", { clientId: l.clientId })}
                           </span>
                         )}
                       </div>
@@ -103,27 +104,27 @@ export default async function ShortLinksPage() {
                         <div className="mt-1.5 flex flex-wrap gap-1 text-[10px] text-muted-foreground">
                           {l.utmSource && (
                             <code className="rounded bg-white/5 px-1.5 py-0.5">
-                              source: {l.utmSource}
+                              {tx("source", { utmSource: l.utmSource })}
                             </code>
                           )}
                           {l.utmMedium && (
                             <code className="rounded bg-white/5 px-1.5 py-0.5">
-                              medium: {l.utmMedium}
+                              {tx("medium", { utmMedium: l.utmMedium })}
                             </code>
                           )}
                           {l.utmCampaign && (
                             <code className="rounded bg-white/5 px-1.5 py-0.5">
-                              campaign: {l.utmCampaign}
+                              {tx("campaign", { utmCampaign: l.utmCampaign })}
                             </code>
                           )}
                           {l.utmTerm && (
                             <code className="rounded bg-white/5 px-1.5 py-0.5">
-                              term: {l.utmTerm}
+                              {tx("term", { utmTerm: l.utmTerm })}
                             </code>
                           )}
                           {l.utmContent && (
                             <code className="rounded bg-white/5 px-1.5 py-0.5">
-                              content: {l.utmContent}
+                              {tx("content", { utmContent: l.utmContent })}
                             </code>
                           )}
                         </div>
@@ -136,13 +137,13 @@ export default async function ShortLinksPage() {
                       </div>
                       {l.lastClickAt && (
                         <span className="text-[10px] text-muted-foreground">
-                          last: {l.lastClickAt.toLocaleDateString()}
+                          {tx("last", { v: l.lastClickAt.toLocaleDateString() })}
                         </span>
                       )}
                       <form action={deleteShortLink.bind(null, l.id)}>
                         <button
                           type="submit"
-                          aria-label="Delete"
+                          aria-label={tx("delete")}
                           className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
                         >
                           <X className="size-3.5" />

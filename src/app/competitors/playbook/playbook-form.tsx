@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import {
   CheckCircle2,
@@ -22,6 +23,7 @@ export function PlaybookForm({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_competitors_playbook_playbook-form");
   const [state, formAction, pending] = useActionState<
     PlaybookState | null,
     FormData
@@ -35,7 +37,7 @@ export function PlaybookForm({
       >
         <div className="grid gap-3 md:grid-cols-3">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Competitor URL</span>
+            <span className="text-muted-foreground">{tx("competitorUrl")}</span>
             <input
               name="competitorUrl"
               required
@@ -44,7 +46,7 @@ export function PlaybookForm({
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Your site (optional)</span>
+            <span className="text-muted-foreground">{tx("yourSiteOptional")}</span>
             <input
               name="myUrl"
               placeholder="https://yoursite.com"
@@ -52,7 +54,7 @@ export function PlaybookForm({
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{tx("country")}</span>
             <input
               name="country"
               defaultValue="US"
@@ -70,14 +72,14 @@ export function PlaybookForm({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-3.5 animate-spin" />
-              Crawling and analysing… (1-3 min)
+              {tx("crawlingAndAnalysing13")}
             </>
           ) : (
-            "Reverse-engineer their SEO"
+            tx("reverseEngineerTheirSeo")
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Crawls up to 50 pages, respects robots.txt, then runs an AI synthesis.
+          {tx("crawlsUpTo50Pages")}
         </p>
       </form>
 
@@ -94,7 +96,7 @@ export function PlaybookForm({
               <header className="border-b border-white/[0.06] px-5 py-4">
                 <h2 className="text-base font-semibold flex items-center gap-2">
                   <Sparkles className="size-4 text-violet-300" />
-                  Punch list — what they do you don&apos;t
+                  {tx("punchListWhatTheyDo")}
                 </h2>
               </header>
               <div className="space-y-3 p-5">
@@ -129,11 +131,10 @@ export function PlaybookForm({
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold flex items-center gap-2">
                 <Layers className="size-4 text-cyan-300" />
-                Content silos ({state.playbook.silos.length})
+                {tx("contentSilos", { length: state.playbook.silos.length })}
               </h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                The directory groups they invest in. Larger silos = more SEO
-                weight on that topic.
+                {tx("theDirectoryGroupsTheyInvest")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.05]">
@@ -142,7 +143,7 @@ export function PlaybookForm({
                   <code className="rounded-md bg-white/5 px-2 py-0.5 text-[11px]">
                     /{s.silo}/
                   </code>
-                  <span className="font-medium tabular-nums">{s.count} pages</span>
+                  <span className="font-medium tabular-nums">{tx("pages", { count: s.count })}</span>
                   <div className="flex flex-wrap gap-1.5">
                     {s.sample.map((u) => (
                       <a
@@ -164,19 +165,19 @@ export function PlaybookForm({
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <h2 className="text-base font-semibold flex items-center gap-2">
               <Sparkles className="size-4 text-emerald-300" />
-              On-page ranking signals
+              {tx("onPageRankingSignals")}
             </h2>
             <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2 md:grid-cols-3">
               <Signal
-                label="Avg word count"
+                label={tx("avgWordCount")}
                 value={`${state.playbook.signals.avgWordCount}`}
               />
               <Signal
-                label="Long-form pages (1500+ words)"
+                label={tx("longFormPages1500Words")}
                 value={`${state.playbook.signals.longFormCount}`}
               />
               <Signal
-                label="Schema types"
+                label={tx("schemaTypes")}
                 value={
                   state.playbook.signals.schemaTypes.length > 0
                     ? state.playbook.signals.schemaTypes.join(", ")
@@ -185,19 +186,19 @@ export function PlaybookForm({
               />
               <Signal label="HTTPS" value={state.playbook.signals.https ? "✓" : "✗"} />
               <Signal
-                label="Meta description"
+                label={tx("metaDescription")}
                 value={state.playbook.signals.hasMetaDescription ? "✓" : "✗"}
               />
               <Signal
-                label="Canonical tag"
+                label={tx("canonicalTag")}
                 value={state.playbook.signals.usesCanonical ? "✓" : "✗"}
               />
               <Signal
-                label="Open Graph tags"
+                label={tx("openGraphTags")}
                 value={`${state.playbook.signals.ogTagCount}`}
               />
               <Signal
-                label="Internal links (homepage)"
+                label={tx("internalLinksHomepage")}
                 value={`${state.playbook.signals.avgInternalLinks}`}
               />
             </div>
@@ -207,23 +208,16 @@ export function PlaybookForm({
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold flex items-center gap-2">
                 <Link2 className="size-4 text-violet-300" />
-                Pages linking to the competitor (
+                {tx("pagesLinkingToTheCompetitor")}
                 {state.playbook.backlinks.filter((b) => b.status === "verified").length})
               </h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Each page below was fetched and read, so the anchor text
-                and follow status come from its own markup rather than a
-                guess. Reach out and pitch yourself as the alternative.{" "}
-                <a href="/tools/link-intersect" className="underline hover:no-underline">
-                  Link intersect
-                </a>{" "}
-                does this across several competitors at once and leaves out
-                the sites that already link to you.
+                {tx.rich("eachPageBelowWasFetched", { b0: (chunks) => <a href="/tools/link-intersect" className="underline hover:no-underline">{chunks}</a> })}
               </p>
             </header>
             {state.playbook.backlinks.length === 0 ? (
               <p className="px-5 py-6 text-sm text-muted-foreground">
-                No external mentions surfaced.
+                {tx("noExternalMentionsSurfaced")}
               </p>
             ) : (
               <ul className="divide-y divide-white/[0.04] max-h-[360px] overflow-y-auto">
@@ -247,13 +241,13 @@ export function PlaybookForm({
                           className={
                             b.follow === "dofollow" ? "text-sky-300" : undefined
                           }
-                          title={b.rel ? `rel="${b.rel}"` : "No rel attribute"}
+                          title={b.rel ? `rel="${b.rel}"` : tx("noRelAttribute")}
                         >
-                          {b.follow} link
+                          {tx("link", { follow: b.follow })}
                         </span>
                       ) : (
                         <span className="text-amber-300">
-                          mentions them, no link found
+                          {tx("mentionsThemNoLinkFound")}
                         </span>
                       )}
                       {b.anchorText && (
@@ -272,11 +266,10 @@ export function PlaybookForm({
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold flex items-center gap-2">
                 <MapPin className="size-4 text-cyan-300" />
-                Citation footprint
+                {tx("citationFootprint")}
               </h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                Top directories the competitor appears in. Gaps = your easy
-                wins.
+                {tx("topDirectoriesTheCompetitorAppears")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -316,9 +309,9 @@ export function PlaybookForm({
                     }`}
                   >
                     {c.listed === true
-                      ? "Listed"
+                      ? tx("listed")
                       : c.listed === false
-                        ? "Gap"
+                        ? tx("gap")
                         : "?"}
                   </span>
                 </li>
@@ -329,7 +322,7 @@ export function PlaybookForm({
           {state.playbook.techStack.technologies.length > 0 && (
             <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
               <h2 className="text-base font-semibold">
-                Detected tech stack
+                {tx("detectedTechStack")}
               </h2>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {state.playbook.techStack.technologies.map((t) => (
@@ -350,7 +343,7 @@ export function PlaybookForm({
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
               <h2 className="text-base font-semibold">
-                Crawled pages ({state.playbook.pageCount})
+                {tx("crawledPages", { pageCount: state.playbook.pageCount })}
               </h2>
             </header>
             <ul className="divide-y divide-white/[0.04] max-h-[420px] overflow-y-auto">
@@ -369,7 +362,7 @@ export function PlaybookForm({
                     <code className="rounded bg-white/5 px-1.5 py-0.5">
                       /{p.silo}/
                     </code>
-                    <span>{p.wordCount} words</span>
+                    <span>{tx("words", { wordCount: p.wordCount })}</span>
                     {p.h1 && <span>· H1: {p.h1.slice(0, 60)}</span>}
                   </div>
                 </li>
@@ -391,6 +384,7 @@ function PlaybookToTasksButton({
   competitorUrl: string;
   synthesis: string;
 }) {
+  const tx = useTranslations("ui.app_competitors_playbook_playbook-form");
   const [, startTransition] = useTransition();
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -402,7 +396,7 @@ function PlaybookToTasksButton({
   if (clients.length === 0) {
     return (
       <span className="text-[10px] text-muted-foreground">
-        Add a client first to convert these to tasks
+        {tx("addAClientFirstTo")}
       </span>
     );
   }
@@ -450,7 +444,7 @@ function PlaybookToTasksButton({
         ) : (
           <ListChecks className="size-3" />
         )}
-        Convert to tasks
+        {tx("convertToTasks")}
       </button>
       {error && <span className="text-[10px] text-rose-300">{error}</span>}
     </div>

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Network } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -9,6 +10,7 @@ import { clientScope } from "@/lib/client-scope";
 import { PlaybookForm } from "./playbook-form";
 
 export default async function CompetitorPlaybookPage() {
+  const tx = await getTranslations("ui.app_competitors_playbook_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -18,8 +20,8 @@ export default async function CompetitorPlaybookPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Competitor playbook"
-        description="Reverse-engineer any competitor's SEO strategy. Crawls their public site, extracts content silos, detects their tech stack, and generates a punch list of what they do that you don't."
+        title={tx("competitorPlaybook")}
+        description={tx("reverseEngineerAnyCompetitorS")}
         icon={Network}
         accent="violet"
       />

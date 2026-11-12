@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import Link from "next/link";
 import {
@@ -40,6 +41,7 @@ const sevConfig: Record<
 };
 
 export function GraderForm() {
+  const tx = useTranslations("ui.app_grader_grader-form");
   const [state, formAction, pending] = useActionState<
     GraderResult | null,
     FormData
@@ -72,20 +74,18 @@ export function GraderForm() {
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Auditing…
+                {tx("auditing")}
               </>
             ) : (
               <>
                 <Sparkles className="size-4" />
-                Grade my site
+                {tx("gradeMySite")}
               </>
             )}
           </Button>
         </div>
         <p className="relative px-5 pb-5 text-xs text-muted-foreground">
-          Free. Takes ~10 seconds. No signup, no API key. We&apos;ll fetch your
-          homepage, run 12 on-page checks plus 7 site-wide checks, and return a
-          health score with the top issues.
+          {tx("freeTakes10SecondsNo")}
         </p>
       </form>
 
@@ -105,12 +105,13 @@ function ResultsPanel({
 }: {
   result: Extract<GraderResult, { ok: true }>;
 }) {
+  const tx = useTranslations("ui.app_grader_grader-form");
   const headline =
     result.score >= 80
-      ? "Solid foundations — let's get you to 95+"
+      ? tx("solidFoundationsLetSGet")
       : result.score >= 50
-        ? "There's clear room to improve"
-        : "Plenty of room to improve — but everything we found is fixable";
+        ? tx("thereSClearRoomTo")
+        : tx("plentyOfRoomToImprove");
 
   return (
     <section className="space-y-6">
@@ -124,23 +125,18 @@ function ResultsPanel({
               <span className="text-gradient-brand">{headline}</span>
             </h2>
             <p className="text-sm text-muted-foreground">
-              Audited{" "}
-              <a
+              {tx.rich("auditedOtherChecked", { v: result.finalUrl.replace(/^https?:\/\//, "").replace(/\/$/, ""), pagesCrawled: result.pagesCrawled, b0: (chunks) => <a
                 href={result.finalUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="font-medium text-foreground hover:underline"
-              >
-                {result.finalUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}
-              </a>{" "}
-              · {result.pagesCrawled} page{result.pagesCrawled === 1 ? "" : "s"}{" "}
-              checked
+              >{chunks}</a> })}
             </p>
             <div className="flex flex-wrap gap-2 text-xs">
-              <Pill tone="rose" count={result.counts.critical} label="critical" />
-              <Pill tone="rose" count={result.counts.high} label="high" />
-              <Pill tone="amber" count={result.counts.medium} label="medium" />
-              <Pill tone="cyan" count={result.counts.low} label="low" />
+              <Pill tone="rose" count={result.counts.critical} label={tx("critical")} />
+              <Pill tone="rose" count={result.counts.high} label={tx("high")} />
+              <Pill tone="amber" count={result.counts.medium} label={tx("medium")} />
+              <Pill tone="cyan" count={result.counts.low} label={tx("low")} />
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
               <a
@@ -150,20 +146,20 @@ function ResultsPanel({
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-violet-500/30 ring-1 ring-inset ring-white/15 transition-colors hover:bg-primary/90"
               >
                 <Download className="size-4" />
-                Download PDF report
+                {tx("downloadPdfReport")}
               </a>
               <Link
                 href={`/clients/new?url=${encodeURIComponent(result.url)}`}
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
               >
                 <CheckCircle2 className="size-4" />
-                Save as a tracked client
+                {tx("saveAsATrackedClient")}
               </Link>
               <Link
                 href="/grader"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
               >
-                Audit another site
+                {tx("auditAnotherSite")}
               </Link>
             </div>
           </div>
@@ -174,10 +170,9 @@ function ResultsPanel({
       {result.topFindings.length > 0 && (
         <div className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <header className="border-b border-white/5 px-5 py-4">
-            <h3 className="text-base font-semibold">Top issues to fix</h3>
+            <h3 className="text-base font-semibold">{tx("topIssuesToFix")}</h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Sorted by severity. Save this site to track over time and unlock
-              the full report with auto-generated tasks and PDF export.
+              {tx("sortedBySeveritySaveThis")}
             </p>
           </header>
           <ul className="divide-y divide-white/5">

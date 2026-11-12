@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { asc } from "drizzle-orm";
 import { Bot } from "lucide-react";
 import { db } from "@/db/client";
@@ -9,6 +10,7 @@ import { clientScope } from "@/lib/client-scope";
 import { AskClient } from "./ask-client";
 
 export default async function AskPage() {
+  const tx = await getTranslations("ui.app_ask_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -18,8 +20,8 @@ export default async function AskPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
-        title="Ask the tool"
-        description="Plain-English Q&A on top of your real data. Pick a client and ask why traffic dropped, what to fix first, what's worth refreshing — answered against that client's actual audits, keywords, and tasks."
+        title={tx("askTheTool")}
+        description={tx("plainEnglishQAOn")}
         icon={Bot}
         accent="violet"
       />

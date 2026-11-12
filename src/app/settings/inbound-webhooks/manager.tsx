@@ -150,7 +150,7 @@ export function InboundWebhooksManager({
                       {tx("other", { eventType: h.eventType, receiveCount: h.receiveCount })}
                       {h.lastReceivedAt
                         ? ` · last ${new Date(h.lastReceivedAt).toLocaleString()}`
-                        : " · never received"}
+                        : tx("neverReceived")}
                     </div>
                   </div>
                 </div>

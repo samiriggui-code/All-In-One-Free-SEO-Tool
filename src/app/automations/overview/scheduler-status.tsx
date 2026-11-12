@@ -47,7 +47,7 @@ export async function SchedulerStatusPanel() {
         <p className="text-[11px] text-muted-foreground">
           {tx("theseRunOnATimer")}
           {anyNeverRun &&
-            " Anything showing “never” will run within a few minutes of the server starting."}
+            tx("anythingShowingNeverWillRun")}
         </p>
       </header>
 

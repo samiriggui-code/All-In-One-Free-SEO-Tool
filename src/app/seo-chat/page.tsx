@@ -1,15 +1,17 @@
 export const dynamic = "force-dynamic";
 
+import { useTranslations } from "next-intl";
 import { Bot } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { SeoChatUi } from "./chat-ui";
 
 export default function SeoChatPage() {
+  const tx = useTranslations("ui.app_seo-chat_page");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="SEO Chat"
-        description="One chat for every SEO topic. Ask anything — the AI auto-focuses on the right specialty (technical, on-page, AI visibility, schema, local, hreflang, CWV, and 20+ more). Drop an image for image-SEO analysis."
+        title={tx("seoChat")}
+        description={tx("oneChatForEverySeo")}
         icon={Bot}
         accent="violet"
       />

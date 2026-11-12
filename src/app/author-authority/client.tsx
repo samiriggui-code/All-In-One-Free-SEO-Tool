@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import {
   ExternalLink,
@@ -19,6 +20,7 @@ export function AuthorAuthorityClient({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_author-authority_client");
   const [state, formAction, pending] = useActionState<ScanState, FormData>(
     runAuthorScan,
     null,
@@ -46,7 +48,7 @@ export function AuthorAuthorityClient({
       >
         <div className="grid gap-3 md:grid-cols-[200px_1fr_1fr_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Client</span>
+            <span className="text-muted-foreground">{tx("client")}</span>
             <select
               name="clientId"
               value={clientId}
@@ -55,7 +57,7 @@ export function AuthorAuthorityClient({
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
               {clients.length === 0 ? (
-                <option value="">No clients yet</option>
+                <option value="">{tx("noClientsYet")}</option>
               ) : (
                 clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -66,7 +68,7 @@ export function AuthorAuthorityClient({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Domain to scan</span>
+            <span className="text-muted-foreground">{tx("domainToScan")}</span>
             <input
               name="domain"
               required
@@ -76,7 +78,7 @@ export function AuthorAuthorityClient({
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Topic hints (comma-separated, optional)
+              {tx("topicHintsCommaSeparatedOptional")}
             </span>
             <input
               name="topics"
@@ -94,7 +96,7 @@ export function AuthorAuthorityClient({
             ) : (
               <>
                 <Search className="mr-1 size-3" />
-                Scan
+                {tx("scan")}
               </>
             )}
           </button>
@@ -109,15 +111,13 @@ export function AuthorAuthorityClient({
 
       {state?.ok && state.observations.length === 0 && (
         <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          No author pages found. The site may not use a standard /author/
-          URL pattern, or it may not have named bylines.
+          {tx("noAuthorPagesFoundThe")}
         </p>
       )}
 
       {state?.ok && state.observations.length > 0 && (
         <p className="text-[11px] text-muted-foreground">
-          Just scanned: {state.observations.length} authors found ·{" "}
-          {state.stored.inserted} new, {state.stored.updated} updated.
+          {tx("justScannedAuthorsFoundNew", { length: state.observations.length, inserted: state.stored.inserted, updated: state.stored.updated })}
         </p>
       )}
 
@@ -126,11 +126,10 @@ export function AuthorAuthorityClient({
           <header className="border-b border-white/[0.06] px-5 py-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Users className="size-3.5" />
-              Author records ({history.length})
+              {tx("authorRecords", { length: history.length })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Sorted by authority score. High-scoring authors are good
-              targets for outreach, podcast invites, or co-authored research.
+              {tx("sortedByAuthorityScoreHigh")}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.06]">
@@ -167,7 +166,7 @@ export function AuthorAuthorityClient({
                     )}
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px]">
                       <span className="rounded-md bg-white/5 px-1.5 py-0.5 ring-1 ring-inset ring-white/10">
-                        {a.postCount} posts seen
+                        {tx("postsSeen", { postCount: a.postCount })}
                       </span>
                       {(a.sameAs ?? []).slice(0, 4).map((u) => {
                         let host = u;
@@ -206,7 +205,7 @@ export function AuthorAuthorityClient({
                       rel="noreferrer"
                       className="text-[11px] text-violet-300 hover:underline"
                     >
-                      Profile ↗
+                      {tx("profile")}
                     </a>
                   )}
                 </div>

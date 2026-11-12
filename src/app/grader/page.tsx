@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { GraderForm } from "./grader-form";
@@ -5,11 +6,12 @@ import { GraderForm } from "./grader-form";
 export const dynamic = "force-dynamic";
 
 export default function GraderPage() {
+  const tx = useTranslations("ui.app_grader_page");
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Instant audit"
-        description="Drop any URL — we'll fetch it, run 19 checks, and grade it in 10 seconds. No client setup required."
+        title={tx("instantAudit")}
+        description={tx("dropAnyUrlWeLl")}
         icon={Sparkles}
         accent="fuchsia"
       />
@@ -20,36 +22,36 @@ export default function GraderPage() {
       <section className="grid gap-3 sm:grid-cols-3">
         <Capsule
           tone="violet"
-          title="On-page SEO"
+          title={tx("onPageSeo")}
           items={[
-            "Title length",
-            "Meta description",
+            tx("titleLength"),
+            tx("metaDescription"),
             "H1 + heading hierarchy",
-            "Canonical link",
-            "Viewport tag",
-            "OpenGraph tags",
+            tx("canonicalLink"),
+            tx("viewportTag"),
+            tx("opengraphTags"),
           ]}
         />
         <Capsule
           tone="cyan"
-          title="Technical health"
+          title={tx("technicalHealth")}
           items={[
             "HTTPS",
-            "Server response time",
+            tx("serverResponseTime"),
             "JSON-LD schema",
             "robots.txt + sitemap",
-            "Security headers",
+            tx("securityHeaders"),
           ]}
         />
         <Capsule
           tone="amber"
-          title="Content & images"
+          title={tx("contentImages")}
           items={[
-            "Word count",
-            "Image alt text",
-            "Lazy loading",
-            "Modern formats (WebP/AVIF)",
-            "Lang attribute",
+            tx("wordCount"),
+            tx("imageAltText"),
+            tx("lazyLoading"),
+            tx("modernFormatsWebpAvif"),
+            tx("langAttribute"),
           ]}
         />
       </section>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
 } from "./actions";
 
 export function CleanupBar() {
+  const tx = useTranslations("ui.app_news_cleanup-bar");
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -23,30 +25,30 @@ export function CleanupBar() {
     setMsg(null);
     startTransition(async () => {
       const r = await cleanupOldItems({ days });
-      setMsg(`Deleted ${r.deleted} item${r.deleted === 1 ? "" : "s"} older than ${days} days.`);
+      setMsg(tx("deletedOtherOlderThanDays", { deleted: r.deleted, days }));
       setTimeout(() => setMsg(null), 4000);
     });
   }
 
   async function clearAll() {
     const ok = await confirmDialog({
-      title: "Delete every saved news item?",
-      description: "Feed configurations stay. Items can be re-fetched.",
-      confirmLabel: "Delete all items",
+      title: tx("deleteEverySavedNewsItem"),
+      description: tx("feedConfigurationsStayItemsCan"),
+      confirmLabel: tx("deleteAllItems"),
       destructive: true,
     });
     if (!ok) return;
     setMsg(null);
     startTransition(async () => {
       const r = await clearAllItems();
-      setMsg(`Cleared ${r.deleted} items.`);
+      setMsg(tx("clearedItems", { deleted: r.deleted }));
       setTimeout(() => setMsg(null), 4000);
     });
   }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs text-muted-foreground">Clean up older than:</span>
+      <span className="text-xs text-muted-foreground">{tx("cleanUpOlderThan")}</span>
       <Button
         type="button"
         variant="outline"
@@ -85,7 +87,7 @@ export function CleanupBar() {
         disabled={pending}
         className="text-rose-300/70 hover:text-rose-300"
       >
-        Clear all
+        {tx("clearAll")}
       </Button>
       {pending && <Loader2 className="size-3.5 animate-spin text-muted-foreground" />}
       {msg && (
@@ -99,6 +101,7 @@ export function CleanupBar() {
 }
 
 export function DeleteItemButton({ id }: { id: number }) {
+  const tx = useTranslations("ui.app_news_cleanup-bar");
   const [pending, startTransition] = useTransition();
   const [hidden, setHidden] = useState(false);
   if (hidden) return null;
@@ -112,7 +115,7 @@ export function DeleteItemButton({ id }: { id: number }) {
         })
       }
       disabled={pending}
-      title="Delete this item"
+      title={tx("deleteThisItem")}
       className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
     >
       <X className="size-3" />

@@ -305,7 +305,7 @@ ${serverEntry}
                   <p className="text-muted-foreground">
                     {tx("wrote", { configPath: installed.configPath })}
                     {installed.backupPath
-                      ? `; previous version saved alongside it.`
+                      ? tx("previousVersionSavedAlongsideIt")
                       : "."}
                   </p>
                   <p className="text-foreground">

@@ -18,6 +18,7 @@
  * typed into Google's own app shows as answered, and says who.
  */
 
+import type { Tx } from "@/lib/tx";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -42,12 +43,12 @@ import {
   syncReviews,
 } from "./actions";
 
-const FILTERS: { id: QueueFilter; label: string }[] = [
-  { id: "unanswered", label: "Needs a reply" },
-  { id: "drafted", label: "Drafted, not sent" },
-  { id: "answered", label: "Answered" },
-  { id: "all", label: "Everything" },
-];
+const FILTERS = (tx: Tx): { id: QueueFilter; label: string }[] => ([
+  { id: "unanswered", label: tx("needsAReply") },
+  { id: "drafted", label: tx("draftedNotSent") },
+  { id: "answered", label: tx("answered") },
+  { id: "all", label: tx("everything") },
+]);
 
 function Stars({ rating }: { rating: number | null }) {
   const t = useTranslations("localTab.reviews.desk");
@@ -87,6 +88,7 @@ export function ReviewDesk({
   clientId: number;
   initial: ReviewDeskState;
 }) {
+  const tx = useTranslations("ui.app_gbp_c_clientId_reviews_review-desk");
   const t = useTranslations("localTab.reviews.desk");
   const [state, setState] = useState(initial);
   const [pending, startTransition] = useTransition();
@@ -243,7 +245,7 @@ export function ReviewDesk({
 
       {/* ---- Filters ---- */}
       <div className="flex flex-wrap gap-1.5">
-        {FILTERS.map((f) => (
+        {FILTERS(tx).map((f) => (
           <button
             key={f.id}
             onClick={() => reload(f.id)}

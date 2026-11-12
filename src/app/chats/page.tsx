@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Bot } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { listConversations, type ChatKind } from "@/lib/chat-store";
@@ -12,6 +13,7 @@ export default async function ChatsArchivePage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const tx = await getTranslations("ui.app_chats_page");
   const sp = await searchParams;
   const kind = (
     ["seo_chat", "ask_tool", "portal_chat"].includes(sp.kind ?? "")
@@ -27,18 +29,16 @@ export default async function ChatsArchivePage({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="AI chat history"
-        description="Every conversation with SEO chat, Ask the Tool, and the client portal AI is saved here. Click to view full transcript, pin to keep, rename for easy lookup, delete to clear."
+        title={tx("aiChatHistory")}
+        description={tx("everyConversationWithSeoChat")}
         icon={Bot}
         accent="violet"
         meta={
           <span className="text-xs text-muted-foreground">
-            {conversations.length} conversation
-            {conversations.length === 1 ? "" : "s"}
+            {tx("other", { length: conversations.length })}
             {conversations.filter((c) => c.pinned).length > 0 && (
               <>
-                {" "}
-                · {conversations.filter((c) => c.pinned).length} pinned
+                {tx("pinned", { length: conversations.filter((c) => c.pinned).length })}
               </>
             )}
           </span>

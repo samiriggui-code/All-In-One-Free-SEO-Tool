@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { refreshGoogleUpdatesAction } from "./actions";
 
 export function RefreshGoogleUpdatesButton() {
+  const tx = useTranslations("ui.app_algorithm-updates_refresh-button");
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -14,8 +16,8 @@ export function RefreshGoogleUpdatesButton() {
     startTransition(async () => {
       const r = await refreshGoogleUpdatesAction();
       if (!r.ok) setMsg(r.error);
-      else if (r.added > 0) setMsg(`${r.added} new from Google`);
-      else setMsg("Up to date with Google");
+      else if (r.added > 0) setMsg(tx("newFromGoogle", { added: r.added }));
+      else setMsg(tx("upToDateWithGoogle"));
     });
   }
 
@@ -27,7 +29,7 @@ export function RefreshGoogleUpdatesButton() {
         ) : (
           <RefreshCw className="size-3.5" />
         )}
-        {pending ? "Checking Google…" : "Check Google now"}
+        {pending ? tx("checkingGoogle") : tx("checkGoogleNow")}
       </Button>
       {msg && <span className="text-xs text-muted-foreground">{msg}</span>}
     </div>

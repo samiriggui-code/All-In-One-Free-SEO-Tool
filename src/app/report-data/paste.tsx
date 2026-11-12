@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import {
   CheckCircle2,
@@ -37,6 +38,7 @@ export function ReportDataPaste({
 }: {
   clients: { id: number; name: string; url: string }[];
 }) {
+  const tx = useTranslations("ui.app_report-data_paste");
   const [state, formAction, pending] = useActionState<ParseState, FormData>(
     parseReportDataPaste,
     null,
@@ -52,13 +54,13 @@ export function ReportDataPaste({
       >
         <div className="grid gap-3 md:grid-cols-[2fr_3fr]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Client</span>
+            <span className="text-muted-foreground">{tx("client")}</span>
             <select
               name="clientId"
               required
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Pick a client…</option>
+              <option value="">{tx("pickAClient")}</option>
               {clientList.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -72,14 +74,14 @@ export function ReportDataPaste({
               onClick={() => setRawText(EXAMPLE)}
               className="text-[11px] text-violet-300 hover:underline"
             >
-              Paste example to see how it works →
+              {tx("pasteExampleToSeeHow")}
             </button>
           </div>
         </div>
 
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">
-            Paste your work (one item per line, free-form text)
+            {tx("pasteYourWorkOneItem")}
           </span>
           <textarea
             name="rawText"
@@ -94,7 +96,7 @@ export function ReportDataPaste({
               "  • Posted on LinkedIn about Core Web Vitals — 80 reactions\n" +
               "  • Hit position 7 for 'free SEO software' (was 14)\n" +
               "\n" +
-              "AI will structure each line into the right report category."
+              tx("aiWillStructureEachLine")
             }
             className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 font-mono text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           />
@@ -108,19 +110,17 @@ export function ReportDataPaste({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              AI is structuring…
+              {tx("aiIsStructuring")}
             </>
           ) : (
             <>
               <Sparkles className="mr-2 size-4" />
-              Extract + save to report
+              {tx("extractSaveToReport")}
             </>
           )}
         </button>
         <p className="text-[11px] text-muted-foreground">
-          Each extracted item shows up in the client&apos;s monthly report under
-          &quot;Work completed.&quot; You can edit / delete in the list below
-          after AI classifies them.
+          {tx("eachExtractedItemShowsUp")}
         </p>
       </form>
 
@@ -136,11 +136,10 @@ export function ReportDataPaste({
             <div>
               <h2 className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
                 <CheckCircle2 className="size-4" />
-                Added {state.added} item{state.added === 1 ? "" : "s"} to the report
+                {tx("addedOtherToTheReport", { added: state.added })}
               </h2>
               <p className="text-[11px] text-muted-foreground">
-                These now show up under &quot;Work completed&quot; in the
-                client&apos;s next monthly report.
+                {tx("theseNowShowUpUnder")}
               </p>
             </div>
           </header>

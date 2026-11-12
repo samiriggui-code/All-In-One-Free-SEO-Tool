@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { Gauge } from "lucide-react";
@@ -15,6 +16,7 @@ export default async function CwvArchivePage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const tx = await getTranslations("ui.app_cwv_archive_page");
   const sp = await searchParams;
   const clientFilter = sp.client ? Number(sp.client) : null;
 
@@ -48,13 +50,13 @@ export default async function CwvArchivePage({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Core Web Vitals archive"
-        description="Every PSI scan you've run, persisted. Filter by client. Click any row to re-scan the URL or view the full report."
+        title={tx("coreWebVitalsArchive")}
+        description={tx("everyPsiScanYouVe")}
         icon={Gauge}
         accent="cyan"
         meta={
           <span className="text-xs text-muted-foreground">
-            {reports.length} scans
+            {tx("scans", { length: reports.length })}
           </span>
         }
       />
@@ -65,7 +67,7 @@ export default async function CwvArchivePage({
             href="/cwv/archive"
             className={pill(clientFilter === null)}
           >
-            All clients
+            {tx("allClients")}
           </Link>
           {allClients.map((c) => (
             <Link
@@ -81,11 +83,7 @@ export default async function CwvArchivePage({
 
       {reports.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-          No scans yet. Run a scan from{" "}
-          <Link href="/cwv" className="text-violet-300 hover:underline">
-            /cwv
-          </Link>
-          .
+          {tx.rich("noScansYetRunA", { b0: (chunks) => <Link href="/cwv" className="text-violet-300 hover:underline">{chunks}</Link> })}
         </p>
       ) : (
         <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -112,8 +110,7 @@ export default async function CwvArchivePage({
                 <p className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                   <span>{r.strategy}</span>
                   <span>
-                    LCP {r.lcpMs ?? "?"}ms · INP {r.inpMs ?? "?"}ms · CLS{" "}
-                    {r.cls !== null ? (r.cls / 100).toFixed(3) : "?"}
+                    {tx("lcpMsInpMsCls", { v: r.lcpMs ?? "?", v2: r.inpMs ?? "?", v3: r.cls !== null ? (r.cls / 100).toFixed(3) : "?" })}
                   </span>
                   <span>{new Date(r.scannedAt).toLocaleString()}</span>
                   {r.clientName && <span>· {r.clientName}</span>}

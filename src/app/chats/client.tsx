@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import {
@@ -27,11 +29,11 @@ import type {
   ChatMessage,
 } from "@/db/schema";
 
-const KIND_LABEL: Record<string, string> = {
-  seo_chat: "SEO chat",
-  ask_tool: "Ask the tool",
-  portal_chat: "Portal chat",
-};
+const KIND_LABEL = (tx: Tx): Record<string, string> => ({
+  seo_chat: tx("seoChat"),
+  ask_tool: tx("askTheTool"),
+  portal_chat: tx("portalChat"),
+});
 
 const KIND_TONE: Record<string, string> = {
   seo_chat: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
@@ -46,6 +48,7 @@ export function ChatsClient({
   conversations: ChatConversation[];
   currentKind: string;
 }) {
+  const tx = useTranslations("ui.app_chats_client");
   const [pending, startTransition] = useTransition();
 
   return (
@@ -57,7 +60,7 @@ export function ChatsClient({
             href="/chats"
             className={pillClass(currentKind === "all")}
           >
-            All ({conversations.length})
+            {tx("all", { length: conversations.length })}
           </Link>
           {(["seo_chat", "ask_tool", "portal_chat"] as const).map((k) => {
             const n = conversations.filter((c) => c.kind === k).length;
@@ -68,7 +71,7 @@ export function ChatsClient({
                 href={`/chats?kind=${k}`}
                 className={pillClass(currentKind === k)}
               >
-                {KIND_LABEL[k]} ({n})
+                {KIND_LABEL(tx)[k]} ({n})
               </Link>
             );
           })}
@@ -79,12 +82,12 @@ export function ChatsClient({
               onClick={async () => {
                 const scope =
                   currentKind === "all"
-                    ? "all conversations"
-                    : `${KIND_LABEL[currentKind] ?? currentKind} conversations`;
+                    ? tx("allConversations")
+                    : tx("conversations", { v: KIND_LABEL(tx)[currentKind] ?? currentKind });
                 const ok = await confirmDialog({
-                  title: `Clear unpinned ${scope}?`,
-                  description: "Pinned chats are preserved. This can't be undone.",
-                  confirmLabel: "Clear unpinned",
+                  title: tx("clearUnpinned2", { scope }),
+                  description: tx("pinnedChatsArePreservedThis"),
+                  confirmLabel: tx("clearUnpinned"),
                   destructive: true,
                 });
                 if (!ok) return;
@@ -98,7 +101,7 @@ export function ChatsClient({
               }}
               className="ml-auto text-[11px] text-rose-300 hover:underline disabled:opacity-50"
             >
-              Clear unpinned
+              {tx("clearUnpinned")}
             </button>
           )}
         </div>
@@ -106,8 +109,7 @@ export function ChatsClient({
 
       {conversations.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-          No saved chats yet. Use SEO chat or Ask the Tool — every
-          exchange is saved automatically.
+          {tx("noSavedChatsYetUse")}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -129,6 +131,7 @@ function pillClass(active: boolean): string {
 }
 
 function ConvRow({ conv }: { conv: ChatConversation }) {
+  const tx = useTranslations("ui.app_chats_client");
   const [open, setOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[] | null>(null);
@@ -150,7 +153,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ring-1 ring-inset ${KIND_TONE[conv.kind]}`}
         >
-          {KIND_LABEL[conv.kind] ?? conv.kind}
+          {KIND_LABEL(tx)[conv.kind] ?? conv.kind}
         </span>
         <div className="min-w-0 flex-1">
           {renaming ? (
@@ -171,14 +174,14 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
                 type="submit"
                 className="rounded-md bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30"
               >
-                Save
+                {tx("save")}
               </button>
               <button
                 type="button"
                 onClick={() => setRenaming(false)}
                 className="text-[10px] text-muted-foreground hover:text-foreground"
               >
-                Cancel
+                {tx("cancel")}
               </button>
             </form>
           ) : (
@@ -195,7 +198,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
             if (!open) loadMessages();
           }}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/10"
-          title="View transcript"
+          title={tx("viewTranscript")}
         >
           {open ? (
             <ChevronUp className="size-3.5" />
@@ -207,7 +210,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
           type="button"
           onClick={() => setRenaming((r) => !r)}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/10"
-          title="Rename"
+          title={tx("rename")}
         >
           <Pencil className="size-3" />
         </button>
@@ -220,7 +223,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
             });
           }}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-amber-500/15 hover:text-amber-300 disabled:opacity-50"
-          title={conv.pinned ? "Unpin" : "Pin"}
+          title={conv.pinned ? tx("unpin") : tx("pin")}
         >
           {conv.pinned ? (
             <PinOff className="size-3.5" />
@@ -233,8 +236,8 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
           disabled={pending}
           onClick={async () => {
             const ok = await confirmDialog({
-              title: "Delete this conversation?",
-              description: "The transcript is removed permanently.",
+              title: tx("deleteThisConversation"),
+              description: tx("theTranscriptIsRemovedPermanently"),
               confirmLabel: "Delete",
               destructive: true,
             });
@@ -244,7 +247,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
             });
           }}
           className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-          title="Delete"
+          title={tx("delete")}
         >
           <Trash2 className="size-3.5" />
         </button>
@@ -255,10 +258,10 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
           {loadingMessages ? (
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="size-3 animate-spin" />
-              Loading transcript…
+              {tx("loadingTranscript")}
             </p>
           ) : (messages ?? []).length === 0 ? (
-            <p className="text-xs text-muted-foreground">No messages.</p>
+            <p className="text-xs text-muted-foreground">{tx("noMessages")}</p>
           ) : (
             (messages ?? []).map((m) => (
               <div key={m.id} className="flex gap-3">
@@ -280,7 +283,7 @@ function ConvRow({ conv }: { conv: ChatConversation }) {
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={m.imageDataUrl}
-                      alt="upload"
+                      alt={tx("upload")}
                       className="max-h-40 rounded-lg ring-1 ring-inset ring-white/10"
                     />
                   )}

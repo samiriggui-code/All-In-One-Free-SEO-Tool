@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useState } from "react";
 import Link from "next/link";
 import { Check, Code2, Copy, Download, ExternalLink, Loader2, Mail, Send, Share2, Sparkles } from "lucide-react";
@@ -27,13 +28,13 @@ export type DistributionInitial = {
 
 type Busy = null | "schema" | "social" | "newsletter" | "wp-draft" | "wp-publish" | "mark";
 
-const EXPORTS = [
-  { format: "wordpress", label: "WordPress (.xml)" },
-  { format: "ghost", label: "Ghost (.json)" },
-  { format: "webflow", label: "Webflow (.csv)" },
-  { format: "hugo", label: "Hugo (.md)" },
-  { format: "markdown", label: "Markdown (.md)" },
-] as const;
+const EXPORTS = (tx: Tx) => ([
+  { format: "wordpress", label: tx("wordpressXml") },
+  { format: "ghost", label: tx("ghostJson") },
+  { format: "webflow", label: tx("webflowCsv") },
+  { format: "hugo", label: tx("hugoMd") },
+  { format: "markdown", label: tx("markdownMd") },
+] as const);
 
 export function Distribution({
   clientId,
@@ -55,6 +56,7 @@ export function Distribution({
   beforeRun: () => Promise<void>;
   onStatus: (s: ContentPost["status"]) => void;
 }) {
+  const tx = useTranslations("ui.app_content_c_clientId_p_postId_distribution");
   const t = useTranslations("content.distribution");
   const tErr = useTranslations("content.errors");
   const [busy, setBusy] = useState<Busy>(null);
@@ -188,7 +190,7 @@ export function Distribution({
       {/* Exports */}
       <Block icon={Download} title={t("exportTitle")}>
         <div className="flex flex-wrap gap-2">
-          {EXPORTS.map((e) =>
+          {EXPORTS(tx).map((e) =>
             hasDraft ? (
               <a
                 key={e.format}

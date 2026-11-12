@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -18,13 +20,13 @@ import {
   type ImportResult,
 } from "./actions";
 
-const schemaLabel: Record<CsvPreview["schema"], string> = {
+const schemaLabel = (tx: Tx): Record<CsvPreview["schema"], string> => ({
   clients: "Clients",
   keywords: "Keywords",
-  outreach: "Outreach prospects",
+  outreach: tx("outreachProspects"),
   competitors: "Competitors",
-  unknown: "Unknown — pick manually",
-};
+  unknown: tx("unknownPickManually"),
+});
 
 type Schema = CsvPreview["schema"];
 
@@ -33,6 +35,7 @@ export function CsvImportClient({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_csv-import_csv-import-client");
   const fileRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<CsvPreview | null>(null);
@@ -88,7 +91,7 @@ export function CsvImportClient({
   return (
     <div className="space-y-5">
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <Label className="text-sm">Upload or paste CSV</Label>
+        <Label className="text-sm">{tx("uploadOrPasteCsv")}</Label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[auto_1fr]">
           <div>
             <input
@@ -106,14 +109,14 @@ export function CsvImportClient({
               disabled={pending}
             >
               <Upload className="size-4" />
-              Choose file
+              {tx("chooseFile")}
             </Button>
           </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             onBlur={() => text && runPreview(text)}
-            placeholder="…or paste CSV content here"
+            placeholder={tx("orPasteCsvContentHere")}
             rows={6}
             disabled={pending}
             className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
@@ -134,14 +137,14 @@ export function CsvImportClient({
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-md bg-cyan-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
                   <FileUp className="size-2.5" />
-                  Detected: {schemaLabel[preview.schema]}
+                  {tx("detected", { v: schemaLabel(tx)[preview.schema] })}
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  {preview.rowCount} row{preview.rowCount === 1 ? "" : "s"}
+                  {tx("other", { rowCount: preview.rowCount })}
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                Headers: {preview.headers.join(", ")}
+                {tx("headers", { v: preview.headers.join(", ") })}
               </p>
             </div>
           </header>
@@ -149,7 +152,7 @@ export function CsvImportClient({
           <div className="space-y-3 p-5">
             <div className="flex flex-wrap items-center gap-2">
               <Label htmlFor="schema-override" className="text-xs">
-                Wrong type?
+                {tx("wrongType")}
               </Label>
               <select
                 id="schema-override"
@@ -160,17 +163,17 @@ export function CsvImportClient({
                 disabled={pending}
                 className="flex h-8 rounded-md border border-input bg-background px-2 text-xs"
               >
-                <option value="">Use detected ({schemaLabel[preview.schema]})</option>
-                <option value="clients">Clients</option>
-                <option value="keywords">Keywords</option>
-                <option value="outreach">Outreach</option>
-                <option value="competitors">Competitors</option>
+                <option value="">{tx("useDetected", { v: schemaLabel(tx)[preview.schema] })}</option>
+                <option value="clients">{tx("clients")}</option>
+                <option value="keywords">{tx("keywords")}</option>
+                <option value="outreach">{tx("outreach")}</option>
+                <option value="competitors">{tx("competitors")}</option>
               </select>
 
               {effectiveSchema && effectiveSchema !== "clients" && effectiveSchema !== "unknown" && clients.length > 0 && (
                 <>
                   <Label htmlFor="client-pick" className="text-xs">
-                    for client
+                    {tx("forClient")}
                   </Label>
                   <select
                     id="client-pick"
@@ -226,12 +229,12 @@ export function CsvImportClient({
               {pending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Importing…
+                  {tx("importing")}
                 </>
               ) : (
                 <>
                   <Upload className="size-4" />
-                  Import {preview.rowCount} rows
+                  {tx("importRows", { rowCount: preview.rowCount })}
                 </>
               )}
             </Button>
@@ -246,14 +249,14 @@ export function CsvImportClient({
             <div className="flex-1 text-sm">
               <div className="font-semibold">
                 Imported {result.inserted}{" "}
-                {schemaLabel[result.schema as Schema]
+                {schemaLabel(tx)[result.schema as Schema]
                   ?.toLowerCase()
                   .replace("s", "")}
                 {result.inserted === 1 ? "" : "s"}.
               </div>
               {result.skipped > 0 && (
                 <div className="mt-1 text-xs text-muted-foreground">
-                  Skipped {result.skipped} row{result.skipped === 1 ? "" : "s"}
+                  {tx("skippedOther", { skipped: result.skipped })}
                   {result.errors.length > 0
                     ? `: ${result.errors.join("; ")}`
                     : "."}

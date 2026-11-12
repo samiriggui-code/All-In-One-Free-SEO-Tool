@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { Beaker, Loader2 } from "lucide-react";
 import {
@@ -12,6 +13,7 @@ export function CreateTitleTestForm({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_title-tests_create-form");
   const [state, formAction, pending] = useActionState<
     CreateTitleTestResult | null,
     FormData
@@ -20,7 +22,7 @@ export function CreateTitleTestForm({
   if (clients.length === 0) {
     return (
       <p className="rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-inset ring-amber-500/30">
-        Add a client first.
+        {tx("addAClientFirst")}
       </p>
     );
   }
@@ -32,16 +34,15 @@ export function CreateTitleTestForm({
     >
       <h2 className="text-sm font-semibold flex items-center gap-2">
         <Beaker className="size-4 text-violet-300" />
-        New title test
+        {tx("newTitleTest")}
       </h2>
       <p className="text-[11px] text-muted-foreground">
-        Pick a client + page + 2-5 candidate titles. The runner rotates
-        them automatically and picks the highest-CTR winner from GSC.
+        {tx("pickAClientPage2")}
       </p>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Client</span>
+          <span className="text-muted-foreground">{tx("client")}</span>
           <select
             name="clientId"
             defaultValue={clients[0]?.id}
@@ -55,7 +56,7 @@ export function CreateTitleTestForm({
           </select>
         </label>
         <label className="space-y-1 text-xs">
-          <span className="text-muted-foreground">Page URL</span>
+          <span className="text-muted-foreground">{tx("pageUrl")}</span>
           <input
             name="pageUrl"
             required
@@ -67,7 +68,7 @@ export function CreateTitleTestForm({
 
       <label className="block space-y-1 text-xs">
         <span className="text-muted-foreground">
-          Candidate titles (one per line, 2-5)
+          {tx("candidateTitlesOnePerLine")}
         </span>
         <textarea
           name="titles"
@@ -80,7 +81,7 @@ export function CreateTitleTestForm({
 
       <label className="block space-y-1 text-xs">
         <span className="text-muted-foreground">
-          Days per variant (rotation cadence)
+          {tx("daysPerVariantRotationCadence")}
         </span>
         <input
           name="durationDays"
@@ -100,13 +101,13 @@ export function CreateTitleTestForm({
         {pending ? (
           <>
             <Loader2 className="mr-2 size-3 animate-spin" />
-            Creating…
+            {tx("creating")}
           </>
         ) : (
-          "Start test"
+          tx("startTest")
         )}
       </button>
-      {state?.ok && <p className="text-xs text-emerald-300">✓ Test started.</p>}
+      {state?.ok && <p className="text-xs text-emerald-300">{tx("testStarted")}</p>}
       {state && !state.ok && (
         <p className="text-xs text-rose-300">{state.error}</p>
       )}

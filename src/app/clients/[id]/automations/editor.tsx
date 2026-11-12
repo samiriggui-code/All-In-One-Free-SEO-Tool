@@ -151,13 +151,13 @@ export function SchedulesEditor({
           <li>
             {tx.rich("wordpress", { b0: (chunks) => <span
               className={wpConnected ? "text-violet-300" : "text-muted-foreground/50"}
-            >{chunks}</span> })} {wpConnected ? "connected for this client" : "not connected (set up the WP bridge below to enable)"}
+            >{chunks}</span> })} {wpConnected ? "connected for this client" : tx("notConnectedSetUpThe")}
           </li>
           <li>
             {tx.rich("googleBusinessProfile", { b0: (chunks) => <span className={gbpUrl ? "text-cyan-300" : "text-muted-foreground/50"}>{chunks}</span> })}
             {gbpUrl
-              ? "available; enter the location name on the GBP schedule"
-              : "no GBP URL on this client yet"}
+              ? tx("availableEnterTheLocationName")
+              : tx("noGbpUrlOnThis")}
           </li>
         </ul>
       </div>
@@ -378,7 +378,7 @@ export function SchedulesEditor({
                 <span className="block text-[10px] text-muted-foreground">
                   {tx("skipTheReviewQueueAnd")}
                   {selectedKind === "blog_draft" &&
-                    " (When OFF, posts land as WP drafts; when ON, as published.)"}
+                    tx("whenOffPostsLandAs")}
                 </span>
               </span>
             </label>
@@ -469,7 +469,7 @@ function ScheduleRow({
             {cfg.topic_seed && ` · "${cfg.topic_seed}"`}
             {schedule.lastRunAt && (
               <>
-                {" · last run "}
+                {tx("lastRun")}
                 {new Date(schedule.lastRunAt).toLocaleString().slice(0, 16)}
               </>
             )}

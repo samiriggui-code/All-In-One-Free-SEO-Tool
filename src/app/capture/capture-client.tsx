@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -38,6 +39,7 @@ export function CaptureClient({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_capture_capture-client");
   const [url, setUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [meta, setMeta] = useState<SiteMetadata | null>(null);
@@ -74,7 +76,7 @@ export function CaptureClient({
       if (r.ok) {
         setSaveStatus({
           kind: "saved",
-          message: "Saved as competitor.",
+          message: tx("savedAsCompetitor"),
         });
         router.refresh();
       } else {
@@ -95,7 +97,7 @@ export function CaptureClient({
       if (r.ok) {
         setSaveStatus({
           kind: "saved",
-          message: "Now tracking for changes.",
+          message: tx("nowTrackingForChanges"),
         });
         router.refresh();
       } else {
@@ -122,7 +124,7 @@ export function CaptureClient({
       {/* Input */}
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
         <Label htmlFor="capture-url" className="text-sm">
-          Paste a URL — homepage, article, competitor, anything
+          {tx("pasteAUrlHomepageArticle")}
         </Label>
         <div className="mt-2 flex gap-2">
           <Input
@@ -140,12 +142,12 @@ export function CaptureClient({
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Extracting…
+                {tx("extracting")}
               </>
             ) : (
               <>
                 <Magnet className="size-4" />
-                Extract
+                {tx("extract")}
               </>
             )}
           </Button>
@@ -176,11 +178,11 @@ export function CaptureClient({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h2 className="truncate text-base font-semibold">
-                  {meta.name ?? "(no name found)"}
+                  {meta.name ?? tx("noNameFound")}
                 </h2>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                   <CheckCircle2 className="size-2.5" />
-                  Reached
+                  {tx("reached")}
                 </span>
               </div>
               <a
@@ -202,18 +204,18 @@ export function CaptureClient({
 
           <dl className="grid gap-x-4 gap-y-3 p-5 text-sm sm:grid-cols-2">
             {meta.address && (
-              <Field icon={MapPin} label="Address" value={meta.address} />
+              <Field icon={MapPin} label={tx("address")} value={meta.address} />
             )}
             {meta.phone && (
-              <Field icon={Phone} label="Phone" value={meta.phone} />
+              <Field icon={Phone} label={tx("phone")} value={meta.phone} />
             )}
             {meta.email && (
-              <Field icon={Globe} label="Email" value={meta.email} />
+              <Field icon={Globe} label={tx("email")} value={meta.email} />
             )}
             {meta.gbpUrl && (
               <Field
                 icon={MapPin}
-                label="Google Business"
+                label={tx("googleBusiness")}
                 value={meta.gbpUrl}
                 isLink
               />
@@ -234,13 +236,13 @@ export function CaptureClient({
           {/* Actions */}
           <div className="space-y-3 border-t border-white/[0.06] bg-white/[0.02] p-5">
             <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Save it
+              {tx("saveIt")}
             </div>
 
             {clients.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
                 <Label htmlFor="capture-client" className="text-xs">
-                  for client
+                  {tx("forClient")}
                 </Label>
                 <select
                   id="capture-client"
@@ -266,7 +268,7 @@ export function CaptureClient({
                 disabled={pending}
               >
                 <UserPlus className="size-4" />
-                As new client
+                {tx("asNewClient")}
               </Button>
               {clients.length > 0 && (
                 <>
@@ -277,7 +279,7 @@ export function CaptureClient({
                     disabled={pending}
                   >
                     <Sparkles className="size-4" />
-                    As competitor
+                    {tx("asCompetitor")}
                   </Button>
                   <Button
                     type="button"
@@ -286,7 +288,7 @@ export function CaptureClient({
                     disabled={pending}
                   >
                     <Eye className="size-4" />
-                    Track for changes
+                    {tx("trackForChanges")}
                   </Button>
                 </>
               )}

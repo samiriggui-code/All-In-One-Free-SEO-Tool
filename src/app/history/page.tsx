@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { History } from "lucide-react";
 import { desc, eq } from "drizzle-orm";
@@ -20,6 +21,7 @@ export default async function HistoryPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const tx = await getTranslations("ui.app_history_page");
   const sp = await searchParams;
   const filterTool = sp.tool ?? "";
   const filterClient = sp.client ? Number(sp.client) : null;
@@ -51,21 +53,21 @@ export default async function HistoryPage({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Run history"
-        description="Every saved run from every tool. Pin the ones you want to keep around. Click a run to see its full output (where the tool supports restore). Bulk-clear unpinned via the page-level button."
+        title={tx("runHistory")}
+        description={tx("everySavedRunFromEvery")}
         icon={History}
         accent="violet"
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-muted-foreground">
-              {runs.length} of {allRunsForCounts.length} total runs
+              {tx("ofTotalRuns", { length: runs.length, length2: allRunsForCounts.length })}
             </span>
             {filterTool && (
               <Link
                 href="/history"
                 className="rounded-full bg-white/5 px-2 py-0.5 ring-1 ring-inset ring-white/10 hover:bg-white/10"
               >
-                Clear filter
+                {tx("clearFilter")}
               </Link>
             )}
           </div>

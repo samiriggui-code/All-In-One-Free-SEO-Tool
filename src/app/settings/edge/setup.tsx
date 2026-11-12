@@ -87,7 +87,7 @@ export function EdgeSetup({
           >
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name} — {c.url ?? "no URL"}
+                {c.name} — {c.url ?? tx("noUrl")}
               </option>
             ))}
           </select>

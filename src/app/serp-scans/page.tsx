@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { Globe } from "lucide-react";
@@ -15,6 +16,7 @@ export default async function SerpScansPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const tx = await getTranslations("ui.app_serp-scans_page");
   const sp = await searchParams;
   const clientFilter = sp.client ? Number(sp.client) : null;
 
@@ -47,13 +49,13 @@ export default async function SerpScansPage({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="SERP scans archive"
-        description="Every SERP scan with AI Overview presence, featured snippets, People Also Ask, and local pack. Filter by client."
+        title={tx("serpScansArchive")}
+        description={tx("everySerpScanWithAi")}
         icon={Globe}
         accent="amber"
         meta={
           <span className="text-xs text-muted-foreground">
-            {scans.length} scans
+            {tx("scans", { length: scans.length })}
           </span>
         }
       />
@@ -64,7 +66,7 @@ export default async function SerpScansPage({
             href="/serp-scans"
             className={pill(clientFilter === null)}
           >
-            All clients
+            {tx("allClients")}
           </Link>
           {allClients.map((c) => (
             <Link
@@ -80,11 +82,7 @@ export default async function SerpScansPage({
 
       {scans.length === 0 ? (
         <p className="rounded-2xl border border-white/5 bg-card/40 px-5 py-12 text-center text-sm text-muted-foreground backdrop-blur-md">
-          No SERP scans yet. Track keywords on{" "}
-          <Link href="/keywords" className="text-violet-300 hover:underline">
-            /keywords
-          </Link>
-          — daily scans populate this archive.
+          {tx.rich("noSerpScansYetTrack", { b0: (chunks) => <Link href="/keywords" className="text-violet-300 hover:underline">{chunks}</Link> })}
         </p>
       ) : (
         <ul className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
@@ -94,7 +92,7 @@ export default async function SerpScansPage({
               className="space-y-1 px-5 py-3 text-sm"
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium">{s.query ?? "(deleted keyword)"}</span>
+                <span className="font-medium">{s.query ?? tx("deletedKeyword")}</span>
                 {s.clientName && (
                   <span className="text-[11px] text-muted-foreground">
                     · {s.clientName}
@@ -107,27 +105,27 @@ export default async function SerpScansPage({
               <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                 {s.aiOverviewPresent && (
                   <span className="rounded-md bg-violet-500/15 px-1.5 py-0.5 text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                    AI Overview
+                    {tx("aiOverview")}
                   </span>
                 )}
                 {s.featuredSnippet && (
                   <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                    Featured snippet
+                    {tx("featuredSnippet")}
                   </span>
                 )}
                 {s.localPackPresent && (
                   <span className="rounded-md bg-amber-500/15 px-1.5 py-0.5 text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                    Local pack
+                    {tx("localPack")}
                   </span>
                 )}
                 {Array.isArray(s.paaQuestions) && s.paaQuestions.length > 0 && (
                   <span className="rounded-md bg-cyan-500/15 px-1.5 py-0.5 text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
-                    {s.paaQuestions.length} PAA
+                    {tx("paa", { length: s.paaQuestions.length })}
                   </span>
                 )}
                 {!s.ok && (
                   <span className="rounded-md bg-rose-500/15 px-1.5 py-0.5 text-rose-300 ring-1 ring-inset ring-rose-500/30">
-                    failed
+                    {tx("failed")}
                   </span>
                 )}
               </div>

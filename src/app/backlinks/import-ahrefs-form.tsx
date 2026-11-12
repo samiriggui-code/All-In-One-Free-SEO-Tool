@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { importAhrefsBacklinks, type AhrefsImportResult } from "./actions";
@@ -18,6 +19,7 @@ export function ImportAhrefsForm({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_backlinks_import-ahrefs-form");
   const [, startTransition] = useTransition();
   const [clientId, setClientId] = useState<number | "">("");
   const [busy, setBusy] = useState(false);
@@ -47,7 +49,7 @@ export function ImportAhrefsForm({
         };
         reader.onerror = () => {
           setBusy(false);
-          setResult({ ok: false, error: "Could not read the file" });
+          setResult({ ok: false, error: tx("couldNotReadTheFile") });
         };
         reader.readAsText(file);
       }}
@@ -55,7 +57,7 @@ export function ImportAhrefsForm({
       <div className="flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 text-foreground">
           <Upload className="size-3.5 text-muted-foreground" />
-          Import from Ahrefs Webmaster Tools
+          {tx("importFromAhrefsWebmasterTools")}
         </span>
         <select
           name="clientId"
@@ -64,7 +66,7 @@ export function ImportAhrefsForm({
           onChange={(e) => setClientId(Number(e.target.value) || "")}
           className="h-7 rounded-md border border-white/10 bg-white/[0.04] px-2 text-[11px] text-foreground"
         >
-          <option value="">Pick a client…</option>
+          <option value="">{tx("pickAClient")}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -84,18 +86,15 @@ export function ImportAhrefsForm({
           className="inline-flex h-7 items-center gap-1 rounded-md bg-violet-500/15 px-3 text-[11px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25 disabled:opacity-50"
         >
           {busy ? <Loader2 className="size-3 animate-spin" /> : null}
-          {busy ? "Importing…" : "Import"}
+          {busy ? tx("importing") : tx("import")}
         </button>
       </div>
       <p className="mt-2 text-[11px] text-muted-foreground">
-        Export from Ahrefs → Site Explorer → Backlinks → Export CSV. We
-        dedupe by source URL, so re-running the import after a fresh
-        Ahrefs export only adds new links.
+        {tx("exportFromAhrefsSiteExplorer")}
       </p>
       {result && result.ok && (
         <div className="mt-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[11px] text-emerald-200">
-          Added {result.inserted} new backlink{result.inserted === 1 ? "" : "s"}.
-          Skipped {result.duplicates} duplicate{result.duplicates === 1 ? "" : "s"}
+          {tx("addedNewOtherSkippedOther", { inserted: result.inserted, duplicates: result.duplicates })}
           {result.skipped > 0
             ? `, ${result.skipped} unparseable row${result.skipped === 1 ? "" : "s"}.`
             : "."}

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
 import { db } from "@/db/client";
@@ -10,6 +11,7 @@ import { clientScope } from "@/lib/client-scope";
 import { ProspectFinder } from "./prospect-finder";
 
 export default async function LinkBuildingProspectsPage() {
+  const tx = await getTranslations("ui.app_link-building_prospects_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name, url: clients.url })
     .from(clients)
@@ -22,22 +24,19 @@ export default async function LinkBuildingProspectsPage() {
         href="/link-building"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to link building
+        <ArrowLeft className="size-3" /> {tx("backToLinkBuilding")}
       </Link>
 
       <PageHeader
-        title="Find link prospects"
-        description="Free prospecting via DuckDuckGo with the search operators that actually find link opportunities — resource pages, write-for-us pages, directories, competitor mentions. Pick prospects to track them as submissions for the chosen client."
+        title={tx("findLinkProspects")}
+        description={tx("freeProspectingViaDuckduckgoWith")}
         icon={Search}
         accent="emerald"
       />
 
       {allClients.length === 0 ? (
         <div className="glass-apple rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          Add a client first.{" "}
-          <Link href="/clients" className="underline">
-            Manage clients →
-          </Link>
+          {tx.rich("addAClientFirstManage", { b0: (chunks) => <Link href="/clients" className="underline">{chunks}</Link> })}
         </div>
       ) : (
         <ProspectFinder clients={allClients} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -25,6 +26,7 @@ export function CompareForm({
   initialA?: string;
   initialB?: string;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   const [a, setA] = useState(initialA ?? "");
   const [b, setB] = useState(initialB ?? "");
   const [pending, startTransition] = useTransition();
@@ -36,7 +38,7 @@ export function CompareForm({
 
   function run() {
     if (!a.trim() || !b.trim()) {
-      setError("Enter two URLs.");
+      setError(tx("enterTwoUrls"));
       return;
     }
     setError(null);
@@ -56,17 +58,16 @@ export function CompareForm({
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Layers className="size-4 text-violet-300" />
-            Head-to-head comparison
+            {tx("headToHeadComparison")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Audit + tech stack + Core Web Vitals + brand metadata for two sites
-            in parallel. Best for compare against a competitor before pitching.
+            {tx("auditTechStackCoreWeb")}
           </p>
         </header>
         <div className="space-y-3 p-5">
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="urlA">Site A (yours / your client&apos;s)</Label>
+              <Label htmlFor="urlA">{tx("siteAYoursYourClient")}</Label>
               <Input
                 id="urlA"
                 value={a}
@@ -75,7 +76,7 @@ export function CompareForm({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="urlB">Site B (competitor)</Label>
+              <Label htmlFor="urlB">{tx("siteBCompetitor")}</Label>
               <Input
                 id="urlB"
                 value={b}
@@ -89,12 +90,12 @@ export function CompareForm({
               {pending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Comparing… (~60s)
+                  {tx("comparing60s")}
                 </>
               ) : (
                 <>
                   <Layers className="size-4" />
-                  Compare
+                  {tx("compare")}
                 </>
               )}
             </Button>
@@ -120,6 +121,7 @@ function ResultGrid({
   a: CompareSnapshot;
   b: CompareSnapshot;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   return (
     <div className="space-y-6">
       {/* Identity row */}
@@ -133,15 +135,15 @@ function ResultGrid({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-5 py-3 text-left font-medium">Metric</th>
+              <th className="px-5 py-3 text-left font-medium">{tx("metric")}</th>
               <th className="px-5 py-3 text-left font-medium">A</th>
               <th className="px-5 py-3 text-left font-medium">B</th>
-              <th className="px-5 py-3 text-left font-medium">Winner</th>
+              <th className="px-5 py-3 text-left font-medium">{tx("winner")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04]">
             <Row
-              label="Audit score (0-100)"
+              label={tx("auditScore0100")}
               icon={ShieldCheck}
               valA={a.audit?.score ?? null}
               valB={b.audit?.score ?? null}
@@ -149,7 +151,7 @@ function ResultGrid({
               format={(v) => (v === null ? "—" : `${v}/100`)}
             />
             <Row
-              label="Audit findings"
+              label={tx("auditFindings")}
               icon={AlertCircle}
               valA={a.audit?.findings.length ?? null}
               valB={b.audit?.findings.length ?? null}
@@ -157,7 +159,7 @@ function ResultGrid({
               format={(v) => (v === null ? "—" : String(v))}
             />
             <Row
-              label="Performance (PSI mobile)"
+              label={tx("performancePsiMobile")}
               icon={Zap}
               valA={a.cwv?.performance ?? null}
               valB={b.cwv?.performance ?? null}
@@ -181,7 +183,7 @@ function ResultGrid({
               format={(v) => (v === null ? "—" : (v / 100).toFixed(2))}
             />
             <Row
-              label="Tech count"
+              label={tx("techCount")}
               icon={Layers}
               valA={a.techStack?.length ?? null}
               valB={b.techStack?.length ?? null}
@@ -268,6 +270,7 @@ function Row({
   higherIsBetter: boolean | null;
   format: (v: number | null) => string;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   let winner: "A" | "B" | "tie" | null = null;
   if (valA !== null && valB !== null && higherIsBetter !== null) {
     if (valA === valB) winner = "tie";
@@ -288,18 +291,18 @@ function Row({
         {winner === "A" && (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
             <CheckCircle2 className="size-3" />
-            A wins
+            {tx("aWins")}
           </span>
         )}
         {winner === "B" && (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
             <CheckCircle2 className="size-3" />
-            B wins
+            {tx("bWins")}
           </span>
         )}
         {winner === "tie" && (
           <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-inset ring-white/10">
-            Tie
+            {tx("tie")}
           </span>
         )}
         {winner === null && (
@@ -317,13 +320,14 @@ function SocialRow({
   snapA: CompareSnapshot;
   snapB: CompareSnapshot;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   const a = snapA.metadata?.socialLinks ?? {};
   const b = snapB.metadata?.socialLinks ?? {};
   const aCount = Object.keys(a).length;
   const bCount = Object.keys(b).length;
   return (
     <Row
-      label="Social presence"
+      label={tx("socialPresence")}
       icon={Sparkles}
       valA={aCount}
       valB={bCount}
@@ -342,12 +346,13 @@ function TechBlock({
   side: "A" | "B";
   tech: string[] | null;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
           <Layers className="size-3.5 text-violet-300" />
-          Site {side} tech stack
+          {tx("siteTechStack", { side })}
         </h3>
       </header>
       <div className="p-5">
@@ -363,7 +368,7 @@ function TechBlock({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Not detected.</p>
+          <p className="text-sm text-muted-foreground">{tx("notDetected")}</p>
         )}
       </div>
     </section>
@@ -377,6 +382,7 @@ function FindingsBlock({
   side: "A" | "B";
   snapshot: CompareSnapshot;
 }) {
+  const tx = useTranslations("ui.app_compare_compare-form");
   const findings = snapshot.audit?.findings ?? [];
   const top = [...findings]
     .sort((a, b) => sevRank(b.severity) - sevRank(a.severity))
@@ -386,13 +392,13 @@ function FindingsBlock({
       <header className="border-b border-white/[0.06] px-5 py-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
           <AlertCircle className="size-3.5 text-rose-300" />
-          Site {side} top issues
+          {tx("siteTopIssues", { side })}
         </h3>
       </header>
       <ul className="divide-y divide-white/[0.04]">
         {top.length === 0 ? (
           <li className="px-5 py-3 text-sm text-muted-foreground">
-            {snapshot.audit?.error ?? "No findings."}
+            {snapshot.audit?.error ?? tx("noFindings")}
           </li>
         ) : (
           top.map((f, i) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import {
   ChevronDown,
@@ -38,6 +39,7 @@ export function ProspectsLibrary({
   countryLabels,
   nicheLabels,
 }: Props) {
+  const tx = useTranslations("ui.app_link-building_library_prospects-library");
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState<string>("");
   const [niche, setNiche] = useState<string>("");
@@ -127,23 +129,23 @@ export function ProspectsLibrary({
       <section className="glass-apple relative overflow-hidden rounded-2xl space-y-3 p-4">
         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Search</span>
+            <span className="text-muted-foreground">{tx("search")}</span>
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Name or description…"
+              placeholder={tx("nameOrDescription")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             />
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Country</span>
+            <span className="text-muted-foreground">{tx("country")}</span>
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Any (incl. global)</option>
+              <option value="">{tx("anyInclGlobal")}</option>
               {allCountries.map((c) => (
                 <option key={c} value={c}>
                   {countryLabels[c] ?? c}
@@ -152,13 +154,13 @@ export function ProspectsLibrary({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Niche</span>
+            <span className="text-muted-foreground">{tx("niche")}</span>
             <select
               value={niche}
               onChange={(e) => setNiche(e.target.value)}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Any</option>
+              <option value="">{tx("any")}</option>
               {allNiches.map((n) => (
                 <option key={n} value={n}>
                   {nicheLabels[n] ?? n}
@@ -167,7 +169,7 @@ export function ProspectsLibrary({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Category</span>
+            <span className="text-muted-foreground">{tx("category")}</span>
             <select
               value={category}
               onChange={(e) =>
@@ -175,7 +177,7 @@ export function ProspectsLibrary({
               }
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Any</option>
+              <option value="">{tx("any")}</option>
               {Object.entries(categoryLabels).map(([k, label]) => (
                 <option key={k} value={k}>
                   {label}
@@ -184,33 +186,33 @@ export function ProspectsLibrary({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Cost</span>
+            <span className="text-muted-foreground">{tx("cost")}</span>
             <select
               value={cost}
               onChange={(e) => setCost(e.target.value)}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Any</option>
-              <option value="free">Free only</option>
-              <option value="freemium">Freemium</option>
-              <option value="paid">Paid</option>
+              <option value="">{tx("any")}</option>
+              <option value="free">{tx("freeOnly")}</option>
+              <option value="freemium">{tx("freemium")}</option>
+              <option value="paid">{tx("paid")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Link type</span>
+            <span className="text-muted-foreground">{tx("linkType")}</span>
             <select
               value={linkType}
               onChange={(e) => setLinkType(e.target.value)}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
-              <option value="">Any</option>
-              <option value="dofollow">Dofollow only</option>
-              <option value="nofollow">Nofollow</option>
-              <option value="mixed">Mixed</option>
+              <option value="">{tx("any")}</option>
+              <option value="dofollow">{tx("dofollowOnly")}</option>
+              <option value="nofollow">{tx("nofollow")}</option>
+              <option value="mixed">{tx("mixed")}</option>
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Min DA ({minDa})</span>
+            <span className="text-muted-foreground">{tx("minDa", { minDa })}</span>
             <input
               type="range"
               min={0}
@@ -222,7 +224,7 @@ export function ProspectsLibrary({
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Max difficulty ({maxDiff}/5)
+              {tx("maxDifficulty5", { maxDiff })}
             </span>
             <input
               type="range"
@@ -236,21 +238,21 @@ export function ProspectsLibrary({
         </div>
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
           <span>
-            Showing {filtered.length} of {prospects.length}
+            {tx("showingOf", { length: filtered.length, length2: prospects.length })}
           </span>
           <button
             type="button"
             onClick={reset}
             className="rounded-md px-2 py-1 text-violet-300 hover:bg-white/5"
           >
-            Reset filters
+            {tx("resetFilters")}
           </button>
         </div>
       </section>
 
       {filtered.length === 0 ? (
         <div className="glass-apple rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No prospects match those filters. Loosen one and try again.
+          {tx("noProspectsMatchThoseFilters")}
         </div>
       ) : (
         grouped.map(([cat, list]) => (
@@ -276,7 +278,7 @@ export function ProspectsLibrary({
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-medium">{p.name}</p>
                             <span className="rounded-md bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-mono text-violet-300 ring-1 ring-inset ring-violet-500/30">
-                              DA {p.da}
+                              {tx("da", { da: p.da })}
                             </span>
                             <span
                               className={`rounded-md px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${COST_COLORS[p.cost]}`}
@@ -289,7 +291,7 @@ export function ProspectsLibrary({
                               {p.linkType}
                             </span>
                             <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                              ★{p.difficulty}/5 · ~{p.submissionTimeMin}min
+                              {tx("n5Min", { difficulty: p.difficulty, submissionTimeMin: p.submissionTimeMin })}
                             </span>
                             {p.countries.length > 0 && (
                               <span className="rounded-md bg-cyan-500/15 px-1.5 py-0.5 text-[10px] text-cyan-300 ring-1 ring-inset ring-cyan-500/30">
@@ -321,7 +323,7 @@ export function ProspectsLibrary({
                               rel="noreferrer"
                               className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/20"
                             >
-                              Open
+                              {tx("open")}
                               <ExternalLink className="size-2.5" />
                             </a>
                             <button
@@ -331,11 +333,11 @@ export function ProspectsLibrary({
                             >
                               {copied === key ? (
                                 <>
-                                  <Check className="size-2.5" /> Copied
+                                  <Check className="size-2.5" /> {tx("copied")}
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="size-2.5" /> Copy URL
+                                  <Copy className="size-2.5" /> {tx("copyUrl")}
                                 </>
                               )}
                             </button>
@@ -346,11 +348,11 @@ export function ProspectsLibrary({
                             >
                               {isExpanded ? (
                                 <>
-                                  <ChevronDown className="size-2.5" /> Hide steps
+                                  <ChevronDown className="size-2.5" /> {tx("hideSteps")}
                                 </>
                               ) : (
                                 <>
-                                  <ChevronRight className="size-2.5" /> How to submit
+                                  <ChevronRight className="size-2.5" /> {tx("howToSubmit")}
                                 </>
                               )}
                             </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { importShortLinksCsv, type ImportShortLinksResult } from "./actions";
@@ -9,6 +10,7 @@ export function CsvImportForm({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_links_csv-import-form");
   const [state, formAction, pending] = useActionState<
     ImportShortLinksResult | null,
     FormData
@@ -23,7 +25,7 @@ export function CsvImportForm({
         className="inline-flex h-9 items-center gap-1 rounded-md bg-white/5 px-4 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
       >
         <Upload className="size-3" />
-        Bulk CSV import
+        {tx("bulkCsvImport")}
       </button>
     );
   }
@@ -36,34 +38,29 @@ export function CsvImportForm({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Upload className="size-4 text-cyan-300" />
-          Bulk CSV import
+          {tx("bulkCsvImport")}
         </h3>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="text-[11px] text-muted-foreground hover:text-foreground"
         >
-          Cancel
+          {tx("cancel")}
         </button>
       </div>
 
       <p className="text-[11px] text-muted-foreground">
-        Format:{" "}
-        <code className="rounded bg-white/5 px-1.5 py-0.5">
-          destination,label,custom_slug,utm_source,utm_medium,utm_campaign
-        </code>
-        . Only <strong>destination</strong> is required. Lines starting with{" "}
-        <code>#</code> are ignored.
+        {tx.rich("formatDestinationLabelCustomSlug", { b0: (chunks) => <code className="rounded bg-white/5 px-1.5 py-0.5">{chunks}</code>, b1: (chunks) => <strong>{chunks}</strong>, b2: (chunks) => <code>{chunks}</code> })}
       </p>
 
       <label className="block space-y-1 text-xs">
-        <span className="text-muted-foreground">For client (optional)</span>
+        <span className="text-muted-foreground">{tx("forClientOptional")}</span>
         <select
           name="clientId"
           defaultValue=""
           className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
         >
-          <option value="">Workspace-wide</option>
+          <option value="">{tx("workspaceWide")}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -73,7 +70,7 @@ export function CsvImportForm({
       </label>
 
       <label className="block space-y-1 text-xs">
-        <span className="text-muted-foreground">CSV body</span>
+        <span className="text-muted-foreground">{tx("csvBody")}</span>
         <textarea
           name="csv"
           required
@@ -93,19 +90,19 @@ export function CsvImportForm({
         {pending ? (
           <>
             <Loader2 className="mr-2 size-3 animate-spin" />
-            Importing…
+            {tx("importing")}
           </>
         ) : (
-          "Import"
+          tx("import")
         )}
       </button>
 
       {state && state.ok && (
         <div className="text-xs text-emerald-300">
-          ✓ Imported {state.created}.{" "}
+          {tx("imported", { created: state.created })}
           {state.skipped > 0 && (
             <span className="text-amber-300">
-              Skipped {state.skipped} bad row{state.skipped === 1 ? "" : "s"}.
+              {tx("skippedBadOther", { skipped: state.skipped })}
             </span>
           )}
           {state.errors.length > 0 && (

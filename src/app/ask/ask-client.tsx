@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -24,19 +26,20 @@ type Turn =
   | { kind: "tool"; text: string }
   | { kind: "error"; text: string };
 
-const SUGGESTED = [
-  "Why might traffic have dropped recently?",
-  "What's the single highest-impact fix I should make this week?",
-  "Which content is decaying and worth refreshing?",
-  "Pick 3 keywords I'm closest to ranking for on page 1.",
-  "What's missing from my technical SEO baseline?",
-];
+const SUGGESTED = (tx: Tx) => ([
+  tx("whyMightTrafficHaveDropped"),
+  tx("whatSTheSingleHighest"),
+  tx("whichContentIsDecayingAnd"),
+  tx("pick3KeywordsIM"),
+  tx("whatSMissingFromMy"),
+]);
 
 export function AskClient({
   clients,
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_ask_ask-client");
   const [clientId, setClientId] = useState<string>(
     clients[0]?.id.toString() ?? "",
   );
@@ -76,7 +79,7 @@ export function AskClient({
       <section className="glass-apple relative overflow-hidden rounded-2xl p-4">
         <div className="flex flex-wrap items-center gap-2">
           <Label htmlFor="ask-client" className="text-xs">
-            Answer in context of
+            {tx("answerInContextOf")}
           </Label>
           <select
             id="ask-client"
@@ -85,7 +88,7 @@ export function AskClient({
             disabled={pending}
             className="flex h-8 rounded-md border border-input bg-background px-2 text-xs"
           >
-            <option value="">No specific client (general SEO Q&amp;A)</option>
+            <option value="">{tx("noSpecificClientGeneralSeo")}</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -95,7 +98,7 @@ export function AskClient({
           {clientId && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <Sparkles className="size-2.5" />
-              Pulling real audit + keyword data
+              {tx("pullingRealAuditKeywordData")}
             </span>
           )}
           <div className="ml-auto">
@@ -110,9 +113,9 @@ export function AskClient({
 
       {turns.length === 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-          <h2 className="text-sm font-semibold">Try one of these</h2>
+          <h2 className="text-sm font-semibold">{tx("tryOneOfThese")}</h2>
           <div className="mt-2 flex flex-wrap gap-2">
-            {SUGGESTED.map((s) => (
+            {SUGGESTED(tx).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -175,7 +178,7 @@ export function AskClient({
             {pending && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="size-3 animate-spin" />
-                Thinking…
+                {tx("thinking")}
               </div>
             )}
           </div>
@@ -193,7 +196,7 @@ export function AskClient({
                 ask();
               }
             }}
-            placeholder="Ask in plain English… (Shift+Enter for newline)"
+            placeholder={tx("askInPlainEnglishShift")}
             rows={2}
             disabled={pending}
             className="w-full flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm"

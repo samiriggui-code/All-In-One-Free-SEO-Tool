@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,6 +14,7 @@ import { listSnapshots, snapshotKindLabel } from "@/lib/snapshots";
 import { PageHeader } from "@/components/shell/page-header";
 
 export default async function SnapshotsPage() {
+  const tx = await getTranslations("ui.app_snapshots_page");
   const all = await listSnapshots({ limit: 200 });
 
   // Group by label (URL/key) so users can compare snapshots of the same target
@@ -37,8 +39,8 @@ export default async function SnapshotsPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Saved snapshots"
-        description="Every result you saved from any tool. Snapshots of the same URL stack up so you can compare before / after — useful after speed work, redesigns, migrations."
+        title={tx("savedSnapshots")}
+        description={tx("everyResultYouSavedFrom")}
         icon={Save}
         accent="violet"
       />
@@ -46,8 +48,7 @@ export default async function SnapshotsPage() {
       {groups.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">
-            No snapshots yet. Run any tool with a &ldquo;Save snapshot&rdquo;
-            button — they collect here.
+            {tx("noSnapshotsYetRunAny")}
           </p>
         </div>
       ) : (
@@ -75,8 +76,7 @@ export default async function SnapshotsPage() {
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {rows.length} snapshot{rows.length === 1 ? "" : "s"} ·
-                      newest {latest.capturedAt.toLocaleString()}
+                      {tx("otherNewest", { length: rows.length, v: latest.capturedAt.toLocaleString() })}
                     </div>
                   </div>
                   {rows.length >= 2 && (
@@ -84,7 +84,7 @@ export default async function SnapshotsPage() {
                       href={`/snapshots/compare?a=${rows[1].id}&b=${rows[0].id}`}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs hover:bg-white/10"
                     >
-                      Compare last 2
+                      {tx("compareLast2")}
                       <ArrowRight className="size-3" />
                     </Link>
                   )}
@@ -134,8 +134,7 @@ export default async function SnapshotsPage() {
                     ) : delta < 0 ? (
                       <TrendingDown className="size-3" />
                     ) : null}
-                    {delta > 0 ? "+" : ""}
-                    {delta} {latest.primaryMetricLabel} since previous snapshot
+                    {tx("sincePreviousSnapshot", { v: delta > 0 ? "+" : "", delta, primaryMetricLabel: latest.primaryMetricLabel ?? "" })}
                   </footer>
                 )}
               </section>
@@ -147,20 +146,17 @@ export default async function SnapshotsPage() {
       <div className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
         <h2 className="flex items-center gap-2 text-base font-semibold">
           <ClipboardList className="size-4 text-violet-300" />
-          How to add snapshots
+          {tx("howToAddSnapshots")}
         </h2>
         <ul className="mt-2 space-y-1 text-muted-foreground">
           <li>
-            · <strong>SEO health check</strong> (/tools/health-check) — full
-            audit + everything, save with one click
+            {tx.rich("seoHealthCheckToolsHealth", { b0: (chunks) => <strong>{chunks}</strong> })}
           </li>
           <li>
-            · <strong>HTTP headers + redirects</strong> (/tools/headers) — save
-            redirect chain state for comparison
+            {tx.rich("httpHeadersRedirectsToolsHeaders", { b0: (chunks) => <strong>{chunks}</strong> })}
           </li>
           <li>
-            · Per-client tools (CWV, etc.) — save current scores to track over
-            time
+            {tx("perClientToolsCwvEtc")}
           </li>
         </ul>
       </div>

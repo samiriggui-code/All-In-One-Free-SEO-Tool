@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Crown, Loader2, Play, Shield, ShieldOff } from "lucide-react";
 import { captureBrandSerp, type BrandSerpResult } from "./actions";
@@ -22,6 +23,7 @@ export function BrandSerpView({
     socialLinks: ClientSocialLinks | null;
   }[];
 }) {
+  const tx = useTranslations("ui.app_brand-serp_view");
   const [picked, setPicked] = useState<number | null>(clients[0]?.id ?? null);
   const [result, setResult] = useState<BrandSerpResult | null>(null);
   const [pending, startScan] = useTransition();
@@ -38,7 +40,7 @@ export function BrandSerpView({
   if (clients.length === 0) {
     return (
       <p className="rounded-md bg-white/[0.02] px-3 py-2 text-sm text-muted-foreground">
-        Add a client first.
+        {tx("addAClientFirst")}
       </p>
     );
   }
@@ -67,12 +69,12 @@ export function BrandSerpView({
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Scanning…
+                {tx("scanning")}
               </>
             ) : (
               <>
                 <Play className="mr-2 size-3" />
-                Capture brand SERP
+                {tx("captureBrandSerp")}
               </>
             )}
           </button>
@@ -88,16 +90,16 @@ export function BrandSerpView({
       {result?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label="Brand" value={result.brand} />
-            <Stat label="Top-10 owned" value={`${result.ownership.owned} / ${result.ownership.total}`} tone={result.ownership.pct >= 50 ? "emerald" : "amber"} />
+            <Stat label={tx("brand")} value={result.brand} />
+            <Stat label={tx("top10Owned")} value={`${result.ownership.owned} / ${result.ownership.total}`} tone={result.ownership.pct >= 50 ? "emerald" : "amber"} />
             <Stat
-              label="Control"
+              label={tx("control")}
               value={`${result.ownership.pct.toFixed(0)}%`}
               tone={result.ownership.pct >= 50 ? "emerald" : "rose"}
-              hint="goal: 50%+"
+              hint={tx("goal50")}
             />
             <Stat
-              label="Third-party"
+              label={tx("thirdParty")}
               value={result.ownership.thirdParty.toString()}
               tone={result.ownership.thirdParty <= 5 ? "emerald" : "amber"}
             />
@@ -107,7 +109,7 @@ export function BrandSerpView({
             <header className="border-b border-white/[0.06] px-5 py-3">
               <h3 className="flex items-center gap-2 text-sm font-semibold">
                 <Crown className="size-4 text-amber-300" />
-                First-page SERP
+                {tx("firstPageSerp")}
               </h3>
             </header>
             <ul className="divide-y divide-white/[0.05]">
@@ -148,13 +150,13 @@ export function BrandSerpView({
           </section>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-            <h3 className="text-sm font-semibold">How to improve brand SERP control</h3>
+            <h3 className="text-sm font-semibold">{tx("howToImproveBrandSerp")}</h3>
             <ul className="space-y-1 text-xs text-muted-foreground">
-              <li>• Claim + verify a Wikidata entry for entity-level recognition</li>
-              <li>• Maintain LinkedIn Company / Crunchbase / GitHub / Twitter — link them via Organization schema sameAs on your home page</li>
-              <li>• Earn Wikipedia mention with notable cited sources</li>
-              <li>• Publish branded YouTube content — videos almost always make page 1</li>
-              <li>• Address negative third-party results with original content (don&apos;t try to demote — outrank with better)</li>
+              <li>{tx("claimVerifyAWikidataEntry")}</li>
+              <li>{tx("maintainLinkedinCompanyCrunchbaseGithub")}</li>
+              <li>{tx("earnWikipediaMentionWithNotable")}</li>
+              <li>{tx("publishBrandedYoutubeContentVideos")}</li>
+              <li>{tx("addressNegativeThirdPartyResults")}</li>
             </ul>
           </section>
         </>
