@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
+import { clientScope } from "@/lib/client-scope";
 import { backlinks, clients } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +28,8 @@ export async function GET(request: Request) {
     })
     .from(backlinks)
     .leftJoin(clients, eq(backlinks.clientId, clients.id))
-    .where(where);
+    // Members and client viewers get their own projects only.
+    .where(and(where, await clientScope()));
 
   // Group by domain (Google's disavow file is most useful per-domain)
   const domains = new Map<string, typeof rows>();
