@@ -805,6 +805,7 @@
       "enabled": "Tool turned on",
       "enabledHint": "Turned off, the tool no longer shows in projects, search or the client menu. Its page is not deleted.",
       "adminOnly": "Only the workspace owner can turn a tool on or off.",
+      "offByDefault": "Off to begin with: this tool is outside day-to-day SEO work or needs a paid key. Turn it on if your clients need it.",
       "open": "Open the tool",
       "close": "Close",
       "count": "{count, plural, one {# tool} other {# tools}}",

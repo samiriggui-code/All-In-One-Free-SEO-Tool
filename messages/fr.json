@@ -805,6 +805,7 @@
       "enabled": "Outil activé",
       "enabledHint": "Désactivé, l’outil n’apparaît plus dans les projets, la recherche ni le menu des clients. Sa page n’est pas supprimée.",
       "adminOnly": "Seul le propriétaire de l’espace peut activer ou désactiver un outil.",
+      "offByDefault": "Désactivé au départ : cet outil sort du travail SEO courant ou demande une clé payante. Activez-le si vos clients en ont besoin.",
       "open": "Ouvrir l’outil",
       "close": "Fermer",
       "count": "{count, plural, one {# outil} other {# outils}}",

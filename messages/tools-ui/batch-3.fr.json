@@ -344,25 +344,6 @@
     "colHops": "Sauts",
     "colNotes": "Notes"
   },
-  "news-headline": {
-    "pageTitle": "SEO Actualités : audit de titre",
-    "pageDescription": "Évaluez un titre journalistique : longueur, compatibilité Top Stories (idéal entre 30 et 110 caractères), accroche façon dépêche, place du mot-clé principal. L’IA propose 3 à 5 variantes.",
-    "headlineRequired": "Le titre est obligatoire.",
-    "headlinePlaceholder": "Le Sénat adopte la loi sur les infrastructures par 67 voix contre 32",
-    "topicPlaceholder": "Sujet / contexte (facultatif)",
-    "running": "Audit en cours…",
-    "submit": "Auditer",
-    "score": "Score",
-    "chars": "Caractères",
-    "charsHint": "idéal 30-110",
-    "words": "Mots",
-    "topStoriesFit": "Compatible Top Stories",
-    "yes": "oui",
-    "no": "non",
-    "issues": "Problèmes",
-    "alternates": "Variantes proposées par l’IA",
-    "charCount": "({count} caractères)"
-  },
   "outreach-personalize": {
     "pageTitle": "Personnalisation d’emails d’outreach",
     "pageDescription": "Collez l’URL d’un prospect et votre modèle générique. L’IA parcourt son site, repère ses publications récentes et ses thèmes de prédilection, puis réécrit votre accroche avec une référence précise. De 2 % à 15 % de taux de réponse.",

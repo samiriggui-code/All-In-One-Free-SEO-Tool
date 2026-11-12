@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   BookOpen,
   Building,
@@ -41,6 +42,18 @@ export function KnowledgeEn() {
           >
             Why Backlinko / RankMath / SEJ rank #1 — checklist
           </a>
+          <Link
+            href="/tools/ai-citation-tactics"
+            className="rounded-md bg-sky-500/15 px-3 py-1.5 text-sky-300 ring-1 ring-inset ring-sky-500/30 hover:bg-sky-500/25"
+          >
+            Getting cited by ChatGPT, Perplexity and Gemini: tactics per platform
+          </Link>
+          <Link
+            href="/tools/external"
+            className="rounded-md bg-amber-500/15 px-3 py-1.5 text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/25"
+          >
+            Free external tools (Moz, Ahrefs, SSL Labs…), pre-filled for a site
+          </Link>
         </div>
       </section>
 

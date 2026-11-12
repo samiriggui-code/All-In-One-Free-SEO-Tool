@@ -3,10 +3,6 @@
     "title": "Full SEO health check ⭐",
     "description": "One URL → audit + robots + hreflang + security + Core Web Vitals + image audit + redirect chain in parallel. Save snapshots to compare before / after."
   },
-  "browser-agent": {
-    "title": "Browser agent (goal-driven)",
-    "description": "Plain-English goal + a starting URL. Headless Chrome reads the page, decides the next step, and narrates each move with a screenshot. Replaces 'I need an API for that site' with browser automation."
-  },
   "trending": {
     "title": "Trending content ideas",
     "description": "Mines Google Trends rising queries, autocomplete a-z expansion, People Also Ask, related searches, Reddit threads. AI synthesises 10-15 publish-ready ideas."
@@ -82,10 +78,6 @@
   "bulk-alt": {
     "title": "Bulk image alt-text generator",
     "description": "Crawl a URL, AI writes SEO alt text for every image based on nearby context. RankMath bulk image SEO equivalent."
-  },
-  "news-headline": {
-    "title": "News SEO — headline audit",
-    "description": "Score journalistic headlines for Top Stories fit, AP-style hook, length. AI suggests 3-5 alternates."
   },
   "auto-link": {
     "title": "Auto-link suggester (RankMath-style)",
@@ -281,10 +273,6 @@
   "search-volume": {
     "title": "Search-volume estimator",
     "description": "Free directional volume bucket. Combines Google Trends, Google + Bing autocomplete, SERP characteristics. No paid keyword DB."
-  },
-  "plagiarism": {
-    "title": "Plagiarism + AI detector",
-    "description": "AI-likelihood + originality scores on any draft. Flags AI-template phrases. Links to Copyleaks, GPTZero, Originality.ai for definitive web check."
   },
   "meta-tag-generator": {
     "title": "Meta tag generator",
