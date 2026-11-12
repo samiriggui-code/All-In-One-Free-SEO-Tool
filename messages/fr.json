@@ -303,7 +303,8 @@
         "agency": "Agence",
         "system": "Système",
         "about": "À propos",
-        "tools": "Outils"
+        "tools": "Outils",
+        "account": "Compte"
       },
       "items": {
         "general": "Général",
@@ -323,7 +324,8 @@
         "health": "Santé du système",
         "errors": "Journal des erreurs",
         "privacy": "Confidentialité",
-        "tools": "Outils"
+        "tools": "Outils",
+        "profile": "Mon profil"
       }
     },
     "general": {
@@ -2594,7 +2596,8 @@
       "docs": "Documentation",
       "learn": "Apprendre le SEO",
       "knowledge": "Base de connaissances",
-      "help": "Aide"
+      "help": "Aide",
+      "openProfile": "Ouvrir mon profil"
     },
     "nextStep": {
       "ai": {
@@ -3452,7 +3455,39 @@
     "reactivate": "Réactiver",
     "accessHint": "{name} ne voit que les clients cochés ici. Tout le reste de l’app est filtré en conséquence : tableau de bord, tâches, rapports, mots-clés.",
     "noClients": "Pas encore de client : ajoutez-en un d’abord.",
-    "saveAccess": "Enregistrer l’accès"
+    "saveAccess": "Enregistrer l’accès",
+    "rights": {
+      "title": "Qui peut faire quoi",
+      "hint": "Les règles appliquées par le serveur pour chaque rôle. Un membre ou un client ne voit que les clients qui lui sont attribués.",
+      "what": "Action",
+      "rows": {
+        "clients": "Voir les clients",
+        "work": "Faire le travail : audits, tâches, contenus",
+        "reports": "Consulter rapports, audits et mots-clés",
+        "tools": "Utiliser les outils, l'agent et l'assistant",
+        "profile": "Régler son profil et son mot de passe",
+        "settings": "Paramètres de l'espace : clés, intégrations, sauvegardes",
+        "team": "Inviter, changer les rôles et les accès"
+      },
+      "values": {
+        "yes": "Oui",
+        "assigned": "Clients attribués",
+        "read": "Lecture seule",
+        "no": "Non"
+      }
+    },
+    "journal": {
+      "title": "Journal des accès",
+      "hint": "Invitations, changements de rôle, comptes désactivés, accès aux clients et mots de passe changés. Visible par le propriétaire seulement.",
+      "empty": "Rien pour l'instant : les prochains changements apparaîtront ici.",
+      "by": "par {name}",
+      "invited": "Invitation envoyée à {email} comme {role, select, owner {propriétaire} manager {manager} member {membre} other {client (lecture seule)}}",
+      "inviteCancelled": "Invitation de {email} annulée",
+      "roleChanged": "{name} passe de {from, select, owner {propriétaire} manager {manager} member {membre} other {client (lecture seule)}} à {to, select, owner {propriétaire} manager {manager} member {membre} other {client (lecture seule)}}",
+      "deactivated": "Compte de {name} désactivé",
+      "reactivated": "Compte de {name} réactivé",
+      "accessChanged": "Accès de {name} : {count, plural, =0 {aucun client} one {# client} other {# clients}}"
+    }
   },
   "landing": {
     "metaTitle": "{name} · Votre bureau SEO complet",
@@ -8165,5 +8200,63 @@
     "backlink_sync": "Découverte de backlinks",
     "google_updates": "Mises à jour du classement Google",
     "retention_cleanup": "Nettoyage des données anciennes"
+  },
+  "settingsProfile": {
+    "title": "Mon profil",
+    "description": "Votre photo, votre nom et votre mot de passe. Ces réglages ne concernent que vous.",
+    "noAccounts": "Cette instance n'a pas encore de comptes : personne ne se connecte en son nom, il n'y a donc pas de profil à régler.",
+    "setUpTeam": "Créer l'équipe et les comptes",
+    "identityTitle": "Identité",
+    "identityHint": "Ce que l'équipe voit de vous dans le menu du compte et la liste de l'équipe.",
+    "photoLabel": "Photo",
+    "photoHint": "PNG, JPG ou WebP. La photo est recadrée en carré et réduite avant l'envoi.",
+    "photoUpload": "Charger une photo",
+    "photoReplace": "Changer",
+    "photoRemove": "Retirer",
+    "photoSaved": "Photo enregistrée.",
+    "photoRemoved": "Photo retirée.",
+    "photoBadFile": "Choisissez une image PNG, JPG ou WebP de moins de 10 Mo.",
+    "nameLabel": "Nom",
+    "nameHint": "Affiché à la place de votre e-mail dans l'app et sur les tâches que vous faites.",
+    "nameSheetTitle": "Modifier le nom",
+    "editName": "Modifier le nom",
+    "nameSaved": "Nom enregistré.",
+    "notSet": "Non renseigné",
+    "passwordLabel": "Mot de passe",
+    "passwordHint": "Le changer déconnecte vos autres appareils.",
+    "changePassword": "Changer le mot de passe",
+    "passwordSheetHint": "Saisissez le mot de passe actuel, puis le nouveau deux fois. Vos autres sessions seront fermées.",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "newPasswordHint": "10 caractères au moins. Une phrase facile à retenir vaut mieux qu'un mot court compliqué.",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "passwordSaved": "Mot de passe changé. Vos autres sessions ont été fermées.",
+    "accountTitle": "Compte",
+    "emailLabel": "E-mail",
+    "emailHint": "Votre identifiant de connexion.",
+    "roleLabel": "Rôle",
+    "roleHint": "Ce que vous pouvez faire dans l'espace. Voir le détail dans Équipe et accès.",
+    "createdLabel": "Inscrit le",
+    "lastLoginLabel": "Dernière connexion",
+    "never": "Jamais",
+    "idLabel": "Identifiant",
+    "idHint": "Utile pour l'API et le support.",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "errors": {
+      "noAccount": "Connectez-vous avec votre compte pour modifier votre profil.",
+      "nameTooLong": "Le nom ne doit pas dépasser 80 caractères.",
+      "badAvatar": "Cette image n'est pas acceptée : PNG, JPG ou WebP de moins de 200 Ko après réduction.",
+      "tooManyTries": "Trop d'essais. Réessayez dans un quart d'heure.",
+      "wrongCurrent": "Le mot de passe actuel n'est pas le bon.",
+      "tooShort": "Le nouveau mot de passe doit faire au moins {min} caractères.",
+      "tooLong": "Le nouveau mot de passe dépasse 200 caractères.",
+      "mismatch": "Les deux nouveaux mots de passe ne sont pas identiques.",
+      "sameAsCurrent": "Le nouveau mot de passe doit être différent de l'actuel."
+    },
+    "journal": {
+      "passwordChanged": "{name} a changé son mot de passe"
+    }
   }
 }

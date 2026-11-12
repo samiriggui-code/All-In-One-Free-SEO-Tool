@@ -17,11 +17,18 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { REPO_URL } from "@/lib/repo";
+import { UserAvatar } from "./user-avatar";
 
 type AuthStatus = {
   enabled: boolean;
   mode: "accounts" | "password" | "open";
-  user: { id: number; name: string | null; email: string; role: string } | null;
+  user: {
+    id: number;
+    name: string | null;
+    email: string;
+    role: string;
+    avatarUrl?: string | null;
+  } | null;
 };
 
 /**
@@ -58,16 +65,21 @@ export function ProfileMenu({
   // offering a Sign out button that would do nothing.
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/auth/status", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((j: AuthStatus) => {
-        if (!cancelled) setStatus(j);
-      })
-      .catch(() => {
-        if (!cancelled) setStatus(null);
-      });
+    const load = () =>
+      fetch("/api/auth/status", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((j: AuthStatus) => {
+          if (!cancelled) setStatus(j);
+        })
+        .catch(() => {
+          if (!cancelled) setStatus(null);
+        });
+    void load();
+    // My profile fires this after a new photo or name.
+    window.addEventListener("profile-updated", load);
     return () => {
       cancelled = true;
+      window.removeEventListener("profile-updated", load);
     };
   }, []);
 
@@ -84,7 +96,7 @@ export function ProfileMenu({
   const isOwner = status !== null && !signedOut && (!me || me.role === "owner");
   const isViewer = me?.role === "viewer";
   const canOpenSettings = isOwner || (me !== null && !isViewer);
-  const initial = (me?.name || me?.email || "P").trim().charAt(0).toUpperCase();
+  const displayName = me?.name || me?.email || null;
 
   useEffect(() => {
     if (!open) return;
@@ -122,9 +134,7 @@ export function ProfileMenu({
           aria-haspopup="menu"
           className="flex w-full min-w-0 items-center gap-2.5 rounded-md px-1.5 py-1.5 text-left transition-colors hover:bg-sidebar-accent"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-            {initial}
-          </span>
+          <UserAvatar src={me?.avatarUrl} name={displayName} className="size-8 text-xs" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13px] font-medium text-sidebar-foreground">
               {me?.name || me?.email || t("appName")}
@@ -142,9 +152,9 @@ export function ProfileMenu({
           title={collapsed ? me?.name || me?.email || t("menu") : undefined}
           aria-expanded={open}
           aria-haspopup="menu"
-          className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm ring-2 ring-transparent transition hover:ring-primary/30"
+          className="rounded-full shadow-sm ring-2 ring-transparent transition hover:ring-primary/30"
         >
-          {initial}
+          <UserAvatar src={me?.avatarUrl} name={displayName} className="size-8 text-xs" />
         </button>
       )}
 
@@ -157,11 +167,13 @@ export function ProfileMenu({
               : "right-0 top-10 max-h-[calc(100dvh-4rem)]"
           }`}
         >
-          {/* Who */}
-          <div className="flex items-center gap-3 px-4 py-3">
-            <div className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-              {initial}
-            </div>
+          {/* Who: with an account, a click opens My profile (as in GsKnora). */}
+          <WhoBlock
+            href={me && !isViewer ? "/settings/profile" : null}
+            title={me ? t("openProfile") : undefined}
+            onClick={close}
+          >
+            <UserAvatar src={me?.avatarUrl} name={displayName} className="size-9 text-sm" />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">
                 {me?.name || me?.email || t("appName")}
@@ -178,7 +190,7 @@ export function ProfileMenu({
                       : t("localSingleUser")}
               </p>
             </div>
-          </div>
+          </WhoBlock>
           <p className="flex items-center gap-1.5 border-b border-border px-4 pb-2.5 text-[11px] text-muted-foreground">
             <span className="size-1.5 rounded-full bg-emerald-500" />
             {t("selfHosted")}
@@ -299,6 +311,33 @@ function MenuLink({
       className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground/85 transition-colors hover:bg-accent hover:text-foreground"
     >
       <Icon className="size-4 text-muted-foreground" />
+      {children}
+    </Link>
+  );
+}
+
+/** The name block at the top of the menu: a link to My profile when there is one. */
+function WhoBlock({
+  href,
+  title,
+  onClick,
+  children,
+}: {
+  href: string | null;
+  title?: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const className = "flex items-center gap-3 px-4 py-3";
+  if (!href) return <div className={className}>{children}</div>;
+  return (
+    <Link
+      href={href}
+      role="menuitem"
+      title={title}
+      onClick={onClick}
+      className={`${className} transition-colors hover:bg-accent`}
+    >
       {children}
     </Link>
   );

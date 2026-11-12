@@ -23,7 +23,15 @@ export type ActivityKind =
   | "google.service_account_saved"
   | "google.service_account_cleared"
   | "agent.level_chosen"
-  | "edge.token_rotated";
+  | "edge.token_rotated"
+  // Who may do what, for the journal on Settings → Team.
+  | "team.invited"
+  | "team.invite_cancelled"
+  | "team.role_changed"
+  | "team.deactivated"
+  | "team.reactivated"
+  | "team.access_changed"
+  | "account.password_changed";
 
 export type ActivityLevel = "info" | "success" | "warning" | "error";
 

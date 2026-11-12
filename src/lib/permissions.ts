@@ -31,6 +31,13 @@ export const OWNER_ONLY_PREFIXES = [
 ] as const;
 
 /**
+ * Settings pages that belong to the person, not to the workspace: every
+ * role but the client viewer may open them and post their actions (each
+ * action still checks the user itself). Exempt from OWNER_ONLY_PREFIXES.
+ */
+export const PERSONAL_SETTINGS_PREFIXES = ["/settings/profile"] as const;
+
+/**
  * Pages a client viewer may open. Anything else redirects home: the
  * tools, the agent and the admin pages are the agency's workbench, not
  * the client's.
@@ -92,6 +99,9 @@ export function routeDecision(
   method: string,
 ): RouteDecision {
   if (role === "owner") return "allow";
+  if (PERSONAL_SETTINGS_PREFIXES.some((p) => under(pathname, p))) {
+    return role === "viewer" ? "deny" : "allow";
+  }
   if (isOwnerOnlyPath(pathname)) return "deny";
 
   if (role === "viewer") {

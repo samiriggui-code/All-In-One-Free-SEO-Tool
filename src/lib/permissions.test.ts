@@ -21,6 +21,16 @@ describe("routeDecision", () => {
     }
   });
 
+  it("opens My profile to everyone but a client viewer", () => {
+    for (const role of ["manager", "member"] as const) {
+      expect(routeDecision(role, "/settings/profile", "GET")).toBe("allow");
+      expect(routeDecision(role, "/settings/profile", "POST")).toBe("allow");
+      // A lookalike stays owner-only.
+      expect(routeDecision(role, "/settings/profiles", "GET")).toBe("deny");
+    }
+    expect(routeDecision("viewer", "/settings/profile", "GET")).toBe("deny");
+  });
+
   it("does not mistake a lookalike path for an admin one", () => {
     expect(routeDecision("member", "/api/teamwork", "GET")).toBe("allow");
   });

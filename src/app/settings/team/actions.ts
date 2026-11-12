@@ -7,9 +7,41 @@ import { requireSignedIn } from "@/lib/action-guard";
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { clientMembers, users, type Role } from "@/db/schema";
+import { clientMembers, userInvites, users, type Role } from "@/db/schema";
 import { canManageTeam, currentUser, seesAllClients } from "@/lib/auth";
 import { createInvite, revokeInvite } from "@/lib/invites";
+import { logActivity, type ActivityKind } from "@/lib/activity";
+
+/**
+ * One line in the access journal (Settings → Team). Written in the
+ * workspace owner's language at the time, like the rest of the activity
+ * log; `entityId` is the person concerned.
+ */
+async function journal(
+  kind: ActivityKind,
+  key: string,
+  values: Record<string, string | number>,
+  userId?: number,
+): Promise<void> {
+  const jt = await actionTx("settingsTeam.journal");
+  await logActivity({
+    kind,
+    message: jt(key, values),
+    entityType: userId ? "user" : "invite",
+    entityId: userId,
+    dedupe: false,
+  });
+}
+
+/** Name of a person for the journal: their name, else their e-mail. */
+function who(userId: number): string {
+  const u = db
+    .select({ name: users.name, email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .get();
+  return u ? u.name || u.email : `#${userId}`;
+}
 
 /**
  * Every action here re-checks the caller's role server-side. The UI
@@ -44,6 +76,7 @@ export async function inviteMember(input: {
   });
   if (!created.ok) return { ok: false, error: created.error };
 
+  await journal("team.invited", "invited", { email: input.email, role: input.role });
   revalidatePath("/settings/team");
   // The link is returned rather than emailed. Requiring SMTP to add a
   // second person to a self-hosted tool would put the feature behind
@@ -56,7 +89,13 @@ export async function cancelInvite(id: number): Promise<ActionResult> {
   const tx = await actionTx("ui.app_settings_team_actions");
   const me = await requireOwner(tx);
   if ("error" in me) return { ok: false, error: me.error };
+  const invite = db
+    .select({ email: userInvites.email })
+    .from(userInvites)
+    .where(eq(userInvites.id, id))
+    .get();
   revokeInvite(id);
+  if (invite) await journal("team.invite_cancelled", "inviteCancelled", { email: invite.email });
   revalidatePath("/settings/team");
   return { ok: true };
 }
@@ -87,7 +126,16 @@ export async function changeRole(
     }
   }
 
+  const before = db.select({ role: users.role }).from(users).where(eq(users.id, userId)).get();
   db.update(users).set({ role }).where(eq(users.id, userId)).run();
+  if (before && before.role !== role) {
+    await journal(
+      "team.role_changed",
+      "roleChanged",
+      { name: who(userId), from: before.role, to: role },
+      userId,
+    );
+  }
   revalidatePath("/settings/team");
   return { ok: true };
 }
@@ -121,6 +169,12 @@ export async function setActive(
   // null out that history via ON DELETE SET NULL, which is a strange
   // way to remove someone from a team.
   db.update(users).set({ active }).where(eq(users.id, userId)).run();
+  await journal(
+    active ? "team.reactivated" : "team.deactivated",
+    active ? "reactivated" : "deactivated",
+    { name: who(userId) },
+    userId,
+  );
   revalidatePath("/settings/team");
   return { ok: true };
 }
@@ -147,6 +201,12 @@ export async function setClientAccess(
   for (const clientId of clientIds) {
     db.insert(clientMembers).values({ userId, clientId }).run();
   }
+  await journal(
+    "team.access_changed",
+    "accessChanged",
+    { name: target.name || target.email, count: clientIds.length },
+    userId,
+  );
   revalidatePath("/settings/team");
   return { ok: true, message: tx("clientSAssigned", { length: clientIds.length }) };
 }

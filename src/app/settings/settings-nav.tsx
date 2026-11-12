@@ -21,6 +21,7 @@ import {
   Settings,
   Shield,
   Sparkles,
+  UserRound,
   Users2,
   Wrench,
   type LucideIcon,
@@ -33,6 +34,7 @@ import {
 } from "./nav";
 
 const ICONS: Record<SettingsIconName, LucideIcon> = {
+  user: UserRound,
   settings: Settings,
   sparkles: Sparkles,
   gauge: Gauge,
