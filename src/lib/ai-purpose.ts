@@ -47,15 +47,26 @@ export function channelFor(opts: { channel?: AiChannel; purpose?: AiPurpose | nu
  * Embedding models are not chat models, so they are not in MODEL_PRESETS.
  * Anthropic has none; these are the providers the knowledge base can use.
  */
-export const EMBEDDING_PRESETS: Partial<Record<ActiveProvider, { id: string; label: string }[]>> = {
+export type EmbeddingPreset = { id: string; label: string; /** USD per 1M input tokens, null = free. */ inputPer1M: number | null };
+
+export const EMBEDDING_PRESETS: Partial<Record<ActiveProvider, EmbeddingPreset[]>> = {
   openai: [
-    { id: "text-embedding-3-small", label: "text-embedding-3-small" },
-    { id: "text-embedding-3-large", label: "text-embedding-3-large" },
+    { id: "text-embedding-3-small", label: "text-embedding-3-small", inputPer1M: 0.02 },
+    { id: "text-embedding-3-large", label: "text-embedding-3-large", inputPer1M: 0.13 },
   ],
-  gemini: [{ id: "text-embedding-004", label: "text-embedding-004" }],
-  mistral: [{ id: "mistral-embed", label: "mistral-embed" }],
-  ollama: [{ id: "nomic-embed-text", label: "nomic-embed-text" }],
+  gemini: [{ id: "text-embedding-004", label: "text-embedding-004", inputPer1M: null }],
+  mistral: [{ id: "mistral-embed", label: "mistral-embed", inputPer1M: 0.1 }],
+  ollama: [{ id: "nomic-embed-text", label: "nomic-embed-text", inputPer1M: null }],
 };
+
+export function embeddingPreset(model: string | null | undefined): EmbeddingPreset | undefined {
+  if (!model) return undefined;
+  for (const list of Object.values(EMBEDDING_PRESETS)) {
+    const hit = list?.find((m) => m.id === model);
+    if (hit) return hit;
+  }
+  return undefined;
+}
 
 /**
  * Validate a stored choice. A model is accepted when it is one of the

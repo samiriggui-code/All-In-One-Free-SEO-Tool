@@ -1000,7 +1000,7 @@
         },
         "embeddings": {
           "label": "Vecteurs",
-          "hint": "Pour la recherche par le sens dans la base de connaissances (à venir). Anthropic n'en propose pas."
+          "hint": "Pour la recherche par le sens dans la base de connaissances. Anthropic n'en propose pas."
         }
       },
       "guardTitle": "Garde-fous",
@@ -8395,6 +8395,13 @@
       "noText": "Aucun texte lisible sur cette page.",
       "notFound": "Document introuvable.",
       "syncedDocument": "Ce document vient de l'outil et reviendrait à la prochaine mise à jour. Modifiez sa source à la place."
+    },
+    "vectors": "recherche par le sens : {done}/{total} passages",
+    "wordsOnly": "recherche par les mots (choisissez un modèle « Vecteurs » dans Paramètres → IA pour chercher aussi par le sens)",
+    "embedFailed": "Vecteurs non calculés : {error}",
+    "match": {
+      "meaning": "par le sens",
+      "both": "mots et sens"
     }
   }
 }

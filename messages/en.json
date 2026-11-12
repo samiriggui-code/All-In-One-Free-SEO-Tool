@@ -1000,7 +1000,7 @@
         },
         "embeddings": {
           "label": "Vectors",
-          "hint": "For meaning-based search in the knowledge base (coming). Anthropic has none."
+          "hint": "For meaning-based search in the knowledge base. Anthropic has none."
         }
       },
       "guardTitle": "Guardrails",
@@ -8395,6 +8395,13 @@
       "noText": "No readable text on this page.",
       "notFound": "Document not found.",
       "syncedDocument": "This document comes from the tool and would come back at the next update. Change its source instead."
+    },
+    "vectors": "meaning search: {done}/{total} passages",
+    "wordsOnly": "word search (pick a \"Vectors\" model in Settings → AI to also search by meaning)",
+    "embedFailed": "Vectors not computed: {error}",
+    "match": {
+      "meaning": "by meaning",
+      "both": "words and meaning"
     }
   }
 }

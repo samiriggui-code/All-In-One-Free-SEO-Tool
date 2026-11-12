@@ -22,6 +22,7 @@ export type CostRate = {
  * A model in the picker now always has a rate, enforced by a test.
  */
 import { presetFor } from "./ai-model-presets";
+import { embeddingPreset } from "./ai-purpose";
 
 /**
  * Used only for a model id we've never seen — a custom id the user
@@ -33,6 +34,8 @@ const FALLBACK_RATE: CostRate = { inputPer1M: 1, outputPer1M: 4 };
 
 export function rateFor(model: string | null | undefined): CostRate {
   if (!model) return FALLBACK_RATE;
+  const embed = embeddingPreset(model);
+  if (embed) return { inputPer1M: embed.inputPer1M ?? 0, outputPer1M: 0 };
   const preset = presetFor(model);
   if (!preset) return FALLBACK_RATE;
   // null = free tier / local model: no per-token charge to bill.
@@ -48,7 +51,7 @@ export function rateFor(model: string | null | undefined): CostRate {
  * don't read a guess as a billed figure.
  */
 export function isEstimatedRate(model: string | null | undefined): boolean {
-  return !model || !presetFor(model);
+  return !model || (!presetFor(model) && !embeddingPreset(model));
 }
 
 export function costMicros(
