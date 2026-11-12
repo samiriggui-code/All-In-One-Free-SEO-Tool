@@ -972,6 +972,81 @@
         "tools_code-generator": "AI writes the code for SEO fixes (WordPress, .htaccess, Shopify, Next.js), and a GitHub PR sends them to the developer."
       },
       "sheetIncludes": "This tool brings together"
+    },
+    "aiDefaults": {
+      "defaultsTitle": "Defaults by use",
+      "defaultsHint": "The model used for each kind of work. Leave \"Workspace model\" to keep the model chosen above. Only providers with a key are listed.",
+      "workspaceModel": "Workspace model",
+      "noEmbeddings": "None (full-text search only)",
+      "unavailable": "{model} (key missing)",
+      "saved": "Saved",
+      "saving": "Saving…",
+      "purposes": {
+        "chat": {
+          "label": "Conversation",
+          "hint": "The assistant and chats: a fast model is enough."
+        },
+        "writing": {
+          "label": "Long-form writing",
+          "hint": "Articles and drafts: a stronger model writes better."
+        },
+        "background": {
+          "label": "Background jobs",
+          "hint": "Daily agent, automations, summaries: the cheapest one that works."
+        },
+        "vision": {
+          "label": "Images",
+          "hint": "Reading screenshots and images. Only providers that read images."
+        },
+        "embeddings": {
+          "label": "Vectors",
+          "hint": "For meaning-based search in the knowledge base (coming). Anthropic has none."
+        }
+      },
+      "guardTitle": "Guardrails",
+      "guardHint": "Local checks on every AI call, before sending and on the answer. Free, and nothing leaves the server.",
+      "guardMode": "Mode",
+      "modes": {
+        "off": {
+          "label": "Off",
+          "hint": "No checks."
+        },
+        "mask": {
+          "label": "Mask",
+          "hint": "Keys, IBANs, card numbers and blocked terms are replaced before sending. Override attempts are logged."
+        },
+        "block": {
+          "label": "Block",
+          "hint": "Any call containing one of these is refused, with a message for the user."
+        }
+      },
+      "blockedTerms": "Blocked terms",
+      "blockedTermsHint": "One per line: confidential project names, competitors never to mention… Masked in questions and answers.",
+      "blockedTermsPlaceholder": "Project Atlas",
+      "saveTerms": "Save",
+      "incidentsTitle": "Latest incidents",
+      "incidentsHint": "What was masked or blocked. Only the kind is recorded, never the text.",
+      "noIncidents": "No incidents yet.",
+      "actions": {
+        "mask": "Masked",
+        "block": "Blocked"
+      },
+      "directions": {
+        "in": "on sending",
+        "out": "in the answer"
+      },
+      "kinds": {
+        "api_key": "API key",
+        "private_key": "private key",
+        "iban": "IBAN",
+        "card": "bank card",
+        "blocked_term": "blocked term",
+        "injection": "override attempt"
+      },
+      "errors": {
+        "unknownPurpose": "Unknown use.",
+        "unknownModel": "This model isn't available for that provider."
+      }
     }
   },
   "reports": {
@@ -6210,7 +6285,18 @@
       "cost": "Cost",
       "status": "Status",
       "capped": "capped",
-      "noAiCallsInThe": "No AI calls in the last 30 days."
+      "noAiCallsInThe": "No AI calls in the last 30 days.",
+      "byChannel": "By channel (last 30 days)",
+      "channelStats": "{calls} calls · {cost} · {latency} s on average",
+      "channel": "Channel",
+      "guarded": "guardrail",
+      "channels": {
+        "app": "Tool screens",
+        "assistant": "Assistant",
+        "background": "Background jobs",
+        "portal": "Client portal",
+        "unknown": "Before channel tracking"
+      }
     },
     "app_settings_ai-usage_usage-charts": {
       "last30DaysCallsPer": "Last 30 days · calls per day",
@@ -7606,7 +7692,10 @@
       "noUserMessageToRespond": "No user message to respond to.",
       "toAnswerItHereInstead": "To answer it here instead, add a free Gemini or Groq key in Settings → AI connection.",
       "noActiveAiProviderOpen": "No active AI provider. Open Settings → AI connection, add a free Gemini or Groq key, then pick it as active.",
-      "activeProviderDidnTRespond": "Active provider \"{active}\" didn't respond. Check the key in Settings or pick a different provider as active."
+      "activeProviderDidnTRespond": "Active provider \"{active}\" didn't respond. Check the key in Settings or pick a different provider as active.",
+      "chatAppConnectedNeedsKey": "This assistant calls a model itself, so it needs a key. {client} is connected, but the other way round: it calls into this tool.",
+      "yourChatApp": "your chat app",
+      "askThereMeanwhile": "You can ask the same question in that app right now: it can see your clients, audits, keywords and rankings."
     },
     "app_audits_actions": {
       "auditFailedFor": "Audit failed for {name}",

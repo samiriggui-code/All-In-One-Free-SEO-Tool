@@ -5,9 +5,7 @@ import type { Tx } from "@/lib/tx";
 import { requireSignedIn } from "@/lib/action-guard";
 
 import { createWorker } from "tesseract.js";
-import { callGemini as sharedCallGemini } from "@/lib/providers/gemini";
-import { callAnthropic as sharedCallAnthropic } from "@/lib/providers/anthropic";
-import { callOpenAICompat as sharedCallOpenAICompat } from "@/lib/providers/openai-compat";
+import { callAI } from "@/lib/ai-call";
 
 export type OcrResult =
   | {
@@ -76,18 +74,6 @@ export async function extractScreenshotText(
 }
 
 async function tryLlmExtraction(text: string): Promise<ExtractedFields | null> {
-  const { getActiveProvider, getApiKey } = await import("@/lib/api-keys");
-  const active = await getActiveProvider();
-  if (!active) return null;
-
-  // Single-provider mode — only fetch the key for the active one.
-  const gemini = active === "gemini" ? await getApiKey("gemini") : null;
-  const groq = active === "groq" ? await getApiKey("groq") : null;
-  const anthropic =
-    active === "anthropic" ? await getApiKey("anthropic") : null;
-  const openai = active === "openai" ? await getApiKey("openai") : null;
-  if (!gemini && !groq && !anthropic && !openai) return null;
-
   const prompt = `You are extracting SEO data from text that was OCR'd from a screenshot.
 The user pasted a screenshot from an SEO dashboard (GSC, GA4, Ahrefs, Semrush, etc.).
 
@@ -110,61 +96,18 @@ ${text.slice(0, 8000)}
 Reply with just the JSON object, no preamble.`;
 
   try {
-    let raw: string | null = null;
-
-    // Free providers first. Uses the shared Gemini caller so the model
-    // fallback chain + abort handling stays consistent across the app.
-    if (!raw && gemini) {
-      raw = await sharedCallGemini({
-        apiKey: gemini,
-        system: "",
-        messages: [{ role: "user", content: prompt }],
-        maxTokens: 1500,
-        temperature: 0.1,
-        timeoutMs: 25_000,
-        caller: "import-actions",
-      });
-    }
-
-    if (!raw && groq) {
-      raw = await sharedCallOpenAICompat({
-        endpoint: "https://api.groq.com/openai/v1/chat/completions",
-        apiKey: groq,
-        model: "llama-3.3-70b-versatile",
-        system: "",
-        messages: [{ role: "user", content: prompt }],
-        maxTokens: 1500,
-        temperature: 0.1,
-        timeoutMs: 25_000,
-        caller: "import-actions",
-      });
-    }
-
-    if (!raw && anthropic) {
-      raw = await sharedCallAnthropic({
-        apiKey: anthropic,
-        system: "",
-        messages: [{ role: "user", content: prompt }],
-        maxTokens: 1500,
-        temperature: 0.1,
-        timeoutMs: 25_000,
-        caller: "import-actions",
-      });
-    }
-
-    if (!raw && openai) {
-      raw = await sharedCallOpenAICompat({
-        endpoint: "https://api.openai.com/v1/chat/completions",
-        apiKey: openai,
-        model: "gpt-4o-mini",
-        system: "",
-        messages: [{ role: "user", content: prompt }],
-        maxTokens: 1500,
-        temperature: 0.1,
-        timeoutMs: 25_000,
-        caller: "import-actions",
-      });
-    }
+    // Through the one AI path (lib/ai-call.ts): active provider and
+    // model, monthly cap, cost log and guardrails. Returns null when no
+    // provider is set up, and the heuristic parser takes over.
+    const raw = await callAI({
+      system: "",
+      user: prompt,
+      feature: "import_extract",
+      maxTokens: 1500,
+      temperature: 0.1,
+      timeoutMs: 25_000,
+      ignoreCreditSaver: true,
+    });
 
     if (!raw) return null;
     // Strip code fences if Claude added them

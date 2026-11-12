@@ -1507,11 +1507,40 @@ export const aiCalls = sqliteTable("ai_calls", {
   clientId: integer("client_id"),
   status: text("status").notNull().default("ok"),
   errorMsg: text("error_msg"),
+  /**
+   * Where the call came from: "app" (a button in a screen), "assistant"
+   * (a conversation), "background" (scheduler, automations), "portal".
+   * Null on rows written before the column existed.
+   */
+  channel: text("channel"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
 });
 export type AiCall = typeof aiCalls.$inferSelect;
+
+/**
+ * One row each time a local guardrail masked or blocked something in an
+ * AI call (src/lib/guardrails.ts). Holds the kinds found and how many,
+ * never the matched text.
+ */
+export const guardrailIncidents = sqliteTable("guardrail_incidents", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  /** "in" = prompt on its way to the model, "out" = the model's answer. */
+  direction: text("direction").notNull(),
+  /** "mask" or "block". */
+  action: text("action").notNull(),
+  /** JSON object: finding kind → count, e.g. {"iban":1,"api_key":2}. */
+  kinds: text("kinds", { mode: "json" }).$type<Record<string, number>>().notNull(),
+  feature: text("feature"),
+  channel: text("channel"),
+  clientId: integer("client_id"),
+  userId: integer("user_id"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+export type GuardrailIncident = typeof guardrailIncidents.$inferSelect;
 export type NewAiCall = typeof aiCalls.$inferInsert;
 
 // =============== SERP feature snapshots ===============

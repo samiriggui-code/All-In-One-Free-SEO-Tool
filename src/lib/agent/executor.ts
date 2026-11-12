@@ -299,6 +299,7 @@ export async function draftValue(
   if (!spec) return { ok: false, error: `No drafting rule for ${action.kind}` };
 
   const res = await callAIResult({
+    purpose: "background",
     system: spec.system,
     user: `${businessBlock(context)}${spec.user(action, context)}`,
     maxTokens: 200,

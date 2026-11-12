@@ -96,6 +96,7 @@ async function regenerate(
   try {
     const { callAI } = await import("./ai-call");
     const text = await callAI({
+      purpose: "background",
       system: req.system,
       user: req.user,
       maxTokens: req.maxTokens ?? 200,

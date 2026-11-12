@@ -110,9 +110,17 @@ export const PROVIDER_DISPATCH: Record<ActiveProvider, ProviderSpec> = {
   },
 };
 
+export type DispatchMessage = { role: "user" | "assistant"; content: string };
+
 export type DispatchArgs = {
   system: string;
   user: string;
+  /**
+   * A whole conversation, oldest first, ending with the user's turn.
+   * When set it replaces `user`, so chats get the same routing, cap and
+   * logging as one-shot calls.
+   */
+  messages?: DispatchMessage[];
   model?: string;
   maxTokens: number;
   temperature: number;
@@ -149,6 +157,10 @@ export async function dispatchProviderCall(
 
   const model = args.model?.trim() || defaultModelFor(providerId);
   const caller = args.caller ?? "provider-dispatch";
+  const turns: DispatchMessage[] =
+    args.messages && args.messages.length > 0
+      ? args.messages
+      : [{ role: "user", content: args.user }];
 
   switch (spec.kind) {
     case "gemini": {
@@ -161,7 +173,7 @@ export async function dispatchProviderCall(
         apiKey,
         model,
         system: args.system,
-        messages: [{ role: "user", content: args.user }],
+        messages: turns,
         maxTokens: args.maxTokens,
         temperature: args.temperature,
         timeoutMs: args.timeoutMs,
@@ -179,7 +191,7 @@ export async function dispatchProviderCall(
         apiKey,
         model,
         system: args.system,
-        messages: [{ role: "user", content: args.user }],
+        messages: turns,
         maxTokens: args.maxTokens,
         temperature: args.temperature,
         timeoutMs: args.timeoutMs,
@@ -199,7 +211,7 @@ export async function dispatchProviderCall(
         apiKey,
         model,
         system: args.system,
-        messages: [{ role: "user", content: args.user }],
+        messages: turns,
         maxTokens: args.maxTokens,
         temperature: args.temperature,
         timeoutMs: args.timeoutMs,
@@ -221,7 +233,7 @@ export async function dispatchProviderCall(
         url,
         model,
         system: args.system,
-        user: args.user,
+        messages: turns,
         maxTokens: args.maxTokens,
         temperature: args.temperature,
         timeoutMs: args.timeoutMs,
@@ -241,7 +253,7 @@ async function callOllamaDirect(args: {
   url: string;
   model: string;
   system: string;
-  user: string;
+  messages: DispatchMessage[];
   maxTokens: number;
   temperature: number;
   timeoutMs: number;
@@ -263,7 +275,7 @@ async function callOllamaDirect(args: {
         },
         messages: [
           { role: "system", content: args.system },
-          { role: "user", content: args.user },
+          ...args.messages,
         ],
       }),
     });

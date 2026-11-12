@@ -21,6 +21,7 @@ import {
 import { AiProvidersPanel } from "../ai-providers-panel";
 import { DefaultModelForm } from "../default-model-form";
 import { OwnerOnly, SectionHeader } from "../section-ui";
+import { AiDefaultsSection } from "./ai-defaults-section";
 
 export default async function AiSettingsPage() {
   const me = await requireSettingsPage("/settings/ai");
@@ -44,7 +45,7 @@ export default async function AiSettingsPage() {
     );
   }
 
-  const { byId: configuredKeys } = await configuredProviders();
+  const { byId: configuredKeys, ids: configuredIds } = await configuredProviders();
   const ollamaUrl = await getOllamaUrl();
   const creditSaverOn = Boolean(await getSetting<boolean>("ai.credit_saver.enabled"));
   const connectionMode = await getConnectionMode();
@@ -83,6 +84,8 @@ export default async function AiSettingsPage() {
         creditSaver={creditSaverOn}
         ollamaUrl={ollamaUrl}
       />
+
+      <AiDefaultsSection configured={configuredIds as ActiveProvider[]} />
     </>
   );
 }

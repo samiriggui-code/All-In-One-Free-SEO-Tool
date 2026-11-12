@@ -283,6 +283,7 @@ Output strict JSON only — no markdown fences, no preamble:
   "contentHtml": "the full body as HTML, no <html>/<body>/<h1>"
 }`;
   const raw = await callAI({
+    purpose: "background",
     system,
     user,
     maxTokens: 3500,
@@ -338,6 +339,7 @@ Pick the most timely angle for this business. Output strict JSON only — no mar
   "callToAction": "BOOK"|"ORDER"|"SHOP"|"LEARN_MORE"|"SIGN_UP"|"CALL"|null
 }`;
   const raw = await callAI({
+    purpose: "background",
     system,
     user,
     maxTokens: 800,
@@ -382,6 +384,7 @@ Output strict JSON only — no markdown fences:
 
 { "x": "X post ≤270 chars", "linkedin": "LinkedIn post ≤700 chars" }`;
   const raw = await callAI({
+    purpose: "background",
     system,
     user,
     maxTokens: 800,
@@ -425,6 +428,7 @@ Output strict JSON only — no markdown fences:
 
 { "items": [{ "title": "≤80 chars action", "why": "1-sentence rationale tied to this client" }, ...] }`;
   const raw = await callAI({
+    purpose: "background",
     system,
     user,
     maxTokens: 800,

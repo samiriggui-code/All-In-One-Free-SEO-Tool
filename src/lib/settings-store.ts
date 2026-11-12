@@ -58,6 +58,11 @@ export type SettingKey =
    * asked how to set the model in settings; there was no answer.
    */
   | "ai.default_model"
+  /** Provider + model per use (chat, writing, background…). See ai-purpose.ts. */
+  | `ai.model.${string}`
+  /** Local guardrails: "off" | "mask" | "block", and the workspace's blocked terms. See guardrails.ts. */
+  | "guardrails.mode"
+  | "guardrails.blocked_terms"
   | "api.openai"
   | "api.anthropic"
   | "api.gemini"
