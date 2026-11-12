@@ -18,6 +18,7 @@ import {
 } from "@/db/schema";
 import { generateExecSummary } from "./ai-summary";
 import { openToolFindings } from "./tool-findings";
+import { groupIssuesByRule } from "./report-issue-groups";
 import { planProgress } from "./plan-tasks";
 import { mapToolFinding } from "./agent/tool-finding-map";
 import type { AlgoUpdate } from "./algorithm-updates";
@@ -1024,12 +1025,17 @@ export async function generateReportPdf(
       isExecutive(template)
         ? ["critical", "high"]
         : ["critical", "high", "medium", "low"];
-    const perSevCap =
-      isExecutive(template) ? 3 : isDetailed(template) ? 25 : Infinity;
+    // One entry per rule, with the pages it was found on underneath
+    // (lib/report-issue-groups.ts). Executive: the three widest rules and
+    // no page list. Detailed: a few pages each. Technical: all of it.
+    const maxGroups = isExecutive(template) ? 3 : isDetailed(template) ? 25 : Infinity;
+    const maxRows = isExecutive(template) ? 0 : isDetailed(template) ? 5 : 100;
+    const textWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
     for (const sev of severitiesToShow) {
       const list = grouped[sev];
       if (list.length === 0) continue;
+      const { groups, hiddenGroups } = groupIssuesByRule(list, { maxGroups, maxRows });
       ensureSpace(doc, 60);
       doc
         .fillColor(sevColor[sev])
@@ -1037,35 +1043,53 @@ export async function generateReportPdf(
         .font("Helvetica-Bold")
         .text(`${L.severity[sev]} - ${list.length}`);
       doc.moveDown(0.3);
-      doc.fillColor(palette.ink).font("Helvetica").fontSize(10);
-      for (const issue of list.slice(0, perSevCap)) {
-        ensureSpace(doc, 40);
+      for (const g of groups) {
+        ensureSpace(doc, 46);
         doc
           .font("Helvetica-Bold")
           .fillColor(palette.ink)
-          .text(issueTitle(issue.type), { continued: false });
-        doc
+          .fontSize(10)
+          .text(issueTitle(g.type), { continued: true })
           .font("Helvetica")
           .fillColor(palette.mute)
           .fontSize(9)
-          .text(issue.message, { lineGap: 2 });
-        // Technical template: include the URL too
-        if (isTechnical(template)) {
+          .text(`  ·  ${L.onPages(g.pageCount)}`);
+        if (g.message) {
+          doc.font("Helvetica").fillColor(palette.mute).fontSize(9).text(g.message, { lineGap: 2 });
+        }
+        for (const row of g.rows) {
+          ensureSpace(doc, row.detail ? 26 : 14);
           doc
             .font("Helvetica-Oblique")
             .fillColor(palette.mute)
             .fontSize(8)
-            .text(issue.url);
+            .text(row.url, doc.page.margins.left + 10, doc.y, { width: textWidth - 10 });
+          if (row.detail) {
+            doc
+              .font("Helvetica")
+              .fillColor(palette.ink)
+              .fontSize(8)
+              .text(row.detail, doc.page.margins.left + 10, doc.y, { width: textWidth - 10 });
+          }
+        }
+        doc.x = doc.page.margins.left;
+        if (g.hidden > 0 && maxRows > 0) {
+          doc
+            .font("Helvetica-Oblique")
+            .fillColor(palette.mute)
+            .fontSize(8)
+            .text(L.morePages(g.hidden), doc.page.margins.left + 10, doc.y);
+          doc.x = doc.page.margins.left;
         }
         doc.moveDown(0.5);
         doc.fontSize(10);
       }
-      if (list.length > perSevCap) {
+      if (hiddenGroups > 0) {
         doc
           .font("Helvetica-Oblique")
           .fillColor(palette.mute)
           .fontSize(9)
-          .text(L.more(list.length - perSevCap));
+          .text(L.moreRules(hiddenGroups));
       }
       doc.moveDown(0.5);
     }

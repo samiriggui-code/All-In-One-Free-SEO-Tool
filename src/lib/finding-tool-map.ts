@@ -56,6 +56,8 @@ const TOOL_FOR_FINDING: Record<string, string> = {
   broken_link: "/tools/link-checker",
   redirect_chain: "/tools/redirects-manager",
   soft_404: "/tools/soft-404",
+  facet_trap: "/tools/facet-trap",
+  stale_content: "/tools/freshness",
 
   // --- Media and speed -----------------------------------------------
   missing_image_alt: "/tools/bulk-alt",

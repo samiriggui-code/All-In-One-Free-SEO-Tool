@@ -1,3 +1,4 @@
+import { findFacetTrap, findStaleContent, STALE_AFTER_MONTHS } from "./audit-site-checks";
 import {
   ALLOW_ALL,
   fetchRobotsPolicy,
@@ -1080,6 +1081,28 @@ async function checkSiteWide(
       severity: "medium",
       url: homeUrl,
       message: `${chains} page${chains === 1 ? "" : "s"} canonicalize${chains === 1 ? "s" : ""} to URLs that themselves canonicalize elsewhere. Google may ignore both — fix to canonicalize directly to the final URL.`,
+    });
+  }
+
+  // Filter URLs left open to crawling, and content dated long ago: the
+  // two checks that used to live only in their own tools
+  // (lib/audit-site-checks.ts).
+  const facets = findFacetTrap(pages);
+  if (facets) {
+    findings.push({
+      type: "facet_trap",
+      severity: facets.urlCount >= 50 ? "high" : "medium",
+      url: facets.example,
+      message: `${facets.urlCount} filter URLs are linked and open to crawling (${facets.worstCount} on ${facets.worstPath}, parameters: ${facets.params.join(", ")}). Each one is a near-duplicate that spends crawl budget: point their canonical to the unfiltered page, or set them noindex.`,
+    });
+  }
+  const stale = findStaleContent(pages, new Date());
+  if (stale) {
+    findings.push({
+      type: "stale_content",
+      severity: "low",
+      url: stale.oldestUrl,
+      message: `${stale.count} of ${stale.dated} dated page${stale.dated === 1 ? "" : "s"} ${stale.count === 1 ? "was" : "were"} last updated more than ${STALE_AFTER_MONTHS} months ago (the oldest in ${stale.oldestYear}). Search and AI answers prefer recent pages: review them and update their content and dateModified.`,
     });
   }
 
