@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { createElement, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import {
+  BadgeCheck,
+  Bot,
+  ClipboardPlus,
+  FileUp,
+  ImageIcon,
+  Link as LinkIcon,
+  MessageSquareText,
+  PanelRight,
+  ScanLine,
+  SearchX,
+  StickyNote,
+  UserCheck,
   Briefcase,
   ClipboardList,
   ExternalLink,
@@ -22,6 +34,8 @@ import {
 import { navItemMessageKey } from "@/i18n/nav";
 import { toolCatalogSlug } from "@/lib/i18n/tool-slug";
 import { MISSION_CATEGORIES, type MissionCategoryId } from "@/lib/tool-catalog";
+import { NAV_ITEMS } from "@/components/shell/nav-items";
+import { TOOL_GRID_ICONS } from "@/app/tools/tools-grid";
 import { GskSheet } from "../gsk-sheet";
 import { setToolEnabled } from "./actions";
 
@@ -52,6 +66,30 @@ const CATEGORY_ICONS: Record<MissionCategoryId, LucideIcon> = {
   special: Shuffle,
   agency: ClipboardList,
 };
+
+/** Pages that neither the old menu nor the old tool grid listed. */
+const EXTRA_ICONS: Record<string, LucideIcon> = {
+  "/csv-import": FileUp,
+  "/landing-perf": TrendingUp,
+  "/image-audit": ImageIcon,
+  "/content-gap": SearchX,
+  "/author-authority": UserCheck,
+  "/bot-logs": Bot,
+  "/report-data": ClipboardPlus,
+  "/brand-serp": BadgeCheck,
+  "/knowledge-panel": PanelRight,
+  "/annotations": StickyNote,
+  "/ask": MessageSquareText,
+  "/capture": ScanLine,
+  "/links": LinkIcon,
+};
+
+const NAV_ICONS = new Map(NAV_ITEMS.map((it) => [it.href, it.icon] as const));
+
+/** The tool's own icon, as the old tool cards and menu showed it. */
+function iconOf(href: string, category: MissionCategoryId): LucideIcon {
+  return TOOL_GRID_ICONS.get(href) ?? NAV_ICONS.get(href) ?? EXTRA_ICONS[href] ?? CATEGORY_ICONS[category];
+}
 
 const TAG: Record<ToolCardState, string> = {
   ready: "gsk-tag gsk-tag--success",
@@ -175,18 +213,23 @@ export function ToolsPanel({
                 <button
                   key={c.href}
                   type="button"
-                  className={c.state === "ready" ? "gsk-card gsk-card--on" : "gsk-card"}
+                  className={c.state === "ready" ? "gsk-card gsk-card--on items-start" : "gsk-card items-start"}
                   onClick={() => setOpen(c.href)}
                   aria-haspopup="dialog"
                 >
                   <span className="gsk-card__badge" aria-hidden>
-                    <Icon className="size-4" strokeWidth={1.75} />
+                    <ToolIcon href={c.href} category={c.category} />
                   </span>
                   <span className="gsk-card__body">
                     <span className="gsk-card__header">
                       <span className="gsk-card__title">{c.title}</span>
                     </span>
-                    <span className="gsk-card__subtitle">
+                    {c.description ? (
+                      <span className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-[var(--gsk-text-2)]">
+                        {c.description}
+                      </span>
+                    ) : null}
+                    <span className="gsk-card__subtitle mt-1.5">
                       <span className={TAG[c.state]}>{t(c.state)}</span>
                     </span>
                   </span>
@@ -229,7 +272,6 @@ function ToolSheet({
 }) {
   const t = useTranslations("settings.tools");
   const [pending, startTransition] = useTransition();
-  const Icon = CATEGORY_ICONS[c.category];
   const enabled = c.state !== "off";
 
   const toggle = (next: boolean) => {
@@ -244,7 +286,7 @@ function ToolSheet({
     <GskSheet
       title={c.title}
       subtitle={`${t(`categories.${c.category}.label`)} · ${t(c.state)}`}
-      icon={<Icon className="size-4" />}
+      icon={<ToolIcon href={c.href} category={c.category} />}
       closeLabel={t("close")}
       onClose={onClose}
     >
@@ -343,4 +385,9 @@ function Need({
       ) : null}
     </li>
   );
+}
+
+function ToolIcon({ href, category }: { href: string; category: MissionCategoryId }) {
+  // createElement, not <Icon />: the icon is looked up, not declared here.
+  return createElement(iconOf(href, category), { className: "size-4", strokeWidth: 1.75 });
 }

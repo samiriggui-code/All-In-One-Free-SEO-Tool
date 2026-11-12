@@ -879,6 +879,9 @@ const badgeTone: Record<ToolBadge["tone"], string> = {
 // category ids — the pattern CLAUDE.md's fourth standing rule names, and
 // the two would have drifted the moment a category was added.
 
+/** Each tool's icon, for the catalogue in Settings → Tools. */
+export const TOOL_GRID_ICONS = new Map(tools.map((t) => [t.href, t.icon] as const));
+
 type Tool = (typeof tools)[number];
 
 const PINNED_KEY = "seo:tools-pinned";
