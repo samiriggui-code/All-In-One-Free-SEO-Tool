@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { db } from "@/db/client";
-import { clientAccounts, clients } from "@/db/schema";
+import { clientAccounts, clients, missions } from "@/db/schema";
 import { assertClientParam } from "@/lib/client-scope";
 import { isLocalProject, projectTabs } from "@/lib/project-nav";
 import { ProjectNav } from "./project-nav";
@@ -65,6 +65,12 @@ export default async function ClientScopeLayout({
         .limit(1)
     : [];
 
+  // What was sold decides which tabs come first (lib/project-nav.ts).
+  const projectMissions = await db
+    .select({ kind: missions.kind, status: missions.status })
+    .from(missions)
+    .where(eq(missions.clientId, project.id));
+
   return (
     <>
       {/* useSearchParams (the project page's ?tab=) needs a boundary. */}
@@ -72,7 +78,7 @@ export default async function ClientScopeLayout({
         <ProjectNav
           project={{ id: project.id, name: project.name, url: project.url }}
           account={account ?? null}
-          tabs={projectTabs(project.id, { local: isLocalProject(project) })}
+          tabs={projectTabs(project.id, { local: isLocalProject(project), missions: projectMissions })}
         />
       </Suspense>
       {children}

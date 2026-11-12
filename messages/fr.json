@@ -3270,7 +3270,69 @@
       "create": "Créer la mission",
       "saving": "Création…"
     },
-    "lastAuditFailed": "Le dernier audit a échoué : le site n'a pas répondu. Vérifiez qu'il est en ligne et qu'il ne bloque pas les robots, puis relancez l'audit."
+    "lastAuditFailed": "Le dernier audit a échoué : le site n'a pas répondu. Vérifiez qu'il est en ligne et qu'il ne bloque pas les robots, puis relancez l'audit.",
+    "journey": {
+      "aria": "Étapes du projet",
+      "done": "fait",
+      "progress": "{done} sur 7",
+      "nextStep": "Prochaine étape :",
+      "allDone": "Les sept étapes sont en place : le projet est en suivi mensuel.",
+      "steps": {
+        "prospection": "Prospection",
+        "setup": "Mise en place",
+        "audit": "Audit",
+        "strategy": "Stratégie",
+        "missions": "Missions",
+        "delivery": "Livraison",
+        "followup": "Suivi mensuel"
+      },
+      "next": {
+        "prospection": {
+          "status": "Aucun audit pour l'instant : une première note sert de base à la discussion avec le prospect.",
+          "cta": "Lancer un premier audit"
+        },
+        "setup": {
+          "status": "Le périmètre, les accès et les mots-clés du projet ne sont pas encore définis.",
+          "cta": "Faire la mise en place"
+        },
+        "audit": {
+          "status": "Il manque l'audit complet du site, sur lequel reposent la stratégie et le devis.",
+          "cta": "Lancer l'audit complet"
+        },
+        "strategy": {
+          "status": "Le plan et le devis ne sont pas encore rédigés.",
+          "cta": "Rédiger le plan"
+        },
+        "strategyDraft": {
+          "status": "Le plan est rédigé mais pas encore envoyé au client.",
+          "cta": "Ouvrir le plan à envoyer"
+        },
+        "strategyDeclined": {
+          "status": "Le client a refusé le dernier plan.",
+          "cta": "Rédiger un nouveau plan"
+        },
+        "missions": {
+          "status": "Aucune mission n'est encore en cours sur ce projet.",
+          "cta": "Créer la mission"
+        },
+        "missionsProposed": {
+          "status": "Une mission est proposée et attend l'accord du client.",
+          "cta": "Activer la mission"
+        },
+        "delivery": {
+          "status": "Aucun rapport n'a encore été remis au client.",
+          "cta": "Préparer le rapport"
+        },
+        "followup": {
+          "status": "Le rapport mensuel n'est pas encore programmé.",
+          "cta": "Programmer le rapport"
+        },
+        "followupOffer": {
+          "status": "Aucun suivi mensuel n'est vendu sur ce projet.",
+          "cta": "Proposer un suivi"
+        }
+      }
+    }
   },
   "settingsTeam": {
     "title": "Équipe",
@@ -3598,7 +3660,10 @@
       "reports": "Rapports",
       "missions": "Missions",
       "settings": "Réglages"
-    }
+    },
+    "more": "Autres outils",
+    "moreHint": "Hors des missions de ce projet",
+    "less": "Réduire"
   },
   "auditTab": {
     "findings": {

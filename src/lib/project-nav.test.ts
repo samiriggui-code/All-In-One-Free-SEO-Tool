@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { activeProjectPage, allProjectPageHrefs, isLocalProject, projectTabs } from "./project-nav";
+import { activeProjectPage, allProjectPageHrefs, isLocalProject, primaryGroups, projectTabs } from "./project-nav";
 
 const APP = path.join(process.cwd(), "src", "app");
 
@@ -73,5 +73,39 @@ describe("activeProjectPage", () => {
     expect(activeProjectPage("/content-gap/c/7", null, 7)).toEqual({ group: "keywords", key: "contentGap" });
     expect(activeProjectPage("/audits/c/70", null, 7)).toBeNull();
     expect(activeProjectPage("/settings", null, 7)).toBeNull();
+  });
+});
+
+describe("tabs by mission", () => {
+  const secondary = (missions: Parameters<typeof primaryGroups>[0]) =>
+    projectTabs(7, { local: true, missions })
+      .filter((t) => t.secondary)
+      .map((t) => t.group);
+
+  it("with nothing sold, only the audit's tabs come first", () => {
+    expect(secondary([])).toEqual(["keywords", "links", "local", "ai"]);
+  });
+
+  it("monitoring brings keywords and local, not links nor AI", () => {
+    expect(secondary([{ kind: "monitoring", status: "active" }])).toEqual(["links", "ai"]);
+  });
+
+  it("the whole circuit hides nothing, and missions add up", () => {
+    expect(secondary([{ kind: "full", status: "active" }])).toEqual([]);
+    expect(
+      secondary([
+        { kind: "audit", status: "active" },
+        { kind: "redesign", status: "proposed" },
+      ]),
+    ).toEqual(["links", "local", "ai"]);
+  });
+
+  it("finished and cancelled missions do not count", () => {
+    expect(secondary([{ kind: "full", status: "cancelled" }])).toEqual(["keywords", "links", "local", "ai"]);
+  });
+
+  it("without missions given, every tab is primary", () => {
+    expect(projectTabs(7, { local: true }).some((t) => t.secondary)).toBe(false);
+    expect(primaryGroups([]).has("audit")).toBe(true);
   });
 });

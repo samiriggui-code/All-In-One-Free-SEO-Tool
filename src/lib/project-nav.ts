@@ -10,6 +10,8 @@
  * Pure: no database, no React. `:id` stands for the project id.
  */
 
+import type { MissionKind, MissionStatus } from "./mission-kinds";
+
 export const PROJECT_GROUPS = [
   "overview",
   "audit",
@@ -80,13 +82,52 @@ export function isLocalProject(p: { niche: string | null; gbpUrl: string | null 
   return p.niche === "local" || Boolean(p.gbpUrl?.trim());
 }
 
-export type ProjectTab = { group: ProjectGroup; href: string; pages: ProjectPage[] };
+/**
+ * A tab outside what was sold is `secondary`: still there, behind "Other
+ * tools", so the bar shows the work of this project first.
+ */
+export type ProjectTab = { group: ProjectGroup; href: string; pages: ProjectPage[]; secondary: boolean };
 
-export function projectTabs(projectId: number, opts: { local: boolean }): ProjectTab[] {
+/** Every project has these: it starts with its audit and ends with a report. */
+const ALWAYS: readonly ProjectGroup[] = ["overview", "audit", "reports", "missions", "settings"];
+
+/**
+ * The tabs each kind of mission works in, on top of ALWAYS. "other" is a
+ * mission the app knows nothing about, so it hides nothing.
+ */
+const GROUPS_BY_MISSION: Record<MissionKind, readonly ProjectGroup[]> = {
+  audit: [],
+  monitoring: ["keywords", "local"],
+  redesign: ["keywords"],
+  full: ["keywords", "links", "local", "ai"],
+  other: ["keywords", "links", "local", "ai"],
+};
+
+/** Missions that shape the project: agreed or on offer (as in project-tools.ts). */
+const LIVE: ReadonlySet<MissionStatus> = new Set<MissionStatus>(["active", "proposed"]);
+
+/** The tabs put forward for these missions. With none, the audit's. */
+export function primaryGroups(
+  missions: ReadonlyArray<{ kind: MissionKind; status: MissionStatus }>,
+): Set<ProjectGroup> {
+  const groups = new Set<ProjectGroup>(ALWAYS);
+  for (const m of missions) {
+    if (!LIVE.has(m.status)) continue;
+    for (const g of GROUPS_BY_MISSION[m.kind]) groups.add(g);
+  }
+  return groups;
+}
+
+export function projectTabs(
+  projectId: number,
+  opts: { local: boolean; missions?: ReadonlyArray<{ kind: MissionKind; status: MissionStatus }> },
+): ProjectTab[] {
   const fill = (href: string) => href.replace(":id", String(projectId));
+  // Callers that do not know the missions get every tab, as before.
+  const primary = opts.missions ? primaryGroups(opts.missions) : null;
   return PROJECT_GROUPS.filter((g) => g !== "local" || opts.local).map((group) => {
     const pages = PAGES[group].map((p) => ({ key: p.key, href: fill(p.href) }));
-    return { group, href: pages[0].href, pages };
+    return { group, href: pages[0].href, pages, secondary: primary !== null && !primary.has(group) };
   });
 }
 

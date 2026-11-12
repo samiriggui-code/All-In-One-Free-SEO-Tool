@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ChevronRight } from "lucide-react";
-import { useEffect } from "react";
+import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
+import { useEffect, useState } from "react";
 import { activeProjectPage, type ProjectTab } from "@/lib/project-nav";
 import { setProjectContext } from "@/lib/project-context";
 
@@ -28,6 +28,11 @@ export function ProjectNav({
   const tab = useSearchParams()?.get("tab") ?? null;
   const active = activeProjectPage(pathname, tab, project.id);
   const open = tabs.find((x) => x.group === active?.group) ?? null;
+  // Tabs outside the project's missions wait behind "Other tools". The
+  // open one always shows, so the bar never hides where you are.
+  const [showAll, setShowAll] = useState(false);
+  const secondaryCount = tabs.filter((x) => x.secondary).length;
+  const shown = tabs.filter((x) => showAll || !x.secondary || x.group === active?.group);
 
   // Tell the rest of the shell which project is open, so the family tabs
   // and a tool's back link stay in it (lib/project-context.ts).
@@ -57,7 +62,7 @@ export function ProjectNav({
       </div>
 
       <div className="gsk-tabbar mb-0 overflow-x-auto">
-        {tabs.map((x) => (
+        {shown.map((x) => (
           <Link
             key={x.group}
             href={x.href}
@@ -68,6 +73,18 @@ export function ProjectNav({
             {t(`groups.${x.group}`)}
           </Link>
         ))}
+        {secondaryCount > 0 ? (
+          <button
+            type="button"
+            className="gsk-tab inline-flex items-center gap-1 whitespace-nowrap"
+            aria-expanded={showAll}
+            title={t("moreHint")}
+            onClick={() => setShowAll((v) => !v)}
+          >
+            {showAll ? t("less") : t("more")}
+            {showAll ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+          </button>
+        ) : null}
       </div>
 
       {open && open.pages.length > 1 ? (
