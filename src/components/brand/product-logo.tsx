@@ -2,9 +2,14 @@ import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The product's own logo. The mark is the monogram `<rf/>` with its
- * slash in the app's blue; the name is written as a tag, `<rank_forge/>`,
- * with "forge" in the same blue gradient.
+ * The product's own logo. The mark is the start of the tag, `</`: a white
+ * chevron and a slash in the app's blue that rises into an arrow (code,
+ * and a ranking that climbs). It is drawn with plain shapes, no text, so
+ * it stays sharp at 16 px in a browser tab. The name is written as a tag,
+ * `<rank_forge/>`, bold, with the brackets and "forge" in the brand blue.
+ *
+ * public/icon.svg, icon-192.png, icon-512.png, icon.ico and
+ * src/app/favicon.ico are the same mark: change them together.
  */
 
 /** The product's name, written as it appears in the tag. */
@@ -28,30 +33,31 @@ export function ProductMark({ className }: { className?: string }) {
           <stop offset="1" stopColor={BRAND_GRADIENT[2]} />
         </linearGradient>
       </defs>
-      <rect width="48" height="48" rx="13" fill={INK} />
-      <rect x="1" y="1" width="46" height="46" rx="12" fill="none" stroke={`url(#${id})`} strokeOpacity=".55" />
-      <text
-        x="20.5"
-        y="29.5"
-        textAnchor="middle"
-        fontFamily="var(--font-geist-mono), ui-monospace, monospace"
-        fontWeight="700"
-        fontSize="14.5"
-        letterSpacing="-1.2"
-        fill="#fff"
-      >
-        rf
-      </text>
-      <path d="M28.5 31.5 32 16.5" stroke={`url(#${id})`} strokeWidth="3" strokeLinecap="round" />
-      <g fill="none" stroke="#fff" strokeOpacity=".55" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 18.5 6.5 24l4.5 5.5" />
-        <path d="M36.5 18.5 41 24l-4.5 5.5" />
-      </g>
+      <rect width="48" height="48" rx="12" fill={INK} />
+      <path
+        d="M19.5 13 8.5 24l11 11"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="5.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M24.5 37 35 15.5" fill="none" stroke={`url(#${id})`} strokeWidth="5.2" strokeLinecap="round" />
+      <path
+        d="M30.1 14.2 37.6 10.1 39.1 18.6Z"
+        fill={BRAND_GRADIENT[2]}
+        stroke={BRAND_GRADIENT[2]}
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
-/** `<rank_forge/>` in monospace: brackets dimmed, "forge" in the brand blue. */
+/**
+ * `<rank_forge/>` in bold monospace: brackets and "_forge" in the brand
+ * blue, "rank" in the text colour.
+ */
 export function ProductWordmark({
   className,
   tone = "dark",
@@ -61,31 +67,37 @@ export function ProductWordmark({
   tone?: "dark" | "light" | "auto";
 }) {
   const [first, second] = PRODUCT_NAME.split("_");
-  const dimClass =
-    tone === "dark" ? "text-white/40" : tone === "light" ? "text-[#0b0d14]/35" : "text-muted-foreground/70";
+  // On a dark ground the lighter blues carry; on a light one the deep blue.
+  const onDark = { tag: BRAND_GRADIENT[1], forge: BRAND_GRADIENT[2] };
+  const onLight = { tag: BRAND_GRADIENT[0], forge: BRAND_GRADIENT[0] };
   const nameClass =
     tone === "dark" ? "text-white" : tone === "light" ? "text-[#0b0d14]" : "text-foreground";
+  const blue = (part: "tag" | "forge") =>
+    tone === "auto"
+      ? part === "tag"
+        ? "text-[#0b7fae] dark:text-[#14b3e0]"
+        : "text-[#0b7fae] dark:text-[#6fe3ff]"
+      : undefined;
+  const style = (part: "tag" | "forge") =>
+    tone === "auto" ? undefined : { color: (tone === "dark" ? onDark : onLight)[part] };
   return (
     <span
-      className={cn("whitespace-nowrap font-mono leading-none tracking-[-0.04em]", className)}
+      className={cn("whitespace-nowrap font-mono leading-none tracking-[-0.045em]", className)}
       aria-label={PRODUCT_NAME}
     >
-      <span className={dimClass}>&lt;</span>
-      <span className={cn("font-medium", nameClass)}>
-        {first}
+      <span className={cn("font-extrabold", blue("tag"))} style={style("tag")}>
+        &lt;
       </span>
-      <span className="font-bold" style={{ color: BRAND_GRADIENT[1] }}>
+      <span className={cn("font-bold", nameClass)}>{first}</span>
+      <span className={cn("font-extrabold", blue("forge"))} style={style("forge")}>
         _
       </span>
-      <span
-        className="bg-clip-text font-extrabold text-transparent"
-        style={{
-          backgroundImage: `linear-gradient(90deg, ${BRAND_GRADIENT[0]}, ${BRAND_GRADIENT[1]} 55%, ${BRAND_GRADIENT[2]})`,
-        }}
-      >
+      <span className={cn("font-extrabold", blue("forge"))} style={style("forge")}>
         {second}
       </span>
-      <span className={dimClass}>/&gt;</span>
+      <span className={cn("font-extrabold", blue("tag"))} style={style("tag")}>
+        /&gt;
+      </span>
     </span>
   );
 }
