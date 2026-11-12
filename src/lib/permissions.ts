@@ -26,10 +26,6 @@ export const OWNER_ONLY_PREFIXES = [
   "/settings/",
   "/api/backup",
   "/api/restore",
-  "/api/update",
-  "/api/restart",
-  "/api/shutdown",
-  "/api/desktop-shortcut",
   "/api/team",
   "/api/test-provider",
 ] as const;

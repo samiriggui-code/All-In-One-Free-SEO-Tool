@@ -201,7 +201,7 @@ function ErrorSheet({
   const generic = fe.title === GENERIC_TITLE;
   const title = generic ? firstLine(e.message) : fe.title;
   const explanation = generic ? t("genericWhat") : fe.explanation;
-  const steps = generic ? [t("genericStep1"), t("genericStep2"), t("genericStep3")] : fe.steps;
+  const steps = generic ? [t("genericStep1"), t("genericStep2")] : fe.steps;
   const [copied, setCopied] = useState(false);
   const [pending, startTransition] = useTransition();
 

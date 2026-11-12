@@ -322,8 +322,6 @@
         "team": "Team & access",
         "data": "Data",
         "backup": "Backup",
-        "updates": "Updates",
-        "install": "Install the app",
         "browser": "Browser",
         "edge": "Edge worker",
         "health": "System health",
@@ -399,10 +397,6 @@
       "contentTitle": "Workspace content",
       "fileHint": "Back this file up to keep everything. Move it to switch machines. Replaceable via the SEO_DB_PATH env var.",
       "backupLink": "Back up or restore"
-    },
-    "updates": {
-      "title": "Updates",
-      "description": "Pulls the latest version from your repository's main branch. Your data and .env.local are preserved."
     },
     "browser": {
       "title": "Headless browser",
@@ -783,8 +777,7 @@
       "resolving": "Working…",
       "genericWhat": "The app has no ready-made explanation for this error. The message and stack trace below show where it happened.",
       "genericStep1": "Try the action again: many errors are transient.",
-      "genericStep2": "If it comes back, restart the server (power button, bottom right).",
-      "genericStep3": "Still there? Copy the details and send them to whoever maintains your install."
+      "genericStep2": "Still there? Copy the details and send them to whoever maintains your install."
     }
   },
   "reports": {
@@ -1134,8 +1127,7 @@
       "title": "Something went wrong",
       "explanation": "We don't have a one-click fix for this exact error yet. The details below have been logged. Use the 'Report on GitHub' button — your error will be pre-filled so the maintainer can fix it fast.",
       "step1": "Try the action again — many errors are transient",
-      "step2": "If it keeps happening, restart the server (power button bottom-right)",
-      "step3": "Still broken? Report on GitHub (button below) — takes 10 seconds"
+      "step2": "Still broken? Report on GitHub (button below) — takes 10 seconds"
     },
     "page": {
       "badge": "Error",
@@ -1143,8 +1135,6 @@
       "retryPage": "Try this page again",
       "dashboard": "Go to dashboard",
       "goBack": "Go back",
-      "restartServer": "Restart the server",
-      "restartConfirm": "Restart the server? The page will reload itself once it's back.",
       "stillStuck": "Still stuck?",
       "githubHint": "Open a pre-filled GitHub issue — everything the maintainer needs is already in the body. Takes ~10 seconds.",
       "reportGithub": "Report on GitHub",
@@ -2310,7 +2300,6 @@
       "team": "Team",
       "setUpTeam": "Set up team accounts",
       "settings": "Settings",
-      "updates": "Updates",
       "adminAfterSignIn": "Admin links appear after you sign in.",
       "signIn": "Sign in",
       "chatCapabilities": "What the AI chat can do",
@@ -2362,51 +2351,6 @@
         "detail": "Today's priorities across all clients"
       },
       "hide": "Hide this suggestion"
-    },
-    "firstRun": {
-      "title": "Make rank_forge feel like a real app",
-      "intro": "One click each. You can change this any time in",
-      "settingsInstall": "Settings → Install",
-      "close": "Close",
-      "pwaTitle": "Install as app (PWA)",
-      "pwaDesc": "Own window, no browser chrome. Adds to Start Menu / Applications. Right-click → Pin to taskbar.",
-      "install": "Install",
-      "notAvailable": "Not available",
-      "shortcutTitle": "Desktop & Start Menu shortcut",
-      "shortcutDesc": "Launches the server AND opens the browser — works even when the server is currently off.",
-      "createShortcuts": "Create shortcuts",
-      "skip": "Skip — I'll do this later",
-      "done": "Done",
-      "pwaUnavailable": "PWA install not available",
-      "pwaUnavailableHint": "Use Chrome / Edge / Brave to install. On Safari use Share → Add to Dock.",
-      "installed": "Installed as app",
-      "installedHint": "Find rank_forge in your Start Menu / Applications.",
-      "shortcutFailed": "Couldn't create shortcut",
-      "shortcutCreated": "Shortcut created",
-      "shortcutCreatedHint": "Desktop + Start Menu icons added. Right-click the Start Menu entry → Pin to taskbar."
-    },
-    "power": {
-      "title": "Server controls",
-      "close": "Close",
-      "restart": "Restart server",
-      "stop": "Stop server",
-      "install": "Install as app / shortcuts",
-      "restartConfirm": "Restart the server?",
-      "restartConfirmBody": "The page will reload itself once it's back (8–15 seconds).",
-      "restartCta": "Restart",
-      "restarting": "Restarting…",
-      "restartFailed": "Restart failed",
-      "restartingServer": "Restarting server",
-      "reloadWhenBack": "Page will reload itself once the server is back",
-      "waiting": "Waiting for server to come back…",
-      "notBack": "Server didn't come back in 60s. Start it again (seo.cmd, desktop shortcut, or docker compose up -d on a VPS).",
-      "stopConfirm": "Stop the server?",
-      "stopConfirmBody": "The app will go offline. Launch it again from your desktop shortcut, seo.cmd, or docker compose up -d on a VPS.",
-      "stopping": "Stopping…",
-      "stopFailed": "Stop failed",
-      "stopped": "Server stopped",
-      "launchAgain": "Launch it again from your desktop shortcut.",
-      "stoppedMsg": "Server stopped. Launch it again from your desktop shortcut."
     },
     "assistant": {
       "open": "AI assistant",
@@ -3194,9 +3138,7 @@
       "auditFailedBody": "Site may be unreachable. Try running again.",
       "auditComplete": "Audit complete: {client}",
       "auditCompleteBody": "Score {score} · {count, plural, one {# issue found} other {# issues found}}.",
-      "fieldChanged": "{field} changed: {client}",
-      "updateAvailable": "Update available",
-      "appUpdated": "App updated"
+      "fieldChanged": "{field} changed: {client}"
     }
   },
   "googleSetup": {

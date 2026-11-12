@@ -8,8 +8,6 @@ import { IntlProvider } from "@/components/shell/intl-provider";
 import { getAiAvailability } from "@/lib/ai-availability";
 import { TopBar } from "@/components/shell/top-bar";
 import { AIAssistant } from "@/components/shell/ai-assistant";
-import { PowerWidget } from "@/components/shell/power-widget";
-import { FirstRunPrompt } from "@/components/shell/first-run-prompt";
 import { Toaster } from "@/components/shell/toaster";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { ServiceWorkerRegister } from "@/components/shell/sw-register";
@@ -21,7 +19,6 @@ import { redirect } from "next/navigation";
 import {
   accountsEnabled,
   currentUser,
-  effectiveRole,
   visibleClientIds,
 } from "@/lib/auth";
 import { isAuthPage, isPublicPage, PATHNAME_HEADER, RETURN_TO_HEADER } from "@/lib/auth-routes";
@@ -80,7 +77,6 @@ export default async function RootLayout({
       "/news": u.news,
       "/agent": u.suggestions,
       "/monitor": u.pageChanges,
-      "/settings": u.updateAvailable,
     };
   } catch {
     unreadByHref = {};
@@ -197,7 +193,6 @@ export default async function RootLayout({
                       hasAiKey={aiAvailability.hasKey}
                       userRole={userRole}
                       theme={theme}
-                      isOwner={effectiveRole(me) === "owner"}
                     />
                     <div className="flex h-full min-w-0 flex-1 flex-col">
                       <TopBar
@@ -219,10 +214,6 @@ export default async function RootLayout({
                     </div>
                   </div>
                   <AIAssistant />
-                  {/* Restart / stop are owner-only routes; nobody else
-                      gets a button that can only fail. */}
-                  {effectiveRole(me) === "owner" && <PowerWidget />}
-                  <FirstRunPrompt />
                 </>
               )}
               <Toaster />

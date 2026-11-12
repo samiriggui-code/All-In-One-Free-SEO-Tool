@@ -195,7 +195,7 @@ const rules: Rule[] = [
         "Another operation is writing to the database. Usually clears in a second.",
       steps: [
         "Wait 2 seconds and try again",
-        "If it keeps happening, restart the server (power button bottom-right)",
+        "If it keeps happening, tell whoever runs the server",
       ],
     }),
   },
@@ -241,7 +241,6 @@ export function friendlyError(
       "We don't have a one-click fix for this exact error yet. The details below have been logged. Use the 'Report on GitHub' button — your error will be pre-filled so the maintainer can fix it fast.",
     steps: [
       "Try the action again — many errors are transient",
-      "If it keeps happening, restart the server (power button bottom-right)",
       "Still broken? Report on GitHub (button below) — takes 10 seconds",
     ],
     githubIssue: {

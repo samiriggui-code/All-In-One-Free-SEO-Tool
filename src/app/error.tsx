@@ -89,7 +89,7 @@ export default function PageError({
       ...base,
       title: tGeneric("title"),
       explanation: tGeneric("explanation"),
-      steps: [tGeneric("step1"), tGeneric("step2"), tGeneric("step3")],
+      steps: [tGeneric("step1"), tGeneric("step2")],
     };
   }, [error, env, tGeneric]);
   const issueUrl = useMemo(() => ghIssueLink(fe), [fe]);
@@ -135,18 +135,6 @@ export default function PageError({
     }
   }
 
-  async function restart() {
-    if (!confirm(tPage("restartConfirm"))) return;
-    try {
-      await fetch("/api/restart", { method: "POST" });
-      setTimeout(function poll() {
-        fetch("/api/health-ping", { cache: "no-store" })
-          .then(() => location.reload())
-          .catch(() => setTimeout(poll, 1500));
-      }, 3000);
-    } catch {}
-  }
-
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col justify-center space-y-5 py-12">
       <div className="space-y-2">
@@ -179,7 +167,7 @@ export default function PageError({
       </section>
 
       {/* Recovery actions */}
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-3">
         <ActionButton
           icon={RefreshCw}
           title={tPage("retryPage")}
@@ -191,11 +179,6 @@ export default function PageError({
           icon={ArrowLeft}
           title={tPage("goBack")}
           onClick={() => history.back()}
-        />
-        <ActionButton
-          icon={RefreshCw}
-          title={tPage("restartServer")}
-          onClick={restart}
         />
       </div>
 

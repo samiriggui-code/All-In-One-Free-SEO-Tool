@@ -70,9 +70,6 @@ ENV PORT=3000
 # one backup target — survives `docker compose down` + rebuilds.
 ENV SEO_DATA_DIR=/data
 ENV SEO_DB_PATH=/data/data.db
-# Lets /api/restart and /api/shutdown show Docker-specific guidance
-# ("use `docker compose restart`") instead of trying to run seo.sh.
-ENV RUNNING_IN_DOCKER=1
 # Inside the container we must bind to all interfaces so the host
 # port mapping works. The container is the security boundary; users
 # expose 3000 to the host as they choose in docker-compose.yml.

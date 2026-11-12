@@ -5,28 +5,25 @@ import { useTranslations } from "next-intl";
 import type { ThemePreference } from "@/app/settings/theme-actions";
 import { openAssistant } from "./ai-assistant";
 import { NotificationsBell } from "./notifications-bell";
-import { PowerWidget } from "./power-widget";
 import { ProfileMenu } from "./profile-menu";
 import { ThemeToggle } from "./theme-toggle";
 
 /**
  * The bottom of the sidebar, as in GsKnora (components/menu.vue,
  * `.menu_bottom` + UserMenu.vue): the user bar with the notification bell
- * beside it, and above it the assistant, the theme and, for the owner, the
- * server controls. They used to crowd the top bar and float over the page
- * in the bottom-right corner, where they covered the end of rows.
+ * beside it, and above it the assistant and the theme. They used to crowd
+ * the top bar and float over the page in the bottom-right corner, where
+ * they covered the end of rows.
  *
  * Phones never see this (the sidebar is md+); they keep the top-bar avatar
- * and bell and the two floating buttons.
+ * and bell and the floating assistant button.
  */
 export function SidebarFooter({
   collapsed,
   theme,
-  isOwner,
 }: {
   collapsed: boolean;
   theme: ThemePreference;
-  isOwner: boolean;
 }) {
   const t = useTranslations("shell.assistant");
 
@@ -43,7 +40,6 @@ export function SidebarFooter({
           <Sparkles className="size-4" />
         </button>
         <ThemeToggle theme={theme} />
-        {isOwner ? <PowerWidget variant="sidebar" /> : null}
         <NotificationsBell placement="up" />
         <ProfileMenu variant="sidebar" collapsed />
       </div>
@@ -63,7 +59,6 @@ export function SidebarFooter({
           <span className="truncate">{t("open")}</span>
         </button>
         <ThemeToggle theme={theme} />
-        {isOwner ? <PowerWidget variant="sidebar" /> : null}
       </div>
       <div className="flex items-center gap-1">
         <ProfileMenu variant="sidebar" />

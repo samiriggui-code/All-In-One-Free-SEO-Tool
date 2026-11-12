@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Multi-purpose entry. `seo doctor` runs the diagnostic dump; everything
-# else is forwarded to START.sh (preserves the legacy /api/restart
-# compatibility that spawns "seo.sh" by name).
+# else is forwarded to START.sh.
 cd "$(dirname "$0")/.."
 if [ "$1" = "doctor" ]; then
   exec node bin/seo-doctor.cjs

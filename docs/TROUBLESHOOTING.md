@@ -387,10 +387,6 @@ sudo chown -R 1000:1000 ./data  # if you've mounted to a host path
 docker compose up -d
 ```
 
-### "RUNNING_IN_DOCKER" warning in restart route
-
-Already set in our `docker-compose.yml`. If you've customized compose: add `RUNNING_IN_DOCKER: "1"` to the environment block.
-
 ---
 
 ## Performance issues
@@ -439,7 +435,7 @@ echo 'SEO_BIND_HOST=0.0.0.0' >> .env.local
 
 ### "This action is restricted to local-machine requests"
 
-You hit an admin endpoint (`/api/backup`, `/api/restart`, etc) from a non-local IP without `APP_PASSWORD`. Fix: set `APP_PASSWORD` and authenticate.
+You hit an admin endpoint (`/api/backup`, `/api/restore`, etc) from a non-local IP without `APP_PASSWORD`. Fix: set `APP_PASSWORD` and authenticate.
 
 ### Forgot the password
 

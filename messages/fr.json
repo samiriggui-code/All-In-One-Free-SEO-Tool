@@ -322,8 +322,6 @@
         "team": "Équipe et accès",
         "data": "Données",
         "backup": "Sauvegarde",
-        "updates": "Mises à jour",
-        "install": "Installer l'application",
         "browser": "Navigateur",
         "edge": "Edge worker",
         "health": "Santé du système",
@@ -399,10 +397,6 @@
       "contentTitle": "Contenu de l'espace",
       "fileHint": "Sauvegardez ce fichier pour tout garder. Déplacez-le pour changer de machine. Modifiable avec la variable SEO_DB_PATH.",
       "backupLink": "Sauvegarder ou restaurer"
-    },
-    "updates": {
-      "title": "Mises à jour",
-      "description": "Récupère la dernière version de la branche main de votre dépôt. Vos données et votre fichier .env.local sont conservés."
     },
     "browser": {
       "title": "Navigateur automatisé",
@@ -783,8 +777,7 @@
       "resolving": "En cours…",
       "genericWhat": "L'application n'a pas d'explication toute prête pour cette erreur. Le message et la trace ci-dessous disent où elle s'est produite.",
       "genericStep1": "Refaites l'action : beaucoup d'erreurs sont passagères.",
-      "genericStep2": "Si elle revient, redémarrez le serveur (bouton d'alimentation en bas à droite).",
-      "genericStep3": "Toujours là ? Copiez les détails et transmettez-les à la personne qui maintient votre installation."
+      "genericStep2": "Toujours là ? Copiez les détails et transmettez-les à la personne qui maintient votre installation."
     }
   },
   "reports": {
@@ -1134,8 +1127,7 @@
       "title": "Une erreur s’est produite",
       "explanation": "Nous n’avons pas encore de correction en un clic pour cette erreur. Les détails ont été enregistrés. Utilisez « Signaler sur GitHub » — le ticket sera prérempli pour le mainteneur.",
       "step1": "Réessayez l’action — beaucoup d’erreurs sont passagères",
-      "step2": "Si ça persiste, redémarrez le serveur (bouton power en bas à droite)",
-      "step3": "Toujours bloqué ? Signalez sur GitHub (ci-dessous) — ~10 secondes"
+      "step2": "Toujours bloqué ? Signalez sur GitHub (ci-dessous) — ~10 secondes"
     },
     "page": {
       "badge": "Erreur",
@@ -1143,8 +1135,6 @@
       "retryPage": "Réessayer cette page",
       "dashboard": "Tableau de bord",
       "goBack": "Retour",
-      "restartServer": "Redémarrer le serveur",
-      "restartConfirm": "Redémarrer le serveur ? La page se rechargera une fois le service revenu.",
       "stillStuck": "Toujours bloqué ?",
       "githubHint": "Ouvrir un ticket GitHub prérempli — tout ce qu’il faut pour le mainteneur est déjà dans le corps. ~10 secondes.",
       "reportGithub": "Signaler sur GitHub",
@@ -2310,7 +2300,6 @@
       "team": "Équipe",
       "setUpTeam": "Créer des comptes d’équipe",
       "settings": "Paramètres",
-      "updates": "Mises à jour",
       "adminAfterSignIn": "Les liens d’administration apparaissent après la connexion.",
       "signIn": "Se connecter",
       "chatCapabilities": "Ce que le chat IA sait faire",
@@ -2362,51 +2351,6 @@
         "detail": "Les priorités du jour pour tous vos clients"
       },
       "hide": "Masquer cette suggestion"
-    },
-    "firstRun": {
-      "title": "Faites de rank_forge une vraie application",
-      "intro": "Un clic pour chaque option. Vous pouvez changer cela à tout moment dans",
-      "settingsInstall": "Paramètres → Installation",
-      "close": "Fermer",
-      "pwaTitle": "Installer comme application (PWA)",
-      "pwaDesc": "Sa propre fenêtre, sans barre de navigateur. Ajoutée au menu Démarrer / Applications. Clic droit → Épingler à la barre des tâches.",
-      "install": "Installer",
-      "notAvailable": "Indisponible",
-      "shortcutTitle": "Raccourci Bureau et menu Démarrer",
-      "shortcutDesc": "Démarre le serveur ET ouvre le navigateur, même quand le serveur est arrêté.",
-      "createShortcuts": "Créer les raccourcis",
-      "skip": "Passer, je le ferai plus tard",
-      "done": "Terminé",
-      "pwaUnavailable": "Installation PWA indisponible",
-      "pwaUnavailableHint": "Utilisez Chrome, Edge ou Brave pour installer. Sur Safari : Partager → Ajouter au Dock.",
-      "installed": "Installée comme application",
-      "installedHint": "Retrouvez rank_forge dans le menu Démarrer / Applications.",
-      "shortcutFailed": "Impossible de créer le raccourci",
-      "shortcutCreated": "Raccourci créé",
-      "shortcutCreatedHint": "Icônes ajoutées sur le Bureau et dans le menu Démarrer. Clic droit sur l’entrée du menu → Épingler à la barre des tâches."
-    },
-    "power": {
-      "title": "Contrôle du serveur",
-      "close": "Fermer",
-      "restart": "Redémarrer le serveur",
-      "stop": "Arrêter le serveur",
-      "install": "Installer comme app / raccourcis",
-      "restartConfirm": "Redémarrer le serveur ?",
-      "restartConfirmBody": "La page se rechargera d’elle-même quand il sera revenu (8 à 15 secondes).",
-      "restartCta": "Redémarrer",
-      "restarting": "Redémarrage…",
-      "restartFailed": "Échec du redémarrage",
-      "restartingServer": "Redémarrage du serveur",
-      "reloadWhenBack": "La page se rechargera quand le serveur sera revenu",
-      "waiting": "En attente du retour du serveur…",
-      "notBack": "Le serveur n’est pas revenu en 60 s. Relancez-le (seo.cmd, raccourci, ou docker compose up -d sur un VPS).",
-      "stopConfirm": "Arrêter le serveur ?",
-      "stopConfirmBody": "L’app sera hors ligne. Relancez-la depuis votre raccourci, seo.cmd, ou docker compose up -d sur un VPS.",
-      "stopping": "Arrêt…",
-      "stopFailed": "Échec de l’arrêt",
-      "stopped": "Serveur arrêté",
-      "launchAgain": "Relancez-le depuis votre raccourci.",
-      "stoppedMsg": "Serveur arrêté. Relancez-le depuis votre raccourci."
     },
     "assistant": {
       "open": "Assistant IA",
@@ -3194,9 +3138,7 @@
       "auditFailedBody": "Le site est peut-être injoignable. Relance l'audit.",
       "auditComplete": "Audit terminé : {client}",
       "auditCompleteBody": "Score {score} · {count, plural, one {# problème trouvé} other {# problèmes trouvés}}.",
-      "fieldChanged": "{field} modifié : {client}",
-      "updateAvailable": "Mise à jour disponible",
-      "appUpdated": "Application mise à jour"
+      "fieldChanged": "{field} modifié : {client}"
     }
   },
   "googleSetup": {
