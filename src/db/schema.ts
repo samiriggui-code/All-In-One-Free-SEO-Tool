@@ -1541,6 +1541,29 @@ export const guardrailIncidents = sqliteTable("guardrail_incidents", {
     .default(sql`(unixepoch())`),
 });
 export type GuardrailIncident = typeof guardrailIncidents.$inferSelect;
+
+/**
+ * An action the assistant proposed that changes something (apply a fix,
+ * reply to a review, run the agent…). Nothing runs until a person with
+ * edit rights on the client confirms it; the row keeps who decided and
+ * what happened.
+ */
+export const aiApprovals = sqliteTable("ai_approvals", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  tool: text("tool").notNull(),
+  args: text("args", { mode: "json" }).$type<Record<string, unknown>>().notNull(),
+  summary: text("summary").notNull(),
+  /** pending → approved | rejected | failed | expired */
+  status: text("status").notNull().default("pending"),
+  result: text("result"),
+  clientId: integer("client_id"),
+  userId: integer("user_id"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  decidedAt: integer("decided_at", { mode: "timestamp" }),
+});
+export type AiApproval = typeof aiApprovals.$inferSelect;
 export type NewAiCall = typeof aiCalls.$inferInsert;
 
 // =============== SERP feature snapshots ===============

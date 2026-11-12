@@ -576,3 +576,28 @@ If this mentions a missing table, run "pnpm db:migrate" in the tool's directory.
 
   return server;
 }
+
+/**
+ * The same tools, for callers inside the app (the built-in assistant).
+ * Returns null for an unknown name. Access checks are the caller's job:
+ * the MCP transports check a token, the assistant checks the signed-in
+ * person's rights on the client.
+ */
+export function findMcpTool(name: string): {
+  name: string;
+  description: string;
+  inputSchema: { type: "object"; properties: Record<string, unknown>; required?: string[] };
+  readOnly: boolean;
+  run: (args: Record<string, unknown>) => Promise<McpToolResult>;
+} | null {
+  const t = TOOLS.find((x) => x.name === name);
+  if (!t) return null;
+  const annotations = (t as { annotations?: { readOnlyHint?: boolean } }).annotations ?? DEFAULT_ANNOTATIONS;
+  return {
+    name: t.name,
+    description: t.description,
+    inputSchema: t.inputSchema as { type: "object"; properties: Record<string, unknown>; required?: string[] },
+    readOnly: annotations.readOnlyHint !== false,
+    run: (args) => t.handler(args as never),
+  };
+}

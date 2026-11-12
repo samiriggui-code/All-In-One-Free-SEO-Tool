@@ -2739,6 +2739,36 @@
         "content": "the content page",
         "reports": "the reports page",
         "other": "the {name} page"
+      },
+      "usedTools": "Looked at: {tools}",
+      "proposalTitle": "The assistant proposes a change",
+      "proposalHint": "Nothing happens until you confirm.",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "tools": {
+        "search_knowledge": "knowledge base",
+        "list_clients": "client list",
+        "get_client_overview": "client overview",
+        "list_audit_issues": "audit issues",
+        "get_keyword_rankings": "keyword rankings",
+        "get_ai_visibility": "AI visibility",
+        "get_citation_landscape": "sources AI cites",
+        "list_agent_actions": "agent actions",
+        "get_recent_agent_runs": "agent runs",
+        "run_agent": "run the agent",
+        "list_proposed_fixes": "proposed fixes",
+        "apply_fix": "apply a fix",
+        "revert_agent_action": "undo an agent action",
+        "get_client_knowledge": "client profile",
+        "update_client_knowledge": "update the client profile",
+        "log_client_research": "log research",
+        "get_review_backlog": "reviews to handle",
+        "save_review_draft": "save a reply draft",
+        "reply_to_review": "reply to a review",
+        "inspect_url": "URL inspection",
+        "check_indexing": "indexing",
+        "compare_search_periods": "Search Console comparison",
+        "list_sitemaps": "sitemaps"
       }
     },
     "quickAdd": {
@@ -7696,7 +7726,15 @@
       "activeProviderDidnTRespond": "Active provider \"{active}\" didn't respond. Check the key in Settings or pick a different provider as active.",
       "chatAppConnectedNeedsKey": "This assistant calls a model itself, so it needs a key. {client} is connected, but the other way round: it calls into this tool.",
       "yourChatApp": "your chat app",
-      "askThereMeanwhile": "You can ask the same question in that app right now: it can see your clients, audits, keywords and rankings."
+      "askThereMeanwhile": "You can ask the same question in that app right now: it can see your clients, audits, keywords and rankings.",
+      "tooManySteps": "The assistant looked things up too many times without reaching an answer. Try a more specific question.",
+      "approvalMissing": "This proposal no longer exists.",
+      "approval_expired": "This proposal is more than 24 hours old. Ask the assistant again.",
+      "approval_already_decided": "This proposal has already been handled.",
+      "approval_not_found": "This proposal no longer exists.",
+      "approvalFailed": "The change did not go through: {error}",
+      "approvalDone": "Done.",
+      "approvalRejected": "Proposal cancelled, nothing was changed."
     },
     "app_audits_actions": {
       "auditFailedFor": "Audit failed for {name}",
