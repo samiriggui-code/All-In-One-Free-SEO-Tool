@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { AskAiButton } from "@/components/ask-ai-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -259,6 +260,7 @@ function ProposalRowView({
   onToggle: () => void;
   onError: (m: string) => void;
 }) {
+  const tAsk = useTranslations("askAi");
   const t = useTranslations("proposals");
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -372,6 +374,20 @@ function ProposalRowView({
           <option value="accepted">{t("status.accepted")}</option>
           <option value="declined">{t("status.declined")}</option>
         </select>
+
+        <AskAiButton
+          clientId={proposal.clientId}
+          question={tAsk("offer")}
+          context={tAsk("offerContext", {
+            title: proposal.title,
+            name: proposal.prospectName,
+            lines: [
+              ...proposal.offers.map((o) => `- ${o.name}`),
+              ...proposal.pricing.map((l) => `- ${l.label} : ${l.amount} ${proposal.currency}${l.recurring ? " / mois" : ""}`),
+              ...proposal.scope.slice(0, 8).map((l) => `- ${l.label}`),
+            ].join("\n").slice(0, 2000),
+          })}
+        />
 
         {proposal.status === "accepted" &&
           (proposal.invoiceId ? (

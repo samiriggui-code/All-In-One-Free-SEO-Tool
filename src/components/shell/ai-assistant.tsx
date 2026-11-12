@@ -53,6 +53,14 @@ export function openAssistant() {
   window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT));
 }
 
+export type AskDetail = { question: string; context?: string; clientId?: number | null };
+const ASK_EVENT = "rf:ask-assistant";
+
+/** Opens the assistant and asks a question about something on screen (AskAiButton). */
+export function askAssistant(detail: AskDetail) {
+  window.dispatchEvent(new CustomEvent<AskDetail>(ASK_EVENT, { detail }));
+}
+
 export function AIAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>([]);
@@ -81,7 +89,7 @@ export function AIAssistant() {
     }
   }, [messages, pending]);
 
-  const send = (text: string) => {
+  const send = (text: string, opts: { clientId?: number | null } = {}) => {
     const trimmed = text.trim();
     if (!trimmed || pending) return;
     const next: UiMessage[] = [
@@ -94,7 +102,7 @@ export function AIAssistant() {
     startTransition(async () => {
       const r = await chat(
         next.map((m) => ({ role: m.role, content: m.content })),
-        { clientId: clientIdFromPath(pathname), conversationId },
+        { clientId: opts.clientId ?? clientIdFromPath(pathname), conversationId },
       );
       if (r.ok) {
         setConversationId(r.conversationId);
@@ -117,6 +125,24 @@ export function AIAssistant() {
       }
     });
   };
+
+  // « Demander à l'IA » buttons: open and ask straight away, with the
+  // item's context under the question.
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  });
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const d = (e as CustomEvent<AskDetail>).detail;
+      if (!d?.question) return;
+      setOpen(true);
+      const text = d.context ? `${d.question}\n\n---\n${d.context.slice(0, 3000)}` : d.question;
+      sendRef.current(text, { clientId: d.clientId });
+    };
+    window.addEventListener(ASK_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_EVENT, onAsk);
+  }, []);
 
   return (
     <>

@@ -3,7 +3,7 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 245 routes · 95 need AI · 62 use a browser.
+// 245 routes · 97 need AI · 66 use a browser.
 // 89 are /tools/* · 30 need AI · 89 carry copy.
 
 export const TOOL_CAPABILITIES = [
@@ -20,7 +20,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/annotations", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/ask", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/audits", needsAI: true, aiUsage: "required", usesBrowser: true },
-  { route: "/audits/[id]", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/audits/[id]", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/audits/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/audits/diff", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/author-authority", needsAI: false, aiUsage: "none", usesBrowser: false },
@@ -65,7 +65,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/content-gap/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/content/c/[clientId]", needsAI: true, aiUsage: "partial", usesBrowser: false },
   { route: "/content/c/[clientId]/calendar", needsAI: true, aiUsage: "required", usesBrowser: false },
-  { route: "/content/c/[clientId]/p/[postId]", needsAI: true, aiUsage: "partial", usesBrowser: false },
+  { route: "/content/c/[clientId]/p/[postId]", needsAI: true, aiUsage: "partial", usesBrowser: true },
   { route: "/content/c/[clientId]/tools", needsAI: true, aiUsage: "partial", usesBrowser: false },
   { route: "/content/c/[clientId]/voice", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/csv-import", needsAI: false, aiUsage: "none", usesBrowser: false },
@@ -92,7 +92,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/invoices/new", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/keywords", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/keywords/[id]/screenshots", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/keywords/[id]/serp", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/keywords/[id]/serp", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/keywords/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: true },
   { route: "/knowledge", needsAI: true, aiUsage: "required", usesBrowser: false, title: "SEO knowledge hub", description: "Ranking signals, topical authority, blogging rules, page-speed by stack, GBP playbook, knowledge graph, rich snippets, E-E-A-T — the in-app reference." },
   { route: "/knowledge-panel", needsAI: false, aiUsage: "none", usesBrowser: true },
@@ -123,7 +123,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/outreach/templates", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/portal/[token]", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/portal/[token]/articles/[postId]", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/proposals", needsAI: true, aiUsage: "required", usesBrowser: false },
+  { route: "/proposals", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/proposals/offers", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/register", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/report-data", needsAI: true, aiUsage: "required", usesBrowser: false },

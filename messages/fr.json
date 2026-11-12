@@ -2522,7 +2522,9 @@
         "session": "Lien d'accès invalide.",
         "noQuestion": "Aucune question à traiter.",
         "tooLong": "Posez une question plus courte.",
-        "unavailable": "L'assistant n'est pas disponible pour le moment. Votre interlocuteur peut vous répondre à tout moment."
+        "unavailable": "L'assistant n'est pas disponible pour le moment. Votre interlocuteur peut vous répondre à tout moment.",
+        "dailyLimit": "Vous avez posé {limit} questions aujourd’hui, la limite du jour. Revenez demain ou écrivez à votre interlocuteur à l’agence.",
+        "blocked": "Cette question ne peut pas être traitée ici. Reformulez-la, ou posez-la à votre interlocuteur à l’agence."
       }
     },
     "deliverables": {
@@ -2792,7 +2794,8 @@
         "save_note": "enregistrer une note",
         "remember": "mémoire (ajout)",
         "forget": "mémoire (oubli)"
-      }
+      },
+      "askAi": "Demander à l’IA"
     },
     "quickAdd": {
       "title": "Ajouter un client",
@@ -8605,5 +8608,15 @@
       "no_client": "Choisissez un client.",
       "noAccount": "Il faut un compte pour ce réglage."
     }
+  },
+  "askAi": {
+    "issue": "Comment corriger ce problème sur ce site ?",
+    "issueContext": "Problème d’audit : {type} (gravité {severity}), sur {count} page(s).\nExemple : {sample}\nPages : {urls}",
+    "keyword": "Pourquoi ce mot-clé a-t-il bougé, et que faire ?",
+    "keywordContext": "Mot-clé suivi : « {query} » ({country}, {device}) pour {name}.",
+    "article": "Améliore l’introduction de cet article.",
+    "articleContext": "Article : « {title} », mot-clé principal « {keyword} ».\nDébut du texte :\n{start}",
+    "offer": "Résume cette offre pour le client, en mots simples.",
+    "offerContext": "Proposition « {title} » pour {name}. Contenu :\n{lines}"
   }
 }

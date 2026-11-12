@@ -23,6 +23,7 @@ import { Term } from "@/components/ui/term";
 import { ConfidenceBadge } from "@/components/ui/confidence-badge";
 import { FixWizard } from "@/components/fix-wizard";
 import { IssueExplainer } from "@/components/issue-explainer";
+import { AskAiButton } from "@/components/ask-ai-button";
 import { getExplainer } from "@/lib/issue-explainers.server";
 import { isFixable } from "@/lib/fix-suggestions";
 import { confidenceReason } from "@/lib/audit-confidence";
@@ -119,6 +120,7 @@ export default async function AuditDetailPage({
   const tr = await getTranslations("audits.report");
   const tu = await getTranslations("auditUi.detail");
   const tSev = await getTranslations("auditUi.severity");
+  const tAsk = await getTranslations("askAi");
   const tCat = await getTranslations("auditUi.categories");
   const tVerdict = await getTranslations("auditUi.verdict");
   const tStatus = await getTranslations("audits.status");
@@ -587,7 +589,18 @@ export default async function AuditDetailPage({
                         </ul>
                       </details>
 
-                      <div className="mt-2">
+                      <div className="mt-2 flex flex-wrap items-start gap-2">
+                        <AskAiButton
+                          clientId={client.id}
+                          question={tAsk("issue")}
+                          context={tAsk("issueContext", {
+                            type: g.type,
+                            severity: g.severity,
+                            count: g.affectedUrls.length,
+                            sample: g.sample.slice(0, 400),
+                            urls: g.affectedUrls.slice(0, 5).join(", "),
+                          })}
+                        />
                         <IssueExplainer
                           issueType={g.type}
                           url={g.affectedUrls[0]}
