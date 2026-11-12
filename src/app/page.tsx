@@ -204,7 +204,7 @@ const BENTO_TILES: BentoTile[] = [
     iconColor: "text-emerald-300",
   },
   {
-    href: "/tools",
+    href: "/settings/tools",
     titleKey: "bento.toolsTitle",
     descKey: "bento.toolsDesc",
     icon: Wrench,

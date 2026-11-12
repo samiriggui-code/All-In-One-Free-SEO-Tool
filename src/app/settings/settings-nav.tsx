@@ -22,6 +22,7 @@ import {
   Shield,
   Sparkles,
   Users2,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -36,6 +37,7 @@ const ICONS: Record<SettingsIconName, LucideIcon> = {
   sparkles: Sparkles,
   gauge: Gauge,
   brain: Brain,
+  wrench: Wrench,
   plug: Plug,
   mail: Mail,
   bell: Bell,

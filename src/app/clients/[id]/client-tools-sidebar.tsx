@@ -25,6 +25,7 @@ import {
   groupsForSurfaces,
   type SurfaceId,
 } from "@/lib/engagement-surfaces";
+import { isToolDisabled } from "@/lib/tool-catalog";
 import { toolKey } from "@/lib/project-tools";
 import type { OpenToolState } from "./client-tools-panel";
 
@@ -51,7 +52,10 @@ export function ClientToolsSidebar({
   featured,
   onOpenTool,
   top,
+  disabledTools,
 }: {
+  /** Tools turned off in Settings → Tools: left out of the rail. */
+  disabledTools?: string[];
   /** Shown above the rail, first in the stack (the client action plan). */
   top?: React.ReactNode;
   client: ClientToolsClient;
@@ -79,7 +83,10 @@ export function ClientToolsSidebar({
   onOpenTool?: (tool: OpenToolState) => void;
 }) {
   const t = useTranslations("clientPage.tools");
-  const allGroups = buildClientToolGroups(client);
+  const off = new Set(disabledTools ?? []);
+  const allGroups = buildClientToolGroups(client)
+    .map((g) => ({ ...g, tools: g.tools.filter((tool) => !isToolDisabled(tool.href, off)) }))
+    .filter((g) => g.tools.length > 0);
 
   // Scope order. Groups no surface claims — "Paid ads & growth" — keep
   // their place among the in-scope ones rather than being demoted:
@@ -362,7 +369,7 @@ export function ClientToolsSidebar({
 
       <p className="mt-4 px-1 text-[10px] text-muted-foreground/70">
         <Link
-          href="/tools"
+          href="/settings/tools"
           className="hover:text-foreground hover:underline"
         >
           {t("toolbox")}

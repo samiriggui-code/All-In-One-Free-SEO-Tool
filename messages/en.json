@@ -96,10 +96,6 @@
         "member": "Member",
         "viewer": "Client viewer"
       }
-    },
-    "toolbox": {
-      "title": "All sections",
-      "hint": "The pages of each speciality, by stage of the work. Search (Ctrl+K) finds them too."
     }
   },
   "dashboard": {
@@ -307,7 +303,8 @@
         "integrations": "Integrations",
         "agency": "Agency",
         "system": "System",
-        "about": "About"
+        "about": "About",
+        "tools": "Tools"
       },
       "items": {
         "general": "General",
@@ -326,7 +323,8 @@
         "edge": "Edge worker",
         "health": "System health",
         "errors": "Error log",
-        "privacy": "Privacy"
+        "privacy": "Privacy",
+        "tools": "Tools"
       }
     },
     "general": {
@@ -778,6 +776,160 @@
       "genericWhat": "The app has no ready-made explanation for this error. The message and stack trace below show where it happened.",
       "genericStep1": "Try the action again: many errors are transient.",
       "genericStep2": "Still there? Copy the details and send them to whoever maintains your install."
+    },
+    "tools": {
+      "title": "Tools",
+      "description": "Every tool in the agency, grouped by kind of mission. Open a card to see what it needs, then turn the tool on or off.",
+      "search": "Search tools",
+      "tab_all": "All",
+      "tab_ready": "Ready",
+      "tab_setup": "Needs setup",
+      "tab_off": "Turned off",
+      "ready": "Ready",
+      "setup": "Needs setup",
+      "off": "Turned off",
+      "empty": "No tool matches.",
+      "sheetNeeds": "What it needs",
+      "needAi": "AI key",
+      "needAiRequired": "Required: the tool does not work without a key.",
+      "needAiPartial": "Optional: part of the tool uses it.",
+      "needAiNone": "Not needed.",
+      "needGsc": "Google Search Console",
+      "needGscOk": "Connected.",
+      "needGscMissing": "Connect it: the tool reads Search Console data.",
+      "needBrowser": "Browser on the server",
+      "needBrowserHint": "The tool opens pages in the server's browser. No cost per use.",
+      "configured": "Configured.",
+      "missing": "Missing.",
+      "configure": "Set up",
+      "enabled": "Tool turned on",
+      "enabledHint": "Turned off, the tool no longer shows in projects, search or the client menu. Its page is not deleted.",
+      "adminOnly": "Only the workspace owner can turn a tool on or off.",
+      "open": "Open the tool",
+      "close": "Close",
+      "count": "{count, plural, one {# tool} other {# tools}}",
+      "categories": {
+        "prospecting": {
+          "label": "Prospecting and sales",
+          "description": "Size up, convince and quote before signing."
+        },
+        "setup": {
+          "label": "Client setup",
+          "description": "Connect the client's accounts and import their data."
+        },
+        "audit": {
+          "label": "Audit and technical diagnosis",
+          "description": "Find what is holding the site back: speed, links, indexing, security."
+        },
+        "strategy": {
+          "label": "Keywords and strategy",
+          "description": "Pick the queries to target and the competitors to watch."
+        },
+        "content": {
+          "label": "Content and on-page",
+          "description": "Write, score and improve pages."
+        },
+        "links": {
+          "label": "Link building and internal links",
+          "description": "Win links and organise internal linking."
+        },
+        "local": {
+          "label": "Local SEO",
+          "description": "Google profile, directories and local rankings."
+        },
+        "ai": {
+          "label": "AI visibility (GEO)",
+          "description": "Get cited by ChatGPT, Perplexity and AI Overviews."
+        },
+        "ads": {
+          "label": "Paid ads",
+          "description": "Paid campaigns and attribution."
+        },
+        "reporting": {
+          "label": "Monitoring and reporting",
+          "description": "Measure every month and report to the client."
+        },
+        "special": {
+          "label": "Special projects",
+          "description": "Migrations, international, development: needed a few times a year."
+        },
+        "agency": {
+          "label": "Agency and automation",
+          "description": "Run the agency, the team and automated work."
+        }
+      },
+      "titles": {
+        "csv-import": "CSV import",
+        "landing-perf": "Landing-page performance",
+        "image-audit": "Image SEO audit",
+        "content-gap": "Content gap finder",
+        "tools_youtube": "YouTube keyword research",
+        "author-authority": "Author topic authority",
+        "bot-logs": "AI bot log analyzer",
+        "report-data": "Add work to your reports",
+        "brand-serp": "Brand SERP monitor",
+        "knowledge-panel": "Knowledge Panel monitor",
+        "annotations": "Chart annotations",
+        "ask": "Ask your data",
+        "capture": "Universal capture",
+        "links": "Smart links"
+      },
+      "descriptions": {
+        "grader": "A quick audit of a prospect's site to show in the first meeting.",
+        "compare": "Compares two sites side by side to show the gap with a competitor.",
+        "proposals": "Proposals and quotes to send to the prospect.",
+        "connect": "Connects the client's Search Console, Analytics and other accounts.",
+        "import": "Imports data from screenshots of third-party tools.",
+        "csv-import": "Imports a CSV (clients, keywords, prospects, competitors) and detects what it holds.",
+        "cwv": "Core Web Vitals tracked per client over time.",
+        "landing-perf": "Joins GSC clicks with GA4 conversions to find pages that don't convert.",
+        "broken-links": "Broken links found on clients' sites.",
+        "cannibalization": "Pages of one client competing for the same queries.",
+        "image-audit": "Checks image size, format, alt text and lazy loading on a page.",
+        "keywords": "Keywords tracked per client, with position history.",
+        "competitors": "Competitors tracked for each client.",
+        "content-gap": "Queries where the site shows but loses the click: the content to rework first.",
+        "serp-scans": "Archive of Google result pages already captured.",
+        "tools_youtube": "Keyword ideas for YouTube videos.",
+        "content": "Writing studio: briefs, articles and publishing.",
+        "title-tests": "A/B tests of title tags, measured on clicks.",
+        "meta-rewrite": "Rewrites in bulk the meta tags of low-CTR pages.",
+        "author-authority": "Scores a domain's authors on E-E-A-T signals.",
+        "backlinks": "Each client's inbound link profile.",
+        "link-building": "Library of link sources, and tracking of links won.",
+        "outreach": "Outreach campaigns to win links.",
+        "gbp": "Managing the client's Google Business Profile.",
+        "citations": "The client's presence in local directories.",
+        "local-rank": "Positions in Google's local pack.",
+        "local-grid": "Map of local positions, point by point around the address.",
+        "ai-visibility": "Measures whether ChatGPT, Perplexity and AI Overviews cite the client.",
+        "bot-logs": "Counts AI and search crawler visits in a server log.",
+        "reports_batch": "Generates every client's report in one go.",
+        "reports_archive": "Reports already sent.",
+        "report-data": "Paste free text and AI turns it into items for the monthly report.",
+        "digest": "Weekly summary sent by email.",
+        "monitor": "Watches chosen pages for changes.",
+        "snapshots": "Saved snapshots to compare before and after.",
+        "brand-monitor": "Mentions and visibility of the client's brand.",
+        "brand-serp": "Share of the first Google page the brand controls for its own name.",
+        "knowledge-panel": "Captures the brand's Knowledge Panel and flags what changed.",
+        "annotations": "Markers on charts to tie a change to an event.",
+        "algorithm-updates": "Timeline of Google algorithm updates.",
+        "news": "SEO news.",
+        "morning": "What needs your attention today, across all clients.",
+        "agent": "AI agent that carries out SEO tasks on clients' sites.",
+        "agent_autopilot": "What the agent does on its own, with undo.",
+        "automations": "Scheduled jobs: audits, reports, alerts.",
+        "capacity": "The team's workload.",
+        "activity": "Log of everything done in the app.",
+        "invoices": "Client invoices.",
+        "history": "History of tool runs.",
+        "chats": "History of AI conversations.",
+        "ask": "Ask a question about a client's audits, keywords and tasks.",
+        "capture": "Pulls title, brand, logo, contact details and schema from a URL.",
+        "links": "Short links with click tracking, for outreach and social.",
+        "knowledge": "Resources to learn and train the team."
+      }
     }
   },
   "reports": {

@@ -75,6 +75,7 @@ import { DailyAutomationCard } from "./daily-automation-card";
 import { inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { Suspense } from "react";
+import { getDisabledTools } from "@/lib/tool-activation";
 import { getTranslations } from "next-intl/server";
 
 type T = Awaited<ReturnType<typeof getTranslations<"clientPage">>>;
@@ -322,6 +323,7 @@ export default async function ClientDetailPage({
   // not `available` — the rail is asking whether the tool page you are
   // about to open can call a model itself.
   const ai = await getAiAvailability();
+  const disabledTools = await getDisabledTools();
   // Ranked work for this client alone. The Start-here strip above covers
   // setup; this covers everything after it, and says which half the agent
   // will take.
@@ -360,6 +362,7 @@ export default async function ClientDetailPage({
       */}
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
         <ClientToolsPanel
+          disabledTools={[...disabledTools]}
           top={
             <ClientActionPlan
               setupLeft={startHereLeft}

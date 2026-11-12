@@ -23,7 +23,10 @@ export function ClientToolsPanel({
   surfaces,
   featured,
   top,
+  disabledTools,
 }: {
+  /** Tools turned off in Settings → Tools: left out of the rail. */
+  disabledTools?: string[];
   /** Tools put forward first (lib/project-tools.ts keys). */
   featured?: string[];
   /** First in the rail's stack: the client action plan button. */
@@ -47,6 +50,7 @@ export function ClientToolsPanel({
         hasAiKey={hasAiKey}
         surfaces={surfaces}
         featured={featured}
+        disabledTools={disabledTools}
         top={top}
         onOpenTool={(t) => setOpenTool(t)}
       />

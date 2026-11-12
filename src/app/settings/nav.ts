@@ -14,6 +14,7 @@ export type SettingsSectionId =
   | "ai"
   | "ai-usage"
   | "ai-learning"
+  | "tools"
   | "google"
   | "email"
   | "notifications"
@@ -33,6 +34,7 @@ export type SettingsIconName =
   | "sparkles"
   | "gauge"
   | "brain"
+  | "wrench"
   | "plug"
   | "mail"
   | "bell"
@@ -56,7 +58,7 @@ export type SettingsNavItem = {
 };
 
 export type SettingsNavGroup = {
-  id: "general" | "ai" | "integrations" | "agency" | "system" | "about";
+  id: "general" | "ai" | "tools" | "integrations" | "agency" | "system" | "about";
   items: SettingsNavItem[];
 };
 
@@ -72,6 +74,10 @@ export const SETTINGS_NAV: SettingsNavGroup[] = [
       { id: "ai-usage", href: "/settings/ai-usage", icon: "gauge" },
       { id: "ai-learning", href: "/settings/ai-learning", icon: "brain" },
     ],
+  },
+  {
+    id: "tools",
+    items: [{ id: "tools", href: "/settings/tools", icon: "wrench" }],
   },
   {
     id: "integrations",
