@@ -66,6 +66,7 @@ const PAGES: Record<ProjectGroup, readonly ProjectPage[]> = {
     { key: "aiVisibility", href: "/ai-visibility/c/:id" },
     { key: "brandMonitor", href: "/brand-monitor/c/:id" },
     { key: "geoSwot", href: "/tools/geo-swot/c/:id" },
+    { key: "knowledge", href: "/knowledge/c/:id" },
   ],
   reports: [{ key: "reports", href: "/reports/c/:id" }],
   missions: [{ key: "missions", href: "/clients/:id?tab=missions" }],

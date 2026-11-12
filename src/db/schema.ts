@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import type {
   KeywordSuggestion,
   NewsletterPack,
@@ -2797,3 +2797,65 @@ export const missions = sqliteTable("missions", {
 
 export type ClientAccount = typeof clientAccounts.$inferSelect;
 export type Mission = typeof missions.$inferSelect;
+
+// =============== Knowledge base (IA-2) ===============
+
+/**
+ * One source of knowledge about a client: an audit, an article, the
+ * client's profile, a note, a web page. Re-ingesting the same source
+ * (same client, type and source id) replaces it, and nothing is redone
+ * when its text hash has not changed. See src/lib/kb/.
+ */
+export const kbDocuments = sqliteTable(
+  "kb_documents",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    clientId: integer("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "cascade" }),
+    /** "profile" | "audit" | "post" | "brief" | "offer" | "note" | "url" | "file". */
+    sourceType: text("source_type").notNull(),
+    /** Id of the row it comes from, the URL, or a random id for a note. */
+    sourceId: text("source_id").notNull(),
+    title: text("title").notNull(),
+    url: text("url"),
+    /** sha256 of the text, to skip unchanged sources. */
+    contentHash: text("content_hash").notNull(),
+    chars: integer("chars").notNull().default(0),
+    chunkCount: integer("chunk_count").notNull().default(0),
+    /** "ready" | "error". */
+    status: text("status").notNull().default("ready"),
+    error: text("error"),
+    /** Added by a person (note, URL, file) rather than synced from the app. */
+    manual: integer("manual", { mode: "boolean" }).notNull().default(false),
+    createdBy: integer("created_by"),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("kb_documents_source_idx").on(t.clientId, t.sourceType, t.sourceId)],
+);
+export type KbDocument = typeof kbDocuments.$inferSelect;
+
+/**
+ * A passage of a document, the unit that search returns. Indexed for
+ * full-text search by the `kb_chunks_fts` FTS5 table (kept in step by
+ * triggers, see migration 0086). `embedding` holds a Float32 vector when
+ * a vectors model is set in Settings → AI.
+ */
+export const kbChunks = sqliteTable(
+  "kb_chunks",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    documentId: integer("document_id")
+      .notNull()
+      .references(() => kbDocuments.id, { onDelete: "cascade" }),
+    clientId: integer("client_id").notNull(),
+    ordinal: integer("ordinal").notNull(),
+    heading: text("heading"),
+    text: text("text").notNull(),
+    textHash: text("text_hash").notNull(),
+    embedding: blob("embedding", { mode: "buffer" }),
+    embeddingModel: text("embedding_model"),
+  },
+  (t) => [index("kb_chunks_document_idx").on(t.documentId), index("kb_chunks_client_idx").on(t.clientId)],
+);
+export type KbChunk = typeof kbChunks.$inferSelect;

@@ -217,6 +217,19 @@ function runners(): Runner[] {
       },
     },
     {
+      // The knowledge base of each client (IA-2): profile, audits,
+      // articles and briefs turned into searchable passages. Hourly is
+      // cheap: an unchanged source costs one hash and no write.
+      id: "knowledge_sync",
+      label: "Knowledge base sync",
+      everyMs: HOUR,
+      run: async () => (await import("./kb/sources")).syncAllKnowledge(),
+      summarise: (r) => {
+        const s = r as { changed?: number; removed?: number } | null;
+        return s && (s.changed || s.removed) ? `${s.changed ?? 0} updated, ${s.removed ?? 0} removed` : null;
+      },
+    },
+    {
       id: "retention_cleanup",
       label: "Data retention cleanup",
       everyMs: 24 * HOUR,
