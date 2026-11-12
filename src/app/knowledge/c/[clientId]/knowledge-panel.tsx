@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import {
@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  Upload,
 } from "lucide-react";
 import {
   addKnowledgeNote,
@@ -80,6 +81,7 @@ export function KnowledgePanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const run = (fn: () => Promise<void>) =>
     start(async () => {
@@ -136,6 +138,36 @@ export function KnowledgePanel({
               <NotebookPen className="size-4" />
               {t("addNote")}
             </button>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm hover:bg-accent"
+              disabled={pending}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload className="size-4" />
+              {t("addFile")}
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              className="hidden"
+              aria-label={t("addFile")}
+              accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                run(async () => {
+                  const body = new FormData();
+                  body.append("file", file);
+                  const res = await fetch(`/api/knowledge/${clientId}/files`, { method: "POST", body });
+                  const r = (await res.json().catch(() => null)) as { ok: boolean; error?: string; passages?: number } | null;
+                  if (!r?.ok) return setError(r?.error ?? t("errors.fileUnreadable"));
+                  setNotice(t("fileAdded", { name: file.name, count: r.passages ?? 0 }));
+                  router.refresh();
+                });
+              }}
+            />
             <button
               type="button"
               className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm hover:bg-accent"

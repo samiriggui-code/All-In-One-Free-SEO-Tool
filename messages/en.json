@@ -8391,10 +8391,14 @@
       "badUrl": "Invalid address: it must start with http:// or https://.",
       "fetchStatus": "The page answered {status}.",
       "fetchFailed": "Couldn't read this page (private address, timeout or site unreachable).",
-      "notHtml": "This isn't a web page. PDF and Word files are coming soon.",
+      "notHtml": "This isn't a web page. For a PDF or Word document, use \"Add a file\".",
       "noText": "No readable text on this page.",
       "notFound": "Document not found.",
-      "syncedDocument": "This document comes from the tool and would come back at the next update. Change its source instead."
+      "syncedDocument": "This document comes from the tool and would come back at the next update. Change its source instead.",
+      "fileTooBig": "File too large (at most {mb} MB).",
+      "fileUnsupported": "Unsupported format: PDF, Word (.docx), text or Markdown.",
+      "fileEmpty": "No text in this file (a scanned PDF has no text to read).",
+      "fileUnreadable": "Couldn't read this file."
     },
     "vectors": "meaning search: {done}/{total} passages",
     "wordsOnly": "word search (pick a \"Vectors\" model in Settings → AI to also search by meaning)",
@@ -8402,6 +8406,8 @@
     "match": {
       "meaning": "by meaning",
       "both": "words and meaning"
-    }
+    },
+    "addFile": "Add a file",
+    "fileAdded": "\"{name}\" added ({count, plural, one {# passage} other {# passages}})."
   }
 }
