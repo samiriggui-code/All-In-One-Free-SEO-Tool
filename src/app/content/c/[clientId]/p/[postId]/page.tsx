@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { PenLine } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { AskAiButton } from "@/components/ask-ai-button";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
@@ -42,6 +43,7 @@ export default async function ArticlePage({
   ]);
   if (!client || !post) notFound();
   const editable = !me || canEdit(me.role);
+  const tAsk = await getTranslations("askAi");
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -54,6 +56,17 @@ export default async function ArticlePage({
           { label: t("title"), href: "/content" },
           { label: client.name, href: `/content/c/${client.id}` },
         ]}
+        actions={
+          <AskAiButton
+            clientId={client.id}
+            question={tAsk("article")}
+            context={tAsk("articleContext", {
+              title: post.title ?? "",
+              keyword: post.primaryKeyword ?? "",
+              start: (post.draftMarkdown ?? "").slice(0, 1500),
+            })}
+          />
+        }
       />
       {editable && <AiRequiredNotice because={t("aiBecause")} />}
       {editable && (

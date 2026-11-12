@@ -2522,7 +2522,9 @@
         "session": "Invalid portal link.",
         "noQuestion": "No question to answer.",
         "tooLong": "Please ask a shorter question.",
-        "unavailable": "The AI assistant isn't available right now. Your account manager can answer any time."
+        "unavailable": "The AI assistant isn't available right now. Your account manager can answer any time.",
+        "dailyLimit": "You have asked {limit} questions today, the daily limit. Come back tomorrow or write to your contact at the agency.",
+        "blocked": "This question can't be handled here. Rephrase it, or ask your contact at the agency."
       }
     },
     "deliverables": {
@@ -2792,7 +2794,8 @@
         "save_note": "save a note",
         "remember": "memory (add)",
         "forget": "memory (forget)"
-      }
+      },
+      "askAi": "Ask AI"
     },
     "quickAdd": {
       "title": "Add a new client",
@@ -8605,5 +8608,15 @@
       "no_client": "Choose a client.",
       "noAccount": "This setting needs an account."
     }
+  },
+  "askAi": {
+    "issue": "How do I fix this issue on this site?",
+    "issueContext": "Audit issue: {type} (severity {severity}), on {count} page(s).\nExample: {sample}\nPages: {urls}",
+    "keyword": "Why did this keyword move, and what should we do?",
+    "keywordContext": "Tracked keyword: “{query}” ({country}, {device}) for {name}.",
+    "article": "Improve this article's introduction.",
+    "articleContext": "Article: “{title}”, main keyword “{keyword}”.\nStart of the text:\n{start}",
+    "offer": "Summarise this offer for the client, in plain words.",
+    "offerContext": "Proposal “{title}” for {name}. Contents:\n{lines}"
   }
 }

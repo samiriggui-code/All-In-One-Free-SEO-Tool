@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { getTranslations } from "next-intl/server";
+import { AskAiButton } from "@/components/ask-ai-button";
 import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -50,6 +51,7 @@ export default async function SerpDetailPage({
     .orderBy(desc(serpScans.scannedAt));
 
   const latest = scans[0] ?? null;
+  const tAsk = await getTranslations("askAi");
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -70,6 +72,15 @@ export default async function SerpDetailPage({
         }
         icon={Radar}
         accent="violet"
+        actions={
+          client ? (
+            <AskAiButton
+              clientId={client.id}
+              question={tAsk("keyword")}
+              context={tAsk("keywordContext", { query: k.query, country: k.country, device: k.device, name: client.name })}
+            />
+          ) : undefined
+        }
       />
 
       {!latest ? (

@@ -50,6 +50,7 @@ export type AiFeatureName =
   | "assistant"
   | "import_extract"
   | "memory_extract"
+  | "portal_chat"
   | "general";
 
 export type AiCallOptions = {
@@ -95,6 +96,12 @@ export type AiCallOptions = {
    * log preview).
    */
   messages?: { role: "user" | "assistant"; content: string }[];
+  /**
+   * Stricter guardrails than the workspace's for this call. The client
+   * portal uses "block": a client's text that looks like an attempt to
+   * redirect the model is refused, whatever the workspace mode.
+   */
+  guardrailMode?: "block";
 };
 
 export { AI_PURPOSES };
@@ -243,7 +250,10 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
 
   // Guardrails on what leaves the server: the user's text and any
   // conversation turns. The system prompt is ours and is not checked.
-  const guard = await loadGuardrails();
+  // The answer is checked with the workspace's own mode; a stricter
+  // mode for the call (portal) applies to what the person typed.
+  const baseGuard = await loadGuardrails();
+  const guard = opts.guardrailMode ? { ...baseGuard, mode: opts.guardrailMode } : baseGuard;
   const inKinds: Record<string, number> = {};
   let inBlocked = false;
   const guardIn = (text: string): string => {
@@ -439,7 +449,7 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
   // Guardrails on the answer: blocked terms and sensitive data.
   let outBlocked = false;
   if (text) {
-    const r = guardText(text, guard, "out");
+    const r = guardText(text, baseGuard, "out");
     if (r.action !== "pass") {
       recordIncident({
         direction: "out",

@@ -66,6 +66,8 @@ export type SettingKey =
   | "ai.charter"
   /** "on_request" (default) or "auto": see lib/assistant/memory.ts. */
   | "memory.mode"
+  /** Questions a client may ask the portal chat per day (IA-6). */
+  | "portal.chat_daily_limit"
   | `memory.user_off.${number}`
   | "api.openai"
   | "api.anthropic"
