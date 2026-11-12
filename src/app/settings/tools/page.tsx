@@ -10,6 +10,7 @@ import { getDisabledTools } from "@/lib/tool-activation";
 import { TOOL_CATALOG } from "@/lib/tool-catalog";
 import { requireSettingsPage } from "../access";
 import { SectionHeader } from "../section-ui";
+import { familyOf } from "@/lib/tool-families";
 import { ToolsPanel, type ToolCard } from "./tools-panel";
 
 /**
@@ -41,11 +42,15 @@ export default async function ToolsSettingsPage() {
       toolReadiness({ href: e.href, hasAiKey: ai.available, needs: missingGsc ? "gsc" : null })
         .state === "blocked";
     const off = disabled.has(e.href);
+    // A family is ready when its entry is; its other tabs only add
+    // "some features use AI / the browser" to the sheet.
+    const tabs = (familyOf(e.href)?.family.members ?? []).map((m) => capabilityOf(m.href));
+    const someAi = tabs.some((c) => c && aiUsageOf(c) !== "none");
     return {
       href: e.href,
       category: e.category,
-      aiUsage: aiRequired ? "required" : usage === "none" ? "none" : "partial",
-      usesBrowser: Boolean(cap?.usesBrowser),
+      aiUsage: aiRequired ? "required" : usage === "none" && !someAi ? "none" : "partial",
+      usesBrowser: Boolean(cap?.usesBrowser) || tabs.some((c) => c?.usesBrowser),
       needsGsc: e.needs === "gsc",
       offByDefault: Boolean(e.offByDefault),
       state: off ? "off" : blocked ? "setup" : "ready",

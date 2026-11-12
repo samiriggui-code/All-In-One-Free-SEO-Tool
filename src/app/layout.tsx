@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { Sidebar } from "@/components/shell/sidebar";
+import { FamilyTabs } from "@/components/shell/family-tabs";
 import { NeedsKeyBanner } from "@/components/shell/needs-key-banner";
 import { IntlProvider } from "@/components/shell/intl-provider";
 import { getAiAvailability } from "@/lib/ai-availability";
@@ -209,6 +210,7 @@ export default async function RootLayout({
                           hasSubscription={aiAvailability.hasSubscription}
                           client={aiAvailability.client}
                         />
+                        <FamilyTabs />
                         {children}
                       </main>
                     </div>
