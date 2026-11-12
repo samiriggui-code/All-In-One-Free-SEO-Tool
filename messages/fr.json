@@ -2739,6 +2739,36 @@
         "content": "la page contenu",
         "reports": "la page des rapports",
         "other": "la page {name}"
+      },
+      "usedTools": "Consulté : {tools}",
+      "proposalTitle": "L’assistant propose une modification",
+      "proposalHint": "Rien n’est fait tant que vous n’avez pas confirmé.",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "tools": {
+        "search_knowledge": "base de connaissances",
+        "list_clients": "liste des clients",
+        "get_client_overview": "vue d’ensemble du client",
+        "list_audit_issues": "problèmes d’audit",
+        "get_keyword_rankings": "positions des mots-clés",
+        "get_ai_visibility": "visibilité dans les IA",
+        "get_citation_landscape": "sources citées par les IA",
+        "list_agent_actions": "actions de l’agent",
+        "get_recent_agent_runs": "passages de l’agent",
+        "run_agent": "lancer l’agent",
+        "list_proposed_fixes": "corrections proposées",
+        "apply_fix": "appliquer une correction",
+        "revert_agent_action": "annuler une action de l’agent",
+        "get_client_knowledge": "fiche client",
+        "update_client_knowledge": "mettre à jour la fiche client",
+        "log_client_research": "noter une recherche",
+        "get_review_backlog": "avis à traiter",
+        "save_review_draft": "enregistrer un brouillon de réponse",
+        "reply_to_review": "répondre à un avis",
+        "inspect_url": "inspection d’URL",
+        "check_indexing": "indexation",
+        "compare_search_periods": "comparaison Search Console",
+        "list_sitemaps": "sitemaps"
       }
     },
     "quickAdd": {
@@ -7696,7 +7726,15 @@
       "activeProviderDidnTRespond": "Le fournisseur actif « {active} » n’a pas répondu. Vérifiez la clé dans les Paramètres ou choisissez un autre fournisseur actif.",
       "chatAppConnectedNeedsKey": "Cet assistant appelle un modèle lui-même, il lui faut donc une clé. {client} est bien connecté, mais dans l'autre sens : c'est lui qui interroge l'outil.",
       "yourChatApp": "votre application de chat",
-      "askThereMeanwhile": "Vous pouvez poser la même question dans cette application dès maintenant : elle voit vos clients, audits, mots-clés et positions."
+      "askThereMeanwhile": "Vous pouvez poser la même question dans cette application dès maintenant : elle voit vos clients, audits, mots-clés et positions.",
+      "tooManySteps": "L’assistant a fait trop de recherches sans conclure. Reformulez la question plus précisément.",
+      "approvalMissing": "Cette proposition n’existe plus.",
+      "approval_expired": "Cette proposition date de plus de 24 h. Redemandez-la à l’assistant.",
+      "approval_already_decided": "Cette proposition a déjà été traitée.",
+      "approval_not_found": "Cette proposition n’existe plus.",
+      "approvalFailed": "La modification n’a pas abouti : {error}",
+      "approvalDone": "C’est fait.",
+      "approvalRejected": "Proposition annulée, rien n’a été modifié."
     },
     "app_audits_actions": {
       "auditFailedFor": "Échec de l’audit de {name}",

@@ -11,8 +11,20 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
+  Check,
+  Wrench,
 } from "lucide-react";
-import { chat, type ChatMessage } from "@/app/assistant/actions";
+import { chat, decideAssistantAction, type ChatMessage } from "@/app/assistant/actions";
+import type { PendingAction, ToolStep } from "@/lib/assistant/engine";
+
+type Proposal = PendingAction & { state: "open" | "done" | "cancelled" | "error"; note?: string };
+type UiMessage = ChatMessage & { steps?: ToolStep[]; proposal?: Proposal };
+
+/** The client the page is about, from /clients/12 or any …/c/12 route. */
+function clientIdFromPath(path: string): number | null {
+  const m = /\/(?:clients|c)\/(\d+)(?:\/|$)/.exec(path);
+  return m ? Number(m[1]) : null;
+}
 
 const SUGGESTIONS = ["worstScore", "commonIssue", "strikingDistance", "focusFirst"] as const;
 
@@ -43,7 +55,7 @@ export function openAssistant() {
 
 export function AIAssistant() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<UiMessage[]>([]);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<string | null>(null);
@@ -71,7 +83,7 @@ export function AIAssistant() {
   const send = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || pending) return;
-    const next: ChatMessage[] = [
+    const next: UiMessage[] = [
       ...messages,
       { role: "user", content: trimmed },
     ];
@@ -79,9 +91,23 @@ export function AIAssistant() {
     setInput("");
     setError(null);
     startTransition(async () => {
-      const r = await chat(next);
+      const r = await chat(
+        next.map((m) => ({ role: m.role, content: m.content })),
+        { clientId: clientIdFromPath(pathname) },
+      );
       if (r.ok) {
-        setMessages([...next, { role: "assistant", content: r.reply }]);
+        setMessages([
+          ...next,
+          r.pending
+            ? {
+                role: "assistant",
+                // What the model reads next turn: it proposed this.
+                content: r.reply || `[proposed, waiting for confirmation] ${r.pending.summary}`,
+                steps: r.steps,
+                proposal: { ...r.pending, state: "open" },
+              }
+            : { role: "assistant", content: r.reply, steps: r.steps },
+        ]);
         setProvider(r.provider);
       } else {
         setError(r.error);
@@ -198,7 +224,33 @@ export function AIAssistant() {
               ) : (
                 <ul className="space-y-4">
                   {messages.map((m, i) => (
-                    <Bubble key={i} message={m} />
+                    <Bubble
+                      key={i}
+                      message={m}
+                      busy={pending}
+                      onDecide={(approve) => {
+                        const p = m.proposal;
+                        if (!p || p.state !== "open") return;
+                        startTransition(async () => {
+                          const r = await decideAssistantAction(p.id, approve);
+                          setMessages((all) =>
+                            all.map((x, j) =>
+                              j === i && x.proposal
+                                ? {
+                                    ...x,
+                                    content: `${x.content}\n[${r.ok ? r.status : "failed"}] ${r.ok ? r.message : r.error}`,
+                                    proposal: {
+                                      ...x.proposal,
+                                      state: r.ok ? (r.status === "approved" ? "done" : "cancelled") : "error",
+                                      note: r.ok ? r.message : r.error,
+                                    },
+                                  }
+                                : x,
+                            ),
+                          );
+                        });
+                      }}
+                    />
                   ))}
                   {pending && (
                     <li className="flex items-start gap-3">
@@ -262,23 +314,81 @@ export function AIAssistant() {
   );
 }
 
-function Bubble({ message }: { message: ChatMessage }) {
+function Bubble({
+  message,
+  busy,
+  onDecide,
+}: {
+  message: UiMessage;
+  busy: boolean;
+  onDecide: (approve: boolean) => void;
+}) {
+  const t = useTranslations("shell.assistant");
   if (message.role === "user") {
     return (
       <li className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-violet-500/15 px-4 py-2.5 text-sm ring-1 ring-inset ring-violet-500/30">
+        <div className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-tr-sm bg-violet-500/15 px-4 py-2.5 text-sm ring-1 ring-inset ring-violet-500/30">
           {message.content}
         </div>
       </li>
     );
   }
+  const p = message.proposal;
+  // The proposed change is shown in its own card, not as something looked at.
+  const steps = (message.steps ?? []).filter((s) => s.ok);
+  if (p) steps.pop();
+  const used = Array.from(new Set(steps.map((s) => s.tool)));
+  const label = (tool: string) => (t.has(`tools.${tool}`) ? t(`tools.${tool}`) : tool);
+  const text = p ? message.content.replace(/^\[proposed[^\]]*\][^\n]*\n?/, "").replace(/\n?\[(approved|rejected|failed)\][^\n]*$/, "") : message.content;
   return (
     <li className="flex items-start gap-3">
       <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-600 shadow-md shadow-violet-500/30 ring-1 ring-inset ring-white/30">
         <Bot className="size-3.5 text-white" />
       </div>
-      <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-white/5 px-4 py-2.5 text-sm leading-relaxed">
-        {message.content}
+      <div className="min-w-0 max-w-[85%] space-y-2">
+        {used.length > 0 ? (
+          <div className="inline-flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground">
+            <Wrench className="size-3" aria-hidden />
+            {t("usedTools", { tools: used.map(label).join(", ") })}
+          </div>
+        ) : null}
+        {text.trim() ? (
+          <div className="whitespace-pre-wrap rounded-2xl rounded-tl-sm bg-white/5 px-4 py-2.5 text-sm leading-relaxed">
+            {text}
+          </div>
+        ) : null}
+        {p ? (
+          <div className="space-y-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
+            <div className="font-medium">{t("proposalTitle")} : {label(p.tool)}</div>
+            <div className="break-words font-mono text-xs text-muted-foreground">{p.summary}</div>
+            {p.state === "open" ? (
+              <>
+                <p className="m-0 text-xs text-muted-foreground">{t("proposalHint")}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onDecide(true)}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs text-primary-foreground disabled:opacity-60"
+                  >
+                    <Check className="size-3.5" />
+                    {t("confirm")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onDecide(false)}
+                    className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs hover:bg-accent disabled:opacity-60"
+                  >
+                    {t("cancel")}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className={`m-0 text-xs ${p.state === "error" ? "text-rose-500" : "text-muted-foreground"}`}>{p.note}</p>
+            )}
+          </div>
+        ) : null}
       </div>
     </li>
   );

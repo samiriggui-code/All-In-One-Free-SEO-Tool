@@ -55,8 +55,11 @@ describe("one path for AI calls", () => {
   });
 
   it("the floating assistant goes through callAI", () => {
-    const code = readFileSync(join(SRC, "app/assistant/actions.ts"), "utf8");
-    expect(code).toMatch(/callAIResult\(/);
-    expect(code).not.toMatch(/fetch\(/);
+    const action = readFileSync(join(SRC, "app/assistant/actions.ts"), "utf8");
+    expect(action).toMatch(/runAssistant\(/);
+    expect(action).not.toMatch(/fetch\(/);
+    const engine = readFileSync(join(SRC, "lib/assistant/engine.ts"), "utf8");
+    expect(engine).toMatch(/callAIResult\(/);
+    expect(engine).not.toMatch(/fetch\(/);
   });
 });
