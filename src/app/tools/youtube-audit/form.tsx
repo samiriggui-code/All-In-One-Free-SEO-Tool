@@ -11,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { runYtAudit, type YtAuditState } from "./actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 const SEV_TONE: Record<string, string> = {
   high: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
@@ -145,17 +146,17 @@ export function YtAuditForm() {
 
           {/* Score */}
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat
+            <ToolStat
               label={t("passing")}
               value={`${state.result.passing}/${state.result.passing + state.result.failing}`}
               tone="emerald"
             />
-            <Stat
+            <ToolStat
               label={t("failing")}
               value={state.result.failing.toString()}
               tone={state.result.failing > 0 ? "rose" : "emerald"}
             />
-            <Stat
+            <ToolStat
               label={t("score")}
               value={`${Math.round((state.result.passing / Math.max(1, state.result.passing + state.result.failing)) * 100)}%`}
               tone={
@@ -223,27 +224,5 @@ export function YtAuditForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }

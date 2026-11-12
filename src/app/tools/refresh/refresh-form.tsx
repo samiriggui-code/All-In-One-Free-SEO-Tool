@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { runRefresh, type RefreshState } from "./actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function RefreshForm() {
   const t = useTranslations("tools.ui.refresh");
@@ -85,7 +86,7 @@ export function RefreshForm() {
           {state.plan.corpusSize > 0 && (
             <>
               <div className="grid gap-3 sm:grid-cols-3">
-                <Stat
+                <ToolStat
                   label={t("wordGap")}
                   value={
                     state.plan.wordGap > 0
@@ -95,13 +96,13 @@ export function RefreshForm() {
                   hint={t("serpMedian", { count: state.plan.serpMedianWordCount })}
                   tone={state.plan.wordGap > 200 ? "rose" : state.plan.wordGap > 0 ? "amber" : "emerald"}
                 />
-                <Stat
+                <ToolStat
                   label={t("missingTopics")}
                   value={String(state.plan.missingTerms.length)}
                   hint={t("missingTopicsHint")}
                   tone={state.plan.missingTerms.length > 10 ? "rose" : "amber"}
                 />
-                <Stat
+                <ToolStat
                   label={t("missingSections")}
                   value={String(state.plan.missingSections.length)}
                   hint={t("missingSectionsHint")}
@@ -162,32 +163,5 @@ export function RefreshForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone: "emerald" | "amber" | "rose";
-}) {
-  const t = {
-    emerald: "text-emerald-300",
-    amber: "text-amber-300",
-    rose: "text-rose-300",
-  }[tone];
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground">{hint}</div>}
-    </div>
   );
 }

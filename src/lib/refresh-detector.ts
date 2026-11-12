@@ -18,9 +18,7 @@
 
 import { buildCorpus, type CorpusInsights } from "./content-grader";
 import { callAI } from "./ai-call";
-
-const USER_AGENT =
-  "Mozilla/5.0 (compatible; SeoToolBot/1.0; +https://example.com/bot)";
+import { bodyWithout, fetchHtml, subHeadings, textOf } from "./fetch-html";
 
 export type RefreshPlan = {
   url: string;
@@ -157,41 +155,12 @@ async function aiBrief(opts: {
 async function fetchUserPage(
   url: string,
 ): Promise<{ text: string; headings: string[]; wordCount: number } | null> {
-  const ac = new AbortController();
-  const timeout = setTimeout(() => ac.abort(), 12_000);
-  try {
-    const res = await fetch(url, {
-      headers: { "user-agent": USER_AGENT, accept: "text/html" },
-      signal: ac.signal,
-      redirect: "follow",
-    });
-    if (!res.ok) return null;
-    const ct = res.headers.get("content-type") ?? "";
-    if (!/text\/html/i.test(ct)) return null;
-    const html = (await res.text()).slice(0, 800_000);
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const body = bodyMatch ? bodyMatch[1] : html;
-    const cleaned = body
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
-      .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
-      .replace(/<footer[\s\S]*?<\/footer>/gi, " ");
-    const headings: string[] = [];
-    for (const m of cleaned.matchAll(/<h[2-3][^>]*>([\s\S]*?)<\/h[2-3]>/gi)) {
-      const txt = decode(m[1].replace(/<[^>]+>/g, " ")).trim();
-      if (txt.length >= 3 && txt.length <= 120) headings.push(txt);
-    }
-    const text = decode(cleaned.replace(/<[^>]+>/g, " "))
-      .replace(/\s+/g, " ")
-      .trim();
-    const tokens = text.split(/\s+/).filter(Boolean);
-    return { text, headings, wordCount: tokens.length };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
-  }
+  const html = await fetchHtml(url);
+  if (html === null) return null;
+  const cleaned = bodyWithout(html, ["script", "style", "noscript", "nav", "footer"]);
+  const text = textOf(cleaned);
+  const tokens = text.split(/\s+/).filter(Boolean);
+  return { text, headings: subHeadings(cleaned), wordCount: tokens.length };
 }
 
 function tokenize(text: string): string[] {
@@ -200,16 +169,6 @@ function tokenize(text: string): string[] {
     .replace(/[^a-z0-9'\-\s]/g, " ")
     .split(/\s+/)
     .filter((w) => w.length >= 3 && w.length <= 28);
-}
-
-function decode(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ");
 }
 
 function emptyPlan(

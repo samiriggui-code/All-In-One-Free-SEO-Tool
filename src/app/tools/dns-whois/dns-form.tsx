@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Globe, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runDns, type DnsState } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function DnsForm() {
   const t = useTranslations("tools.ui.dns-whois");
@@ -54,10 +55,10 @@ export function DnsForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-            <Stat label={t("aRecords")} value={state.result.a.length.toString()} />
-            <Stat label="AAAA" value={state.result.aaaa.length.toString()} />
-            <Stat label="MX" value={state.result.mx.length.toString()} />
-            <Stat
+            <ToolStat label={t("aRecords")} value={state.result.a.length.toString()} />
+            <ToolStat label="AAAA" value={state.result.aaaa.length.toString()} />
+            <ToolStat label="MX" value={state.result.mx.length.toString()} />
+            <ToolStat
               label={t("daysToExpiry")}
               value={state.result.daysUntilExpiry !== null ? `${state.result.daysUntilExpiry}` : "—"}
               tone={
@@ -113,24 +114,6 @@ export function DnsForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone] : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }
 

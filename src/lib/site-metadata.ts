@@ -177,20 +177,16 @@ function extractLogoUrl(html: string, baseUrl: string): string | null {
   }
 }
 
-function extractFromJsonLd(html: string): {
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-} {
-  const blocks = [
-    ...html.matchAll(
-      /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
-    ),
-  ];
-  let address: string | null = null;
-  let phone: string | null = null;
-  let email: string | null = null;
-
+/**
+ * Every node of every JSON-LD block on the page: top-level items and the
+ * members of their @graph. Blocks that do not parse are skipped. Also
+ * used by the domain overview to list the schema types a site declares.
+ */
+export function jsonLdNodes(html: string): Record<string, unknown>[] {
+  const nodes: Record<string, unknown>[] = [];
+  const blocks = html.matchAll(
+    /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  );
   for (const m of blocks) {
     const body = m[1].trim();
     if (!body) continue;
@@ -207,22 +203,35 @@ function extractFromJsonLd(html: string): {
       const graph = Array.isArray(obj["@graph"])
         ? (obj["@graph"] as Record<string, unknown>[])
         : [obj];
-      for (const node of graph) {
-        const t = node["@type"];
-        const types = Array.isArray(t) ? t.map(String) : [String(t ?? "")];
-        const isOrg = types.some((x) =>
-          /Organization|LocalBusiness|Restaurant|Store|Hotel|MedicalBusiness|ProfessionalService/i.test(
-            x,
-          ),
-        );
-        if (!isOrg) continue;
-        if (!address) address = formatAddress(node["address"]);
-        if (!phone) phone = stringOrNull(node["telephone"]);
-        if (!email) {
-          const emailRaw = stringOrNull(node["email"]);
-          email = emailRaw ? emailRaw.replace(/^mailto:/i, "") : null;
-        }
-      }
+      nodes.push(...graph);
+    }
+  }
+  return nodes;
+}
+
+function extractFromJsonLd(html: string): {
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+} {
+  let address: string | null = null;
+  let phone: string | null = null;
+  let email: string | null = null;
+
+  for (const node of jsonLdNodes(html)) {
+    const t = node["@type"];
+    const types = Array.isArray(t) ? t.map(String) : [String(t ?? "")];
+    const isOrg = types.some((x) =>
+      /Organization|LocalBusiness|Restaurant|Store|Hotel|MedicalBusiness|ProfessionalService/i.test(
+        x,
+      ),
+    );
+    if (!isOrg) continue;
+    if (!address) address = formatAddress(node["address"]);
+    if (!phone) phone = stringOrNull(node["telephone"]);
+    if (!email) {
+      const emailRaw = stringOrNull(node["email"]);
+      email = emailRaw ? emailRaw.replace(/^mailto:/i, "") : null;
     }
   }
 

@@ -5,6 +5,7 @@ import { Loader2, TrendingDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runDiagnostic, type TrafficDropState } from "./actions";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function TrafficDropForm({ properties }: { properties: string[] }) {
   const t = useTranslations("tools.ui.traffic-drop");
@@ -61,19 +62,19 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat
+            <ToolStat
               label={t("clicks28d")}
               value={state.result.recentClicks.toLocaleString()}
               hint={t("prev", { value: state.result.prevClicks.toLocaleString() })}
               tone={state.result.clicksDeltaPct < -5 ? "rose" : state.result.clicksDeltaPct < 0 ? "amber" : "emerald"}
             />
-            <Stat
+            <ToolStat
               label="Δ %"
               value={`${state.result.clicksDeltaPct >= 0 ? "+" : ""}${state.result.clicksDeltaPct.toFixed(1)}%`}
               hint={t("clicksDelta", { value: `${state.result.clicksDelta >= 0 ? "+" : ""}${state.result.clicksDelta.toLocaleString()}` })}
               tone={state.result.clicksDeltaPct < -5 ? "rose" : state.result.clicksDeltaPct < 0 ? "amber" : "emerald"}
             />
-            <Stat
+            <ToolStat
               label={t("algorithmOverlap")}
               value={state.result.algorithmOverlaps.length.toString()}
               hint={
@@ -164,32 +165,5 @@ export function TrafficDropForm({ properties }: { properties: string[] }) {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone: "emerald" | "amber" | "rose";
-}) {
-  const t = {
-    emerald: "text-emerald-300",
-    amber: "text-amber-300",
-    rose: "text-rose-300",
-  }[tone];
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground">{hint}</div>}
-    </div>
   );
 }

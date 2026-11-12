@@ -5,6 +5,7 @@ import { Loader2, Unlink } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runSoft404, type SoftState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 const REASON_TONE: Record<string, string> = {
   "thin-content": "bg-amber-500/15 text-amber-300 ring-amber-500/30",
@@ -73,13 +74,13 @@ export function Soft404Form() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label={t("statCrawled")} value={state.result.pagesChecked.toString()} />
-            <Stat
+            <ToolStat label={t("statCrawled")} value={state.result.pagesChecked.toString()} />
+            <ToolStat
               label={t("statCandidates")}
               value={state.result.flagged.length.toString()}
               tone={state.result.flagged.length > 0 ? "rose" : "emerald"}
             />
-            <Stat
+            <ToolStat
               label={t("statStatus")}
               value={
                 state.result.flagged.length === 0 ? t("healthy") : t("needsReview")
@@ -127,27 +128,5 @@ export function Soft404Form() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }

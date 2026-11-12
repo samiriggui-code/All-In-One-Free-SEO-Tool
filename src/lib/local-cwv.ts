@@ -23,6 +23,8 @@
 
 import { withBrowserContext } from "./browser-pool";
 import type { PsiFailure } from "./psi-error";
+import { emptyCwvResult } from "./local-cwv-empty";
+import { labVerdict } from "./crux-thresholds";
 
 export type ResourceSummary = {
   total: number;
@@ -102,29 +104,11 @@ export async function measureCwv(
   // explaining the user disabled this in settings.
   const { getSetting } = await import("./settings-store");
   if (await getSetting<boolean>("browser.disable_local_cwv")) {
-    return {
-      ok: false,
+    return emptyCwvResult(
       url,
-      finalUrl: null,
-      lcpMs: null,
-      lcpElement: null,
-      fcpMs: null,
-      cls: null,
-      ttfbMs: null,
-      domContentLoadedMs: null,
-      loadMs: null,
-      tbtMs: null,
-      performanceScore: null,
-      verdict: { lcp: "unknown", cls: "unknown", fcp: "unknown" },
-      resources: { total: 0, bytes: 0, count: 0, byType: {} },
-      consoleErrors: 0,
-      consoleWarnings: 0,
-      networkErrors: [],
-      measuredAt: new Date().toISOString(),
-      fixes: [],
-      error:
-        "Local CWV is disabled in Settings → Browser pool (lean mode). Use the PSI API mode in the tool's dropdown instead — same data, no local browser.",
-    };
+      new Date().toISOString(),
+      "Local CWV is disabled in Settings → Browser pool (lean mode). Use the PSI API mode in the tool's dropdown instead — same data, no local browser.",
+    );
   }
   const viewport =
     device === "mobile" ? { width: 412, height: 915 } : { width: 1366, height: 900 };
@@ -336,9 +320,9 @@ export async function measureCwv(
         });
 
         const verdict = {
-          lcp: classifyLcp(cwv.lcp),
-          cls: classifyCls(cwv.cls),
-          fcp: classifyFcp(cwv.fcp),
+          lcp: labVerdict("lcp", cwv.lcp),
+          cls: labVerdict("cls", cwv.cls),
+          fcp: labVerdict("fcp", cwv.fcp),
         };
 
         const performanceScore = computeScore({
@@ -384,7 +368,7 @@ export async function measureCwv(
           fixes,
         };
       } catch (err) {
-        return emptyResult(url, measuredAt, (err as Error).message);
+        return emptyCwvResult(url, measuredAt, (err as Error).message);
       } finally {
         await page.close().catch(() => {});
       }
@@ -397,25 +381,6 @@ export async function measureCwv(
 function round(n: number | null | undefined): number | null {
   if (n === null || n === undefined || !Number.isFinite(n)) return null;
   return Math.round(n);
-}
-
-function classifyLcp(ms: number | null): CwvResult["verdict"]["lcp"] {
-  if (ms === null) return "unknown";
-  if (ms <= 2500) return "good";
-  if (ms <= 4000) return "needs-improvement";
-  return "poor";
-}
-function classifyFcp(ms: number | null): CwvResult["verdict"]["fcp"] {
-  if (ms === null) return "unknown";
-  if (ms <= 1800) return "good";
-  if (ms <= 3000) return "needs-improvement";
-  return "poor";
-}
-function classifyCls(value: number | null): CwvResult["verdict"]["cls"] {
-  if (value === null) return "unknown";
-  if (value <= 0.1) return "good";
-  if (value <= 0.25) return "needs-improvement";
-  return "poor";
 }
 
 /**
@@ -480,31 +445,6 @@ function computeScore(opts: {
     lcpScore * 0.05 +
     tbtScore * 0.05;
   return Math.round(score * 100);
-}
-
-function emptyResult(url: string, measuredAt: string, error: string): CwvResult {
-  return {
-    ok: false,
-    url,
-    finalUrl: null,
-    lcpMs: null,
-    lcpElement: null,
-    fcpMs: null,
-    cls: null,
-    ttfbMs: null,
-    domContentLoadedMs: null,
-    loadMs: null,
-    tbtMs: null,
-    performanceScore: null,
-    verdict: { lcp: "unknown", cls: "unknown", fcp: "unknown" },
-    resources: { total: 0, bytes: 0, count: 0, byType: {} },
-    consoleErrors: 0,
-    consoleWarnings: 0,
-    networkErrors: [],
-    measuredAt,
-    fixes: [],
-    error,
-  };
 }
 
 function buildFixes(opts: {

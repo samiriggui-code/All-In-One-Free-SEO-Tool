@@ -8,6 +8,7 @@ import {
   importToRedirectRules,
   type MigrationState,
 } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function MigrationForm() {
   const t = useTranslations("tools.ui.migration-map");
@@ -134,10 +135,10 @@ export function MigrationForm() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label={t("statOld")} value={state.map.summary.total.toString()} />
-            <Stat label={t("statHigh")} value={state.map.summary.matched.toString()} hint="≥85%" tone="emerald" />
-            <Stat label={t("statReview")} value={state.map.summary.review.toString()} hint="50-85%" tone="amber" />
-            <Stat
+            <ToolStat label={t("statOld")} value={state.map.summary.total.toString()} />
+            <ToolStat label={t("statHigh")} value={state.map.summary.matched.toString()} hint="≥85%" tone="emerald" />
+            <ToolStat label={t("statReview")} value={state.map.summary.review.toString()} hint="50-85%" tone="amber" />
+            <ToolStat
               label={t("statAvg")}
               value={`${(state.map.summary.avgConfidence * 100).toFixed(0)}%`}
             />
@@ -224,31 +225,6 @@ export function MigrationForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground">{hint}</div>}
-    </div>
   );
 }
 

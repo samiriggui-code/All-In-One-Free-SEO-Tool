@@ -21,9 +21,13 @@
  */
 
 import { scanSerp } from "./serp-scanner";
-
-const USER_AGENT =
-  "Mozilla/5.0 (compatible; SeoToolBot/1.0; +https://example.com/bot)";
+import {
+  bodyWithout,
+  decodeBasicEntities,
+  fetchHtml,
+  subHeadings,
+  textOf,
+} from "./fetch-html";
 
 // Generic English stop-words. Languages we don't tokenize specially still
 // work (we just don't filter), with reduced score precision.
@@ -270,59 +274,33 @@ async function fetchAndParse(
   fallbackTitle: string,
   targetKeyword: string,
 ): Promise<ParsedDoc | null> {
-  const ac = new AbortController();
-  const timeout = setTimeout(() => ac.abort(), 12_000);
-  try {
-    const res = await fetch(url, {
-      headers: { "user-agent": USER_AGENT, accept: "text/html" },
-      signal: ac.signal,
-      redirect: "follow",
-    });
-    if (!res.ok) return null;
-    const ct = (res.headers.get("content-type") ?? "").toLowerCase();
-    if (!ct.includes("text/html")) return null;
-    const html = (await res.text()).slice(0, 800_000);
+  const html = await fetchHtml(url);
+  if (html === null) return null;
 
-    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const title = decode(titleMatch?.[1] ?? fallbackTitle).trim();
+  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = decodeBasicEntities(titleMatch?.[1] ?? fallbackTitle).trim();
 
-    // Extract main body text — strip nav, footer, header, scripts, styles
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const body = bodyMatch ? bodyMatch[1] : html;
-    const cleaned = body
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
-      .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
-      .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
-      .replace(/<header[\s\S]*?<\/header>/gi, " ")
-      .replace(/<aside[\s\S]*?<\/aside>/gi, " ")
-      .replace(/<form[\s\S]*?<\/form>/gi, " ");
+  // Extract main body text — strip nav, footer, header, scripts, styles
+  const cleaned = bodyWithout(html, [
+    "script",
+    "style",
+    "noscript",
+    "nav",
+    "footer",
+    "header",
+    "aside",
+    "form",
+  ]);
+  const text = textOf(cleaned);
 
-    const headings: string[] = [];
-    for (const m of cleaned.matchAll(/<h[2-3][^>]*>([\s\S]*?)<\/h[2-3]>/gi)) {
-      const txt = decode(m[1].replace(/<[^>]+>/g, " ")).trim();
-      if (txt && txt.length >= 3 && txt.length <= 120) headings.push(txt);
-    }
-
-    const text = decode(cleaned.replace(/<[^>]+>/g, " "))
-      .replace(/\s+/g, " ")
-      .trim();
-    const tokens = tokenize(text);
-
-    return {
-      url,
-      title,
-      text,
-      headings,
-      wordCount: tokens.length,
-      keywordOccurrences: countKeywordHits(text, targetKeyword.toLowerCase()),
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeout);
-  }
+  return {
+    url,
+    title,
+    text,
+    headings: subHeadings(cleaned),
+    wordCount: tokenize(text).length,
+    keywordOccurrences: countKeywordHits(text, targetKeyword.toLowerCase()),
+  };
 }
 
 function tokenize(text: string): string[] {
@@ -338,16 +316,6 @@ function countKeywordHits(text: string, target: string): number {
   const escaped = target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const matches = text.toLowerCase().match(new RegExp(escaped, "g"));
   return matches ? matches.length : 0;
-}
-
-function decode(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ");
 }
 
 function computeInsights(

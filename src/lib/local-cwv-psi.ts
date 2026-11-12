@@ -34,6 +34,8 @@ import {
   type PsiFailure,
 } from "./psi-error";
 import type { CwvResult } from "./local-cwv";
+import { emptyCwvResult } from "./local-cwv-empty";
+import { labVerdict } from "./crux-thresholds";
 
 const ENDPOINT = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
 
@@ -73,26 +75,6 @@ type PsiResponse = {
 // is about, and the two had already drifted in their doc comments about
 // what the anonymous quota actually is.
 
-function verdictFromValue(
-  ms: number | null,
-  good: number,
-  needs: number,
-): "good" | "needs-improvement" | "poor" | "unknown" {
-  if (ms === null || !Number.isFinite(ms)) return "unknown";
-  if (ms <= good) return "good";
-  if (ms <= needs) return "needs-improvement";
-  return "poor";
-}
-
-function clsVerdict(
-  v: number | null,
-): "good" | "needs-improvement" | "poor" | "unknown" {
-  if (v === null || !Number.isFinite(v)) return "unknown";
-  if (v <= 0.1) return "good";
-  if (v <= 0.25) return "needs-improvement";
-  return "poor";
-}
-
 export async function measureCwvPsi(
   url: string,
   opts: { device?: "mobile" | "desktop" } = {},
@@ -100,27 +82,7 @@ export async function measureCwvPsi(
   const device = opts.device ?? "mobile";
   const measuredAt = new Date().toISOString();
 
-  const empty: CwvResult = {
-    ok: false,
-    url,
-    finalUrl: null,
-    lcpMs: null,
-    lcpElement: null,
-    fcpMs: null,
-    cls: null,
-    ttfbMs: null,
-    domContentLoadedMs: null,
-    loadMs: null,
-    tbtMs: null,
-    performanceScore: null,
-    verdict: { lcp: "unknown", cls: "unknown", fcp: "unknown" },
-    resources: { total: 0, bytes: 0, count: 0, byType: {} },
-    consoleErrors: 0,
-    consoleWarnings: 0,
-    networkErrors: [],
-    measuredAt,
-    fixes: [],
-  };
+  const empty = emptyCwvResult(url, measuredAt);
 
   const params = new URLSearchParams({
     url,
@@ -200,9 +162,9 @@ export async function measureCwvPsi(
     tbtMs,
     performanceScore: perf !== null ? Math.round(perf * 100) : null,
     verdict: {
-      lcp: verdictFromValue(lcpMs, 2500, 4000),
-      cls: clsVerdict(cls),
-      fcp: verdictFromValue(fcpMs, 1800, 3000),
+      lcp: labVerdict("lcp", lcpMs),
+      cls: labVerdict("cls", cls),
+      fcp: labVerdict("fcp", fcpMs),
     },
     // PSI doesn't itemize transfer sizes per resource type cheaply.
     // Leave the resource breakdown empty — UI must handle this gracefully.

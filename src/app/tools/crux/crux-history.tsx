@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runCruxHistory, type CruxHistoryState } from "./actions";
-import { ratingForMetric, type CwvKind } from "@/lib/crux-thresholds";
+import { CWV_RATING_TONE, ratingForMetric, type CwvKind } from "@/lib/crux-thresholds";
 
 const METRICS: { kind: CwvKind; label: string; format: (v: number) => string }[] = [
   { kind: "lcp", label: "LCP", format: (v) => `${(v / 1000).toFixed(2)}s` },
@@ -13,12 +13,6 @@ const METRICS: { kind: CwvKind; label: string; format: (v: number) => string }[]
   { kind: "fcp", label: "FCP", format: (v) => `${(v / 1000).toFixed(2)}s` },
   { kind: "ttfb", label: "TTFB", format: (v) => `${(v / 1000).toFixed(2)}s` },
 ];
-
-const RATING_TONE: Record<string, string> = {
-  good: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
-  needs_improvement: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
-  poor: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
-};
 
 export function CruxHistoryPanel() {
   const t = useTranslations("tools.ui.crux");
@@ -100,7 +94,7 @@ export function CruxHistoryPanel() {
                     <h3 className="text-base font-semibold">{label}</h3>
                     {trend.latest !== null && (
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${RATING_TONE[ratingForMetric(kind, trend.latest)]}`}
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ${CWV_RATING_TONE[ratingForMetric(kind, trend.latest)]}`}
                       >
                         p75 {format(trend.latest)}
                       </span>

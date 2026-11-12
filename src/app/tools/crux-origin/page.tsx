@@ -11,15 +11,17 @@ import {
   type OriginSummaryState,
 } from "../crux/actions";
 import { RecentRuns } from "@/components/recent-runs";
+import { CWV_THRESHOLDS, ratingForMetric } from "@/lib/crux-thresholds";
 
+const THRESH: Record<string, { good: number; ni: number; unit: string }> = Object.fromEntries(
+  Object.entries(CWV_THRESHOLDS).map(([k, v]) => [k, { ...v, unit: k === "cls" ? "" : "ms" }]),
+);
 
-const THRESH: Record<string, { good: number; ni: number; unit: string }> = {
-  lcp: { good: 2500, ni: 4000, unit: "ms" },
-  inp: { good: 200, ni: 500, unit: "ms" },
-  cls: { good: 0.1, ni: 0.25, unit: "" },
-  fcp: { good: 1800, ni: 3000, unit: "ms" },
-  ttfb: { good: 800, ni: 1800, unit: "ms" },
-};
+const RATING_TEXT = {
+  good: "text-emerald-300",
+  needs_improvement: "text-amber-300",
+  poor: "text-rose-300",
+} as const;
 
 const METRIC_LABEL: Record<string, string> = {
   lcp: "LCP",
@@ -189,18 +191,7 @@ function ScopeCard({
             const t = THRESH[m];
             const v = data.metrics[m]?.p75;
             if (typeof v !== "number") return null;
-            const tone =
-              m === "cls"
-                ? v <= t.good
-                  ? "text-emerald-300"
-                  : v <= t.ni
-                    ? "text-amber-300"
-                    : "text-rose-300"
-                : v <= t.good
-                  ? "text-emerald-300"
-                  : v <= t.ni
-                    ? "text-amber-300"
-                    : "text-rose-300";
+            const tone = RATING_TEXT[ratingForMetric(m, v)];
             return (
               <li
                 key={m}

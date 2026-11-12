@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Check, Copy, Loader2, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runDisavow, type DisavowState } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function DisavowForm() {
   const t = useTranslations("tools.ui.disavow");
@@ -79,9 +80,9 @@ export function DisavowForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label={t("statParsed")} value={state.stats.total.toString()} />
-            <Stat label={t("statToxic")} value={state.stats.toxic.toString()} tone="rose" />
-            <Stat label={t("statReview")} value={state.stats.reviewed.toString()} tone="amber" />
+            <ToolStat label={t("statParsed")} value={state.stats.total.toString()} />
+            <ToolStat label={t("statToxic")} value={state.stats.toxic.toString()} tone="rose" />
+            <ToolStat label={t("statReview")} value={state.stats.reviewed.toString()} tone="amber" />
           </div>
 
           <section className="glass-apple relative overflow-hidden rounded-2xl">
@@ -129,23 +130,5 @@ export function DisavowForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone] : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }

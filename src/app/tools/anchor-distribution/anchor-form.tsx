@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Link2, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runAnchor, type AnchorState } from "./actions";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 export function AnchorForm() {
   const t = useTranslations("tools.ui.anchor-distribution");
@@ -71,10 +72,10 @@ export function AnchorForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-4">
-            <Stat label={t("statTotal")} value={state.result.totalAnchors.toString()} />
-            <Stat label={t("statInternal")} value={state.result.internal.length.toString()} />
-            <Stat label={t("statExternal")} value={state.result.external.length.toString()} />
-            <Stat
+            <ToolStat label={t("statTotal")} value={state.result.totalAnchors.toString()} />
+            <ToolStat label={t("statInternal")} value={state.result.internal.length.toString()} />
+            <ToolStat label={t("statExternal")} value={state.result.external.length.toString()} />
+            <ToolStat
               label={t("statExact")}
               value={`${state.result.exactMatchPct.toFixed(1)}%`}
               tone={state.result.exactMatchPct > 5 ? "rose" : "emerald"}
@@ -146,26 +147,5 @@ export function AnchorForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone] : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground">{hint}</div>}
-    </div>
   );
 }

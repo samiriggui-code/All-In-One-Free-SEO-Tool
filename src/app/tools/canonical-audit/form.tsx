@@ -5,6 +5,7 @@ import { GitMerge, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { runCanonical, type CanonState } from "./actions";
 import { ClientIdField } from "@/components/client-id-field";
+import { ToolStat } from "@/components/tools/tool-stat";
 
 const KIND_TONE: Record<string, string> = {
   missing: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
@@ -91,10 +92,10 @@ export function CanonForm() {
       {state?.ok && (
         <>
           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-            <Stat label={t("pagesCrawled")} value={state.result.pagesChecked.toString()} />
-            <Stat label={t("issues")} value={state.result.issues.length.toString()} tone={state.result.issues.length === 0 ? "emerald" : "amber"} />
-            <Stat label={t("critical")} value={String(state.result.summary["broken-target"] ?? 0 + (state.result.summary["multiple"] ?? 0) + (state.result.summary["noindex-conflict"] ?? 0))} tone="rose" />
-            <Stat label={t("selfMismatch")} value={(state.result.summary["self-mismatch"] ?? 0).toString()} tone="amber" />
+            <ToolStat label={t("pagesCrawled")} value={state.result.pagesChecked.toString()} />
+            <ToolStat label={t("issues")} value={state.result.issues.length.toString()} tone={state.result.issues.length === 0 ? "emerald" : "amber"} />
+            <ToolStat label={t("critical")} value={String(state.result.summary["broken-target"] ?? 0 + (state.result.summary["multiple"] ?? 0) + (state.result.summary["noindex-conflict"] ?? 0))} tone="rose" />
+            <ToolStat label={t("selfMismatch")} value={(state.result.summary["self-mismatch"] ?? 0).toString()} tone="amber" />
           </div>
 
           {state.result.issues.length === 0 ? (
@@ -142,27 +143,5 @@ export function CanonForm() {
         </>
       )}
     </>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: "emerald" | "amber" | "rose";
-}) {
-  const t = tone
-    ? { emerald: "text-emerald-300", amber: "text-amber-300", rose: "text-rose-300" }[tone]
-    : "";
-  return (
-    <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className={`mt-1 text-2xl font-semibold tabular-nums ${t}`}>{value}</div>
-    </div>
   );
 }
