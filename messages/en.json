@@ -325,7 +325,8 @@
         "errors": "Error log",
         "privacy": "Privacy",
         "tools": "Tools",
-        "profile": "My profile"
+        "profile": "My profile",
+        "memory": "My memory"
       }
     },
     "general": {
@@ -1045,8 +1046,15 @@
       },
       "errors": {
         "unknownPurpose": "Unknown use.",
-        "unknownModel": "This model isn't available for that provider."
-      }
+        "unknownModel": "This model isn't available for that provider.",
+        "charterTooLong": "The charter is over {max} characters."
+      },
+      "charterTitle": "Agency charter",
+      "charterBlockHint": "Rules the assistant follows in every answer, for every client.",
+      "charter": "Charter",
+      "charterHint": "Tone, vocabulary, things never to say. 2,000 characters at most.",
+      "charterPlaceholder": "E.g. Never promise a ranking. Cite the source of every figure.",
+      "saveCharter": "Save the charter"
     }
   },
   "reports": {
@@ -2770,7 +2778,9 @@
         "compare_search_periods": "Search Console comparison",
         "list_sitemaps": "sitemaps",
         "create_task": "create a task",
-        "save_note": "save a note"
+        "save_note": "save a note",
+        "remember": "memory (add)",
+        "forget": "memory (forget)"
       }
     },
     "quickAdd": {
@@ -8449,6 +8459,66 @@
       "both": "words and meaning"
     },
     "addFile": "Add a file",
-    "fileAdded": "\"{name}\" added ({count, plural, one {# passage} other {# passages}})."
+    "fileAdded": "\"{name}\" added ({count, plural, one {# passage} other {# passages}}).",
+    "memoryTitle": "What the team remembers about this client",
+    "memoryManage": "Manage in My memory",
+    "memoryEmpty": "Nothing yet. Tell the assistant “Remember that…” on this client's page.",
+    "memoryPending": "to confirm"
+  },
+  "settingsMemory": {
+    "title": "My memory",
+    "description": "What the assistant keeps from one conversation to the next: for you, for the whole team and for each client. Nothing is hidden: it is all here, editable and erasable.",
+    "settingsTitle": "Settings",
+    "enabled": "Personal memory",
+    "enabledHint": "When off, the assistant neither uses nor adds to your personal memory. Team and client memory stay on.",
+    "noAccount": "Without accounts, personal memory belongs to the workspace.",
+    "on": "On",
+    "off": "Off",
+    "exportTitle": "Export or erase",
+    "exportHint": "The export holds everything you see here, as JSON. “Erase all” only deletes your personal memory.",
+    "export": "Export",
+    "clear": "Erase all",
+    "clearConfirm": "Erase all your personal memory? Team and client memory are not touched.",
+    "addTitle": "Add a memory",
+    "addHint": "One idea per sentence. You can also tell the assistant “Remember that…”.",
+    "placeholder": "E.g. Always address nd-prestige's customers formally.",
+    "scope": "For whom",
+    "client": "Client",
+    "category": "Type",
+    "add": "Add",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "accept": "Keep",
+    "reject": "Refuse",
+    "pendingTitle": "{count, plural, one {# memory to confirm} other {# memories to confirm}}",
+    "pendingHint": "Suggested by the assistant from your conversations. They are only used once kept; a refused one is not suggested again.",
+    "empty": "Nothing yet.",
+    "editedByHand": "edited by hand",
+    "rejected": "refused",
+    "scopes": {
+      "user": "For me",
+      "team": "For the whole team",
+      "client": "For a client",
+      "clientNamed": "Client: {name}"
+    },
+    "categories": {
+      "preference": "Preference",
+      "fact": "Fact",
+      "instruction": "Instruction"
+    },
+    "sources": {
+      "manual": "typed",
+      "conversation": "told to the assistant",
+      "auto": "inferred from a conversation"
+    },
+    "errors": {
+      "empty": "The memory is empty.",
+      "too_long": "500 characters at most.",
+      "forbidden": "You cannot change this memory.",
+      "not_found": "This memory no longer exists.",
+      "no_client": "Choose a client.",
+      "noAccount": "This setting needs an account."
+    }
   }
 }

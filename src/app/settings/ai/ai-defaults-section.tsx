@@ -14,7 +14,7 @@ import type { ActiveProvider } from "@/lib/api-keys";
 import { normalizeGuardrails } from "@/lib/guardrails";
 import { getSetting } from "@/lib/settings-store";
 import { SettingsBlock } from "../section-ui";
-import { GuardrailsForm, PurposeModelRow, type ModelOption } from "./ai-defaults";
+import { CharterForm, GuardrailsForm, PurposeModelRow, type ModelOption } from "./ai-defaults";
 
 /** Providers whose image input ai-vision.ts sends; the others drop the image. */
 const VISION_PROVIDERS: ActiveProvider[] = ["gemini", "anthropic", "openai", "openrouter"];
@@ -81,6 +81,10 @@ export async function AiDefaultsSection({ configured }: { configured: ActiveProv
             />
           ))}
         </div>
+      </SettingsBlock>
+
+      <SettingsBlock id="charter" title={t("charterTitle")} description={t("charterBlockHint")}>
+        <CharterForm charter={(await getSetting<string>("ai.charter")) ?? ""} />
       </SettingsBlock>
 
       <SettingsBlock id="guardrails" title={t("guardTitle")} description={t("guardHint")}>

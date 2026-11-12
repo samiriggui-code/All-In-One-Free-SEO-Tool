@@ -39,6 +39,30 @@ const KB_TOOL: ToolSpec = {
   readOnly: true,
 };
 
+const MEMORY_TOOLS: ToolSpec[] = [
+  {
+    name: "remember",
+    description:
+      "Keep a short sentence for future conversations. Only when the person asks you to remember something, or states a lasting preference or rule. scope: \"me\" for the person's own preferences, \"client\" for a fact or rule about one client (needs clientId), \"team\" for an agency-wide rule. One idea per call, written as a plain statement.",
+    inputSchema: {
+      properties: {
+        text: { type: "string" },
+        scope: { type: "string", enum: ["me", "client", "team"] },
+        category: { type: "string", enum: ["preference", "fact", "instruction"] },
+        clientId: { type: "number" },
+      },
+      required: ["text", "scope"],
+    },
+    readOnly: true,
+  },
+  {
+    name: "forget",
+    description: "Delete a memory the person asks you to forget, by the #id shown in what you remember.",
+    inputSchema: { properties: { memoryId: { type: "number" } }, required: ["memoryId"] },
+    readOnly: true,
+  },
+];
+
 type McpLikeResult = { ok: true; data: unknown } | { ok: false; error: string };
 
 /**
@@ -111,6 +135,7 @@ const LOCAL_WRITE_TOOLS: (ToolSpec & { run: (a: Record<string, unknown>, userId:
 export function assistantTools(): ToolSpec[] {
   return [
     KB_TOOL,
+    ...MEMORY_TOOLS,
     ...LOCAL_WRITE_TOOLS.map(({ run: _run, ...spec }) => spec),
     ...MCP_TOOL_LIST.map((t) => ({
       name: t.name,
@@ -149,7 +174,33 @@ function describeCall(name: string, args: Record<string, unknown>): string {
 
 type RunOpts = { user: User | null; clientId?: number | null; locale?: string };
 
+async function runMemoryTool(name: string, args: Record<string, unknown>, opts: RunOpts): Promise<unknown> {
+  const mem = await import("./memory");
+  if (name === "forget") {
+    const r = await mem.removeMemory(opts.user, Number(args.memoryId));
+    return r.ok ? { forgotten: Number(args.memoryId) } : { error: r.error };
+  }
+  const scope = args.scope === "team" ? "team" : args.scope === "client" ? "client" : "user";
+  if (scope === "user" && !(await mem.memoryEnabledFor(opts.user))) {
+    return { error: "This person turned memory off in Settings → Ma mémoire. Tell them." };
+  }
+  const category = ["preference", "fact", "instruction"].includes(String(args.category))
+    ? (args.category as "preference" | "fact" | "instruction")
+    : scope === "user" ? "preference" : "fact";
+  const r = await mem.addMemory(opts.user, {
+    scope,
+    text: String(args.text ?? ""),
+    category,
+    clientId: scope === "client" ? Number(args.clientId ?? opts.clientId) || null : null,
+    source: "conversation",
+  });
+  return r.ok
+    ? { remembered: r.id, alreadyKnown: r.duplicate, note: "Visible and editable in Settings → Ma mémoire." }
+    : { error: r.error === "forbidden" ? "This person may not change team or client memory." : r.error };
+}
+
 async function runReadTool(name: string, args: Record<string, unknown>, opts: RunOpts): Promise<unknown> {
+  if (name === "remember" || name === "forget") return runMemoryTool(name, args, opts);
   if (name === "list_clients") {
     const visible = await visibleClientIds(opts.user);
     const rows = await db.select({ id: clients.id, name: clients.name, url: clients.url, niche: clients.niche }).from(clients);
@@ -194,10 +245,13 @@ async function systemPrompt(opts: RunOpts): Promise<string> {
     if (c) here = `\nThe person is looking at client #${opts.clientId}, ${c.name} (${c.url}). Questions without a client name are about this one.`;
   }
   const lang = opts.locale === "en" ? "English" : "French";
+  const { memoryPrompt } = await import("./memory");
+  const memory = await memoryPrompt(opts.user, opts.clientId ?? null).catch(() => "");
   return `You are the SEO assistant built into rank_forge, the agency's SEO workspace.
 Answer in ${lang} unless the person writes in another language.
 Style: plain language, direct, short paragraphs, bullets when useful. Ground every fact in the data you looked up (client, score, keyword, date). If the data is not there, say so plainly. Prefer Google's confirmed guidance over SEO folklore.${here}
 
+${memory ? `\n<memory>\n${memory}\n</memory>\nFollow these unless the person says otherwise now. When asked what you remember, list them.\n` : ""}
 ${TOOL_RULES}
 
 Available tools:

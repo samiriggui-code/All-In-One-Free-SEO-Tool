@@ -35,7 +35,7 @@ export const OWNER_ONLY_PREFIXES = [
  * role but the client viewer may open them and post their actions (each
  * action still checks the user itself). Exempt from OWNER_ONLY_PREFIXES.
  */
-export const PERSONAL_SETTINGS_PREFIXES = ["/settings/profile"] as const;
+export const PERSONAL_SETTINGS_PREFIXES = ["/settings/profile", "/settings/memory"] as const;
 
 /**
  * Pages a client viewer may open. Anything else redirects home: the

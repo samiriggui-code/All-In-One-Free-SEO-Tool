@@ -50,3 +50,18 @@ export async function saveGuardrails(input: {
   revalidatePath("/settings/ai");
   return { ok: true };
 }
+
+const CHARTER_MAX_CHARS = 2000;
+
+/** The agency's charter: rules every assistant answer follows (IA-4). */
+export async function saveCharter(text: string): Promise<DefaultsResult> {
+  await requireSettingsAdmin();
+  await requireSignedIn();
+  const tx = await actionTx("settings.aiDefaults");
+  const clean = String(text ?? "").trim();
+  if (clean.length > CHARTER_MAX_CHARS) return { ok: false, error: tx("errors.charterTooLong", { max: CHARTER_MAX_CHARS }) };
+  if (clean) await setSetting("ai.charter", clean);
+  else await deleteSetting("ai.charter");
+  revalidatePath("/settings/ai");
+  return { ok: true };
+}

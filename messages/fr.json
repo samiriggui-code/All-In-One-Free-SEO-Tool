@@ -325,7 +325,8 @@
         "errors": "Journal des erreurs",
         "privacy": "Confidentialité",
         "tools": "Outils",
-        "profile": "Mon profil"
+        "profile": "Mon profil",
+        "memory": "Ma mémoire"
       }
     },
     "general": {
@@ -1045,8 +1046,15 @@
       },
       "errors": {
         "unknownPurpose": "Usage inconnu.",
-        "unknownModel": "Ce modèle n'est pas disponible pour ce fournisseur."
-      }
+        "unknownModel": "Ce modèle n'est pas disponible pour ce fournisseur.",
+        "charterTooLong": "La charte dépasse {max} caractères."
+      },
+      "charterTitle": "Charte de l’agence",
+      "charterBlockHint": "Les règles que l’assistant suit dans toutes ses réponses, pour tous les clients.",
+      "charter": "Charte",
+      "charterHint": "Ton, vocabulaire, interdits. 2 000 caractères au plus.",
+      "charterPlaceholder": "Ex. : Vouvoyer. Ne jamais promettre de position. Citer la source de chaque chiffre.",
+      "saveCharter": "Enregistrer la charte"
     }
   },
   "reports": {
@@ -2770,7 +2778,9 @@
         "compare_search_periods": "comparaison Search Console",
         "list_sitemaps": "sitemaps",
         "create_task": "créer une tâche",
-        "save_note": "enregistrer une note"
+        "save_note": "enregistrer une note",
+        "remember": "mémoire (ajout)",
+        "forget": "mémoire (oubli)"
       }
     },
     "quickAdd": {
@@ -8449,6 +8459,66 @@
       "both": "mots et sens"
     },
     "addFile": "Ajouter un fichier",
-    "fileAdded": "« {name} » ajouté ({count, plural, one {# passage} other {# passages}})."
+    "fileAdded": "« {name} » ajouté ({count, plural, one {# passage} other {# passages}}).",
+    "memoryTitle": "Ce que l’équipe retient sur ce client",
+    "memoryManage": "Gérer dans Ma mémoire",
+    "memoryEmpty": "Rien pour l’instant. Dites à l’assistant « Retiens que… » sur la page de ce client.",
+    "memoryPending": "à confirmer"
+  },
+  "settingsMemory": {
+    "title": "Ma mémoire",
+    "description": "Ce que l’assistant retient d’une conversation à l’autre : pour vous, pour toute l’équipe et pour chaque client. Rien n’est caché : tout est ici, modifiable et effaçable.",
+    "settingsTitle": "Réglages",
+    "enabled": "Mémoire personnelle",
+    "enabledHint": "Quand elle est coupée, l’assistant n’utilise ni n’ajoute rien à votre mémoire personnelle. Celles de l’équipe et des clients restent actives.",
+    "noAccount": "Sans comptes, la mémoire personnelle est celle de l’espace de travail.",
+    "on": "Activée",
+    "off": "Coupée",
+    "exportTitle": "Exporter ou effacer",
+    "exportHint": "L’export contient tout ce que vous voyez ici, en JSON. « Tout effacer » supprime seulement votre mémoire personnelle.",
+    "export": "Exporter",
+    "clear": "Tout effacer",
+    "clearConfirm": "Effacer toute votre mémoire personnelle ? Celles de l’équipe et des clients ne sont pas touchées.",
+    "addTitle": "Ajouter un souvenir",
+    "addHint": "Une idée par phrase. Vous pouvez aussi dire à l’assistant « Retiens que… ».",
+    "placeholder": "Ex. : Toujours vouvoyer les clients de nd-prestige.",
+    "scope": "Pour qui",
+    "client": "Client",
+    "category": "Type",
+    "add": "Ajouter",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "accept": "Garder",
+    "reject": "Refuser",
+    "pendingTitle": "{count, plural, one {# souvenir à confirmer} other {# souvenirs à confirmer}}",
+    "pendingHint": "Proposés par l’assistant à partir de vos conversations. Ils ne servent qu’une fois gardés ; un souvenir refusé n’est plus reproposé.",
+    "empty": "Rien pour l’instant.",
+    "editedByHand": "modifié à la main",
+    "rejected": "refusé",
+    "scopes": {
+      "user": "Pour moi",
+      "team": "Pour toute l’équipe",
+      "client": "Pour un client",
+      "clientNamed": "Client : {name}"
+    },
+    "categories": {
+      "preference": "Préférence",
+      "fact": "Fait",
+      "instruction": "Consigne"
+    },
+    "sources": {
+      "manual": "saisi",
+      "conversation": "dit à l’assistant",
+      "auto": "déduit d’une conversation"
+    },
+    "errors": {
+      "empty": "Le souvenir est vide.",
+      "too_long": "500 caractères au plus.",
+      "forbidden": "Vous ne pouvez pas modifier ce souvenir.",
+      "not_found": "Ce souvenir n’existe plus.",
+      "no_client": "Choisissez un client.",
+      "noAccount": "Il faut un compte pour ce réglage."
+    }
   }
 }
