@@ -6655,7 +6655,8 @@
       "readingThisView": "Reading this view",
       "highOpen0DoneClient": "<b0>High open + 0 done:</b0> client is being starved — pull tasks from a less-busy client this week.",
       "highPri0": "High pri > 0:",
-      "n0AuditsIn30dRun": "<b0>0 audits in 30d:</b0> run a fresh audit so you have data for the next monthly report."
+      "n0AuditsIn30dRun": "<b0>0 audits in 30d:</b0> run a fresh audit so you have data for the next monthly report.",
+      "urgentItemsWaiting": "urgent items waiting. Triage before adding new work."
     },
     "app_capture_capture-client": {
       "savedAsCompetitor": "Saved as competitor.",

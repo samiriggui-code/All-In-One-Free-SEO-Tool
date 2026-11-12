@@ -6655,7 +6655,8 @@
       "readingThisView": "Lire cette vue",
       "highOpen0DoneClient": "<b0>Beaucoup d’ouvertes et 0 terminée :</b0> le projet est délaissé. Reprenez cette semaine des tâches à un projet moins chargé.",
       "highPri0": "Priorité haute > 0 :",
-      "n0AuditsIn30dRun": "<b0>0 audit en 30 jours :</b0> lancez un nouvel audit pour avoir des données dans le prochain rapport mensuel."
+      "n0AuditsIn30dRun": "<b0>0 audit en 30 jours :</b0> lancez un nouvel audit pour avoir des données dans le prochain rapport mensuel.",
+      "urgentItemsWaiting": "des éléments urgents attendent. Faites le tri avant d’ajouter du travail."
     },
     "app_capture_capture-client": {
       "savedAsCompetitor": "Enregistré comme concurrent.",
