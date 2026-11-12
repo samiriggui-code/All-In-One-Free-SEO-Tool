@@ -3,7 +3,7 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 245 routes · 90 need AI · 58 use a browser.
+// 245 routes · 95 need AI · 62 use a browser.
 // 89 are /tools/* · 30 need AI · 89 carry copy.
 
 export const TOOL_CAPABILITIES = [
@@ -19,14 +19,14 @@ export const TOOL_CAPABILITIES = [
   { route: "/algorithm-updates", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Algorithm updates", description: "Timeline of every Google algorithm update with confirmed dates. Correlate against your traffic drops." },
   { route: "/annotations", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/ask", needsAI: true, aiUsage: "required", usesBrowser: false },
-  { route: "/audits", needsAI: false, aiUsage: "none", usesBrowser: true },
+  { route: "/audits", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/audits/[id]", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/audits/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: true },
+  { route: "/audits/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/audits/diff", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/author-authority", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/automations", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/automations", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/automations/overview", needsAI: true, aiUsage: "required", usesBrowser: true },
-  { route: "/automations/templates", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/automations/templates", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/backlinks", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/backlinks/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/bot-logs", needsAI: false, aiUsage: "none", usesBrowser: false },
@@ -115,7 +115,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/meta-rewrite", needsAI: true, aiUsage: "required", usesBrowser: true, title: "Meta rewrite batch (low-CTR)", description: "Pulls GSC data, finds your worst CTR vs position. AI rewrites title + meta in 2 variants per page. One-click push to WordPress if connected." },
   { route: "/meta-rewrite/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/monitor", needsAI: true, aiUsage: "required", usesBrowser: true },
-  { route: "/monitor/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: false },
+  { route: "/monitor/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/morning", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/news", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/outreach", needsAI: true, aiUsage: "required", usesBrowser: true },
@@ -129,7 +129,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/report-data", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/reports", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/reports/archive", needsAI: false, aiUsage: "none", usesBrowser: false },
-  { route: "/reports/batch", needsAI: true, aiUsage: "required", usesBrowser: false },
+  { route: "/reports/batch", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/reports/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/seo-chat", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/seo-chat/capabilities", needsAI: false, aiUsage: "none", usesBrowser: false },

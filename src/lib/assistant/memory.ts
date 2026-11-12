@@ -183,7 +183,11 @@ function block(title: string, rows: AiMemory[]): string {
  * the agency's charter, then the person's, the team's and the current
  * client's active memories, each within its budget.
  */
-export async function memoryPrompt(user: User | null, clientId: number | null): Promise<string> {
+export async function memoryPrompt(
+  user: User | null,
+  clientId: number | null,
+  opts: { automation?: boolean } = {},
+): Promise<string> {
   const parts: string[] = [];
   const charter = (await getSetting<string>("ai.charter"))?.trim();
   if (charter) parts.push(`Agency charter (always follow):\n${charter.slice(0, MEMORY_PROMPT_BUDGET)}`);
@@ -196,14 +200,14 @@ export async function memoryPrompt(user: User | null, clientId: number | null): 
       .orderBy(desc(aiMemories.updatedAt))
       .limit(60);
 
-  if (await memoryEnabledFor(user)) {
+  if (!opts.automation && (await memoryEnabledFor(user))) {
     const mine = await active("user", user ? eq(aiMemories.userId, user.id) : isNull(aiMemories.userId));
     const b = block("What you remember about the person you are talking to:", mine);
     if (b) parts.push(b);
   }
   const team = block("What the team asked you to remember:", await active("team"));
   if (team) parts.push(team);
-  if (clientId && (await canSeeClient(user, clientId))) {
+  if (clientId && (opts.automation || (await canSeeClient(user, clientId)))) {
     const [c] = await db.select({ name: clients.name }).from(clients).where(eq(clients.id, clientId)).limit(1);
     const b = block(`What the team remembers about ${c?.name ?? `client #${clientId}`}:`, await active("client", eq(aiMemories.clientId, clientId)));
     if (b) parts.push(b);

@@ -721,6 +721,7 @@ export const automations = sqliteTable("automations", {
       "score_drop",
       "page_change",
       "rank_drop",
+      "schedule",
     ],
   }).notNull(),
   // null = applies to all clients
@@ -734,8 +735,41 @@ export const automations = sqliteTable("automations", {
   enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
   lastRunAt: integer("last_run_at", { mode: "timestamp" }),
   runCount: integer("run_count").notNull().default(0),
+  /** Trigger "schedule" only: when it runs (IA-5). */
+  schedule: text("schedule", { mode: "json" }).$type<AutomationSchedule>(),
+  nextRunAt: integer("next_run_at", { mode: "timestamp" }),
+  /** Consecutive failed runs; the automation pauses itself at 3. */
+  failures: integer("failures").notNull().default(0),
   ...timestamps,
 });
+
+export type AutomationSchedule = {
+  every: "daily" | "weekly" | "monthly";
+  /** Local hour, 0–23. */
+  hour: number;
+  /** weekly: 1 = Monday … 7 = Sunday. monthly: day of month 1–28. */
+  day?: number;
+  /** IANA time zone, e.g. "Europe/Paris". */
+  tz: string;
+};
+
+/** One execution of an automation's AI step: what it read, what it produced. */
+export const automationRuns = sqliteTable("automation_runs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  automationId: integer("automation_id")
+    .notNull()
+    .references(() => automations.id, { onDelete: "cascade" }),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }),
+  trigger: text("trigger").notNull(),
+  /** "ok" | "error" | "skipped" */
+  status: text("status").notNull(),
+  output: text("output"),
+  steps: text("steps", { mode: "json" }).$type<{ tool: string; ok: boolean }[]>(),
+  error: text("error"),
+  startedAt: integer("started_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  finishedAt: integer("finished_at", { mode: "timestamp" }),
+});
+export type AutomationRun = typeof automationRuns.$inferSelect;
 
 export type AutomationAction =
   | { kind: "webhook"; url: string }
@@ -745,7 +779,14 @@ export type AutomationAction =
       priority: "high" | "medium" | "low";
       whyItMatters?: string;
     }
-  | { kind: "log"; message: string };
+  | { kind: "log"; message: string }
+  | {
+      /** IA-5: the assistant works on a prompt with read-only tools, then delivers. */
+      kind: "ai_step";
+      prompt: string;
+      deliverable: "task" | "note" | "webhook" | "log";
+      webhookUrl?: string;
+    };
 
 export const activityLog = sqliteTable("activity_log", {
   id: integer("id").primaryKey({ autoIncrement: true }),
