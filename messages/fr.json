@@ -3853,7 +3853,8 @@
       "geoSwot": "SWOT GEO",
       "reports": "Rapports",
       "missions": "Missions",
-      "settings": "Réglages"
+      "settings": "Réglages",
+      "knowledge": "Connaissances"
     },
     "more": "Autres outils",
     "moreHint": "Hors des missions de ce projet",
@@ -8346,6 +8347,54 @@
     },
     "journal": {
       "passwordChanged": "{name} a changé son mot de passe"
+    }
+  },
+  "knowledge": {
+    "title": "Connaissances",
+    "description": "Tout ce que l'agence sait de {name}, interrogeable : fiche client, audits, articles et briefs ajoutés d'eux-mêmes, plus vos notes et pages web.",
+    "stats": "{documents, plural, one {# document} other {# documents}}, {passages, plural, one {# passage} other {# passages}}",
+    "updated": "mis à jour {when}",
+    "sync": "Mettre à jour",
+    "synced": "{changed, plural, =0 {Déjà à jour.} one {# document mis à jour.} other {# documents mis à jour.}}{removed, plural, =0 {} one { # retiré.} other { # retirés.}}",
+    "addNote": "Ajouter une note",
+    "addUrl": "Ajouter une page web",
+    "noteTitle": "Titre (facultatif)",
+    "noteText": "Texte de la note",
+    "notePlaceholder": "Ce que l'équipe doit savoir : ton de la marque, contraintes, historique, décisions…",
+    "urlLabel": "Adresse de la page",
+    "readPage": "Lire la page",
+    "save": "Enregistrer",
+    "added": "Ajouté à la base.",
+    "searchTitle": "Tester une recherche",
+    "searchHint": "Posez une question comme l'assistant le fera : les passages les plus proches sortent en premier.",
+    "searchPlaceholder": "Ex. : pourquoi le score a baissé ?",
+    "search": "Chercher",
+    "noHits": "Aucun passage ne correspond.",
+    "documentsTitle": "Documents",
+    "empty": "Rien pour l'instant. Lancez un audit, écrivez un article ou ajoutez une note.",
+    "passages": "{count, plural, one {# passage} other {# passages}}",
+    "open": "Ouvrir la page",
+    "remove": "Retirer « {title} »",
+    "types": {
+      "profile": "Fiche client",
+      "audit": "Audit",
+      "post": "Article",
+      "brief": "Brief",
+      "offer": "Offre",
+      "note": "Note",
+      "url": "Page web",
+      "file": "Fichier"
+    },
+    "errors": {
+      "emptyNote": "La note est vide.",
+      "noteTooLong": "Note trop longue ({max} caractères au plus).",
+      "badUrl": "Adresse invalide : elle doit commencer par http:// ou https://.",
+      "fetchStatus": "La page a répondu {status}.",
+      "fetchFailed": "Impossible de lire cette page (adresse privée, délai dépassé ou site injoignable).",
+      "notHtml": "Ce n'est pas une page web. Les fichiers PDF et Word arrivent bientôt.",
+      "noText": "Aucun texte lisible sur cette page.",
+      "notFound": "Document introuvable.",
+      "syncedDocument": "Ce document vient de l'outil et reviendrait à la prochaine mise à jour. Modifiez sa source à la place."
     }
   }
 }

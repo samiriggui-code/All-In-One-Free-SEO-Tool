@@ -3853,7 +3853,8 @@
       "geoSwot": "GEO SWOT",
       "reports": "Reports",
       "missions": "Missions",
-      "settings": "Settings"
+      "settings": "Settings",
+      "knowledge": "Knowledge"
     },
     "more": "Other tools",
     "moreHint": "Outside this project's missions",
@@ -8346,6 +8347,54 @@
     },
     "journal": {
       "passwordChanged": "{name} changed their password"
+    }
+  },
+  "knowledge": {
+    "title": "Knowledge",
+    "description": "Everything the agency knows about {name}, searchable: client profile, audits, articles and briefs added on their own, plus your notes and web pages.",
+    "stats": "{documents, plural, one {# document} other {# documents}}, {passages, plural, one {# passage} other {# passages}}",
+    "updated": "updated {when}",
+    "sync": "Update",
+    "synced": "{changed, plural, =0 {Already up to date.} one {# document updated.} other {# documents updated.}}{removed, plural, =0 {} one { # removed.} other { # removed.}}",
+    "addNote": "Add a note",
+    "addUrl": "Add a web page",
+    "noteTitle": "Title (optional)",
+    "noteText": "Note text",
+    "notePlaceholder": "What the team should know: brand voice, constraints, history, decisions…",
+    "urlLabel": "Page address",
+    "readPage": "Read the page",
+    "save": "Save",
+    "added": "Added to the knowledge base.",
+    "searchTitle": "Try a search",
+    "searchHint": "Ask the way the assistant will: the closest passages come first.",
+    "searchPlaceholder": "E.g. why did the score drop?",
+    "search": "Search",
+    "noHits": "No passage matches.",
+    "documentsTitle": "Documents",
+    "empty": "Nothing yet. Run an audit, write an article or add a note.",
+    "passages": "{count, plural, one {# passage} other {# passages}}",
+    "open": "Open the page",
+    "remove": "Remove \"{title}\"",
+    "types": {
+      "profile": "Client profile",
+      "audit": "Audit",
+      "post": "Article",
+      "brief": "Brief",
+      "offer": "Offer",
+      "note": "Note",
+      "url": "Web page",
+      "file": "File"
+    },
+    "errors": {
+      "emptyNote": "The note is empty.",
+      "noteTooLong": "Note too long (at most {max} characters).",
+      "badUrl": "Invalid address: it must start with http:// or https://.",
+      "fetchStatus": "The page answered {status}.",
+      "fetchFailed": "Couldn't read this page (private address, timeout or site unreachable).",
+      "notHtml": "This isn't a web page. PDF and Word files are coming soon.",
+      "noText": "No readable text on this page.",
+      "notFound": "Document not found.",
+      "syncedDocument": "This document comes from the tool and would come back at the next update. Change its source instead."
     }
   }
 }
