@@ -6,10 +6,10 @@
  * Imperative API mirrors the native call site:
  *
  *   const ok = await confirmDialog({
- *     title: "Restart server?",
- *     description: "Page will reload itself once it's back (8-15s).",
- *     confirmLabel: "Restart",
- *     destructive: false,
+ *     title: "Delete this client?",
+ *     description: "Its projects and reports are deleted too.",
+ *     confirmLabel: "Delete",
+ *     destructive: true,
  *   });
  *   if (!ok) return;
  *
