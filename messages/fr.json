@@ -1906,7 +1906,8 @@
       "failed": "L’opération a échoué. Réessayez dans un instant.",
       "noDraft": "Il faut d’abord un article rédigé et enregistré.",
       "noWordPress": "Le site de ce client n’est pas relié à WordPress.",
-      "fetchFailed": "Impossible de récupérer cette page. Vérifiez l’adresse et qu’elle contient bien un article."
+      "fetchFailed": "Impossible de récupérer cette page. Vérifiez l’adresse et qu’elle contient bien un article.",
+      "noSamples": "Collez un texte d’au moins 200 caractères, ou rédigez d’abord un article pour ce projet."
     },
     "new": {
       "title": "Nouvel article",
@@ -2065,6 +2066,78 @@
         "download": "Télécharger llms.txt",
         "where": "À déposer à la racine du site, par ex. https://exemple.fr/llms.txt."
       }
+    },
+    "calendar": {
+      "linkTitle": "Calendrier et suivi",
+      "linkHint": "Dates de publication, répartition automatique, résultats des articles publiés.",
+      "back": "Retour aux articles",
+      "title": "Calendrier · {name}",
+      "description": "Quand chaque article sort, et ce que donnent ceux qui sont en ligne.",
+      "undatedTitle": "{count, plural, =0 {Sans date} one {# article sans date} other {# articles sans date}}",
+      "empty": "Aucun article pour ce client. Créez-en un depuis la page des articles.",
+      "allDated": "Tous les articles ont une date.",
+      "noDate": "sans date",
+      "monthCount": "{count, plural, one {# article} other {# articles}}",
+      "dateLabel": "Date de publication",
+      "auto": "Répartir automatiquement",
+      "autoDone": "{count, plural, =0 {Aucune date à poser} one {# date posée} other {# dates posées}}",
+      "measureTitle": "Résultats des articles publiés",
+      "measureHint": "Clics, impressions et position moyenne dans Google sur les 28 derniers jours.",
+      "measureEmpty": "Aucun article publié avec son adresse pour l’instant.",
+      "measureNoGsc": "Ce projet n’est pas relié à la Search Console : les chiffres ne peuvent pas être lus.",
+      "measureConnect": "Relier la Search Console",
+      "measureNote": "Un tiret veut dire que la Search Console n’a encore rien pour cette page, pas zéro clic.",
+      "colArticle": "Article",
+      "colClicks": "Clics",
+      "colImpressions": "Impressions",
+      "colPosition": "Position",
+      "colScore": "Score"
+    },
+    "voice": {
+      "linkTitle": "Voix de marque",
+      "linkHint": "Le style dans lequel les articles de ce client sont rédigés.",
+      "back": "Retour aux articles",
+      "title": "Voix de marque · {name}",
+      "description": "Le style que l’IA suit pour le plan et l’article : ton, personne, longueur des phrases. Appris à partir de textes du client.",
+      "currentTitle": "Profil actuel",
+      "none": "Aucune voix apprise. Les articles sont rédigés dans un style neutre.",
+      "reset": "Oublier cette voix",
+      "confirmReset": "Oublier la voix de ce client ? Les prochains articles seront rédigés dans un style neutre.",
+      "trainTitle": "Apprendre la voix du client",
+      "retrainTitle": "Réapprendre la voix",
+      "trainHint": "Collez un à trois textes écrits par le client (articles, pages, newsletters), séparés par une ligne de trois tirets. Sans texte collé, les articles déjà rédigés pour ce projet servent d’exemples.",
+      "placeholder": "Premier texte…\n\n---\n\nDeuxième texte…",
+      "samplesLabel": "Textes du client",
+      "train": "Apprendre la voix",
+      "trainFromArticles": "{count, plural, one {Apprendre depuis # article du projet} other {Apprendre depuis # articles du projet}}",
+      "aiNote": "Sans clé IA, le profil est calculé par comptage (longueur des phrases, personne, titres).",
+      "yes": "oui",
+      "no": "non",
+      "words": "{count} mots",
+      "fields": {
+        "tone": "Ton",
+        "voice": "Personne",
+        "authorPersona": "Posture de l’auteur",
+        "avgSentenceLength": "Longueur moyenne des phrases",
+        "vocabularyLevel": "Vocabulaire",
+        "headingCase": "Casse des titres",
+        "contractions": "Contractions",
+        "listsVsProse": "Listes ou texte",
+        "ctaStyle": "Appels à l’action",
+        "phrasesToKeep": "Expressions à garder",
+        "phrasesToAvoid": "Expressions à éviter"
+      }
+    },
+    "review": {
+      "title": "Relecture par le client",
+      "on": "Le client peut lire cet article dans son espace client.",
+      "off": "Ouvrez l’article au client pour qu’il le lise avant publication.",
+      "needsDraft": "Rédigez et enregistrez l’article avant de l’ouvrir au client.",
+      "share": "Ouvrir à la relecture",
+      "copy": "Copier le lien",
+      "copied": "Copié",
+      "open": "Voir la page",
+      "stop": "Fermer la relecture"
     }
   },
   "docs": {
@@ -2368,9 +2441,20 @@
         "sent": "à régler",
         "paid": "payée",
         "overdue": "en retard"
-      }
+      },
+      "toReview": "Articles à relire"
     },
-    "footerDefault": "Espace client en lecture seule · Propulsé par rank_forge"
+    "footerDefault": "Espace client en lecture seule · Propulsé par rank_forge",
+    "article": {
+      "back": "Retour à votre espace · {agency}",
+      "draft": "À relire",
+      "published": "Publié",
+      "plannedFor": "Publication prévue le {date}",
+      "publishedOn": "Publié le {date}",
+      "noDate": "Date de publication à définir",
+      "hint": "Voici l’article avant sa mise en ligne. Faites part de vos remarques à votre interlocuteur.",
+      "google": "Aperçu dans Google"
+    }
   },
   "invoices": {
     "title": "Factures",

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { Download, PenLine, Wrench } from "lucide-react";
+import { CalendarDays, Download, Mic, PenLine, Wrench } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -46,16 +46,27 @@ export default async function ClientContentPage({
         accent="violet"
       />
 
-      <Link
-        href={`/content/c/${client.id}/tools`}
-        className="flex items-center gap-3 rounded-2xl border border-violet-400/20 bg-violet-400/5 px-4 py-3 hover:bg-violet-400/10"
-      >
-        <Wrench className="size-4 shrink-0 text-violet-300" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium text-foreground">{t("tools.linkTitle")}</span>
-          <span className="block text-xs text-muted-foreground">{t("tools.linkHint")}</span>
-        </span>
-      </Link>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {(
+          [
+            { href: "calendar", icon: CalendarDays, title: t("calendar.linkTitle"), hint: t("calendar.linkHint") },
+            { href: "voice", icon: Mic, title: t("voice.linkTitle"), hint: t("voice.linkHint") },
+            { href: "tools", icon: Wrench, title: t("tools.linkTitle"), hint: t("tools.linkHint") },
+          ] as const
+        ).map((l) => (
+          <Link
+            key={l.href}
+            href={`/content/c/${client.id}/${l.href}`}
+            className="flex items-start gap-3 rounded-2xl border border-violet-400/20 bg-violet-400/5 px-4 py-3 hover:bg-violet-400/10"
+          >
+            <l.icon className="mt-0.5 size-4 shrink-0 text-violet-600 dark:text-violet-300" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium text-foreground">{l.title}</span>
+              <span className="block text-xs text-muted-foreground">{l.hint}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
 
       {editable && (
         <>

@@ -3,7 +3,7 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 239 routes · 85 need AI · 58 use a browser.
+// 242 routes · 87 need AI · 58 use a browser.
 // 89 are /tools/* · 30 need AI · 89 carry copy.
 
 export const TOOL_CAPABILITIES = [
@@ -64,8 +64,10 @@ export const TOOL_CAPABILITIES = [
   { route: "/content-gap", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/content-gap/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/content/c/[clientId]", needsAI: true, aiUsage: "partial", usesBrowser: false },
+  { route: "/content/c/[clientId]/calendar", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/content/c/[clientId]/p/[postId]", needsAI: true, aiUsage: "partial", usesBrowser: false },
   { route: "/content/c/[clientId]/tools", needsAI: true, aiUsage: "partial", usesBrowser: false },
+  { route: "/content/c/[clientId]/voice", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/csv-import", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/cwv", needsAI: true, aiUsage: "required", usesBrowser: true },
   { route: "/cwv/archive", needsAI: false, aiUsage: "none", usesBrowser: false },
@@ -119,6 +121,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/outreach/c/[clientId]", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/outreach/templates", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/portal/[token]", needsAI: true, aiUsage: "required", usesBrowser: false },
+  { route: "/portal/[token]/articles/[postId]", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/proposals", needsAI: true, aiUsage: "required", usesBrowser: false },
   { route: "/proposals/offers", needsAI: false, aiUsage: "none", usesBrowser: false },
   { route: "/register", needsAI: false, aiUsage: "none", usesBrowser: false },

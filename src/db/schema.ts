@@ -936,6 +936,11 @@ export const contentPosts = sqliteTable("content_posts", {
   contentScore: integer("content_score"),
   publishDate: integer("publish_date", { mode: "timestamp" }),
   publishedUrl: text("published_url"),
+  /**
+   * When the draft was opened to the client for review in their portal
+   * (/portal/<token>/articles/<id>). Null: not shared.
+   */
+  reviewSharedAt: integer("review_shared_at", { mode: "timestamp" }),
   ...timestamps,
 });
 

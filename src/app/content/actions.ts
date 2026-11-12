@@ -17,8 +17,12 @@ import {
   getStyleProfile,
   listPosts,
   saveKeywordResearch,
+  setStyleProfile,
   updatePost,
 } from "@/lib/content-studio/store";
+import { planDates, statusForDate } from "@/lib/content-studio/publishing";
+import { trainBrandVoice } from "@/lib/content-studio/seo/brand-voice";
+import { randomBytes } from "node:crypto";
 import { classifyIntentByRules } from "@/lib/content-studio/seo/intent";
 import { generateOutline } from "@/lib/content-studio/seo/outline";
 import { writePost } from "@/lib/content-studio/seo/writer";
@@ -37,7 +41,7 @@ import { markdownToHtml } from "@/lib/content-studio/exports/common";
 import type { ContentPost } from "@/lib/content-studio/store";
 import { createWpPost, getClientWpCreds, setPostSeo } from "@/lib/wp-bridge";
 import { logActivity } from "@/lib/activity";
-import type { KeywordSuggestion, NewsletterPack, Outline, SocialPack } from "@/lib/content-studio/types";
+import type { KeywordSuggestion, NewsletterPack, Outline, SocialPack, StyleProfile } from "@/lib/content-studio/types";
 
 /**
  * Server actions behind the writing studio (/content).
@@ -56,6 +60,7 @@ export type ContentError =
   | "noOutline"
   | "noDraft"
   | "noWordPress"
+  | "noSamples"
   | "fetchFailed"
   | "failed";
 type Fail = { ok: false; error: ContentError };
@@ -669,4 +674,157 @@ export async function refreshFromUrl(_prev: CreateState, formData: FormData): Pr
   });
   revalidatePath(`/content/c/${clientId}`);
   redirect(postPath(clientId, post.id));
+}
+
+// ---------------------------------------------------------------------------
+// Publishing: calendar, brand voice, review link
+// ---------------------------------------------------------------------------
+
+const calendarPath = (clientId: number) => `/content/c/${clientId}/calendar`;
+
+/** Set or clear an article's publication date. `date` is YYYY-MM-DD, or "" to clear. */
+export async function setArticleDate(input: {
+  clientId: number;
+  postId: number;
+  date: string;
+}): Promise<{ ok: true } | Fail> {
+  await requireSignedIn();
+  const parsed = ids
+    .extend({ date: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]) })
+    .safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, postId, date } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const post = await getPost(clientId, postId);
+  if (!post) return { ok: false, error: "notFound" };
+  // 09:00 UTC, like the automatic spread: a date, not a moment.
+  const publishDate = date ? new Date(`${date}T09:00:00Z`) : null;
+  if (publishDate && Number.isNaN(publishDate.getTime())) return { ok: false, error: "invalid" };
+  await updatePost(clientId, postId, {
+    publishDate,
+    status: statusForDate(post.status, publishDate !== null),
+  });
+  revalidatePath(calendarPath(clientId));
+  revalidatePath(`/content/c/${clientId}`);
+  return { ok: true };
+}
+
+/** Give a date to every article that has none, on the best days for the project's niche. */
+export async function autoScheduleArticles(input: {
+  clientId: number;
+}): Promise<{ ok: true; planned: number } | Fail> {
+  await requireSignedIn();
+  const parsed = z.object({ clientId: z.coerce.number().int().positive() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const [[client], posts] = await Promise.all([
+    db.select({ niche: clients.niche }).from(clients).where(eq(clients.id, clientId)).limit(1),
+    listPosts(clientId),
+  ]);
+  if (!client) return { ok: false, error: "notFound" };
+  const plan = planDates(
+    posts.map((p) => ({ id: p.id, title: p.title ?? "", status: p.status, publishDate: p.publishDate })),
+    { niche: client.niche, now: new Date() },
+  );
+  for (const item of plan) {
+    const post = posts.find((p) => p.id === item.id)!;
+    await updatePost(clientId, item.id, { publishDate: item.date, status: statusForDate(post.status, true) });
+  }
+  revalidatePath(calendarPath(clientId));
+  revalidatePath(`/content/c/${clientId}`);
+  return { ok: true, planned: plan.length };
+}
+
+export type VoiceState = { ok: true; profile: StyleProfile | null } | Fail;
+
+/**
+ * Learn the client's voice from texts they wrote. With no samples given,
+ * the project's own written articles are used. Without an AI key the
+ * profile comes from counting (sentence length, person, headings).
+ */
+export async function trainClientVoice(input: { clientId: number; samples: string }): Promise<VoiceState> {
+  await requireSignedIn();
+  const parsed = z
+    .object({ clientId: z.coerce.number().int().positive(), samples: z.string().max(60_000) })
+    .safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  // Samples are separated by a line of three or more dashes.
+  let samples = parsed.data.samples
+    .split(/\n\s*-{3,}\s*\n/)
+    .map((x) => x.trim())
+    .filter((x) => x.length >= 200);
+  if (samples.length === 0) {
+    samples = (await listPosts(clientId))
+      .map((p) => p.draftMarkdown?.trim() ?? "")
+      .filter((x) => x.length >= 200)
+      .slice(0, 3);
+  }
+  if (samples.length === 0) return { ok: false, error: "noSamples" };
+  try {
+    const profile = await trainBrandVoice(samples.map((x) => x.slice(0, 12_000)));
+    await setStyleProfile(clientId, profile);
+    revalidatePath(`/content/c/${clientId}/voice`);
+    return { ok: true, profile };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
+}
+
+/** Forget the client's voice: articles go back to the default style. */
+export async function resetClientVoice(input: { clientId: number }): Promise<VoiceState> {
+  await requireSignedIn();
+  const parsed = z.object({ clientId: z.coerce.number().int().positive() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const denied = await guard(parsed.data.clientId);
+  if (denied) return { ok: false, error: denied };
+  await setStyleProfile(parsed.data.clientId, null);
+  revalidatePath(`/content/c/${parsed.data.clientId}/voice`);
+  return { ok: true, profile: null };
+}
+
+/**
+ * Open an article to the client for review in their portal, or close it.
+ * Returns the path of the review page. The portal link is created when
+ * the project has none yet: the article is read through it.
+ */
+export async function setArticleReview(input: {
+  clientId: number;
+  postId: number;
+  shared: boolean;
+}): Promise<{ ok: true; path: string | null } | Fail> {
+  await requireSignedIn();
+  const parsed = ids.extend({ shared: z.boolean() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid" };
+  const { clientId, postId, shared } = parsed.data;
+  const denied = await guard(clientId);
+  if (denied) return { ok: false, error: denied };
+  const post = await getPost(clientId, postId);
+  if (!post) return { ok: false, error: "notFound" };
+  if (shared && !post.draftMarkdown?.trim()) return { ok: false, error: "noDraft" };
+
+  let path: string | null = null;
+  if (shared) {
+    const [client] = await db
+      .select({ shareToken: clients.shareToken })
+      .from(clients)
+      .where(eq(clients.id, clientId))
+      .limit(1);
+    if (!client) return { ok: false, error: "notFound" };
+    let token = client.shareToken;
+    if (!token) {
+      token = randomBytes(24).toString("base64url");
+      await db.update(clients).set({ shareToken: token, updatedAt: new Date() }).where(eq(clients.id, clientId));
+      revalidatePath(`/clients/${clientId}`);
+    }
+    path = `/portal/${token}/articles/${postId}`;
+  }
+  await updatePost(clientId, postId, { reviewSharedAt: shared ? new Date() : null });
+  revalidatePath(postPath(clientId, postId));
+  return { ok: true, path };
 }

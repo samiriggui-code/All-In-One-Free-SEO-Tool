@@ -1906,7 +1906,8 @@
       "failed": "That didn't work. Try again in a moment.",
       "noDraft": "You need a written, saved article first.",
       "noWordPress": "This client's site is not connected to WordPress.",
-      "fetchFailed": "Could not fetch that page. Check the address and that it holds an article."
+      "fetchFailed": "Could not fetch that page. Check the address and that it holds an article.",
+      "noSamples": "Paste a text of at least 200 characters, or write an article for this project first."
     },
     "new": {
       "title": "New article",
@@ -2065,6 +2066,78 @@
         "download": "Download llms.txt",
         "where": "Put it at the root of the site, e.g. https://example.com/llms.txt."
       }
+    },
+    "calendar": {
+      "linkTitle": "Calendar and results",
+      "linkHint": "Publication dates, automatic spread, results of published articles.",
+      "back": "Back to articles",
+      "title": "Calendar · {name}",
+      "description": "When each article goes out, and how the live ones are doing.",
+      "undatedTitle": "{count, plural, =0 {No date} one {# article with no date} other {# articles with no date}}",
+      "empty": "No article for this client. Create one from the articles page.",
+      "allDated": "Every article has a date.",
+      "noDate": "no date",
+      "monthCount": "{count, plural, one {# article} other {# articles}}",
+      "dateLabel": "Publication date",
+      "auto": "Spread automatically",
+      "autoDone": "{count, plural, =0 {No date to set} one {# date set} other {# dates set}}",
+      "measureTitle": "Results of published articles",
+      "measureHint": "Clicks, impressions and average position in Google over the last 28 days.",
+      "measureEmpty": "No published article with its address yet.",
+      "measureNoGsc": "This project is not connected to Search Console: the figures cannot be read.",
+      "measureConnect": "Connect Search Console",
+      "measureNote": "A dash means Search Console has nothing for this page yet, not zero clicks.",
+      "colArticle": "Article",
+      "colClicks": "Clicks",
+      "colImpressions": "Impressions",
+      "colPosition": "Position",
+      "colScore": "Score"
+    },
+    "voice": {
+      "linkTitle": "Brand voice",
+      "linkHint": "The style this client's articles are written in.",
+      "back": "Back to articles",
+      "title": "Brand voice · {name}",
+      "description": "The style the AI follows for the outline and the article: tone, person, sentence length. Learned from texts the client wrote.",
+      "currentTitle": "Current profile",
+      "none": "No voice learned. Articles are written in a neutral style.",
+      "reset": "Forget this voice",
+      "confirmReset": "Forget this client's voice? The next articles will be written in a neutral style.",
+      "trainTitle": "Learn the client's voice",
+      "retrainTitle": "Learn the voice again",
+      "trainHint": "Paste one to three texts the client wrote (articles, pages, newsletters), separated by a line of three dashes. With nothing pasted, the articles already written for this project are used as examples.",
+      "placeholder": "First text…\n\n---\n\nSecond text…",
+      "samplesLabel": "The client's texts",
+      "train": "Learn the voice",
+      "trainFromArticles": "{count, plural, one {Learn from # article of the project} other {Learn from # articles of the project}}",
+      "aiNote": "Without an AI key, the profile is computed by counting (sentence length, person, headings).",
+      "yes": "yes",
+      "no": "no",
+      "words": "{count} words",
+      "fields": {
+        "tone": "Tone",
+        "voice": "Person",
+        "authorPersona": "Author's stance",
+        "avgSentenceLength": "Average sentence length",
+        "vocabularyLevel": "Vocabulary",
+        "headingCase": "Heading case",
+        "contractions": "Contractions",
+        "listsVsProse": "Lists or prose",
+        "ctaStyle": "Calls to action",
+        "phrasesToKeep": "Phrases to keep",
+        "phrasesToAvoid": "Phrases to avoid"
+      }
+    },
+    "review": {
+      "title": "Client review",
+      "on": "The client can read this article in their client space.",
+      "off": "Open the article to the client so they can read it before it goes live.",
+      "needsDraft": "Write and save the article before opening it to the client.",
+      "share": "Open for review",
+      "copy": "Copy the link",
+      "copied": "Copied",
+      "open": "See the page",
+      "stop": "Close the review"
     }
   },
   "docs": {
@@ -2368,9 +2441,20 @@
         "sent": "to pay",
         "paid": "paid",
         "overdue": "overdue"
-      }
+      },
+      "toReview": "Articles to review"
     },
-    "footerDefault": "Read-only client portal · Powered by rank_forge"
+    "footerDefault": "Read-only client portal · Powered by rank_forge",
+    "article": {
+      "back": "Back to your space · {agency}",
+      "draft": "To review",
+      "published": "Published",
+      "plannedFor": "Planned for {date}",
+      "publishedOn": "Published on {date}",
+      "noDate": "Publication date to be set",
+      "hint": "Here is the article before it goes live. Send your remarks to your contact.",
+      "google": "Preview in Google"
+    }
   },
   "invoices": {
     "title": "Invoices",
