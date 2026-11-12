@@ -871,66 +871,106 @@
         "brand-serp": "Brand SERP monitor",
         "knowledge-panel": "Knowledge Panel monitor",
         "annotations": "Chart annotations",
-        "ask": "Ask your data",
+        "ask": "Ask the AI",
         "capture": "Universal capture",
-        "links": "Smart links"
+        "links": "Smart links",
+        "tools_health-check": "Quick audit",
+        "import": "Import",
+        "cwv": "Performance",
+        "broken-links": "Broken links",
+        "tools_render": "Rendering and headers",
+        "tools_robots": "robots.txt",
+        "tools_cannibalization": "Cannibalization",
+        "keywords": "Tracked keywords",
+        "tools_search-volume": "Keyword research",
+        "content": "Writing",
+        "tools_meta-tag-generator": "Meta tags",
+        "tools_schema": "Schema",
+        "tools_eeat-audit": "E-E-A-T",
+        "tools_social-preview": "Social sharing",
+        "backlinks": "Backlinks",
+        "tools_internal-linking": "Internal linking",
+        "local-rank": "Local rankings",
+        "tools_ai-overview": "AI Overviews",
+        "reports_batch": "Reports",
+        "monitor": "Monitoring",
+        "brand-monitor": "Brand",
+        "algorithm-updates": "Google watch",
+        "tools_migration-map": "Migration",
+        "tools_code-generator": "Apply fixes",
+        "agent": "AI agent",
+        "activity": "Log"
       },
       "descriptions": {
         "grader": "A quick audit of a prospect's site to show in the first meeting.",
         "compare": "Compares two sites side by side to show the gap with a competitor.",
         "proposals": "Proposals and quotes to send to the prospect.",
         "connect": "Connects the client's Search Console, Analytics and other accounts.",
-        "import": "Imports data from screenshots of third-party tools.",
+        "import": "Bring in clients, keywords, leads or competitors from a CSV, a screenshot of another tool or any other source.",
         "csv-import": "Imports a CSV (clients, keywords, prospects, competitors) and detects what it holds.",
-        "cwv": "Core Web Vitals tracked per client over time.",
+        "cwv": "Core Web Vitals from four angles: tracking per client, real Chrome user data, lab measurement and budgets to stay within.",
         "landing-perf": "Joins GSC clicks with GA4 conversions to find pages that don't convert.",
-        "broken-links": "Broken links found on clients' sites.",
+        "broken-links": "Broken links across a client's site, and every link of one page before it goes live.",
         "cannibalization": "Pages of one client competing for the same queries.",
         "image-audit": "Checks image size, format, alt text and lazy loading on a page.",
-        "keywords": "Keywords tracked per client, with position history.",
+        "keywords": "Keywords tracked per client with position history, and the archive of result pages captured.",
         "competitors": "Competitors tracked for each client.",
         "content-gap": "Queries where the site shows but loses the click: the content to rework first.",
         "serp-scans": "Archive of Google result pages already captured.",
         "tools_youtube": "Keyword ideas for YouTube videos.",
-        "content": "Writing studio: briefs, articles and publishing.",
+        "content": "The writing studio: briefs, articles and publishing, with a draft's score against the SERP or by AI, page refresh and helpers (summary, images, tags).",
         "title-tests": "A/B tests of title tags, measured on clicks.",
         "meta-rewrite": "Rewrites in bulk the meta tags of low-CTR pages.",
         "author-authority": "Scores a domain's authors on E-E-A-T signals.",
-        "backlinks": "Each client's inbound link profile.",
+        "backlinks": "Each client's inbound link profile, link discovery for any domain, and the sites linking to your competitors but not to you.",
         "link-building": "Library of link sources, and tracking of links won.",
         "outreach": "Outreach campaigns to win links.",
         "gbp": "Managing the client's Google Business Profile.",
         "citations": "The client's presence in local directories.",
-        "local-rank": "Positions in Google's local pack.",
+        "local-rank": "Rankings in Google's local pack, as a list or on a point-by-point map around the address.",
         "local-grid": "Map of local positions, point by point around the address.",
         "ai-visibility": "Measures whether ChatGPT, Perplexity and AI Overviews cite the client.",
         "bot-logs": "Counts AI and search crawler visits in a server log.",
-        "reports_batch": "Generates every client's report in one go.",
+        "reports_batch": "Generates every client's report, adds the month's work and finds reports already sent.",
         "reports_archive": "Reports already sent.",
         "report-data": "Paste free text and AI turns it into items for the monthly report.",
         "digest": "Weekly summary sent by email.",
-        "monitor": "Watches chosen pages for changes.",
+        "monitor": "Watches chosen pages for changes and sites for downtime, with snapshots to compare before and after.",
         "snapshots": "Saved snapshots to compare before and after.",
-        "brand-monitor": "Mentions and visibility of the client's brand.",
+        "brand-monitor": "Brand mentions, the share of Google's first page it controls for its own name, and its Knowledge Panel.",
         "brand-serp": "Share of the first Google page the brand controls for its own name.",
         "knowledge-panel": "Captures the brand's Knowledge Panel and flags what changed.",
         "annotations": "Markers on charts to tie a change to an event.",
-        "algorithm-updates": "Timeline of Google algorithm updates.",
+        "algorithm-updates": "Algorithm updates, day-to-day ranking volatility and SEO news.",
         "news": "SEO news.",
         "morning": "What needs your attention today, across all clients.",
-        "agent": "AI agent that carries out SEO tasks on clients' sites.",
+        "agent": "The agent that carries out SEO tasks on client sites, and what it does alone on autopilot.",
         "agent_autopilot": "What the agent does on its own, with undo.",
         "automations": "Scheduled jobs: audits, reports, alerts.",
         "capacity": "The team's workload.",
-        "activity": "Log of everything done in the app.",
+        "activity": "Everything done in the app, and the history of tool runs.",
         "invoices": "Client invoices.",
         "history": "History of tool runs.",
         "chats": "History of AI conversations.",
-        "ask": "Ask a question about a client's audits, keywords and tasks.",
+        "ask": "Ask about a client's audits, keywords and tasks, and find past conversations.",
         "capture": "Pulls title, brand, logo, contact details and schema from a URL.",
         "links": "Short links with click tracking, for outreach and social.",
-        "knowledge": "Resources to learn and train the team."
-      }
+        "knowledge": "Resources to learn and train the team.",
+        "tools_health-check": "The full check of one URL or 25 at once, the version to show a prospect, and the domain's signals.",
+        "tools_render": "What Google sees of a URL: HTML after JavaScript, screenshot, redirect chain and HTTP headers at each hop.",
+        "tools_robots": "Checks robots.txt and the sitemap for search engines, and the access left to AI crawlers (GPTBot, ClaudeBot, PerplexityBot…).",
+        "tools_cannibalization": "Pages of one site competing for the same queries, from Search Console.",
+        "tools_search-volume": "Estimates volume, difficulty and search intent for a list of keywords, with no paid database.",
+        "tools_meta-tag-generator": "Writes the title and meta description of one page, or rewrites in bulk those of low click-through pages.",
+        "tools_schema": "Generates valid JSON-LD: from a chosen type, from the real content of a URL, or for an author (Person).",
+        "tools_eeat-audit": "Scores the experience, expertise, authority and trust of a page, and of a domain's authors.",
+        "tools_social-preview": "Checks how a page's Open Graph and Twitter cards render, and generates the share image.",
+        "tools_internal-linking": "One crawl of the site read four ways: links to add, orphan pages, internal PageRank and anchor distribution.",
+        "tools_ai-overview": "Estimates a page's chances of being cited in Google's AI Overviews, and scores each passage of the text.",
+        "tools_migration-map": "Prepares a migration's 301 redirect plan, then checks URL parity after launch.",
+        "tools_code-generator": "AI writes the code for SEO fixes (WordPress, .htaccess, Shopify, Next.js), and a GitHub PR sends them to the developer."
+      },
+      "sheetIncludes": "This tool brings together"
     }
   },
   "reports": {
@@ -4728,5 +4768,214 @@
       "rankWatch": "Tracked keyword positions compared before and after."
     },
     "linkLabel": "Specification"
+  },
+  "toolFamilies": {
+    "auditExpress": {
+      "title": "Quick audit",
+      "tabs": {
+        "one": "One URL",
+        "bulk": "Up to 25 URLs",
+        "prospect": "Prospect version",
+        "domain": "Domain"
+      }
+    },
+    "import": {
+      "title": "Import",
+      "tabs": {
+        "any": "Any source",
+        "csv": "CSV",
+        "screenshot": "Screenshot"
+      }
+    },
+    "performance": {
+      "title": "Performance",
+      "tabs": {
+        "tracking": "Tracking",
+        "field": "Field (CrUX)",
+        "lab": "Lab",
+        "budgets": "Budgets"
+      }
+    },
+    "brokenLinks": {
+      "title": "Broken links",
+      "tabs": {
+        "site": "Client site",
+        "page": "One page"
+      }
+    },
+    "render": {
+      "title": "Rendering and headers",
+      "tabs": {
+        "render": "JS rendering",
+        "headers": "HTTP headers"
+      }
+    },
+    "robots": {
+      "title": "robots.txt",
+      "tabs": {
+        "search": "Search engines",
+        "ai": "AI crawlers"
+      }
+    },
+    "cannibalization": {
+      "title": "Cannibalization",
+      "tabs": {
+        "analysis": "Analysis",
+        "clients": "Per client"
+      }
+    },
+    "keywords": {
+      "title": "Tracked keywords",
+      "tabs": {
+        "tracked": "Keywords",
+        "serps": "SERP archive"
+      }
+    },
+    "keywordResearch": {
+      "title": "Keyword research",
+      "tabs": {
+        "volume": "Volume",
+        "difficulty": "Difficulty",
+        "intent": "Intent"
+      }
+    },
+    "studio": {
+      "title": "Writing",
+      "tabs": {
+        "studio": "Studio",
+        "serpScore": "Score vs the SERP",
+        "aiScore": "AI score",
+        "refresh": "Refresh a page",
+        "summary": "Summary",
+        "helpers": "Images and tags"
+      }
+    },
+    "meta": {
+      "title": "Meta tags",
+      "tabs": {
+        "one": "One page",
+        "bulk": "In bulk"
+      }
+    },
+    "schema": {
+      "title": "Schema",
+      "tabs": {
+        "generator": "By type",
+        "fromUrl": "From a URL",
+        "person": "Author (Person)"
+      }
+    },
+    "eeat": {
+      "title": "E-E-A-T",
+      "tabs": {
+        "page": "One page",
+        "authors": "Authors"
+      }
+    },
+    "social": {
+      "title": "Social sharing",
+      "tabs": {
+        "preview": "Preview",
+        "image": "Share image"
+      }
+    },
+    "backlinks": {
+      "title": "Backlinks",
+      "tabs": {
+        "profile": "Client profile",
+        "discovery": "Discovery",
+        "intersect": "Intersect"
+      }
+    },
+    "internalLinks": {
+      "title": "Internal linking",
+      "tabs": {
+        "opportunities": "Links to add",
+        "orphans": "Orphan pages",
+        "pagerank": "PageRank",
+        "anchors": "Anchors"
+      }
+    },
+    "localRank": {
+      "title": "Local rankings",
+      "tabs": {
+        "list": "List",
+        "map": "Map"
+      }
+    },
+    "aiOverviews": {
+      "title": "AI Overviews",
+      "tabs": {
+        "page": "One page",
+        "passages": "Passages"
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "tabs": {
+        "generate": "Generate",
+        "add": "Add work",
+        "archive": "Archive"
+      }
+    },
+    "watch": {
+      "title": "Monitoring",
+      "tabs": {
+        "changes": "Page changes",
+        "uptime": "Uptime",
+        "snapshots": "Snapshots"
+      }
+    },
+    "brand": {
+      "title": "Brand",
+      "tabs": {
+        "mentions": "Mentions",
+        "serp": "Brand SERP",
+        "panel": "Knowledge Panel"
+      }
+    },
+    "googleWatch": {
+      "title": "Google watch",
+      "tabs": {
+        "updates": "Updates",
+        "volatility": "Volatility",
+        "news": "News"
+      }
+    },
+    "migration": {
+      "title": "Migration",
+      "tabs": {
+        "plan": "Redirect plan",
+        "check": "Post-launch check"
+      }
+    },
+    "fixes": {
+      "title": "Apply fixes",
+      "tabs": {
+        "code": "Generate code",
+        "pr": "Send as GitHub PR"
+      }
+    },
+    "agent": {
+      "title": "AI agent",
+      "tabs": {
+        "agent": "Agent",
+        "autopilot": "Autopilot"
+      }
+    },
+    "journal": {
+      "title": "Log",
+      "tabs": {
+        "activity": "Activity",
+        "runs": "Tool runs"
+      }
+    },
+    "ask": {
+      "title": "Ask the AI",
+      "tabs": {
+        "ask": "Ask a question",
+        "history": "Conversations"
+      }
+    }
   }
 }

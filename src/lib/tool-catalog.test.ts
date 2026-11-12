@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { NAV_GROUPS } from "@/components/shell/nav-items";
 import { isRetired } from "./tool-categories";
+import { TOOL_FAMILIES, familyEntry, familyOf } from "./tool-families";
 import {
   DEFAULT_DISABLED,
   MISSION_CATEGORIES,
@@ -35,6 +36,9 @@ const NOT_TOOLS = new Set([
  */
 const IN_RESOURCES = ["/tools/ai-citation-tactics", "/tools/external"];
 
+/** In the catalogue under its own card, or as a tab of a family's card. */
+const listed = (href: string) => Boolean(catalogEntry(familyEntry(href) ?? href));
+
 describe("tool catalogue", () => {
   it("lists each tool once, in a known category, on a real page", () => {
     const hrefs = TOOL_CATALOG.map((e) => e.href);
@@ -48,7 +52,7 @@ describe("tool catalogue", () => {
   it("keeps every page the old menu listed", () => {
     const missing = NAV_GROUPS.flatMap((g) => g.items)
       .map((it) => it.href)
-      .filter((h) => !NOT_TOOLS.has(h) && !catalogEntry(h));
+      .filter((h) => !NOT_TOOLS.has(h) && !listed(h));
     expect(missing).toEqual([]);
   });
 
@@ -57,7 +61,7 @@ describe("tool catalogue", () => {
     const hrefs = [...grid.matchAll(/href: "([^"]+)",\s*icon:/g)].map((m) => m[1]);
     expect(hrefs.length).toBeGreaterThan(50);
     const missing = hrefs.filter(
-      (h) => !isRetired(h) && !catalogEntry(h) && !IN_RESOURCES.includes(h),
+      (h) => !isRetired(h) && !listed(h) && !IN_RESOURCES.includes(h),
     );
     expect(missing).toEqual([]);
   });
@@ -86,7 +90,7 @@ describe("tool catalogue", () => {
 });
 
 describe("isToolDisabled", () => {
-  const off = new Set(["/tools/geo-swot", "/agent"]);
+  const off = new Set(["/tools/geo-swot", "/reports"]);
 
   it("covers the tool and its per-client view, with or without a query", () => {
     expect(isToolDisabled("/tools/geo-swot", off)).toBe(true);
@@ -95,8 +99,52 @@ describe("isToolDisabled", () => {
   });
 
   it("leaves other tools alone", () => {
-    expect(isToolDisabled("/agent/autopilot", off)).toBe(false);
+    expect(isToolDisabled("/reports/batch", off)).toBe(false);
     expect(isToolDisabled("/tools/geo-score", off)).toBe(false);
     expect(isToolDisabled("/tools/geo-swot", new Set())).toBe(false);
+  });
+});
+
+describe("tool families", () => {
+  it("lists one card per family, under its first tab", () => {
+    for (const f of TOOL_FAMILIES) {
+      const [entry, ...tabs] = f.members;
+      expect(catalogEntry(entry.href), f.id).not.toBeNull();
+      for (const m of tabs) expect(catalogEntry(m.href), m.href).toBeNull();
+      for (const m of f.members) expect(pageExists(m.href), m.href).toBe(true);
+    }
+  });
+
+  it("puts a tool in one family only", () => {
+    const hrefs = TOOL_FAMILIES.flatMap((f) => f.members.map((m) => m.href));
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+  });
+
+  it("names every family and tab in both languages", () => {
+    for (const lang of ["fr", "en"]) {
+      const msgs = JSON.parse(
+        readFileSync(path.resolve(__dirname, `../../messages/${lang}.json`), "utf8"),
+      ).toolFamilies as Record<string, { title?: string; tabs?: Record<string, string> }>;
+      for (const f of TOOL_FAMILIES) {
+        expect(msgs[f.id]?.title, `${lang} ${f.id}`).toBeTruthy();
+        for (const m of f.members) expect(msgs[f.id]?.tabs?.[m.tab], `${lang} ${f.id}.${m.tab}`).toBeTruthy();
+      }
+    }
+  });
+
+  it("matches sub-pages but not tools that share a prefix", () => {
+    expect(familyOf("/backlinks/c/4")?.family.id).toBe("backlinks");
+    expect(familyOf("/agent/autopilot")?.member.tab).toBe("autopilot");
+    expect(familyOf("/agent")?.member.tab).toBe("agent");
+    expect(familyOf("/content/c/2/p/9")?.family.id).toBe("studio");
+    expect(familyOf("/content-gap")).toBeNull();
+    expect(familyOf("/tools/schema?url=x")?.family.id).toBe("schema");
+  });
+
+  it("turns a whole family off with its card", () => {
+    const off = new Set(["/tools/health-check"]);
+    expect(isToolDisabled("/grader", off)).toBe(true);
+    expect(isToolDisabled("/tools/bulk-scan", off)).toBe(true);
+    expect(isToolDisabled("/compare", off)).toBe(false);
   });
 });

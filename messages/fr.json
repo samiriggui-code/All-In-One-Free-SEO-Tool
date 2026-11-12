@@ -871,66 +871,106 @@
         "brand-serp": "SERP de marque",
         "knowledge-panel": "Knowledge Panel",
         "annotations": "Annotations des graphiques",
-        "ask": "Questions sur vos données",
+        "ask": "Demander à l’IA",
         "capture": "Capture universelle",
-        "links": "Liens courts"
+        "links": "Liens courts",
+        "tools_health-check": "Audit express",
+        "import": "Importer",
+        "cwv": "Performance",
+        "broken-links": "Liens cassés",
+        "tools_render": "Rendu et en-têtes",
+        "tools_robots": "robots.txt",
+        "tools_cannibalization": "Cannibalisation",
+        "keywords": "Mots-clés suivis",
+        "tools_search-volume": "Recherche de mots-clés",
+        "content": "Rédaction",
+        "tools_meta-tag-generator": "Balises meta",
+        "tools_schema": "Schema",
+        "tools_eeat-audit": "E-E-A-T",
+        "tools_social-preview": "Partage social",
+        "backlinks": "Backlinks",
+        "tools_internal-linking": "Maillage interne",
+        "local-rank": "Positions locales",
+        "tools_ai-overview": "AI Overviews",
+        "reports_batch": "Rapports",
+        "monitor": "Surveillance",
+        "brand-monitor": "Marque",
+        "algorithm-updates": "Veille Google",
+        "tools_migration-map": "Migration",
+        "tools_code-generator": "Appliquer les correctifs",
+        "agent": "Agent IA",
+        "activity": "Journal"
       },
       "descriptions": {
         "grader": "Un audit rapide d’un site prospect, à montrer pendant le premier rendez-vous.",
         "compare": "Compare deux sites côte à côte pour montrer l’écart avec un concurrent.",
         "proposals": "Propositions commerciales et devis à envoyer au prospect.",
         "connect": "Connecte Google Search Console, Analytics et les autres comptes du client.",
-        "import": "Importe des données depuis des captures d’écran d’outils tiers.",
+        "import": "Importe des clients, mots-clés, prospects ou concurrents depuis un CSV, une capture d’écran d’un outil tiers ou toute autre source.",
         "csv-import": "Importe un CSV (clients, mots-clés, prospects, concurrents) en détectant son contenu.",
-        "cwv": "Suivi des Core Web Vitals par client, dans le temps.",
+        "cwv": "Les Core Web Vitals sous quatre angles : suivi par client, données réelles des utilisateurs de Chrome, mesure en labo et budgets à ne pas dépasser.",
         "landing-perf": "Croise les clics GSC et les conversions GA4 pour trouver les pages qui ne convertissent pas.",
-        "broken-links": "Liens cassés trouvés sur les sites des clients.",
+        "broken-links": "Les liens cassés sur le site d’un client, et le détail des liens d’une page avant publication.",
         "cannibalization": "Pages d’un même client qui se disputent les mêmes requêtes.",
         "image-audit": "Vérifie le poids, le format, le texte alternatif et le lazy-load des images d’une page.",
-        "keywords": "Mots-clés suivis par client, avec l’évolution des positions.",
+        "keywords": "Les mots-clés suivis par client avec l’évolution des positions, et l’archive des pages de résultats relevées.",
         "competitors": "Concurrents suivis pour chaque client.",
         "content-gap": "Requêtes où le site apparaît mais perd le clic : les contenus à retravailler en priorité.",
         "serp-scans": "Archive des pages de résultats Google déjà relevées.",
         "tools_youtube": "Idées de mots-clés pour les vidéos YouTube.",
-        "content": "Studio de rédaction : briefs, articles et publication.",
+        "content": "Le studio de rédaction : briefs, articles et publication, avec la note d’un texte face à la SERP ou par l’IA, le rafraîchissement d’une page et les assistants (résumé, images, tags).",
         "title-tests": "Tests A/B de balises title, mesurés sur les clics.",
         "meta-rewrite": "Réécrit en lot les meta des pages à faible taux de clic.",
         "author-authority": "Note les auteurs d’un domaine sur les signaux E-E-A-T.",
-        "backlinks": "Profil de liens entrants de chaque client.",
+        "backlinks": "Le profil de liens entrants de chaque client, la découverte de liens vers n’importe quel domaine et les sites qui lient vos concurrents mais pas vous.",
         "link-building": "Bibliothèque de sites où obtenir des liens, et suivi des liens obtenus.",
         "outreach": "Campagnes de prise de contact pour obtenir des liens.",
         "gbp": "Gestion de la fiche Google Business Profile du client.",
         "citations": "Présence du client dans les annuaires locaux.",
-        "local-rank": "Positions dans le pack local Google.",
+        "local-rank": "Les positions dans le pack local Google, en liste ou sur une carte point par point autour de l’adresse.",
         "local-grid": "Carte des positions locales, point par point autour de l’adresse.",
         "ai-visibility": "Mesure si ChatGPT, Perplexity et les AI Overviews citent le client.",
         "bot-logs": "Compte les passages des robots IA et de recherche dans un log serveur.",
-        "reports_batch": "Génère en une fois les rapports de tous les clients.",
+        "reports_batch": "Génère les rapports de tous les clients, ajoute le travail du mois et retrouve les rapports déjà envoyés.",
         "reports_archive": "Rapports déjà envoyés.",
         "report-data": "Colle du texte libre et l’IA en tire les actions à ajouter au rapport du mois.",
         "digest": "Résumé hebdomadaire envoyé par e-mail.",
-        "monitor": "Surveille les changements sur des pages choisies.",
+        "monitor": "Surveille les changements sur des pages choisies et la disponibilité des sites, avec les instantanés à comparer avant et après.",
         "snapshots": "Instantanés enregistrés, à comparer avant et après.",
-        "brand-monitor": "Mentions et visibilité de la marque du client.",
+        "brand-monitor": "Les mentions de la marque, la part de la première page Google qu’elle contrôle sur son nom, et son Knowledge Panel.",
         "brand-serp": "Part de la première page Google que la marque contrôle sur son propre nom.",
         "knowledge-panel": "Relève le Knowledge Panel de la marque et signale ce qui a changé.",
         "annotations": "Repères sur les graphiques pour relier une variation à un événement.",
-        "algorithm-updates": "Chronologie des mises à jour de l’algorithme Google.",
+        "algorithm-updates": "Les mises à jour de l’algorithme, la volatilité des positions jour après jour et l’actualité du SEO.",
         "news": "Actualité du SEO.",
         "morning": "Ce qui demande votre attention aujourd’hui, tous clients confondus.",
-        "agent": "Agent IA qui exécute des tâches SEO sur les sites des clients.",
+        "agent": "L’agent qui exécute des tâches SEO sur les sites des clients, et ce qu’il fait seul en autopilote.",
         "agent_autopilot": "Ce que l’agent fait seul, avec la possibilité d’annuler.",
         "automations": "Tâches planifiées : audits, rapports, alertes.",
         "capacity": "Charge de travail de l’équipe.",
-        "activity": "Journal de tout ce qui a été fait dans l’app.",
+        "activity": "Tout ce qui a été fait dans l’app, et l’historique des outils lancés.",
         "invoices": "Factures clients.",
         "history": "Historique des outils lancés.",
         "chats": "Historique des conversations avec l’IA.",
-        "ask": "Pose une question sur les audits, mots-clés et tâches d’un client.",
+        "ask": "Pose une question sur les audits, mots-clés et tâches d’un client, et retrouve les conversations passées.",
         "capture": "Extrait d’une URL le titre, la marque, le logo, les coordonnées et le schema.",
         "links": "Liens courts avec suivi des clics, pour l’outreach et les réseaux.",
-        "knowledge": "Ressources pour apprendre et former l’équipe."
-      }
+        "knowledge": "Ressources pour apprendre et former l’équipe.",
+        "tools_health-check": "Le bilan complet d’une URL ou de 25 d’un coup, la version à montrer à un prospect et les signaux du domaine.",
+        "tools_render": "Ce que Google voit d’une URL : HTML après JavaScript, capture d’écran, chaîne de redirections et en-têtes HTTP à chaque saut.",
+        "tools_robots": "Vérifie le robots.txt et le sitemap pour les moteurs de recherche, et l’accès laissé aux robots IA (GPTBot, ClaudeBot, PerplexityBot…).",
+        "tools_cannibalization": "Les pages d’un même site qui se disputent les mêmes requêtes, d’après la Search Console.",
+        "tools_search-volume": "Estime le volume, la difficulté et l’intention de recherche d’une liste de mots-clés, sans base payante.",
+        "tools_meta-tag-generator": "Rédige les balises title et meta description d’une page, ou réécrit en lot celles des pages à faible taux de clic.",
+        "tools_schema": "Génère un JSON-LD valide : à partir d’un type choisi, du contenu réel d’une URL, ou pour un auteur (Person).",
+        "tools_eeat-audit": "Note l’expérience, l’expertise, l’autorité et la fiabilité d’une page, et celles des auteurs d’un domaine.",
+        "tools_social-preview": "Vérifie le rendu des cartes Open Graph et Twitter d’une page, et génère l’image de partage.",
+        "tools_internal-linking": "Un crawl du site lu de quatre façons : liens à ajouter, pages orphelines, PageRank interne et répartition des ancres.",
+        "tools_ai-overview": "Évalue les chances d’une page d’être citée dans les AI Overviews de Google, et note chaque passage du texte.",
+        "tools_migration-map": "Prépare le plan de redirections 301 d’une migration, puis contrôle la parité des URL après la mise en ligne.",
+        "tools_code-generator": "L’IA écrit le code des corrections SEO (WordPress, .htaccess, Shopify, Next.js), et une PR GitHub les envoie au développeur."
+      },
+      "sheetIncludes": "Cet outil regroupe"
     }
   },
   "reports": {
@@ -4728,5 +4768,214 @@
       "rankWatch": "Positions des mots-clés suivis comparées avant et après."
     },
     "linkLabel": "Cahier des charges"
+  },
+  "toolFamilies": {
+    "auditExpress": {
+      "title": "Audit express",
+      "tabs": {
+        "one": "Une URL",
+        "bulk": "Jusqu’à 25 URL",
+        "prospect": "Version prospect",
+        "domain": "Domaine"
+      }
+    },
+    "import": {
+      "title": "Importer",
+      "tabs": {
+        "any": "Toutes sources",
+        "csv": "CSV",
+        "screenshot": "Capture d’écran"
+      }
+    },
+    "performance": {
+      "title": "Performance",
+      "tabs": {
+        "tracking": "Suivi",
+        "field": "Terrain (CrUX)",
+        "lab": "Labo",
+        "budgets": "Budgets"
+      }
+    },
+    "brokenLinks": {
+      "title": "Liens cassés",
+      "tabs": {
+        "site": "Site du client",
+        "page": "Une page"
+      }
+    },
+    "render": {
+      "title": "Rendu et en-têtes",
+      "tabs": {
+        "render": "Rendu JS",
+        "headers": "En-têtes HTTP"
+      }
+    },
+    "robots": {
+      "title": "robots.txt",
+      "tabs": {
+        "search": "Moteurs de recherche",
+        "ai": "Robots IA"
+      }
+    },
+    "cannibalization": {
+      "title": "Cannibalisation",
+      "tabs": {
+        "analysis": "Analyse",
+        "clients": "Par client"
+      }
+    },
+    "keywords": {
+      "title": "Mots-clés suivis",
+      "tabs": {
+        "tracked": "Mots-clés",
+        "serps": "Archives SERP"
+      }
+    },
+    "keywordResearch": {
+      "title": "Recherche de mots-clés",
+      "tabs": {
+        "volume": "Volume",
+        "difficulty": "Difficulté",
+        "intent": "Intention"
+      }
+    },
+    "studio": {
+      "title": "Rédaction",
+      "tabs": {
+        "studio": "Studio",
+        "serpScore": "Note face à la SERP",
+        "aiScore": "Note par l’IA",
+        "refresh": "Rafraîchir une page",
+        "summary": "Résumé",
+        "helpers": "Images et tags"
+      }
+    },
+    "meta": {
+      "title": "Balises meta",
+      "tabs": {
+        "one": "Une page",
+        "bulk": "En lot"
+      }
+    },
+    "schema": {
+      "title": "Schema",
+      "tabs": {
+        "generator": "Par type",
+        "fromUrl": "Depuis une URL",
+        "person": "Auteur (Person)"
+      }
+    },
+    "eeat": {
+      "title": "E-E-A-T",
+      "tabs": {
+        "page": "Une page",
+        "authors": "Auteurs"
+      }
+    },
+    "social": {
+      "title": "Partage social",
+      "tabs": {
+        "preview": "Aperçu",
+        "image": "Image de partage"
+      }
+    },
+    "backlinks": {
+      "title": "Backlinks",
+      "tabs": {
+        "profile": "Profil du client",
+        "discovery": "Découverte",
+        "intersect": "Intersection"
+      }
+    },
+    "internalLinks": {
+      "title": "Maillage interne",
+      "tabs": {
+        "opportunities": "Liens à ajouter",
+        "orphans": "Pages orphelines",
+        "pagerank": "PageRank",
+        "anchors": "Ancres"
+      }
+    },
+    "localRank": {
+      "title": "Positions locales",
+      "tabs": {
+        "list": "Liste",
+        "map": "Carte"
+      }
+    },
+    "aiOverviews": {
+      "title": "AI Overviews",
+      "tabs": {
+        "page": "Une page",
+        "passages": "Passages"
+      }
+    },
+    "reports": {
+      "title": "Rapports",
+      "tabs": {
+        "generate": "Générer",
+        "add": "Ajouter du travail",
+        "archive": "Archives"
+      }
+    },
+    "watch": {
+      "title": "Surveillance",
+      "tabs": {
+        "changes": "Changements de page",
+        "uptime": "Disponibilité",
+        "snapshots": "Instantanés"
+      }
+    },
+    "brand": {
+      "title": "Marque",
+      "tabs": {
+        "mentions": "Mentions",
+        "serp": "SERP de marque",
+        "panel": "Knowledge Panel"
+      }
+    },
+    "googleWatch": {
+      "title": "Veille Google",
+      "tabs": {
+        "updates": "Mises à jour",
+        "volatility": "Volatilité",
+        "news": "Actualités"
+      }
+    },
+    "migration": {
+      "title": "Migration",
+      "tabs": {
+        "plan": "Plan de redirections",
+        "check": "Contrôle après mise en ligne"
+      }
+    },
+    "fixes": {
+      "title": "Appliquer les correctifs",
+      "tabs": {
+        "code": "Générer le code",
+        "pr": "Envoyer en PR GitHub"
+      }
+    },
+    "agent": {
+      "title": "Agent IA",
+      "tabs": {
+        "agent": "Agent",
+        "autopilot": "Autopilote"
+      }
+    },
+    "journal": {
+      "title": "Journal",
+      "tabs": {
+        "activity": "Activité",
+        "runs": "Outils lancés"
+      }
+    },
+    "ask": {
+      "title": "Demander à l’IA",
+      "tabs": {
+        "ask": "Poser une question",
+        "history": "Conversations"
+      }
+    }
   }
 }

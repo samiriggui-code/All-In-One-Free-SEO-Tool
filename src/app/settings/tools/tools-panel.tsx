@@ -34,6 +34,7 @@ import {
 import { navItemMessageKey } from "@/i18n/nav";
 import { toolCatalogSlug } from "@/lib/i18n/tool-slug";
 import { MISSION_CATEGORIES, type MissionCategoryId } from "@/lib/tool-catalog";
+import { familyOf } from "@/lib/tool-families";
 import { NAV_ITEMS } from "@/components/shell/nav-items";
 import { TOOL_GRID_ICONS } from "@/app/tools/tools-grid";
 import { GskSheet } from "../gsk-sheet";
@@ -273,6 +274,8 @@ function ToolSheet({
   onClose: () => void;
 }) {
   const t = useTranslations("settings.tools");
+  const tFamilies = useTranslations("toolFamilies");
+  const family = familyOf(c.href)?.family ?? null;
   const [pending, startTransition] = useTransition();
   const enabled = c.state !== "off";
 
@@ -295,6 +298,21 @@ function ToolSheet({
       <div className="gsk-drawer__body">
         {c.description ? (
           <p className="m-0 text-[13px] leading-relaxed text-[var(--gsk-text-2)]">{c.description}</p>
+        ) : null}
+
+        {family ? (
+          <div>
+            <h4 className="gsk-section-title">{t("sheetIncludes")}</h4>
+            <ul className="m-0 list-none space-y-1.5 p-0 text-[13px]">
+              {family.members.map((m) => (
+                <li key={m.href}>
+                  <Link href={m.href} className="hover:underline" onClick={onClose}>
+                    {tFamilies(`${family.id}.tabs.${m.tab}`)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
         <div>
