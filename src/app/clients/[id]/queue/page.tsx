@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Inbox } from "lucide-react";
@@ -14,6 +15,7 @@ export default async function ClientQueuePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_queue_page");
   const { id } = await params;
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
@@ -39,12 +41,12 @@ export default async function ClientQueuePage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3.5" />
-        Back to {client.name}
+        {tx("backTo", { name: client.name })}
       </Link>
 
       <PageHeader
-        title={`Review queue · ${client.name}`}
-        description="AI-generated items waiting for your review. Approve to publish on the next agent tick — or approve + publish now for immediate posting. Reject anything that isn't on-brand."
+        title={tx("reviewQueue", { name: client.name })}
+        description={tx("aiGeneratedItemsWaitingFor")}
         icon={Inbox}
         accent="violet"
         actions={
@@ -53,7 +55,7 @@ export default async function ClientQueuePage({
             className="inline-flex items-center gap-1.5 rounded-md bg-cyan-500/15 px-3 py-2 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25"
           >
             <Calendar className="size-3.5" />
-            Schedules
+            {tx("schedules")}
           </Link>
         }
       />

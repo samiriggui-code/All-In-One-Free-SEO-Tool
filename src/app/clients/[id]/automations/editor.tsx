@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import {
   Calendar,
@@ -104,6 +105,7 @@ export function SchedulesEditor({
   gbpUrl: string | null;
   schedules: DailySchedule[];
 }) {
+  const tx = useTranslations("ui.app_clients_id_automations_editor");
   const [showForm, setShowForm] = useState(schedules.length === 0);
   const [selectedKind, setSelectedKind] = useState<Kind>("blog_draft");
   const [selectedDestination, setSelectedDestination] =
@@ -140,23 +142,18 @@ export function SchedulesEditor({
     <div className="space-y-5">
       {/* Connection status — informational, not blocking */}
       <div className="glass-apple relative overflow-hidden rounded-2xl px-4 py-3 text-xs">
-        <p className="font-medium">Where your drafts can go:</p>
+        <p className="font-medium">{tx("whereYourDraftsCanGo")}</p>
         <ul className="mt-1.5 space-y-0.5 text-muted-foreground">
           <li>
-            <span className="text-emerald-300">●</span> Save in this tool — always
-            available, no setup
+            {tx.rich("saveInThisToolAlways", { b0: (chunks) => <span className="text-emerald-300">{chunks}</span> })}
           </li>
           <li>
-            <span
+            {tx.rich("wordpress", { b0: (chunks) => <span
               className={wpConnected ? "text-violet-300" : "text-muted-foreground/50"}
-            >
-              ●
-            </span>{" "}
-            WordPress — {wpConnected ? "connected for this client" : "not connected (set up the WP bridge below to enable)"}
+            >{chunks}</span> })} {wpConnected ? "connected for this client" : "not connected (set up the WP bridge below to enable)"}
           </li>
           <li>
-            <span className={gbpUrl ? "text-cyan-300" : "text-muted-foreground/50"}>●</span>{" "}
-            Google Business Profile —{" "}
+            {tx.rich("googleBusinessProfile", { b0: (chunks) => <span className={gbpUrl ? "text-cyan-300" : "text-muted-foreground/50"}>{chunks}</span> })}
             {gbpUrl
               ? "available; enter the location name on the GBP schedule"
               : "no GBP URL on this client yet"}
@@ -181,7 +178,7 @@ export function SchedulesEditor({
           className="inline-flex items-center gap-1.5 rounded-md bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 hover:bg-cyan-500/25"
         >
           <Plus className="size-4" />
-          Add a schedule
+          {tx("addASchedule")}
         </button>
       ) : (
         <form
@@ -191,9 +188,9 @@ export function SchedulesEditor({
           <input type="hidden" name="clientId" value={clientId} />
 
           <div>
-            <label className="text-sm font-semibold">What to automate</label>
+            <label className="text-sm font-semibold">{tx("whatToAutomate")}</label>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Pick the kind first — the form below adapts.
+              {tx("pickTheKindFirstThe")}
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {(Object.keys(KIND_META) as Kind[]).map((k) => {
@@ -235,11 +232,10 @@ export function SchedulesEditor({
           {/* Destination */}
           <div>
             <label className="text-sm font-semibold">
-              Where should approved items go?
+              {tx("whereShouldApprovedItemsGo")}
             </label>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Local = stays in the review queue for you to copy/paste. No
-              connection needed.
+              {tx("localStaysInTheReview")}
             </p>
             <input
               type="hidden"
@@ -249,8 +245,8 @@ export function SchedulesEditor({
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
               <DestinationRadio
                 value="local"
-                title="Save in this tool"
-                description="Draft lives in the queue. Copy to clipboard or download as Markdown / HTML."
+                title={tx("saveInThisTool")}
+                description={tx("draftLivesInTheQueue")}
                 active={selectedDestination === "local"}
                 disabled={false}
                 onClick={() => setSelectedDestination("local")}
@@ -258,11 +254,11 @@ export function SchedulesEditor({
               {allowedDestinations.includes("wordpress") && (
                 <DestinationRadio
                   value="wordpress"
-                  title="Publish to WordPress"
+                  title={tx("publishToWordpress")}
                   description={
                     wpConnected
                       ? "Auto-creates a post via the SEO Tool Bridge plugin."
-                      : "Requires the WP bridge — set it up under the WordPress section below."
+                      : tx("requiresTheWpBridgeSet")
                   }
                   active={selectedDestination === "wordpress"}
                   disabled={!wpConnected}
@@ -272,8 +268,8 @@ export function SchedulesEditor({
               {allowedDestinations.includes("gbp") && (
                 <DestinationRadio
                   value="gbp"
-                  title="Publish to GBP"
-                  description="Auto-posts via the Google Business Profile API. Location name required below."
+                  title={tx("publishToGbp")}
+                  description={tx("autoPostsViaTheGoogle")}
                   active={selectedDestination === "gbp"}
                   disabled={false}
                   onClick={() => setSelectedDestination("gbp")}
@@ -284,21 +280,21 @@ export function SchedulesEditor({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1 text-xs">
-              <span className="text-muted-foreground">Cadence</span>
+              <span className="text-muted-foreground">{tx("cadence")}</span>
               <select
                 name="cadenceDays"
                 defaultValue="1"
                 className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
               >
-                <option value="1">Daily</option>
-                <option value="7">Weekly</option>
-                <option value="14">Every 2 weeks</option>
-                <option value="30">Monthly</option>
+                <option value="1">{tx("daily")}</option>
+                <option value="7">{tx("weekly")}</option>
+                <option value="14">{tx("every2Weeks")}</option>
+                <option value="30">{tx("monthly")}</option>
               </select>
             </label>
             <label className="space-y-1 text-xs">
               <span className="text-muted-foreground">
-                Run time (UTC) — HHMM
+                {tx("runTimeUtcHhmm")}
               </span>
               <input
                 type="number"
@@ -313,7 +309,7 @@ export function SchedulesEditor({
           </div>
 
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Topic seed / focus</span>
+            <span className="text-muted-foreground">{tx("topicSeedFocus")}</span>
             <input
               name="topicSeed"
               placeholder={
@@ -326,16 +322,15 @@ export function SchedulesEditor({
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
             <span className="text-[10px] text-muted-foreground">
-              The AI uses this as the starting angle each run. Leave blank to
-              let the AI pick freely from the client&apos;s niche.
+              {tx("theAiUsesThisAs")}
             </span>
           </label>
 
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Tone</span>
+            <span className="text-muted-foreground">{tx("tone")}</span>
             <input
               name="tone"
-              placeholder="professional, plain English"
+              placeholder={tx("professionalPlainEnglish")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
@@ -344,7 +339,7 @@ export function SchedulesEditor({
             <>
               <label className="space-y-1 text-xs">
                 <span className="text-muted-foreground">
-                  GBP location name
+                  {tx("gbpLocationName")}
                 </span>
                 <input
                   name="gbpLocationName"
@@ -352,21 +347,19 @@ export function SchedulesEditor({
                   className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
                 />
                 <span className="text-[10px] text-muted-foreground">
-                  From the GBP API. Find it on the /gbp page under this
-                  client, or via the Google Business Profile API
-                  documentation.
+                  {tx("fromTheGbpApiFind")}
                 </span>
               </label>
               <label className="space-y-1 text-xs">
-                <span className="text-muted-foreground">Post type</span>
+                <span className="text-muted-foreground">{tx("postType")}</span>
                 <select
                   name="postType"
                   defaultValue="STANDARD"
                   className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
                 >
-                  <option value="STANDARD">Standard update</option>
-                  <option value="EVENT">Event</option>
-                  <option value="OFFER">Offer</option>
+                  <option value="STANDARD">{tx("standardUpdate")}</option>
+                  <option value="EVENT">{tx("event")}</option>
+                  <option value="OFFER">{tx("offer")}</option>
                 </select>
               </label>
             </>
@@ -380,10 +373,9 @@ export function SchedulesEditor({
                 className="mt-0.5 size-4 rounded border-white/20 bg-card/60"
               />
               <span>
-                <span className="block font-medium">Auto-publish</span>
+                <span className="block font-medium">{tx("autoPublish")}</span>
                 <span className="block text-[10px] text-muted-foreground">
-                  Skip the review queue and publish directly each run. Keep
-                  this OFF until you trust the prompts.
+                  {tx("skipTheReviewQueueAnd")}
                   {selectedKind === "blog_draft" &&
                     " (When OFF, posts land as WP drafts; when ON, as published.)"}
                 </span>
@@ -406,12 +398,12 @@ export function SchedulesEditor({
               {pending ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
-                  Saving…
+                  {tx("saving")}
                 </>
               ) : (
                 <>
                   <Calendar className="mr-2 size-4" />
-                  Create schedule
+                  {tx("createSchedule")}
                 </>
               )}
             </button>
@@ -420,12 +412,11 @@ export function SchedulesEditor({
               onClick={() => setShowForm(false)}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Cancel
+              {tx("cancel")}
             </button>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            New schedules generate their first item on the next agent tick
-            (≤24h, or click &quot;Run now&quot; on the row after saving).
+            {tx("newSchedulesGenerateTheirFirst")}
           </p>
         </form>
       )}
@@ -440,6 +431,7 @@ function ScheduleRow({
   schedule: DailySchedule;
   clientId: number;
 }) {
+  const tx = useTranslations("ui.app_clients_id_automations_editor");
   const [expanded, setExpanded] = useState(false);
   const [pending, startTransition] = useTransition();
   const meta = KIND_META[schedule.kind];
@@ -460,19 +452,19 @@ function ScheduleRow({
             <span className="text-sm font-semibold">{meta.label}</span>
             {!schedule.enabled && (
               <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                paused
+                {tx("paused")}
               </span>
             )}
             {schedule.autoPublish && (
               <span
                 className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ring-1 ring-inset ${meta.badge}`}
               >
-                Auto-publish
+                {tx("autoPublish")}
               </span>
             )}
           </div>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            {formatCadence(schedule.cadenceDays)} at {formatTime(schedule.timeUtc)}
+            {tx("at", { v: formatCadence(schedule.cadenceDays), v2: formatTime(schedule.timeUtc) })}
             {cfg.topic_seed && ` · "${cfg.topic_seed}"`}
             {schedule.lastRunAt && (
               <>
@@ -499,7 +491,7 @@ function ScheduleRow({
           ) : (
             <Play className="size-3" />
           )}
-          Run now
+          {tx("runNow")}
         </button>
         <button
           type="button"
@@ -510,17 +502,17 @@ function ScheduleRow({
             })
           }
           className="inline-flex h-8 items-center gap-1.5 rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10 disabled:opacity-50"
-          title={schedule.enabled ? "Pause" : "Resume"}
+          title={schedule.enabled ? tx("pause") : tx("resume")}
         >
           {schedule.enabled ? (
             <>
               <PowerOff className="size-3" />
-              Pause
+              {tx("pause")}
             </>
           ) : (
             <>
               <Power className="size-3" />
-              Resume
+              {tx("resume")}
             </>
           )}
         </button>
@@ -529,19 +521,19 @@ function ScheduleRow({
           disabled={pending}
           onClick={async () => {
             const ok = await confirmDialog({
-              title: "Delete this schedule?",
+              title: tx("deleteThisSchedule"),
               description: "Already-generated queue items are kept; this just stops future runs.",
-              confirmLabel: "Delete schedule",
+              confirmLabel: tx("deleteSchedule"),
               destructive: true,
             });
             if (!ok) return;
             startTransition(async () => {
               await deleteSchedule(schedule.id, clientId);
-              toast.success("Schedule deleted.");
+              toast.success(tx("scheduleDeleted"));
             });
           }}
           className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-          title="Delete"
+          title={tx("delete")}
         >
           <Trash2 className="size-3.5" />
         </button>
@@ -549,7 +541,7 @@ function ScheduleRow({
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-white/5"
-          title={expanded ? "Hide details" : "Show details"}
+          title={expanded ? tx("hideDetails") : tx("showDetails")}
         >
           {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
@@ -558,12 +550,12 @@ function ScheduleRow({
         <div className="mt-3 border-t border-white/[0.06] pt-3 text-xs text-muted-foreground space-y-1">
           {cfg.tone && (
             <div>
-              <span className="text-foreground/80">Tone:</span> {cfg.tone}
+              <span className="text-foreground/80">{tx("tone2")}</span> {cfg.tone}
             </div>
           )}
           {cfg.gbp_location_name && (
             <div>
-              <span className="text-foreground/80">GBP location:</span>{" "}
+              <span className="text-foreground/80">{tx("gbpLocation")}</span>{" "}
               <code className="rounded bg-white/5 px-1.5 py-0.5">
                 {cfg.gbp_location_name}
               </code>
@@ -571,13 +563,13 @@ function ScheduleRow({
           )}
           {cfg.post_type && (
             <div>
-              <span className="text-foreground/80">Post type:</span>{" "}
+              <span className="text-foreground/80">{tx("postType2")}</span>{" "}
               {cfg.post_type}
             </div>
           )}
           {schedule.nextRunAt && (
             <div>
-              <span className="text-foreground/80">Next run:</span>{" "}
+              <span className="text-foreground/80">{tx("nextRun")}</span>{" "}
               {new Date(schedule.nextRunAt).toLocaleString()}
             </div>
           )}

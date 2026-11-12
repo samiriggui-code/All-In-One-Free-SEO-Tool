@@ -5,6 +5,7 @@
  * progress advances. Server- or client-renderable.
  */
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Check, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,13 +22,15 @@ export type StepperStep = {
 export function Stepper({
   steps,
   className,
-  startLabel = "Start →",
+  startLabel: startLabelProp,
 }: {
   steps: StepperStep[];
   className?: string;
   /** Text of the active step's link, in the reader's language. */
   startLabel?: string;
 }) {
+  const tx = useTranslations("ui.components_ui_stepper");
+  const startLabel = startLabelProp ?? tx("start");
   return (
     <ol className={cn("space-y-0", className)}>
       {steps.map((step, i) => {

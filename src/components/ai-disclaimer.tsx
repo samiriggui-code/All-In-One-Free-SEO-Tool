@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Info } from "lucide-react";
 
 /**
@@ -13,9 +14,10 @@ export function AiDisclaimer({
   variant?: "block" | "inline";
   text?: string;
 }) {
+  const tx = useTranslations("ui.components_ai-disclaimer");
   const message =
     text ??
-    "AI can make mistakes — review carefully before applying any change.";
+    tx("aiCanMakeMistakesReview");
   if (variant === "inline") {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/70 italic">

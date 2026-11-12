@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import {
   Check,
@@ -34,6 +35,7 @@ export function InboundWebhooksManager({
 }: {
   initial: InboundWebhookRow[];
 }) {
+  const tx = useTranslations("ui.app_settings_inbound-webhooks_manager");
   const [state, formAction, pending] = useActionState<
     CreateInboundState | null,
     FormData
@@ -59,7 +61,7 @@ export function InboundWebhooksManager({
         <input
           name="name"
           required
-          placeholder="e.g. GitHub repo activity"
+          placeholder={tx("eGGithubRepoActivity")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <select
@@ -81,12 +83,12 @@ export function InboundWebhooksManager({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Creating…
+              {tx("creating")}
             </>
           ) : (
             <>
               <Plus className="mr-2 size-3" />
-              Create
+              {tx("create")}
             </>
           )}
         </button>
@@ -101,7 +103,7 @@ export function InboundWebhooksManager({
       {state?.ok && (
         <div className="rounded-md bg-emerald-500/10 px-3 py-3 ring-1 ring-inset ring-emerald-500/30 space-y-2">
           <p className="text-xs font-medium text-emerald-300">
-            Webhook created. POST/PUT JSON to:
+            {tx("webhookCreatedPostPutJson")}
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 break-all rounded bg-black/40 px-2 py-1.5 font-mono text-xs">
@@ -115,12 +117,12 @@ export function InboundWebhooksManager({
               {copiedId === state.id ? (
                 <>
                   <Check className="mr-1 size-3 text-emerald-300" />
-                  Copied
+                  {tx("copied")}
                 </>
               ) : (
                 <>
                   <Copy className="mr-1 size-3" />
-                  Copy
+                  {tx("copy")}
                 </>
               )}
             </button>
@@ -145,8 +147,7 @@ export function InboundWebhooksManager({
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium">{h.name}</div>
                     <div className="text-[10px] text-muted-foreground">
-                      {h.eventType} · {h.receiveCount} event
-                      {h.receiveCount === 1 ? "" : "s"}
+                      {tx("other", { eventType: h.eventType, receiveCount: h.receiveCount })}
                       {h.lastReceivedAt
                         ? ` · last ${new Date(h.lastReceivedAt).toLocaleString()}`
                         : " · never received"}

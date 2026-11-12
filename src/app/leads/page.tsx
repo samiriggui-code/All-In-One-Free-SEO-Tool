@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { desc } from "drizzle-orm";
 import { Inbox } from "lucide-react";
 import { db } from "@/db/client";
@@ -9,6 +10,7 @@ import { LeadsInbox } from "./inbox";
 import { EmbedSnippet } from "./embed-snippet";
 
 export default async function LeadsPage() {
+  const tx = await getTranslations("ui.app_leads_page");
   const rows = await db
     .select()
     .from(graderLeads)
@@ -18,8 +20,8 @@ export default async function LeadsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Leads"
-        description="People who ran your free audit widget. Each one arrives with a score and a list of what's wrong with their site."
+        title={tx("leads")}
+        description={tx("peopleWhoRanYourFree")}
         icon={Inbox}
         accent="emerald"
       />

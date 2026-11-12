@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { CheckCircle2, CircleDashed, Loader2, TriangleAlert } from "lucide-react";
 import { schedulerStatus } from "@/lib/scheduler";
 
@@ -29,6 +30,7 @@ function every(ms: number): string {
  * simply never triggered.
  */
 export async function SchedulerStatusPanel() {
+  const tx = await getTranslations("ui.app_automations_overview_scheduler-status");
   let rows: Awaited<ReturnType<typeof schedulerStatus>> = [];
   try {
     rows = await schedulerStatus();
@@ -41,10 +43,9 @@ export async function SchedulerStatusPanel() {
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-3">
-        <h2 className="text-sm font-semibold">Background scheduler</h2>
+        <h2 className="text-sm font-semibold">{tx("backgroundScheduler")}</h2>
         <p className="text-[11px] text-muted-foreground">
-          These run on a timer inside the server — they don&apos;t need
-          anyone to have the app open.
+          {tx("theseRunOnATimer")}
           {anyNeverRun &&
             " Anything showing “never” will run within a few minutes of the server starting."}
         </p>

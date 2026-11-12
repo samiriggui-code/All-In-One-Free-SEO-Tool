@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { configuredProviders } from "@/lib/api-keys";
 import { NeedsConnection } from "./needs-connection";
 
@@ -34,6 +35,7 @@ export async function AiRequiredNotice({
 }: {
   because?: string;
 }) {
+  const tx = await getTranslations("ui.components_ui_ai-required-notice");
   let hasProvider = false;
   try {
     hasProvider = (await configuredProviders()).ids.length > 0;
@@ -49,7 +51,7 @@ export async function AiRequiredNotice({
     <NeedsConnection
       id="ai"
       because={
-        because ?? "This tool needs an AI provider to produce anything."
+        because ?? tx("thisToolNeedsAnAi")
       }
     />
   );

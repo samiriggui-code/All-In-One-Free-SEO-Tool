@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useRef, useState } from "react";
 import { Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import {
 } from "./import-actions";
 
 export function ImportClientsButton() {
+  const tx = useTranslations("ui.app_clients_import-form");
   const [open, setOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [csv, setCsv] = useState("");
@@ -33,7 +35,7 @@ export function ImportClientsButton() {
         className="inline-flex h-9 items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-3 text-xs hover:bg-white/10"
       >
         <Upload className="size-3.5" />
-        Import CSV
+        {tx("importCsv")}
       </button>
 
       {open && (
@@ -45,17 +47,14 @@ export function ImportClientsButton() {
             className="mt-[8vh] w-full max-w-xl rounded-2xl border border-white/10 bg-card/95 p-5 shadow-2xl backdrop-blur-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-base font-semibold">Import clients</h3>
+            <h3 className="text-base font-semibold">{tx("importClients")}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Bulk-add clients from CSV. Accepted columns:{" "}
-              <code className="rounded bg-white/5 px-1 py-0.5">name,url,niche</code>{" "}
-              (header optional). We auto-detect tech stack on each one — bigger
-              imports take longer.
+              {tx.rich("bulkAddClientsFromCsv", { b0: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5">{chunks}</code> })}
             </p>
 
             <form action={formAction} className="mt-4 space-y-3">
               <div className="space-y-1.5">
-                <Label htmlFor="csv">CSV content</Label>
+                <Label htmlFor="csv">{tx("csvContent")}</Label>
                 <textarea
                   id="csv"
                   name="csv"
@@ -72,7 +71,7 @@ export function ImportClientsButton() {
                     onClick={() => fileRef.current?.click()}
                     className="text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    or upload a file…
+                    {tx("orUploadAFile")}
                   </button>
                 </div>
                 <input
@@ -102,7 +101,7 @@ export function ImportClientsButton() {
                     <AlertCircle className="size-3.5" />
                   )}
                   {state.ok
-                    ? `Imported ${state.added} of ${state.total} (${state.skipped} duplicates / blanks skipped).`
+                    ? tx("importedOfDuplicatesBlanksSkipped", { added: state.added, total: state.total, skipped: state.skipped })
                     : state.error}
                 </div>
               )}
@@ -112,14 +111,14 @@ export function ImportClientsButton() {
                   type="submit"
                   disabled={pending || csv.trim().length === 0}
                 >
-                  {pending ? "Importing…" : "Import"}
+                  {pending ? tx("importing") : tx("import")}
                 </Button>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  Close
+                  {tx("close")}
                 </button>
               </div>
             </form>

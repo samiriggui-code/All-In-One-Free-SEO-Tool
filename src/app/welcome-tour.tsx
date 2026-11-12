@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import {
   Bot,
@@ -84,22 +85,22 @@ const toneCls: Record<string, string> = {
 };
 
 export function WelcomeTour() {
+  const tx = useTranslations("ui.app_welcome-tour");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-6 py-5">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-300 ring-1 ring-inset ring-violet-500/30">
-            New here
+            {tx("newHere")}
           </span>
           <h2 className="text-xl font-semibold">
             <span className="text-gradient-brand">
-              Six steps to replace your $140/mo SEO stack
+              {tx("sixStepsToReplaceYour")}
             </span>
           </h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Each step links to the right place. You can do them in any order, but
-          the dashboard fills in real data fastest if you do them top-down.
+          {tx("eachStepLinksToThe")}
         </p>
       </header>
 
@@ -140,11 +141,7 @@ export function WelcomeTour() {
 
       <footer className="flex items-center justify-between gap-3 border-t border-white/[0.06] bg-white/[0.02] px-6 py-3 text-xs text-muted-foreground">
         <span>
-          Confused by SEO terms?{" "}
-          <Link href="/learn" className="text-violet-300 hover:underline">
-            Visit the Learn section
-          </Link>{" "}
-          — every term has a plain-English explanation.
+          {tx.rich("confusedBySeoTermsVisit", { b0: (chunks) => <Link href="/learn" className="text-violet-300 hover:underline">{chunks}</Link> })}
         </span>
       </footer>
     </section>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { and, desc, eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +81,7 @@ export default async function ActivityPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const tx = await getTranslations("ui.app_activity_page");
   const sp = await searchParams;
   const kindFilter = sp.kind ?? "";
   const levelFilter = sp.level ?? "";
@@ -164,13 +166,13 @@ export default async function ActivityPage({
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Activity"
-        description="Everything that happened — audits, client creates, page changes, outreach, completed tasks. Filter by kind / level / client."
+        title={tx("activity")}
+        description={tx("everythingThatHappenedAuditsClient")}
         icon={Activity}
         accent="cyan"
         meta={
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted-foreground ring-1 ring-inset ring-white/10">
-            {rows.length} of {allRowsForCounts.length} entries
+            {tx("ofEntries", { length: rows.length, length2: allRowsForCounts.length })}
           </span>
         }
       />
@@ -179,7 +181,7 @@ export default async function ActivityPage({
         <div className="flex flex-wrap items-center gap-1.5">
           <Filter className="size-3 text-muted-foreground" />
           <Link href={buildHref({ kind: undefined })} className={pill(!kindFilter)}>
-            All kinds
+            {tx("allKinds")}
           </Link>
           {topKinds.map(([k, n]) => (
             <Link key={k} href={buildHref({ kind: k })} className={pill(kindFilter === k)}>
@@ -189,10 +191,10 @@ export default async function ActivityPage({
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Level
+            {tx("level")}
           </span>
           <Link href={buildHref({ level: undefined })} className={pill(!levelFilter)}>
-            Any
+            {tx("any")}
           </Link>
           {(["info", "success", "warning", "error"] as const).map((lv) => {
             const n = levelCounts.get(lv) ?? 0;
@@ -207,13 +209,13 @@ export default async function ActivityPage({
         {allClients.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Client
+              {tx("client")}
             </span>
             <Link
               href={buildHref({ client: undefined })}
               className={pill(clientFilter === null)}
             >
-              Any
+              {tx("any")}
             </Link>
             {allClients.map((c) => (
               <Link
@@ -232,10 +234,10 @@ export default async function ActivityPage({
         <div className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <EmptyState
             icon={Activity}
-            title="No activity yet"
-            body="Every audit, ranking change, task completion, and outreach event gets logged here as you work. Add a client to start the timeline."
-            primary={{ href: "/clients/new", label: "Add a client" }}
-            secondary={{ href: "/audits", label: "Run an audit" }}
+            title={tx("noActivityYet")}
+            body={tx("everyAuditRankingChangeTask")}
+            primary={{ href: "/clients/new", label: tx("addAClient") }}
+            secondary={{ href: "/audits", label: tx("runAnAudit") }}
           />
         </div>
       ) : (

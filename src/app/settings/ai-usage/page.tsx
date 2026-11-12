@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { gte, desc, eq, sql as drizzleSql, count, sum } from "drizzle-orm";
 import { Activity, Coins, Users, Zap } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +14,7 @@ import { UsageCharts } from "./usage-charts";
 import { requireSettingsPage } from "../access";
 
 export default async function AiUsagePage() {
+  const tx = await getTranslations("ui.app_settings_ai-usage_page");
   await requireSettingsPage("/settings/ai-usage");
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 30);
@@ -91,7 +93,7 @@ export default async function AiUsagePage() {
     .orderBy(desc(sum(aiCalls.costMicros)));
   const clientRows = perClientRaw.map((r) => ({
     clientId: r.clientId,
-    clientName: r.clientName ?? (r.clientId === null ? "Workspace-wide" : "(deleted client)"),
+    clientName: r.clientName ?? (r.clientId === null ? tx("workspaceWide") : tx("deletedClient")),
     calls: Number(r.calls ?? 0),
     cost: Number(r.cost ?? 0),
     tokens: Number(r.tokens ?? 0),
@@ -124,33 +126,33 @@ export default async function AiUsagePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="AI usage"
-        description="Live tally of every AI call your tool makes — calls, tokens, estimated cost. Set a monthly cap to prevent runaway spend."
+        title={tx("aiUsage")}
+        description={tx("liveTallyOfEveryAi")}
         icon={Activity}
         accent="violet"
       />
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
         <Stat
-          label="Today"
-          value={`${todayCalls.length} calls`}
+          label={tx("today")}
+          value={tx("calls", { length: todayCalls.length })}
           hint={microsToDisplay(todayCost)}
           tone="violet"
         />
         <Stat
-          label="Last 30 days"
-          value={`${total} calls`}
-          hint={`${(totalIn + totalOut).toLocaleString()} tokens`}
+          label={tx("last30Days")}
+          value={tx("calls2", { total })}
+          hint={tx("tokens", { v: (totalIn + totalOut).toLocaleString() })}
           tone="cyan"
         />
         <Stat
-          label="30-day cost"
+          label={tx("n30DayCost")}
           value={microsToDisplay(totalCost)}
           hint={`in ${totalIn.toLocaleString()} · out ${totalOut.toLocaleString()}`}
           tone="amber"
         />
         <Stat
-          label="This month"
+          label={tx("thisMonth")}
           value={microsToDisplay(monthCost)}
           hint={
             capUsd > 0
@@ -167,10 +169,10 @@ export default async function AiUsagePage() {
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Zap className="size-4 text-amber-300" />
-              Monthly cap progress
+              {tx("monthlyCapProgress")}
             </h2>
             <span className="text-xs text-muted-foreground">
-              ${monthSpentUsd.toFixed(3)} of ${capUsd.toFixed(2)}
+              {tx("of", { monthSpentUsd: monthSpentUsd.toFixed(3), capUsd: capUsd.toFixed(2) })}
             </span>
           </div>
           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/5">
@@ -195,12 +197,10 @@ export default async function AiUsagePage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <h2 className="text-sm font-semibold flex items-center gap-2">
           <Coins className="size-4 text-amber-300" />
-          Monthly cap (USD)
+          {tx("monthlyCapUsd")}
         </h2>
         <p className="text-xs text-muted-foreground">
-          When the calendar-month total exceeds this cap, every callAI returns
-          null with a &quot;cap reached&quot; error. Useful as a runaway-loop seatbelt.
-          Leave blank for no cap.
+          {tx("whenTheCalendarMonthTotal")}
         </p>
         <CapForm initial={String(cap ?? "")} />
       </section>
@@ -209,7 +209,7 @@ export default async function AiUsagePage() {
       {featureRows.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
-            <h2 className="text-sm font-semibold">Cost by feature</h2>
+            <h2 className="text-sm font-semibold">{tx("costByFeature")}</h2>
           </header>
           <ul className="divide-y divide-white/[0.05]">
             {featureRows.map((r) => (
@@ -219,10 +219,7 @@ export default async function AiUsagePage() {
               >
                 <span className="font-medium">{r.feature}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {r.calls} calls · {r.tokens.toLocaleString()} tok ·{" "}
-                  <span className="font-medium text-foreground">
-                    {microsToDisplay(r.cost)}
-                  </span>
+                  {tx.rich("callsTok", { calls: r.calls, v: r.tokens.toLocaleString(), v2: microsToDisplay(r.cost), b0: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
                 </span>
               </li>
             ))}
@@ -234,7 +231,7 @@ export default async function AiUsagePage() {
       {providerRows.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
-            <h2 className="text-sm font-semibold">Cost by provider</h2>
+            <h2 className="text-sm font-semibold">{tx("costByProvider")}</h2>
           </header>
           <ul className="divide-y divide-white/[0.05]">
             {providerRows.map((r) => (
@@ -244,10 +241,7 @@ export default async function AiUsagePage() {
               >
                 <span className="font-medium">{r.provider}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {r.calls} calls · {r.tokens.toLocaleString()} tok ·{" "}
-                  <span className="font-medium text-foreground">
-                    {microsToDisplay(r.cost)}
-                  </span>
+                  {tx.rich("callsTok", { calls: r.calls, v: r.tokens.toLocaleString(), v2: microsToDisplay(r.cost), b0: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
                 </span>
               </li>
             ))}
@@ -263,9 +257,9 @@ export default async function AiUsagePage() {
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3 flex items-center gap-2">
             <Users className="size-4 text-cyan-300" />
-            <h2 className="text-sm font-semibold">Cost by client</h2>
+            <h2 className="text-sm font-semibold">{tx("costByClient")}</h2>
             <span className="text-[10px] text-muted-foreground">
-              (last 30d, full aggregation)
+              {tx("last30dFullAggregation")}
             </span>
           </header>
           <ul className="divide-y divide-white/[0.05]">
@@ -274,10 +268,7 @@ export default async function AiUsagePage() {
                 <span className="flex items-center justify-between gap-3 px-5 py-2.5 text-xs">
                   <span className="font-medium">{r.clientName}</span>
                   <span className="text-muted-foreground tabular-nums">
-                    {r.calls} calls · {r.tokens.toLocaleString()} tok ·{" "}
-                    <span className="font-medium text-foreground">
-                      {microsToDisplay(r.cost)}
-                    </span>
+                    {tx.rich("callsTok", { calls: r.calls, v: r.tokens.toLocaleString(), v2: microsToDisplay(r.cost), b0: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
                   </span>
                 </span>
               );
@@ -304,20 +295,20 @@ export default async function AiUsagePage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-3">
           <h2 className="text-sm font-semibold">
-            Last {Math.min(50, recentCalls.length)} calls
+            {tx("lastCalls", { Math: Math.min(50, recentCalls.length) })}
           </h2>
         </header>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-4 py-2 text-left">When</th>
-                <th className="px-4 py-2 text-left">Feature</th>
-                <th className="px-4 py-2 text-left">Provider</th>
-                <th className="px-4 py-2 text-right">Tok in</th>
-                <th className="px-4 py-2 text-right">Tok out</th>
-                <th className="px-4 py-2 text-right">Cost</th>
-                <th className="px-4 py-2 text-left">Status</th>
+                <th className="px-4 py-2 text-left">{tx("when")}</th>
+                <th className="px-4 py-2 text-left">{tx("feature")}</th>
+                <th className="px-4 py-2 text-left">{tx("provider")}</th>
+                <th className="px-4 py-2 text-right">{tx("tokIn")}</th>
+                <th className="px-4 py-2 text-right">{tx("tokOut")}</th>
+                <th className="px-4 py-2 text-right">{tx("cost")}</th>
+                <th className="px-4 py-2 text-left">{tx("status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -343,7 +334,7 @@ export default async function AiUsagePage() {
                     {r.status === "ok" ? (
                       <span className="text-emerald-300">✓</span>
                     ) : r.status === "blocked_by_cap" ? (
-                      <span className="text-amber-300">capped</span>
+                      <span className="text-amber-300">{tx("capped")}</span>
                     ) : (
                       <span
                         className="text-rose-300"
@@ -359,7 +350,7 @@ export default async function AiUsagePage() {
           </table>
           {recentCalls.length === 0 && (
             <p className="px-5 py-6 text-center text-sm text-muted-foreground">
-              No AI calls in the last 30 days.
+              {tx("noAiCallsInThe")}
             </p>
           )}
         </div>

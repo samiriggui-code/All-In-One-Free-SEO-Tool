@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { runDistill } from "./actions";
 
 export function DistillButton() {
+  const tx = useTranslations("ui.app_settings_ai-learning_distill-button");
   const [, startTransition] = useTransition();
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function DistillButton() {
               setResult(
                 r.ruleCount > 0
                   ? `+${r.ruleCount} new/updated rule${r.ruleCount === 1 ? "" : "s"}`
-                  : "No new rules — not enough recent corrections.",
+                  : tx("noNewRulesNotEnough"),
               );
             } else {
               setResult(`Error: ${r.error ?? "unknown"}`);
@@ -39,10 +41,10 @@ export function DistillButton() {
         {running ? (
           <>
             <Loader2 className="mr-2 size-3 animate-spin" />
-            Distilling…
+            {tx("distilling")}
           </>
         ) : (
-          "Distill recent corrections"
+          tx("distillRecentCorrections")
         )}
       </button>
     </div>

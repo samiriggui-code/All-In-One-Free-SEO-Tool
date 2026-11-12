@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -20,6 +21,7 @@ export function Dialog({
   description?: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
 }) {
+  const tx = useTranslations("ui.components_ui_dialog");
   // Lock body scroll while open
   useEffect(() => {
     if (!open) return;
@@ -84,7 +86,7 @@ export function Dialog({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={tx("close")}
               className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
             >
               <X className="size-4" />

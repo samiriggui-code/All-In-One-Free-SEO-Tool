@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, Plug } from "lucide-react";
 import { integrationById } from "@/lib/integrations";
@@ -25,6 +26,7 @@ export function NeedsConnection({
   because?: string;
   compact?: boolean;
 }) {
+  const tx = useTranslations("ui.components_ui_needs-connection");
   const integration = integrationById(id);
   if (!integration) return null;
 
@@ -36,7 +38,7 @@ export function NeedsConnection({
           href={`/connect#${integration.id}`}
           className="font-medium text-foreground underline underline-offset-2"
         >
-          Connect {integration.label} ({integration.minutes} min, free)
+          {tx("connectMinFree", { label: integration.label, minutes: integration.minutes })}
         </Link>
       </p>
     );
@@ -48,11 +50,10 @@ export function NeedsConnection({
         <Plug className="mt-0.5 size-3.5 shrink-0 text-violet-300" />
         <span>
           <span className="font-medium">
-            {because ?? `This works better with ${integration.label}.`}
+            {because ?? tx("thisWorksBetterWith", { label: integration.label })}
           </span>{" "}
           <span className="text-muted-foreground">
-            {integration.whatYouGet[0]}. Takes about {integration.minutes}{" "}
-            minute{integration.minutes === 1 ? "" : "s"} and it&apos;s free.
+            {tx("takesAboutOtherAndIt", { v: integration.whatYouGet[0], minutes: integration.minutes })}
           </span>
         </span>
       </p>
@@ -60,7 +61,7 @@ export function NeedsConnection({
         href={`/connect#${integration.id}`}
         className="mt-2 inline-flex items-center gap-1 text-xs font-medium underline underline-offset-2"
       >
-        Show me how
+        {tx("showMeHow")}
         <ArrowRight className="size-3" />
       </Link>
     </div>

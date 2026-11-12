@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { ThumbsDown, ThumbsUp, Check } from "lucide-react";
 import { logAiFeedbackAction } from "./ai-feedback-action";
@@ -29,6 +30,7 @@ export function AiFeedback({
   clientId?: number | null;
   size?: "sm" | "md";
 }) {
+  const tx = useTranslations("ui.components_ai-feedback");
   const [state, setState] = useState<
     "idle" | "down-open" | "submitting" | "thanks"
   >("idle");
@@ -60,7 +62,7 @@ export function AiFeedback({
         } text-emerald-300`}
       >
         <Check className="size-3" />
-        Thanks — the tool will use this next time.
+        {tx("thanksTheToolWillUse")}
       </div>
     );
   }
@@ -69,19 +71,19 @@ export function AiFeedback({
     return (
       <div className="space-y-2 rounded-md border border-rose-500/30 bg-rose-500/5 p-3">
         <p className="text-xs font-medium text-rose-200">
-          What should it have said?
+          {tx("whatShouldItHaveSaid")}
         </p>
         <textarea
           rows={3}
           value={correction}
           onChange={(e) => setCorrection(e.target.value)}
-          placeholder="Paste a corrected version (this is what teaches the model best)…"
+          placeholder={tx("pasteACorrectedVersionThis")}
           className="w-full rounded-md border border-white/10 bg-card/60 px-3 py-2 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Or describe the issue (one line)…"
+          placeholder={tx("orDescribeTheIssueOne")}
           className="h-8 w-full rounded-md border border-white/10 bg-card/60 px-3 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <div className="flex items-center justify-end gap-2">
@@ -90,7 +92,7 @@ export function AiFeedback({
             onClick={() => setState("idle")}
             className="rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground"
           >
-            Cancel
+            {tx("cancel")}
           </button>
           <button
             type="button"
@@ -98,7 +100,7 @@ export function AiFeedback({
             disabled={!correction && !note}
             className="rounded-md bg-rose-500/15 px-3 py-1 text-[10px] font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/25 disabled:opacity-50"
           >
-            Submit feedback
+            {tx("submitFeedback")}
           </button>
         </div>
       </div>
@@ -111,13 +113,13 @@ export function AiFeedback({
         size === "sm" ? "text-[10px]" : "text-xs"
       } text-muted-foreground`}
     >
-      <span>Helpful?</span>
+      <span>{tx("helpful")}</span>
       <button
         type="button"
         onClick={() => submit(1)}
         disabled={state === "submitting"}
         className="rounded-md p-1 hover:bg-emerald-500/10 hover:text-emerald-300 disabled:opacity-50"
-        aria-label="Thumbs up"
+        aria-label={tx("thumbsUp")}
       >
         <ThumbsUp className={size === "sm" ? "size-3" : "size-3.5"} />
       </button>
@@ -126,7 +128,7 @@ export function AiFeedback({
         onClick={() => setState("down-open")}
         disabled={state === "submitting"}
         className="rounded-md p-1 hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-50"
-        aria-label="Thumbs down"
+        aria-label={tx("thumbsDown")}
       >
         <ThumbsDown className={size === "sm" ? "size-3" : "size-3.5"} />
       </button>

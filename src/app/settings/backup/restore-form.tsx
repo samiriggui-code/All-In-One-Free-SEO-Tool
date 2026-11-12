@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   Upload,
@@ -11,6 +12,7 @@ import { safeFetch } from "@/lib/safe-fetch";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 
 export function RestoreForm() {
+  const tx = useTranslations("ui.app_settings_backup_restore-form");
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<
     | null
@@ -23,13 +25,13 @@ export function RestoreForm() {
     const file = (e.currentTarget.elements.namedItem("file") as HTMLInputElement)
       ?.files?.[0];
     if (!file) {
-      setResult({ ok: false, error: "Pick a .db file first." });
+      setResult({ ok: false, error: tx("pickADbFileFirst") });
       return;
     }
     const ok = await confirmDialog({
-      title: `Replace data.db with ${file.name}?`,
-      description: `Uploading ${(file.size / 1024 / 1024).toFixed(2)} MB. Your existing database is auto-saved as data.db.bak-… but the server needs a restart to load the new one.`,
-      confirmLabel: "Replace database",
+      title: tx("replaceDataDbWith", { name: file.name }),
+      description: tx("uploadingMbYourExistingDatabase", { v: (file.size / 1024 / 1024).toFixed(2) }),
+      confirmLabel: tx("replaceDatabase"),
       destructive: true,
     });
     if (!ok) return;
@@ -64,12 +66,12 @@ export function RestoreForm() {
           {pending ? (
             <>
               <Loader2 className="size-3 animate-spin" />
-              Restoring…
+              {tx("restoring")}
             </>
           ) : (
             <>
               <Upload className="size-3" />
-              Restore from this file
+              {tx("restoreFromThisFile")}
             </>
           )}
         </button>

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { and, desc, eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ export default async function ClientAiAuditPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_ai-audit_page");
   const { id } = await params;
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
@@ -39,11 +41,11 @@ export default async function ClientAiAuditPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        Back to client
+        {tx("backToClient")}
       </Link>
       <PageHeader
-        title={`AI audit · ${client.name}`}
-        description="AI visits the page, runs a 25-point SEO checklist (technical / on-page / content / E-E-A-T / schema / mobile / performance / security), then writes step-by-step fix instructions for each failing item. Tick items off as you fix them — progress feeds into reports."
+        title={tx("aiAudit", { name: client.name })}
+        description={tx("aiVisitsThePageRuns")}
         icon={Bot}
         accent="violet"
       />
@@ -52,12 +54,12 @@ export default async function ClientAiAuditPage({
 
       {past.length === 0 ? (
         <p className="rounded-md bg-white/[0.02] px-3 py-2 text-sm text-muted-foreground">
-          No audits run yet. Kick off the first one above.
+          {tx("noAuditsRunYetKick")}
         </p>
       ) : (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
-            <h3 className="text-sm font-semibold">Audit history ({past.length})</h3>
+            <h3 className="text-sm font-semibold">{tx("auditHistory", { length: past.length })}</h3>
           </header>
           <ul className="divide-y divide-white/[0.05]">
             {past.map((a) => (
@@ -84,11 +86,10 @@ export default async function ClientAiAuditPage({
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="font-medium">
-                      {a.targetUrl?.replace(/^https?:\/\//, "") ?? "(no URL)"}
+                      {a.targetUrl?.replace(/^https?:\/\//, "") ?? tx("noUrl")}
                     </div>
                     <div className="text-[10px] text-muted-foreground">
-                      {a.createdAt.toLocaleString()} · {a.issuesCount} issues open ·{" "}
-                      <span
+                      {tx.rich("issuesOpen", { v: a.createdAt.toLocaleString(), issuesCount: a.issuesCount, status: a.status, b0: (chunks) => <span
                         className={
                           a.status === "completed"
                             ? "text-emerald-300"
@@ -96,9 +97,7 @@ export default async function ClientAiAuditPage({
                               ? "text-amber-300"
                               : "text-rose-300"
                         }
-                      >
-                        {a.status}
-                      </span>
+                      >{chunks}</span> })}
                     </div>
                   </div>
                 </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -32,6 +33,7 @@ export function ConnectList({
   integrations: Integration[];
   status: Record<string, IntegrationStatus>;
 }) {
+  const tx = useTranslations("ui.app_connect_list");
   const connected = integrations.filter(
     (i) => status[i.id] === "connected",
   ).length;
@@ -41,11 +43,10 @@ export function ConnectList({
       <section className="glass-apple rounded-xl p-4">
         <p className="text-sm">
           <span className="font-medium">
-            {connected} of {integrations.length} connected.
+            {tx("ofConnected", { connected, length: integrations.length })}
           </span>{" "}
           <span className="text-muted-foreground">
-            Nothing here is required — the tool works without any of it. Each
-            one makes a specific thing better, and the page says which.
+            {tx("nothingHereIsRequiredThe")}
           </span>
         </p>
       </section>
@@ -84,6 +85,7 @@ function Card({
   integration: Integration;
   status: IntegrationStatus;
 }) {
+  const tx = useTranslations("ui.app_connect_list");
   // Collapsed by default once connected — a done thing shouldn't take up
   // as much room as a thing you still need to do.
   const [open, setOpen] = useState(status !== "connected");
@@ -116,21 +118,21 @@ function Card({
               {TIER_LABELS[i.tier]}
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-              <Clock className="size-3" />~{i.minutes} min
+              <Clock className="size-3" />{tx("min", { minutes: i.minutes })}
             </span>
             {status === "connected" && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                 <Check className="size-3" />
-                Connected
+                {tx("connected")}
               </span>
             )}
             {status === "unknown" && (
               <span
-                title="We couldn't check this one. It may still be working."
+                title={tx("weCouldnTCheckThis")}
                 className="inline-flex items-center gap-1 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-muted-foreground"
               >
                 <HelpCircle className="size-3" />
-                Couldn&apos;t check
+                {tx("couldnTCheck")}
               </span>
             )}
           </div>
@@ -148,7 +150,7 @@ function Card({
       {open && (
         <div className="mt-3 space-y-4">
           <div>
-            <p className="text-xs font-medium">What you get</p>
+            <p className="text-xs font-medium">{tx("whatYouGet")}</p>
             <ul className="mt-1.5 space-y-1">
               {i.whatYouGet.map((line, n) => (
                 <li key={n} className="flex gap-2 text-xs text-muted-foreground">
@@ -164,12 +166,12 @@ function Card({
               not doing it — and in most cases the answer is "less than
               you'd think", which is worth saying. */}
           <div className="rounded-md bg-white/5 px-3 py-2">
-            <p className="text-[11px] font-medium">If you skip it</p>
+            <p className="text-[11px] font-medium">{tx("ifYouSkipIt")}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">{i.withoutIt}</p>
           </div>
 
           <div>
-            <p className="text-xs font-medium">How to set it up</p>
+            <p className="text-xs font-medium">{tx("howToSetItUp")}</p>
             <ol className="mt-1.5 space-y-1.5">
               {i.steps.map((step, n) => (
                 <li key={n} className="flex gap-2 text-xs text-muted-foreground">
@@ -191,7 +193,7 @@ function Card({
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
               >
                 <ExternalLink className="size-3.5" />
-                {i.keyUrlLabel ?? "Get the key"}
+                {i.keyUrlLabel ?? tx("getTheKey")}
               </a>
             )}
             <Link
@@ -203,10 +205,7 @@ function Card({
             </Link>
             {i.envVar && (
               <span className="text-[11px] text-muted-foreground">
-                or set{" "}
-                <code className="rounded bg-white/5 px-1 py-0.5 font-mono">
-                  {i.envVar}
-                </code>
+                {tx.rich("orSet", { envVar: i.envVar, b0: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5 font-mono">{chunks}</code> })}
               </span>
             )}
           </div>

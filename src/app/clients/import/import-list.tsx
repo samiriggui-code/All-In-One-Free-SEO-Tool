@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -15,6 +16,7 @@ import {
 } from "./actions";
 
 export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
+  const tx = useTranslations("ui.app_clients_import_import-list");
   const router = useRouter();
   const importable = pairs.filter((p) => !p.alreadyImported);
   const allKeys = importable.map((p) => p.key);
@@ -61,9 +63,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
   if (pairs.length === 0) {
     return (
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-6 text-center text-sm text-muted-foreground">
-        Your connected Google account doesn&apos;t see any GSC or GA4
-        properties. Make sure you signed in with the right account, or that
-        each client has invited you as a viewer in Search Console / Analytics.
+        {tx("yourConnectedGoogleAccountDoesn")}
       </div>
     );
   }
@@ -79,7 +79,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
           }`}
         >
           <div className="font-medium">
-            Imported {result.imported}
+            {tx("imported", { imported: result.imported })}
             {result.skipped > 0 && ` · skipped ${result.skipped}`}
             {result.errors.length > 0 && ` · ${result.errors.length} errors`}
           </div>
@@ -95,13 +95,10 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
 
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {selected.size}
-          </span>{" "}
-          of {importable.length} selected
+          {tx.rich("ofSelected", { size: selected.size, length: importable.length, b0: (chunks) => <span className="font-medium text-foreground">{chunks}</span> })}
           {pairs.length > importable.length && (
             <span className="ml-2 text-xs">
-              · {pairs.length - importable.length} already imported
+              {tx("alreadyImported", { v: pairs.length - importable.length })}
             </span>
           )}
         </div>
@@ -113,7 +110,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
             onClick={selectAll}
             disabled={selected.size === importable.length}
           >
-            Select all
+            {tx("selectAll")}
           </Button>
           <Button
             type="button"
@@ -122,7 +119,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
             onClick={selectNone}
             disabled={selected.size === 0}
           >
-            Clear
+            {tx("clear")}
           </Button>
         </div>
       </div>
@@ -155,7 +152,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
                   {p.alreadyImported && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                       <CheckCircle2 className="size-3" />
-                      Already imported
+                      {tx("alreadyImported2")}
                     </span>
                   )}
                 </div>
@@ -168,7 +165,7 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
                   )}
                   {p.ga4PropertyId && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/20">
-                      GA4 · {p.ga4PropertyId}
+                      {tx("ga4", { ga4PropertyId: p.ga4PropertyId })}
                     </span>
                   )}
                 </div>
@@ -186,19 +183,18 @@ export function ImportList({ pairs }: { pairs: ImportablePair[] }) {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Importing {selected.size}…
+              {tx("importing", { size: selected.size })}
             </>
           ) : (
             <>
               <Sparkles className="size-4" />
-              Import {selected.size} {selected.size === 1 ? "site" : "sites"}
+              {tx("import", { size: selected.size })} {selected.size === 1 ? "site" : "sites"}
             </>
           )}
         </Button>
         <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="size-3.5 text-emerald-300" />
-          For each: auto-fetches logo, name, address, social links, tech
-          stack, and queues an audit.
+          {tx("forEachAutoFetchesLogo")}
         </span>
       </div>
     </div>

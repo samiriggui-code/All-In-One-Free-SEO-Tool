@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Sparkles, Sun } from "lucide-react";
 import { count, desc, eq, ne, gte } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -10,6 +11,7 @@ import { NextActionsPanel } from "@/components/next-actions-panel";
 import { nextActions } from "@/lib/next-actions";
 
 export default async function MorningPage() {
+  const tx = await getTranslations("ui.app_morning_page");
   // Across every client. A freelancer's morning question is not "what is
   // wrong with client 4", it is "where does today go".
   const ranked = await nextActions({ limit: 12 });
@@ -71,31 +73,31 @@ export default async function MorningPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Morning briefing"
+        title={tx("morningBriefing")}
         description={`${greet()}. Here's what needs attention across all ${clientCount} clients.`}
         icon={Sun}
         accent="amber"
       />
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-        <Stat label="Open tasks" value={openTasks.toLocaleString()} hint={`${doneTasksWeek} done all-time`} />
+        <Stat label={tx("openTasks")} value={openTasks.toLocaleString()} hint={tx("doneAllTime", { doneTasksWeek })} />
         <Stat
-          label="Audits in 24h"
+          label={tx("auditsIn24h")}
           value={last24Audits.toString()}
-          hint={`${recentAudits.length} this week`}
+          hint={tx("thisWeek", { length: recentAudits.length })}
           tone={last24Audits === 0 && clientCount > 0 ? "amber" : "emerald"}
         />
         <Stat
-          label="Score drops (week)"
+          label={tx("scoreDropsWeek")}
           value={dropped.toString()}
           tone={dropped > 0 ? "rose" : "emerald"}
-          hint={improved > 0 ? `${improved} improved` : "no improvements"}
+          hint={improved > 0 ? tx("improved", { improved }) : "no improvements"}
         />
         <Stat
-          label="Striking distance"
+          label={tx("strikingDistance")}
           value={striking.toString()}
           tone="violet"
-          hint="positions 4-15"
+          hint={tx("positions415")}
         />
       </div>
 
@@ -108,7 +110,7 @@ export default async function MorningPage() {
         <header className="border-b border-white/[0.06] px-5 py-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Sparkles className="size-4 text-amber-300" />
-            Today&apos;s priority items
+            {tx("todaySPriorityItems")}
           </h2>
         </header>
         <div className="p-5">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { testWebhook } from "./actions";
 
 export function WebhookTester({ defaultUrl }: { defaultUrl?: string }) {
+  const tx = useTranslations("ui.app_automations_webhook-tester");
   const [url, setUrl] = useState(defaultUrl ?? "");
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<
@@ -34,11 +36,10 @@ export function WebhookTester({ defaultUrl }: { defaultUrl?: string }) {
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <TestTube2 className="size-4 text-violet-300" />
-        Test a webhook
+        {tx("testAWebhook")}
       </div>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        POSTs a sample payload — confirms your Slack / Discord / Teams
-        webhook is reachable before you wire it into automations.
+        {tx("postsASamplePayloadConfirms")}
       </p>
       <div className="mt-3 flex gap-2">
         <Input
@@ -52,12 +53,12 @@ export function WebhookTester({ defaultUrl }: { defaultUrl?: string }) {
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Testing…
+              {tx("testing")}
             </>
           ) : (
             <>
               <TestTube2 className="size-4" />
-              Send test
+              {tx("sendTest")}
             </>
           )}
         </Button>
@@ -65,7 +66,7 @@ export function WebhookTester({ defaultUrl }: { defaultUrl?: string }) {
       {result.kind === "ok" && (
         <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
           <CheckCircle2 className="size-3" />
-          Delivered ({result.status}). Check your channel.
+          {tx("deliveredCheckYourChannel", { status: result.status })}
         </div>
       )}
       {result.kind === "error" && (

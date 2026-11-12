@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Brain, Sparkles, Zap } from "lucide-react";
 import { db } from "@/db/client";
 import { aiFeedback, aiPreferences, clients } from "@/db/schema";
@@ -20,6 +22,7 @@ const CONFIDENCE_TONE: Record<string, string> = {
 };
 
 export default async function AiLearningPage() {
+  const tx = await getTranslations("ui.app_settings_ai-learning_page");
   await requireSettingsPage("/settings/ai-learning");
   const [prefs, [{ value: feedbackCount }], allClients] = await Promise.all([
     db
@@ -54,8 +57,8 @@ export default async function AiLearningPage() {
     <div className="mx-auto max-w-4xl space-y-6">
 
       <PageHeader
-        title="AI learning"
-        description="The tool watches what you correct in AI output and turns the corrections into durable style rules. Rules below are added to every prompt automatically — the more you correct, the better the next AI response."
+        title={tx("aiLearning")}
+        description={tx("theToolWatchesWhatYou")}
         icon={Brain}
         accent="violet"
       />
@@ -64,11 +67,10 @@ export default async function AiLearningPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-semibold">
-              {feedbackCount} pieces of feedback collected
+              {tx("piecesOfFeedbackCollected", { feedbackCount })}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Distill turns recent thumbs-down + correction pairs into
-              concise style rules. Re-runs are cheap and idempotent.
+              {tx("distillTurnsRecentThumbsDown")}
             </p>
           </div>
           <DistillButton />
@@ -79,14 +81,14 @@ export default async function AiLearningPage() {
         title={`Workspace-wide rules (${workspacePrefs.length})`}
         rules={workspacePrefs}
         clientNameById={clientNameById}
-        emptyHint="Workspace rules apply to AI output across every client. Build them by correcting outputs, then clicking distill."
+        emptyHint={tx("workspaceRulesApplyToAi")}
       />
 
       {byClient.size > 0 &&
         Array.from(byClient.entries()).map(([cid, list]) => (
           <RuleList
             key={cid}
-            title={`Rules for ${clientNameById.get(cid) ?? `Client #${cid}`} (${list.length})`}
+            title={`Rules for ${clientNameById.get(cid) ?? tx("client", { cid })} (${list.length})`}
             rules={list}
             clientNameById={clientNameById}
             emptyHint=""
@@ -96,21 +98,19 @@ export default async function AiLearningPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
         <h3 className="font-semibold flex items-center gap-2">
           <Zap className="size-4 text-amber-300" />
-          How it works
+          {tx("howItWorks")}
         </h3>
         <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-muted-foreground">
-          <li>Every AI feature has thumbs-up / thumbs-down + a correction box.</li>
-          <li>Thumbs-down with a corrected version is gold — that&apos;s a clear &quot;here&apos;s what you should have written&quot; signal.</li>
+          <li>{tx("everyAiFeatureHasThumbs")}</li>
+          <li>{tx("thumbsDownWithACorrected")}</li>
           <li>
-            On distill, the AI itself analyses recent corrections and proposes
-            durable rules (&quot;Always use UK English&quot;, &quot;Never start with &apos;In conclusion&apos;&quot;).
+            {tx("onDistillTheAiItself")}
           </li>
           <li>
-            Rules with multiple confirmations get promoted from &quot;tentative&quot; → &quot;probable&quot; → &quot;applied&quot;.
+            {tx("rulesWithMultipleConfirmationsGet")}
           </li>
           <li>
-            Active rules get injected into every AI prompt for that feature
-            (and workspace-wide rules apply everywhere).
+            {tx("activeRulesGetInjectedInto")}
           </li>
         </ol>
       </section>
@@ -137,6 +137,7 @@ function RuleList({
   clientNameById: Map<number, string>;
   emptyHint: string;
 }) {
+  const tx = useTranslations("ui.app_settings_ai-learning_page");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-4">
@@ -147,7 +148,7 @@ function RuleList({
       </header>
       {rules.length === 0 ? (
         <p className="px-5 py-6 text-sm text-muted-foreground">
-          {emptyHint || "No rules yet."}
+          {emptyHint || tx("noRulesYet")}
         </p>
       ) : (
         <ul className="divide-y divide-white/[0.05]">
@@ -172,14 +173,13 @@ function RuleList({
                     {p.feature}
                   </span>
                   <span>
-                    · derived from {p.derivedFrom} correction
-                    {p.derivedFrom === 1 ? "" : "s"}
+                    {tx("derivedFromOther", { derivedFrom: p.derivedFrom })}
                   </span>
                   {p.clientId && (
                     <span>
-                      · scoped to{" "}
+                      {tx("scopedTo")}
                       {clientNameById.get(p.clientId) ??
-                        `Client #${p.clientId}`}
+                        tx("client2", { clientId: p.clientId })}
                     </span>
                   )}
                 </div>
@@ -190,7 +190,7 @@ function RuleList({
                     type="submit"
                     className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
                   >
-                    {p.active ? "Disable" : "Enable"}
+                    {p.active ? tx("disable") : tx("enable")}
                   </button>
                 </form>
                 <form action={deletePreference.bind(null, p.id)}>
@@ -198,7 +198,7 @@ function RuleList({
                     type="submit"
                     className="rounded-md bg-rose-500/10 px-2 py-1 text-[10px] text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20"
                   >
-                    Delete
+                    {tx("delete")}
                   </button>
                 </form>
               </div>

@@ -9,6 +9,7 @@
  * cached by Google's CDN globally. Default 32×32, scaled up via CSS.
  */
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ function hostnameOf(url: string): string | null {
 }
 
 export function SiteFavicon({ url, name, size = 48, className }: Props) {
+  const tx = useTranslations("ui.components_ui_site-favicon");
   const [failed, setFailed] = useState(false);
   const host = hostnameOf(url);
   // Request 2× the rendered size for sharpness on hi-DPI screens.
@@ -65,7 +67,7 @@ export function SiteFavicon({ url, name, size = 48, className }: Props) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
-        alt={`${name} favicon`}
+        alt={tx("favicon", { name })}
         width={size}
         height={size}
         loading="lazy"

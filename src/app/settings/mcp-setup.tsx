@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 import {
@@ -32,6 +33,7 @@ const TABS: { id: ClientId; label: string; local: boolean }[] = [
 ];
 
 function Block({ text }: { text: string }) {
+  const tx = useTranslations("ui.app_settings_mcp-setup");
   const [done, setDone] = useState(false);
   return (
     <div className="relative">
@@ -49,7 +51,7 @@ function Block({ text }: { text: string }) {
         className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-[11px] shadow-sm hover:border-foreground/25"
       >
         {done ? <Check className="size-3" /> : <Copy className="size-3" />}
-        {done ? "Copied" : "Copy"}
+        {done ? tx("copied") : tx("copy")}
       </button>
     </div>
   );
@@ -107,6 +109,7 @@ export function McpSetup({
   /** That client, verbatim, e.g. "claude-ai 0.1.0". */
   connectedClient: string | null;
 }) {
+  const tx = useTranslations("ui.app_settings_mcp-setup");
   const [tab, setTab] = useState<ClientId>("claude-code");
   const [installing, setInstalling] = useState(false);
   const [installed, setInstalled] = useState<InstallResult | null>(null);
@@ -185,10 +188,9 @@ ${serverEntry}
   return (
     <div className="space-y-3 rounded-lg border border-border bg-card/60 p-3">
       <div>
-        <p className="text-xs font-medium">Connect your chat app</p>
+        <p className="text-xs font-medium">{tx("connectYourChatApp")}</p>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          The first three run on this computer and work right now. The last
-          one runs on someone else&apos;s and needs one extra step.
+          {tx("theFirstThreeRunOn")}
         </p>
       </div>
 
@@ -212,12 +214,12 @@ ${serverEntry}
             {connectedTab === t.id ? (
               <span className="ml-1.5 inline-flex items-center gap-1 text-[9px] uppercase text-emerald-400">
                 <span className="size-1.5 rounded-full bg-emerald-400" />
-                connected
+                {tx("connected")}
               </span>
             ) : (
               t.local && (
                 <span className="ml-1.5 text-[9px] uppercase text-emerald-400/70">
-                  no setup
+                  {tx("noSetup")}
                 </span>
               )
             )}
@@ -231,34 +233,30 @@ ${serverEntry}
       {connectedTab && (
         <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] leading-relaxed text-emerald-900 dark:text-emerald-100/90">
           <strong>
-            Connected via {TABS.find((t) => t.id === connectedTab)?.label}
+            {tx("connectedVia", { label: TABS.find((t) => t.id === connectedTab)?.label ?? "" })}
           </strong>
-          {connectedClient ? ` — it identified itself as ${connectedClient}.` : "."}{" "}
-          To check the tools really work, ask it:{" "}
-          <em>&ldquo;list my SEO clients&rdquo;</em> — it should name the sites
-          you have added. If it says it has no such tool, quit that app
-          completely and reopen it.
+          {connectedClient ? tx("identifiedAs", { name: connectedClient }) : "."}{" "}
+          {tx.rich("toCheckTheToolsReally", { b0: (chunks) => <em>{chunks}</em> })}
         </div>
       )}
       {tab === "claude-code" && (
         <Steps
           items={[
             <>
-              <p>Run this in a terminal:</p>
+              <p>{tx("runThisInATerminal")}</p>
               <Block
                 text={`claude mcp add -t http seo-tool ${url} -H "Authorization: Bearer ${tok}"`}
               />
             </>,
             <>
               <p>
-                Type <code className="rounded bg-muted px-1">/mcp</code> inside
-                Claude Code to confirm it connected.
+                {tx.rich("typeMcpInsideClaudeCode", { b0: (chunks) => <code className="rounded bg-muted px-1">{chunks}</code> })}
               </p>
             </>,
             <>
               <p>
                 <DocLink href="https://code.claude.com/docs/en/mcp">
-                  Claude Code MCP documentation
+                  {tx("claudeCodeMcpDocumentation")}
                 </DocLink>
               </p>
             </>,
@@ -269,9 +267,7 @@ ${serverEntry}
       {(tab === "claude-desktop" || tab === "cursor") && (
         <>
           <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] leading-relaxed text-emerald-900 dark:text-emerald-100/90">
-            <strong>No tunnel, no Cloudflare, no network.</strong> This launches
-            the server as a child process and talks to it over stdin/stdout.
-            Nothing is exposed, and the token above is not used.
+            {tx.rich("noTunnelNoCloudflareNo", { b0: (chunks) => <strong>{chunks}</strong> })}
           </p>
 
           {/* Offered before the manual steps, because hand-editing this
@@ -281,11 +277,9 @@ ${serverEntry}
               cannot produce invalid JSON. */}
           {tab === "claude-desktop" && (
             <div className="space-y-2 rounded-lg border border-violet-500/30 bg-violet-500/[0.07] p-3">
-              <p className="text-xs font-medium">Do it for me</p>
+              <p className="text-xs font-medium">{tx("doItForMe")}</p>
               <p className="text-[11px] leading-relaxed text-muted-foreground">
-                Writes the config, keeping any servers you already have and
-                saving a backup first. Then quit Claude Desktop completely and
-                reopen it.
+                {tx("writesTheConfigKeepingAny")}
               </p>
               <button
                 type="button"
@@ -300,25 +294,22 @@ ${serverEntry}
                 }}
                 className="inline-flex h-8 items-center rounded-lg bg-violet-500/20 px-3 text-xs font-medium text-violet-200 ring-1 ring-inset ring-violet-500/40 hover:bg-violet-500/30 disabled:opacity-50"
               >
-                {installing ? "Writing…" : "Write the config for me"}
+                {installing ? tx("writing") : tx("writeTheConfigForMe")}
               </button>
 
               {installed?.ok && (
                 <div className="space-y-1 text-[11px] leading-relaxed">
                   <p className="text-emerald-600 dark:text-emerald-300">
-                    Done — {installed.replaced ? "updated" : "added"} seo-tool.
-                    Servers now configured:{" "}
-                    <strong>{installed.servers.join(", ")}</strong>.
+                    {tx("done")} {installed.replaced ? "updated" : "added"} {tx.rich("seoToolServersNowConfigured", { v: installed.servers.join(", "), b0: (chunks) => <strong>{chunks}</strong> })}
                   </p>
                   <p className="text-muted-foreground">
-                    Wrote {installed.configPath}
+                    {tx("wrote", { configPath: installed.configPath })}
                     {installed.backupPath
                       ? `; previous version saved alongside it.`
                       : "."}
                   </p>
                   <p className="text-foreground">
-                    Now quit Claude Desktop completely (system tray → Quit) and
-                    reopen it.
+                    {tx("nowQuitClaudeDesktopCompletely")}
                   </p>
                 </div>
               )}
@@ -335,97 +326,76 @@ ${serverEntry}
                 {tab === "claude-desktop" ? (
                   <>
                     <p>
-                      Open the <strong>Claude</strong> menu in your system menu
-                      bar — not Settings inside the chat window — then{" "}
-                      <strong>Settings → Developer → Edit Config</strong>.
+                      {tx.rich("openTheClaudeMenuIn", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <strong>{chunks}</strong> })}
                     </p>
                     <p className="text-muted-foreground">
-                      That opens (and creates, if missing) this file:
+                      {tx("thatOpensAndCreatesIf")}
                     </p>
                     <Block text={configPath} />
                     {isWindows && (
                       <p className="text-muted-foreground">
-                        Installed from the Microsoft Store? That build
-                        virtualises %APPDATA%, so the file is really under{" "}
-                        <code className="rounded bg-muted px-1">
-                          AppData\Local\Packages\Claude_…\LocalCache\Roaming\Claude\
-                        </code>
-                        . Use Edit config rather than typing the path and it
-                        opens the right one either way.
+                        {tx.rich("installedFromTheMicrosoftStore", { b0: (chunks) => <code className="rounded bg-muted px-1">{chunks}</code> })}
                       </p>
                     )}
                   </>
                 ) : (
                   <p>
-                    Open <strong>Settings → MCP → Add new global MCP server</strong>
-                    . Cursor opens its <code>mcp.json</code> for you.
+                    {tx.rich("openSettingsMcpAddNew", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <code>{chunks}</code> })}
                   </p>
                 )}
               </>,
               <>
                 <p>
-                  <strong>If the file is empty or brand new</strong>, paste all
-                  of this and save:
+                  {tx.rich("ifTheFileIsEmpty", { b0: (chunks) => <strong>{chunks}</strong> })}
                 </p>
                 <Block text={desktopConfig} />
               </>,
               <>
                 <p>
-                  <strong>If it already has servers in it</strong>, do not paste
-                  over them. Add only the <code>&quot;seo-tool&quot;</code> block
-                  inside the existing <code>mcpServers</code>, with a comma
-                  between entries:
+                  {tx.rich("ifItAlreadyHasServers", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <code>{chunks}</code>, b2: (chunks) => <code>{chunks}</code> })}
                 </p>
                 <Block text={mergeExample} />
                 <p className="text-muted-foreground">
-                  It is one JSON object. A missing or extra comma stops the
-                  whole file loading, and every server in it disappears at once.
+                  {tx("itIsOneJsonObject")}
                 </p>
               </>,
               <>
                 <p>
-                  <strong>Quit completely and reopen.</strong>{" "}
+                  <strong>{tx("quitCompletelyAndReopen")}</strong>{" "}
                   {tab === "claude-desktop"
-                    ? "Closing the window is not enough on either OS — quit from the menu or the tray."
-                    : "Reload the window."}{" "}
-                  Config is only read at startup.
+                    ? tx("closingTheWindowIsNot")
+                    : tx("reloadTheWindow")}{tx("configIsOnlyReadAt")}
                 </p>
               </>,
               <>
                 {tab === "claude-desktop" ? (
                   <p>
-                    Check it worked: click{" "}
-                    <strong>Add files, connectors, and more</strong> at the
-                    bottom-left of the message box, then{" "}
-                    <strong>Connectors → Manage connectors</strong>. You should
-                    see <code>seo-tool</code> and its 12 tools.
+                    {tx.rich("checkItWorkedClickAdd", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <strong>{chunks}</strong>, b2: (chunks) => <code>{chunks}</code> })}
                   </p>
                 ) : (
                   <p>
-                    Check it worked: <strong>Settings → MCP</strong> should list{" "}
-                    <code>seo-tool</code> with a green dot.
+                    {tx.rich("checkItWorkedSettingsMcp", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <code>{chunks}</code> })}
                   </p>
                 )}
               </>,
               <>
                 <p>
-                  If it does not appear, the log says why:
+                  {tx("ifItDoesNotAppear")}
                 </p>
                 <Block text={logPath} />
                 <p className="text-muted-foreground">
-                  Most often invalid JSON, or Node not being on PATH for the
-                  app.
+                  {tx("mostOftenInvalidJsonOr")}
                 </p>
               </>,
               <>
                 <p>
                   {tab === "claude-desktop" ? (
                     <DocLink href="https://modelcontextprotocol.io/quickstart/user">
-                      Claude Desktop MCP quickstart
+                      {tx("claudeDesktopMcpQuickstart")}
                     </DocLink>
                   ) : (
                     <DocLink href="https://docs.cursor.com/context/model-context-protocol">
-                      Cursor MCP documentation
+                      {tx("cursorMcpDocumentation")}
                     </DocLink>
                   )}
                 </p>
@@ -438,66 +408,49 @@ ${serverEntry}
       {tab === "web" && (
         <div className="space-y-2.5">
           <p className="rounded-md border border-amber-500/30 bg-amber-500/10 p-2 text-[11px] leading-relaxed text-amber-900 dark:text-amber-100/90">
-            <strong>Why this one is different.</strong> claude.ai and ChatGPT
-            run on their own servers and call <em>your</em> server — Anthropic
-            from <code>160.79.104.0/21</code>. They cannot reach{" "}
-            <code>localhost</code>, and both refuse a URL that isn&apos;t
-            HTTPS. So this needs a public address, which the three tabs above
-            do not.
+            {tx.rich("whyThisOneIsDifferent", { b0: (chunks) => <strong>{chunks}</strong>, b1: (chunks) => <em>{chunks}</em>, b2: (chunks) => <code>{chunks}</code>, b3: (chunks) => <code>{chunks}</code> })}
           </p>
           <Steps
             items={[
               <>
                 <p>
-                  Install cloudflared —{" "}
+                  {tx("installCloudflared")}
                   <DocLink href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/">
-                    download page
+                    {tx("downloadPage")}
                   </DocLink>
-                  . Free, and no account needed for a quick tunnel.
+                  {tx("freeAndNoAccountNeeded")}
                 </p>
               </>,
               <>
-                <p>Run this and leave it running:</p>
+                <p>{tx("runThisAndLeaveIt")}</p>
                 <Block text={`cloudflared tunnel --url ${origin}`} />
                 <p className="text-muted-foreground">
-                  It prints an https://….trycloudflare.com address.
+                  {tx("itPrintsAnHttpsTrycloudflare")}
                 </p>
               </>,
               <>
                 <p>
-                  In claude.ai go to Settings → Connectors → Add custom
-                  connector, and paste that address with{" "}
-                  <code className="rounded bg-muted px-1">/api/mcp</code> on the
-                  end.
+                  {tx.rich("inClaudeAiGoTo", { b0: (chunks) => <code className="rounded bg-muted px-1">{chunks}</code> })}
                 </p>
               </>,
               <>
                 <p>
-                  Give it the token as an{" "}
-                  <code className="rounded bg-muted px-1">Authorization</code>{" "}
-                  header —{" "}
+                  {tx.rich("giveItTheTokenAs", { b0: (chunks) => <code className="rounded bg-muted px-1">{chunks}</code> })}
                   <DocLink href="https://claude.com/docs/connectors/custom/remote-mcp">
-                    request-header authentication
-                  </DocLink>{" "}
-                  (currently in beta, and set by an organisation admin).
+                    {tx("requestHeaderAuthentication")}
+                  </DocLink>{tx("currentlyInBetaAndSet")}
                 </p>
               </>,
             ]}
           />
           <p className="rounded-md border border-rose-500/30 bg-rose-500/10 p-2 text-[11px] leading-relaxed text-rose-900 dark:text-rose-100/90">
-            <strong>Worth knowing before you do this.</strong> A tunnel puts an
-            endpoint that can read every client and change live websites on the
-            public internet, with only that token in front of it. Stop the
-            tunnel when you are not using it, and revoke the token if it ever
-            leaks.
+            {tx.rich("worthKnowingBeforeYouDo", { b0: (chunks) => <strong>{chunks}</strong> })}
           </p>
           <p className="text-[11px] text-muted-foreground">
-            Anthropic also has an official{" "}
+            {tx("anthropicAlsoHasAnOfficial")}
             <DocLink href="https://platform.claude.com/docs/en/agents-and-tools/mcp-tunnels/quickstart">
-              MCP tunnels
-            </DocLink>{" "}
-            preview — outbound-only, so nothing is exposed inbound. Needs Docker
-            and a Claude Console role.
+              {tx("mcpTunnels")}
+            </DocLink>{tx("previewOutboundOnlySoNothing")}
           </p>
         </div>
       )}

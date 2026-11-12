@@ -15,6 +15,7 @@
  * implement its own re-run / score-delta logic.
  */
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   Check,
@@ -58,6 +59,7 @@ export function FindingsChecklist({
   onRecheck,
   subjectLabel,
 }: Props) {
+  const tx = useTranslations("ui.components_findings-checklist");
   const [findings, setFindings] = useState<ToolFinding[]>(initial);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
@@ -88,7 +90,7 @@ export function FindingsChecklist({
     startTransition(async () => {
       const r = await markFindingStatus(id, status);
       if (!r.ok) {
-        toast.error("Couldn't update finding", { description: r.error });
+        toast.error(tx("couldnTUpdateFinding"), { description: r.error });
         // Revert
         setFindings(initial);
       }
@@ -101,7 +103,7 @@ export function FindingsChecklist({
     try {
       await onRecheck();
       toast.success("Re-check complete", {
-        description: "Scores and findings updated.",
+        description: tx("scoresAndFindingsUpdated"),
       });
     } catch (err) {
       toast.error("Re-check failed", {
@@ -117,10 +119,10 @@ export function FindingsChecklist({
       <div className="rounded-lg border border-border bg-card p-8 text-center">
         <CheckCircle2 className="mx-auto size-8 text-emerald-300" />
         <p className="mt-3 text-sm font-medium text-foreground">
-          No findings — looking clean!
+          {tx("noFindingsLookingClean")}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          This audit didn&apos;t turn up anything actionable.
+          {tx("thisAuditDidnTTurn")}
         </p>
       </div>
     );
@@ -134,8 +136,8 @@ export function FindingsChecklist({
           <div>
             <h3 className="text-sm font-semibold">
               {completedCount === total
-                ? "All findings handled"
-                : `${open.length} finding${open.length === 1 ? "" : "s"} open`}
+                ? tx("allFindingsHandled")
+                : tx("otherOpen", { length: open.length })}
               {subjectLabel && (
                 <span className="ml-1 text-muted-foreground font-normal">
                   · {subjectLabel}
@@ -143,8 +145,7 @@ export function FindingsChecklist({
               )}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {resolved.length} resolved · {ignored.length} ignored ·{" "}
-              {open.length} remaining
+              {tx("resolvedIgnoredRemaining", { length: resolved.length, length2: ignored.length, length3: open.length })}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -163,7 +164,7 @@ export function FindingsChecklist({
                 ) : (
                   <RefreshCw className="size-3.5" />
                 )}
-                Re-check
+                {tx("reCheck")}
               </button>
             )}
           </div>
@@ -200,7 +201,7 @@ export function FindingsChecklist({
                     setStatus(f.id, isResolved ? "new" : "resolved")
                   }
                   disabled={pending}
-                  aria-label={isResolved ? "Reopen finding" : "Mark resolved"}
+                  aria-label={isResolved ? tx("reopenFinding") : tx("markResolved")}
                   className={cn(
                     "mt-0.5 grid size-5 shrink-0 place-items-center rounded border transition-colors",
                     isResolved
@@ -243,7 +244,7 @@ export function FindingsChecklist({
                     </span>
                     {isIgnored && (
                       <span className="text-[10px] text-muted-foreground">
-                        ignored
+                        {tx("ignored")}
                       </span>
                     )}
                   </div>
@@ -260,7 +261,7 @@ export function FindingsChecklist({
                       type="button"
                       onClick={() => setStatus(f.id, "ignored")}
                       disabled={pending}
-                      title="Ignore (won't appear in re-checks)"
+                      title={tx("ignoreWonTAppearIn")}
                       className="grid size-7 place-items-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                     >
                       <EyeOff className="size-3.5" />
@@ -273,7 +274,7 @@ export function FindingsChecklist({
                       disabled={pending}
                       className="text-[10px] text-muted-foreground hover:text-foreground"
                     >
-                      Reopen
+                      {tx("reopen")}
                     </button>
                   )}
                   <ChevronRight
@@ -298,7 +299,7 @@ export function FindingsChecklist({
                       {f.fixSteps && (
                         <div>
                           <h4 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            How to fix
+                            {tx("howToFix")}
                           </h4>
                           <div className="whitespace-pre-line text-xs leading-relaxed text-foreground/90">
                             {f.fixSteps}
@@ -310,9 +311,7 @@ export function FindingsChecklist({
                       )}
                       {!f.fixSteps && !f.codeSnippet && (
                         <p className="text-xs italic text-muted-foreground">
-                          No fix steps recorded — the AI didn&apos;t generate
-                          guidance for this finding. You can still mark it
-                          done after addressing it manually.
+                          {tx("noFixStepsRecordedThe")}
                         </p>
                       )}
                     </div>
@@ -328,6 +327,7 @@ export function FindingsChecklist({
 }
 
 function CodeSnippet({ code }: { code: string }) {
+  const tx = useTranslations("ui.components_findings-checklist");
   const [copied, setCopied] = useState(false);
   async function copy() {
     try {
@@ -342,7 +342,7 @@ function CodeSnippet({ code }: { code: string }) {
     <div>
       <div className="mb-1.5 flex items-center justify-between">
         <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Copy-paste fix
+          {tx("copyPasteFix")}
         </h4>
         <button
           type="button"
@@ -350,7 +350,7 @@ function CodeSnippet({ code }: { code: string }) {
           className="inline-flex items-center gap-1 text-[11px] text-violet-300 hover:underline"
         >
           <Copy className="size-3" />
-          {copied ? "Copied" : "Copy"}
+          {copied ? tx("copied") : tx("copy")}
         </button>
       </div>
       <pre className="overflow-x-auto rounded-md bg-background/60 p-3 font-mono text-[11px] leading-relaxed text-foreground/90 ring-1 ring-inset ring-border">

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type ScoreGaugeProps = {
@@ -22,8 +23,10 @@ export function ScoreGauge({
   score,
   size = 156,
   className,
-  label = "Health score",
+  label: labelProp,
 }: ScoreGaugeProps) {
+  const tx = useTranslations("ui.components_ui_score-gauge");
+  const label = labelProp ?? tx("healthScore");
   const radius = size / 2 - 10;
   const circumference = 2 * Math.PI * radius;
   const value = score ?? 0;

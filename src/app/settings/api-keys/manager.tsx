@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState, useTransition } from "react";
 import { Check, Copy, Key, Loader2, Plus, Trash2 } from "lucide-react";
 import {
@@ -19,6 +20,7 @@ export type ApiKeyRow = {
 };
 
 export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
+  const tx = useTranslations("ui.app_settings_api-keys_manager");
   const [state, formAction, pending] = useActionState<
     CreateApiKeyState | null,
     FormData
@@ -39,7 +41,7 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
         <input
           name="name"
           required
-          placeholder="e.g. n8n integration"
+          placeholder={tx("eGN8nIntegration")}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
         <select
@@ -47,9 +49,9 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
           defaultValue="read"
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
         >
-          <option value="read">read</option>
-          <option value="write">write</option>
-          <option value="admin">admin</option>
+          <option value="read">{tx("read")}</option>
+          <option value="write">{tx("write")}</option>
+          <option value="admin">{tx("admin")}</option>
         </select>
         <button
           type="submit"
@@ -59,12 +61,12 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
           {pending ? (
             <>
               <Loader2 className="mr-2 size-3 animate-spin" />
-              Creating…
+              {tx("creating")}
             </>
           ) : (
             <>
               <Plus className="mr-2 size-3" />
-              Create
+              {tx("create")}
             </>
           )}
         </button>
@@ -79,7 +81,7 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
       {state?.ok && (
         <div className="rounded-md bg-emerald-500/10 px-3 py-3 ring-1 ring-inset ring-emerald-500/30 space-y-2">
           <p className="text-xs font-medium text-emerald-300">
-            Key created. Copy it now — it won&apos;t be shown again.
+            {tx("keyCreatedCopyItNow")}
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 break-all rounded bg-black/40 px-2 py-1.5 font-mono text-xs">
@@ -93,12 +95,12 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
               {copied ? (
                 <>
                   <Check className="mr-1 size-3 text-emerald-300" />
-                  Copied
+                  {tx("copied")}
                 </>
               ) : (
                 <>
                   <Copy className="mr-1 size-3" />
-                  Copy
+                  {tx("copy")}
                 </>
               )}
             </button>
@@ -122,7 +124,7 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
                 <div className="min-w-0">
                   <div className="truncate font-medium">{k.name}</div>
                   <div className="text-[10px] text-muted-foreground">
-                    <code>{k.keyPrefix}</code> · scopes: {k.scopes.join(", ")} ·{" "}
+                    {tx.rich("scopes", { keyPrefix: k.keyPrefix, v: k.scopes.join(", "), b0: (chunks) => <code>{chunks}</code> })}
                     {k.lastUsedAt
                       ? `used ${k.lastUsedAt.toLocaleString()}`
                       : "never used"}
@@ -140,12 +142,12 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
                   className="inline-flex h-7 items-center rounded-md bg-rose-500/10 px-2 text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20"
                 >
                   <Trash2 className="mr-1 size-3" />
-                  Revoke
+                  {tx("revoke")}
                 </button>
               )}
               {k.revokedAt && (
                 <span className="text-[10px] text-muted-foreground">
-                  revoked {k.revokedAt.toLocaleDateString()}
+                  {tx("revoked", { v: k.revokedAt.toLocaleDateString() })}
                 </span>
               )}
             </li>
@@ -154,9 +156,7 @@ export function ApiKeyManager({ initial }: { initial: ApiKeyRow[] }) {
       )}
 
       <p className="text-[10px] text-muted-foreground">
-        Use <code className="rounded bg-white/5 px-1 py-0.5">Authorization: Bearer YOUR_KEY</code>{" "}
-        on requests to <code>/api/v1/clients</code>, <code>/api/v1/audits</code>,{" "}
-        <code>/api/v1/keywords</code>, <code>/api/v1/snapshots</code>.
+        {tx.rich("useAuthorizationBearerYourKey", { b0: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5">{chunks}</code>, b1: (chunks) => <code>{chunks}</code>, b2: (chunks) => <code>{chunks}</code>, b3: (chunks) => <code>{chunks}</code>, b4: (chunks) => <code>{chunks}</code> })}
       </p>
     </div>
   );

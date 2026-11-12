@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -86,6 +87,7 @@ export function QueueList({
   items: PublishQueueItem[];
   clientId: number;
 }) {
+  const tx = useTranslations("ui.app_clients_id_queue_queue-list");
   const [filter, setFilter] = useState<Filter>("pending");
   const filtered = useMemo(() => {
     if (filter === "all") return items;
@@ -110,29 +112,23 @@ export function QueueList({
           <span className="grid size-12 place-items-center rounded-2xl bg-violet-500/15 ring-1 ring-inset ring-violet-500/30">
             <Inbox className="size-5 text-violet-300" />
           </span>
-          <h3 className="mt-4 text-base font-semibold">Nothing waiting yet</h3>
+          <h3 className="mt-4 text-base font-semibold">{tx("nothingWaitingYet")}</h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            The queue collects AI-generated items from your daily schedules
-            (blog drafts, GBP posts, social copy, daily checklists). Schedules
-            run once a day at the time you set — items land here in{" "}
-            <span className="font-medium text-foreground/80">
-              Pending review
-            </span>{" "}
-            for you to approve, edit, or reject.
+            {tx.rich("theQueueCollectsAiGenerated", { b0: (chunks) => <span className="font-medium text-foreground/80">{chunks}</span> })}
           </p>
           <p className="mt-4 grid w-full max-w-xs grid-cols-2 gap-1.5 text-[11px] text-muted-foreground">
             <span className="rounded-md bg-amber-500/10 px-2 py-1.5 text-amber-300 ring-1 ring-inset ring-amber-500/30">
-              <span className="font-semibold">Pending</span> · waits for you
+              {tx.rich("pendingWaitsForYou", { b0: (chunks) => <span className="font-semibold">{chunks}</span> })}
             </span>
             <span className="rounded-md bg-emerald-500/10 px-2 py-1.5 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-              <span className="font-semibold">Auto-publish</span> · skips review
+              {tx.rich("autoPublishSkipsReview", { b0: (chunks) => <span className="font-semibold">{chunks}</span> })}
             </span>
           </p>
           <a
             href={`/clients/${clientId}/automations`}
             className="mt-5 inline-flex h-9 items-center rounded-md bg-violet-500/15 px-4 text-sm font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 transition-colors hover:bg-violet-500/25"
           >
-            Set up a schedule →
+            {tx("setUpASchedule")}
           </a>
         </div>
       </div>
@@ -153,7 +149,7 @@ export function QueueList({
                 : "bg-white/[0.02] text-muted-foreground ring-white/5 hover:bg-white/5"
             }`}
           >
-            {f === "pending" ? "Needs review" : f[0].toUpperCase() + f.slice(1)}
+            {f === "pending" ? tx("needsReview") : f[0].toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
@@ -164,7 +160,7 @@ export function QueueList({
         ))}
         {filtered.length === 0 && (
           <li className="rounded-2xl border border-white/5 bg-card/40 px-5 py-8 text-center text-sm text-muted-foreground">
-            Nothing matches this filter.
+            {tx("nothingMatchesThisFilter")}
           </li>
         )}
       </ul>
@@ -179,6 +175,7 @@ function QueueRow({
   item: PublishQueueItem;
   clientId: number;
 }) {
+  const tx = useTranslations("ui.app_clients_id_queue_queue-list");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(item.title ?? "");
@@ -212,14 +209,14 @@ function QueueRow({
   function reject() {
     startTransition(async () => {
       await rejectQueueItem(item.id, clientId);
-      toast.success("Rejected — won't be published.");
+      toast.success(tx("rejectedWonTBePublished"));
     });
   }
 
   async function destroy() {
     const ok = await confirmDialog({
-      title: "Delete this queue item?",
-      description: "It's removed permanently. The schedule will generate a fresh item on its next run.",
+      title: tx("deleteThisQueueItem"),
+      description: tx("itSRemovedPermanentlyThe"),
       confirmLabel: "Delete",
       destructive: true,
     });
@@ -293,7 +290,7 @@ function QueueRow({
     a.download = `${filename || "draft"}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`Downloaded ${a.download}`);
+    toast.success(tx("downloaded", { download: a.download }));
   }
 
   return (
@@ -329,7 +326,7 @@ function QueueRow({
                     rel="noreferrer"
                     className="inline-flex items-center gap-0.5 hover:text-foreground"
                   >
-                    view <ExternalLink className="size-3" />
+                    {tx("view")} <ExternalLink className="size-3" />
                   </a>
                 ) : (
                   <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">
@@ -361,7 +358,7 @@ function QueueRow({
           {editing ? (
             <>
               <label className="space-y-1 text-xs">
-                <span className="text-muted-foreground">Title</span>
+                <span className="text-muted-foreground">{tx("title")}</span>
                 <input
                   value={draftTitle}
                   onChange={(e) => setDraftTitle(e.target.value)}
@@ -369,7 +366,7 @@ function QueueRow({
                 />
               </label>
               <label className="space-y-1 text-xs">
-                <span className="text-muted-foreground">Body</span>
+                <span className="text-muted-foreground">{tx("body")}</span>
                 <textarea
                   value={draftBody}
                   onChange={(e) => setDraftBody(e.target.value)}
@@ -398,7 +395,7 @@ function QueueRow({
                   ) : (
                     <Send className="mr-2 size-3" />
                   )}
-                  Approve + publish now
+                  {tx("approvePublishNow")}
                 </button>
                 <button
                   type="button"
@@ -407,7 +404,7 @@ function QueueRow({
                   className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10 disabled:opacity-50"
                 >
                   <CheckCircle2 className="mr-1.5 size-3" />
-                  Approve (publish on next tick)
+                  {tx("approvePublishOnNextTick")}
                 </button>
                 <button
                   type="button"
@@ -416,7 +413,7 @@ function QueueRow({
                   className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-50"
                 >
                   <ThumbsDown className="mr-1.5 size-3" />
-                  Reject
+                  {tx("reject")}
                 </button>
               </>
             )}
@@ -435,12 +432,12 @@ function QueueRow({
                 {editing ? (
                   <>
                     <X className="mr-1.5 size-3" />
-                    Cancel edit
+                    {tx("cancelEdit")}
                   </>
                 ) : (
                   <>
                     <Edit3 className="mr-1.5 size-3" />
-                    Edit before approving
+                    {tx("editBeforeApproving")}
                   </>
                 )}
               </button>
@@ -449,10 +446,10 @@ function QueueRow({
               type="button"
               onClick={copyBody}
               className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10"
-              title="Copy raw body to clipboard"
+              title={tx("copyRawBodyToClipboard")}
             >
               <Copy className="mr-1.5 size-3" />
-              Copy
+              {tx("copy")}
             </button>
             {item.kind === "blog_draft" && (
               <>
@@ -460,16 +457,16 @@ function QueueRow({
                   type="button"
                   onClick={copyAsMarkdown}
                   className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10"
-                  title="Copy as Markdown (paste into Notion, Medium, ghost editor)"
+                  title={tx("copyAsMarkdownPasteInto")}
                 >
                   <FileCode className="mr-1.5 size-3" />
-                  Copy MD
+                  {tx("copyMd")}
                 </button>
                 <button
                   type="button"
                   onClick={() => downloadAs("md")}
                   className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10"
-                  title="Download as .md file"
+                  title={tx("downloadAsMdFile")}
                 >
                   <Download className="mr-1.5 size-3" />
                   .md
@@ -478,7 +475,7 @@ function QueueRow({
                   type="button"
                   onClick={() => downloadAs("html")}
                   className="inline-flex h-9 items-center rounded-md bg-white/5 px-3 text-xs ring-1 ring-inset ring-white/10 hover:bg-white/10"
-                  title="Download as .html file"
+                  title={tx("downloadAsHtmlFile")}
                 >
                   <Download className="mr-1.5 size-3" />
                   .html
@@ -490,7 +487,7 @@ function QueueRow({
               disabled={pending}
               onClick={destroy}
               className="ml-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-              title="Delete"
+              title={tx("delete")}
             >
               <Trash2 className="size-3.5" />
             </button>
@@ -498,8 +495,7 @@ function QueueRow({
 
           {editing && (
             <p className="rounded-md bg-cyan-500/10 px-3 py-2 text-[11px] text-cyan-200 ring-1 ring-inset ring-cyan-500/30">
-              <Save className="inline size-3 -mt-0.5" /> Your edits are saved
-              when you click an Approve button below.
+              <Save className="inline size-3 -mt-0.5" /> {tx("yourEditsAreSavedWhen")}
             </p>
           )}
         </div>

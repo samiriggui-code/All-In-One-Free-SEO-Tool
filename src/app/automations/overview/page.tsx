@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeft, Bot, Calendar, CheckCircle2, Clock, Mail, RefreshCw, ScanLine, ShieldAlert, Target, TrendingDown, Workflow, Globe, HandMetal } from "lucide-react";
 import { getSetting } from "@/lib/settings-store";
@@ -222,6 +223,7 @@ const MANUAL_GUIDES: ManualGuide[] = [
 ];
 
 export default async function AutomationsOverviewPage() {
+  const tx = await getTranslations("ui.app_automations_overview_page");
   // Pull last-run timestamps for automations that have them
   const lastRunTs = await getSetting<number>(
     "daily_agent_runner.last_run",
@@ -235,12 +237,12 @@ export default async function AutomationsOverviewPage() {
         href="/automations"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to automations
+        <ArrowLeft className="size-3" /> {tx("backToAutomations")}
       </Link>
 
       <PageHeader
-        title="What's automated · what's manual"
-        description="A complete map of every task this tool runs on its own + every task that needs your hand. For manual tasks, you get the where + how step-by-step. No black box."
+        title={tx("whatSAutomatedWhatS")}
+        description={tx("aCompleteMapOfEvery")}
         icon={Workflow}
         accent="cyan"
       />
@@ -250,19 +252,17 @@ export default async function AutomationsOverviewPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
           <div>
-            <h2 className="text-sm font-semibold">Automated by the tool</h2>
+            <h2 className="text-sm font-semibold">{tx("automatedByTheTool")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              These run on their own — you don&apos;t need to remember.
+              {tx("theseRunOnTheirOwn")}
             </p>
           </div>
           {lastDailyAgent && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <Clock className="size-3" />
-              Daily agent last ran{" "}
-              {Math.round(
+              {tx("dailyAgentLastRanMin", { Math: Math.round(
                 (Date.now() - lastDailyAgent.getTime()) / 60000,
-              )}{" "}
-              min ago
+              ) })}
             </span>
           )}
         </header>
@@ -289,7 +289,7 @@ export default async function AutomationsOverviewPage() {
                       href={a.whereToSee.href}
                       className="inline-flex items-center gap-1 text-[11px] text-violet-300 hover:underline"
                     >
-                      See output in {a.whereToSee.label} →
+                      {tx("seeOutputIn", { label: a.whereToSee.label })}
                     </Link>
                   )}
                 </div>
@@ -301,9 +301,9 @@ export default async function AutomationsOverviewPage() {
 
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-3">
-          <h2 className="text-sm font-semibold">Tasks that need you (with guides)</h2>
+          <h2 className="text-sm font-semibold">{tx("tasksThatNeedYouWith")}</h2>
           <p className="text-[11px] text-muted-foreground">
-            For each: why it&apos;s manual, where you do it, and a numbered how-to.
+            {tx("forEachWhyItS")}
           </p>
         </header>
         <ul className="divide-y divide-white/[0.06]">
@@ -317,19 +317,19 @@ export default async function AutomationsOverviewPage() {
                   <p className="text-sm font-medium">{g.title}</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-md bg-amber-500/5 p-2 text-[11px] ring-1 ring-inset ring-amber-500/20">
-                      <p className="font-medium text-amber-300">Why it&apos;s manual</p>
+                      <p className="font-medium text-amber-300">{tx("whyItSManual")}</p>
                       <p className="text-muted-foreground">{g.whyManual}</p>
                     </div>
                     <div className="rounded-md bg-emerald-500/5 p-2 text-[11px] ring-1 ring-inset ring-emerald-500/20">
                       <p className="font-medium text-emerald-300 inline-flex items-center gap-1">
-                        <Globe className="size-3" /> Where
+                        <Globe className="size-3" /> {tx("where")}
                       </p>
                       <p className="text-muted-foreground">{g.where}</p>
                     </div>
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-                      How — step by step
+                      {tx("howStepByStep")}
                     </p>
                     <ol className="space-y-1 text-xs">
                       {g.steps.map((s, j) => (
@@ -359,20 +359,10 @@ export default async function AutomationsOverviewPage() {
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-xs text-muted-foreground">
         <h3 className="text-sm font-semibold text-foreground mb-2">
-          Want it more automated?
+          {tx("wantItMoreAutomated")}
         </h3>
         <p className="leading-relaxed">
-          Build a custom workflow on{" "}
-          <Link href="/automations" className="text-violet-300 hover:underline">
-            /automations
-          </Link>{" "}
-          — trigger an action on any event (rank drop, page change, new
-          backlink, audit issue surfaced) and chain it to Slack, email,
-          webhook, or a task auto-created for your team. Plus the{" "}
-          <Link href="/settings" className="text-violet-300 hover:underline">
-            Settings → AI
-          </Link>{" "}
-          page lets you pick which AI provider runs the AI-driven automation.
+          {tx.rich("buildACustomWorkflowOn", { b0: (chunks) => <Link href="/automations" className="text-violet-300 hover:underline">{chunks}</Link>, b1: (chunks) => <Link href="/settings" className="text-violet-300 hover:underline">{chunks}</Link> })}
         </p>
       </section>
     </div>

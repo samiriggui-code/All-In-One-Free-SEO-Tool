@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Clock } from "lucide-react";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
 import { saveAutoBackupSettings } from "./auto-backup-actions";
@@ -34,33 +35,31 @@ export function AutoBackupCard({
   lastBytes: number | null;
   lastError: string | null;
 }) {
+  const tx = useTranslations("ui.app_settings_backup_auto-backup-card");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
       <header>
         <h2 className="text-base font-semibold inline-flex items-center gap-2">
           <Clock className="size-4 text-emerald-300" />
-          Automatic daily backup
+          {tx("automaticDailyBackup")}
         </h2>
         <p className="text-[11px] text-muted-foreground">
-          Quietly takes a consistent snapshot of data.db every {cadenceHours}h
-          via SQLite&apos;s online VACUUM. Old backups beyond the retention
-          count get pruned. Backups stay on the same disk — for true safety
-          also copy them off-site (Syncthing / Dropbox / Restic / Borg).
+          {tx("quietlyTakesAConsistentSnapshot", { cadenceHours })}
         </p>
       </header>
 
       <div className="grid gap-2 sm:grid-cols-3 text-xs">
         <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Status
+            {tx("status")}
           </p>
           <p className={enabled ? "text-emerald-300" : "text-muted-foreground"}>
-            {enabled ? "Enabled" : "Disabled"}
+            {enabled ? tx("enabled") : tx("disabled")}
           </p>
         </div>
         <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Last run
+            {tx("lastRun")}
           </p>
           <div className="flex items-center gap-2">
             <FreshnessBadge capturedAt={lastRunIso} source="Backup" />
@@ -73,15 +72,15 @@ export function AutoBackupCard({
         </div>
         <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Retention
+            {tx("retention")}
           </p>
-          <p>{retention} most recent</p>
+          <p>{tx("mostRecent", { retention })}</p>
         </div>
       </div>
 
       {lastError && (
         <div className="rounded-md border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-[11px] text-rose-200">
-          <span className="font-semibold">Last backup failed:</span> {lastError}
+          <span className="font-semibold">{tx("lastBackupFailed")}</span> {lastError}
         </div>
       )}
 
@@ -96,11 +95,11 @@ export function AutoBackupCard({
             defaultChecked={enabled}
             className="size-3.5 rounded border-white/20 bg-white/[0.04]"
           />
-          <span>Enabled</span>
+          <span>{tx("enabled")}</span>
         </label>
         <label className="text-xs">
           <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-            Cadence (hours)
+            {tx("cadenceHours")}
           </span>
           <input
             name="cadence_hours"
@@ -113,7 +112,7 @@ export function AutoBackupCard({
         </label>
         <label className="text-xs">
           <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-            Keep N most recent
+            {tx("keepNMostRecent")}
           </span>
           <input
             name="retention"
@@ -128,7 +127,7 @@ export function AutoBackupCard({
           type="submit"
           className="h-7 rounded-md bg-emerald-500/15 px-3 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
         >
-          Save
+          {tx("save")}
         </button>
       </form>
     </section>

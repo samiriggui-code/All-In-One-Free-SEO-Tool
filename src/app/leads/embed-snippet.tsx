@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 import { Check, Code2, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ const readOrigin = () => window.location.origin;
 const readOriginOnServer = () => "";
 
 export function EmbedSnippet() {
+  const tx = useTranslations("ui.app_leads_embed-snippet");
   const origin = useSyncExternalStore(
     subscribeNever,
     readOrigin,
@@ -55,22 +57,15 @@ export function EmbedSnippet() {
     <section className="glass-apple rounded-xl p-5">
       <h2 className="flex items-center gap-2 text-sm font-medium">
         <Code2 className="size-4 text-emerald-300" />
-        Put the audit widget on your site
+        {tx("putTheAuditWidgetOn")}
       </h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        Paste this where you want it to appear. Visitors grade their own site,
-        see what&apos;s wrong, and can leave an email for the full report —
-        which lands here. It uses your brand name, colour and logo from
-        Settings.
+        {tx("pasteThisWhereYouWant")}
       </p>
 
       {local && (
         <p className="mt-3 rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-inset ring-amber-500/25">
-          You&apos;re on <code className="font-mono">{origin}</code>, which only
-          works from this machine. For the widget to work on a public site, this
-          app needs to be reachable at a public address — a domain pointed at
-          your server, or a tunnel. The snippet will use whatever address you
-          open the app on.
+          {tx.rich("youReOnWhichOnly", { origin, b0: (chunks) => <code className="font-mono">{chunks}</code> })}
         </p>
       )}
 
@@ -88,7 +83,7 @@ export function EmbedSnippet() {
           }}
         >
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-          {copied ? "Copied" : "Copy snippet"}
+          {copied ? tx("copied") : tx("copySnippet")}
         </Button>
         <a
           href="/embed/grader"
@@ -97,7 +92,7 @@ export function EmbedSnippet() {
           className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
         >
           <ExternalLink className="size-3.5" />
-          Preview it
+          {tx("previewIt")}
         </a>
       </div>
     </section>

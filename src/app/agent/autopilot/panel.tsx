@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -54,6 +55,7 @@ export function AutopilotPanel({
   recent: SerialisedAction[];
   runs: RunRow[];
 }) {
+  const tx = useTranslations("ui.app_agent_autopilot_panel");
   const [level, setLevel] = useState(settings.level);
   const [caps, setCaps] = useState(settings);
   const [message, setMessage] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function AutopilotPanel({
       <section className="glass-apple rounded-xl p-5">
         <h2 className="flex items-center gap-2 text-sm font-medium">
           <ShieldCheck className="size-4 text-violet-300" />
-          How much the agent may do on its own
+          {tx("howMuchTheAgentMay")}
         </h2>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           {LEVELS.map((l) => (
@@ -100,11 +102,7 @@ export function AutopilotPanel({
           <p className="mt-3 flex items-start gap-2 rounded-md bg-amber-500/10 px-3 py-2 text-xs text-amber-200 ring-1 ring-inset ring-amber-500/25">
             <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
             <span>
-              On this setting the agent rewrites live pages without asking,
-              including judgement calls. Every change is logged with its
-              previous value and can be undone here — but you&apos;ll be
-              reviewing after the fact. Worth starting on &ldquo;fix the
-              obvious things&rdquo; for a week first.
+              {tx("onThisSettingTheAgent")}
             </span>
           </p>
         )}
@@ -112,8 +110,8 @@ export function AutopilotPanel({
         {/* Guardrails */}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <NumberField
-            label="Changes per run"
-            hint="Blast radius if it gets something wrong."
+            label={tx("changesPerRun")}
+            hint={tx("blastRadiusIfItGets")}
             value={caps.maxActionsPerRun}
             onChange={(v) =>
               start(async () => {
@@ -123,8 +121,8 @@ export function AutopilotPanel({
             }
           />
           <NumberField
-            label="Changes per day"
-            hint="Across every run, per client."
+            label={tx("changesPerDay")}
+            hint={tx("acrossEveryRunPerClient")}
             value={caps.maxActionsPerDay}
             onChange={(v) =>
               start(async () => {
@@ -134,8 +132,8 @@ export function AutopilotPanel({
             }
           />
           <NumberField
-            label="Cooldown (days)"
-            hint="Won't re-edit the same page for this long."
+            label={tx("cooldownDays")}
+            hint={tx("wonTReEditThe")}
             value={caps.cooldownDays}
             onChange={(v) =>
               start(async () => {
@@ -162,10 +160,10 @@ export function AutopilotPanel({
             ) : (
               <Play className="size-4" />
             )}
-            Run now
+            {tx("runNow")}
           </Button>
           <span className="text-xs text-muted-foreground">
-            Runs on its own every 6 hours{clients.length ? ` across ${clients.length} client${clients.length === 1 ? "" : "s"}` : ""}.
+            {tx("runsOnItsOwnEvery")}{clients.length ? ` across ${clients.length} client${clients.length === 1 ? "" : "s"}` : ""}.
           </span>
         </div>
 
@@ -178,11 +176,10 @@ export function AutopilotPanel({
       {pending.length > 0 && (
         <section className="glass-apple rounded-xl p-5">
           <h2 className="text-sm font-medium">
-            Waiting for you ({pending.length})
+            {tx("waitingForYou", { length: pending.length })}
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            The agent drafted these but didn&apos;t apply them. Approving uses
-            the exact text shown — it won&apos;t regenerate something different.
+            {tx("theAgentDraftedTheseBut")}
           </p>
           <ul className="mt-4 space-y-3">
             {pending.map((a) => (
@@ -194,11 +191,10 @@ export function AutopilotPanel({
 
       {/* What it changed */}
       <section className="glass-apple rounded-xl p-5">
-        <h2 className="text-sm font-medium">What it changed</h2>
+        <h2 className="text-sm font-medium">{tx("whatItChanged")}</h2>
         {recent.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Nothing yet. When the agent changes something on a live site it
-            appears here with the previous value, so you can put it back.
+            {tx("nothingYetWhenTheAgent")}
           </p>
         ) : (
           <ul className="mt-4 space-y-3">
@@ -211,10 +207,10 @@ export function AutopilotPanel({
 
       {/* Run history */}
       <section className="glass-apple rounded-xl p-5">
-        <h2 className="text-sm font-medium">Recent runs</h2>
+        <h2 className="text-sm font-medium">{tx("recentRuns")}</h2>
         {runs.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            The agent hasn&apos;t run yet.
+            {tx("theAgentHasnTRun")}
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-white/5 text-xs">
@@ -281,6 +277,7 @@ function ActionCard({
   mode: "approve" | "undo";
   onDone: (m: string) => void;
 }) {
+  const tx = useTranslations("ui.app_agent_autopilot_panel");
   const [pendingOp, start] = useTransition();
   const [gone, setGone] = useState(false);
   if (gone) return null;
@@ -314,7 +311,7 @@ function ActionCard({
       <div className="mt-2 space-y-1 text-xs">
         {action.beforeValue != null && (
           <div className="flex gap-2">
-            <span className="w-12 shrink-0 text-muted-foreground">Before</span>
+            <span className="w-12 shrink-0 text-muted-foreground">{tx("before")}</span>
             <span className="min-w-0 break-words text-rose-200/80 line-through decoration-rose-400/40">
               {action.beforeValue || "(empty)"}
             </span>
@@ -322,11 +319,11 @@ function ActionCard({
         )}
         {action.afterValue && (
           <div className="flex gap-2">
-            <span className="w-12 shrink-0 text-muted-foreground">After</span>
+            <span className="w-12 shrink-0 text-muted-foreground">{tx("after")}</span>
             <span className="min-w-0 break-words text-emerald-200">
               {action.afterValue}
               <span className="ml-1 text-[10px] text-muted-foreground">
-                ({action.afterValue.length} chars)
+                {tx("chars", { length: action.afterValue.length })}
               </span>
             </span>
           </div>
@@ -347,12 +344,12 @@ function ActionCard({
                 start(async () => {
                   const r = await approveAction(action.id);
                   if (r.ok) setGone(true);
-                  else onDone(r.error ?? "Couldn't apply that.");
+                  else onDone(r.error ?? tx("couldnTApplyThat"));
                 })
               }
             >
               {pendingOp ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
-              Apply
+              {tx("apply")}
             </Button>
             <Button
               size="sm"
@@ -366,7 +363,7 @@ function ActionCard({
               }
             >
               <X className="size-3.5" />
-              No thanks
+              {tx("noThanks")}
             </Button>
           </>
         )}
@@ -379,12 +376,12 @@ function ActionCard({
               start(async () => {
                 const r = await undoAction(action.id);
                 if (r.ok) setGone(true);
-                else onDone(r.error ?? "Couldn't undo that.");
+                else onDone(r.error ?? tx("couldnTUndoThat"));
               })
             }
           >
             {pendingOp ? <Loader2 className="size-3.5 animate-spin" /> : <RotateCcw className="size-3.5" />}
-            Put it back
+            {tx("putItBack")}
           </Button>
         )}
       </div>
@@ -399,6 +396,7 @@ function StatusPill({
   status: string;
   verifyNote: string | null;
 }) {
+  const tx = useTranslations("ui.app_agent_autopilot_panel");
   // "applied" and "verified" are genuinely different and the distinction
   // is worth a user's attention: applied means the CMS accepted it,
   // verified means we read the page back and found it there. A plugin or
@@ -426,7 +424,7 @@ function StatusPill({
       title={
         verifyNote ??
         (status === "verified"
-          ? "We read the page back and found the new value."
+          ? tx("weReadThePageBack")
           : undefined)
       }
       className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${tone}`}

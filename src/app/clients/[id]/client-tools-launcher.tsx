@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ToolDot } from "@/components/tool-dot";
 import { toolReadiness } from "@/lib/tool-readiness";
@@ -449,6 +450,7 @@ export function ClientToolsLauncher({
   /** Whether an AI key exists, so the dots can tell ready from blocked. */
   hasAiKey?: boolean;
 }) {
+  const tx = useTranslations("ui.app_clients_id_client-tools-launcher");
   const groups = buildGroups(client);
 
   return (
@@ -457,11 +459,10 @@ export function ClientToolsLauncher({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold">
-              Tools for this client
+              {tx("toolsForThisClient")}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Every tool below is pre-wired with this client&apos;s URL or
-              connected accounts. Tip: ⌘K opens search and jumps to any tool.
+              {tx("everyToolBelowIsPre")}
             </p>
           </div>
         </div>

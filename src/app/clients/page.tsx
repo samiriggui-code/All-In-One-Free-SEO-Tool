@@ -18,6 +18,7 @@ import { ProjectList } from "./project-list";
 
 
 export default async function ClientsPage() {
+  const tx = await getTranslations("ui.app_clients_page");
   const t = await getTranslations("clients");
   const tCommon = await getTranslations("common");
   const rows = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
@@ -83,11 +84,11 @@ export default async function ClientsPage() {
               <Globe className="size-6 text-violet-300" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold">No clients yet</h2>
+              <h2 className="text-lg font-semibold">{tx("noClientsYet")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {googleStatus.configured
-                  ? "Easiest path: import every site in your Google account in one click. Or add manually."
-                  : "Add your first one — we'll auto-fetch the logo, name, address, and social links from the URL."}
+                  ? tx("easiestPathImportEverySite")
+                  : tx("addYourFirstOneWe")}
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2">
@@ -99,7 +100,7 @@ export default async function ClientsPage() {
                   })}
                 >
                   <Sparkles className="size-4" />
-                  Import from Google
+                  {tx("importFromGoogle")}
                 </Link>
               )}
               <Link
@@ -111,7 +112,7 @@ export default async function ClientsPage() {
                     : "shadow-lg shadow-violet-500/25",
                 })}
               >
-                Add manually
+                {tx("addManually")}
               </Link>
             </div>
           </div>

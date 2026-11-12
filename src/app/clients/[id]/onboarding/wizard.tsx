@@ -326,6 +326,7 @@ function KeywordsStep({
   client: WizardClient;
   onNext: () => void;
 }) {
+  const tx = useTranslations("ui.app_clients_id_onboarding_wizard");
   const [state, formAction, discovering] = useActionState<
     DiscoverState | null,
     FormData
@@ -434,7 +435,7 @@ function KeywordsStep({
                       <span
                         className={`rounded px-1.5 py-0.5 ${tone(k.score)}`}
                       >
-                        score {k.score}
+                        {tx("score", { score: k.score })}
                       </span>
                       {k.source === "gsc" && (
                         <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-300">
@@ -442,14 +443,14 @@ function KeywordsStep({
                         </span>
                       )}
                       {k.impressions !== undefined && (
-                        <span>{k.impressions.toLocaleString()} imp</span>
+                        <span>{tx("imp", { v: k.impressions.toLocaleString() })}</span>
                       )}
                       {k.position !== undefined && (
-                        <span>pos {k.position.toFixed(1)}</span>
+                        <span>{tx("pos", { v: k.position.toFixed(1) })}</span>
                       )}
                       {k.isLocal && (
                         <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-amber-300">
-                          local
+                          {tx("local")}
                         </span>
                       )}
                     </div>
@@ -497,6 +498,7 @@ function TargetingStep({
   client: WizardClient;
   onNext: () => void;
 }) {
+  const tx = useTranslations("ui.app_clients_id_onboarding_wizard");
   const [state, formAction, pending] = useActionState<
     SaveBrandResult | null,
     FormData
@@ -543,18 +545,18 @@ function TargetingStep({
             defaultValue={client.language}
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="hi">Hindi</option>
-            <option value="pt">Portuguese</option>
-            <option value="ja">Japanese</option>
-            <option value="ar">Arabic</option>
-            <option value="zh">Chinese</option>
-            <option value="it">Italian</option>
-            <option value="nl">Dutch</option>
-            <option value="ru">Russian</option>
+            <option value="en">{tx("english")}</option>
+            <option value="es">{tx("spanish")}</option>
+            <option value="fr">{tx("french")}</option>
+            <option value="de">{tx("german")}</option>
+            <option value="hi">{tx("hindi")}</option>
+            <option value="pt">{tx("portuguese")}</option>
+            <option value="ja">{tx("japanese")}</option>
+            <option value="ar">{tx("arabic")}</option>
+            <option value="zh">{tx("chinese")}</option>
+            <option value="it">{tx("italian")}</option>
+            <option value="nl">{tx("dutch")}</option>
+            <option value="ru">{tx("russian")}</option>
           </select>
         </label>
       </div>

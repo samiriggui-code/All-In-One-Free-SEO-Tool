@@ -10,6 +10,7 @@
  * data — so we keep the chart deliberately simple and bundle-friendly.
  */
 
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import {
   Area,
@@ -63,8 +64,10 @@ export function AreaChart({
   formatValue,
   showAxes = true,
   height = 200,
-  emptyHint = "Not enough data yet",
+  emptyHint: emptyHintProp,
 }: Props) {
+  const tx = useTranslations("ui.components_ui_area-chart");
+  const emptyHint = emptyHintProp ?? tx("notEnoughDataYet");
   // Unique gradient ID so multiple charts on one page don't collide.
   //
   // useId, not Math.random(): the random version generated a different

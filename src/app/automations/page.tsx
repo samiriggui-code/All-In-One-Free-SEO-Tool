@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { desc, eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,7 @@ const actionIcon = {
 } as const;
 
 export default async function AutomationsPage() {
+  const tx = await getTranslations("ui.app_automations_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -83,8 +85,8 @@ export default async function AutomationsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Automations"
-        description="When something happens — audits, score drops, page changes — trigger an action automatically. Like Zapier, but built into your tool."
+        title={tx("automations")}
+        description={tx("whenSomethingHappensAuditsScore")}
         icon={Workflow}
         accent="fuchsia"
         actions={
@@ -94,20 +96,20 @@ export default async function AutomationsPage() {
               className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/10 px-3 py-2 text-xs font-medium text-cyan-300 ring-1 ring-inset ring-cyan-500/30 transition-colors hover:bg-cyan-500/20"
             >
               <Workflow className="size-3.5" />
-              What&apos;s automated
+              {tx("whatSAutomated")}
             </Link>
             <Link
               href="/automations/templates"
               className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
             >
               <LayoutTemplate className="size-3.5" />
-              Templates
+              {tx("templates")}
             </Link>
           </div>
         }
         meta={
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted-foreground ring-1 ring-inset ring-white/10">
-            {rows.filter((r) => r.enabled).length} active · {rows.length} total
+            {tx("activeTotal", { length: rows.filter((r) => r.enabled).length, length2: rows.length })}
           </span>
         }
       />
@@ -120,9 +122,9 @@ export default async function AutomationsPage() {
         <div className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <EmptyState
             icon={Workflow}
-            title="No automations yet"
-            body="If-this-then-that rules across audits, rankings, content, and outreach. Replaces a Zapier subscription for SEO-shaped workflows."
-            primary={{ href: "/automations/templates", label: "Browse 8 templates" }}
+            title={tx("noAutomationsYet")}
+            body={tx("ifThisThenThatRules")}
+            primary={{ href: "/automations/templates", label: tx("browse8Templates") }}
           />
         </div>
       ) : (
@@ -154,7 +156,7 @@ export default async function AutomationsPage() {
                         <span className="font-medium">{r.name}</span>
                         {!r.enabled && (
                           <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                            paused
+                            {tx("paused")}
                           </span>
                         )}
                       </div>
@@ -189,12 +191,12 @@ export default async function AutomationsPage() {
                           </span>
                         ) : (
                           <span className="text-muted-foreground">
-                            · all clients
+                            {tx("allClients")}
                           </span>
                         )}
                       </div>
                       <div className="text-[10px] text-muted-foreground">
-                        Ran {r.runCount} time{r.runCount === 1 ? "" : "s"}
+                        {tx("ranOther", { runCount: r.runCount })}
                         {r.lastRunAt
                           ? ` · last ${r.lastRunAt.toLocaleString()}`
                           : ""}
@@ -204,8 +206,8 @@ export default async function AutomationsPage() {
                       <form action={toggleAction}>
                         <button
                           type="submit"
-                          aria-label={r.enabled ? "Pause" : "Resume"}
-                          title={r.enabled ? "Pause" : "Resume"}
+                          aria-label={r.enabled ? tx("pause") : tx("resume")}
+                          title={r.enabled ? tx("pause") : tx("resume")}
                           className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
                         >
                           {r.enabled ? (
@@ -218,7 +220,7 @@ export default async function AutomationsPage() {
                       <form action={removeAction}>
                         <button
                           type="submit"
-                          aria-label="Delete"
+                          aria-label={tx("delete")}
                           className="grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                         >
                           <X className="size-3.5" />

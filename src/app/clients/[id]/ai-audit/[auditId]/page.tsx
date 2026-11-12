@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { and, asc, eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ export default async function AuditDetailPage({
 }: {
   params: Promise<{ id: string; auditId: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_ai-audit_auditId_page");
   const { id, auditId } = await params;
   const clientId = Number(id);
   const aId = Number(auditId);
@@ -46,11 +48,11 @@ export default async function AuditDetailPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All audits
+        {tx("allAudits")}
       </Link>
 
       <PageHeader
-        title={`Audit · ${client.name}`}
+        title={tx("audit", { name: client.name })}
         description={
           audit.targetUrl
             ? audit.targetUrl
@@ -87,7 +89,7 @@ export default async function AuditDetailPage({
           rel="noreferrer"
           className="inline-flex items-center gap-1 text-xs text-violet-300 hover:underline"
         >
-          Open page in new tab
+          {tx("openPageInNewTab")}
           <ExternalLink className="size-3" />
         </a>
       )}

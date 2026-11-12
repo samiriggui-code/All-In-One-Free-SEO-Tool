@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ export function RunForm({
   clientId: number;
   defaultUrl: string;
 }) {
+  const tx = useTranslations("ui.app_clients_id_ai-audit_run-form");
   const [state, formAction, pending] = useActionState<
     StartState | null,
     FormData
@@ -47,13 +49,13 @@ export function RunForm({
           {pending ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
-              Auditing… (1-2 min)
+              {tx("auditing12Min")}
             </>
           ) : (
             <>
               <Bot className="mr-2 size-4" />
               <Play className="mr-2 size-3" />
-              Run AI audit
+              {tx("runAiAudit")}
             </>
           )}
         </button>
@@ -64,9 +66,7 @@ export function RunForm({
         </p>
       )}
       <p className="text-[10px] text-muted-foreground">
-        Visits the URL, runs every check, AI writes fix steps for each
-        failing one. Reuses your active AI provider — text-only models work
-        fine for this; vision is not required.
+        {tx("visitsTheUrlRunsEvery")}
       </p>
     </form>
   );
