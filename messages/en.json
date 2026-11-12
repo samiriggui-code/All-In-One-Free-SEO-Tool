@@ -7405,5 +7405,133 @@
     "app_tools_rank-where_page": {
       "aiOverview": "AI Overview"
     }
+  },
+  "integrations": {
+    "items": {
+      "ai": {
+        "label": "An AI provider",
+        "whatYouGet": {
+          "0": "The agent can write replacement titles and meta descriptions, not just tell you they're wrong",
+          "1": "Executive summaries on client reports",
+          "2": "The SEO chat and 'ask the tool' assistant",
+          "3": "Content briefs, blog drafts, and the AI audit"
+        },
+        "withoutIt": "Everything that finds problems still works. Anything that writes new wording is unavailable — the agent will flag a 102-character title but can't propose a shorter one.",
+        "steps": {
+          "0": "Open Google AI Studio and sign in with any Google account.",
+          "1": "Click 'Create API key', then 'Create API key in new project' if it asks.",
+          "2": "Copy the key — it starts with AIza.",
+          "3": "Paste it on the AI settings page and save.",
+          "4": "Groq is an equally good free alternative if you'd rather not use Google."
+        },
+        "setupLabel": "Add an AI key",
+        "keyUrlLabel": "Google AI Studio"
+      },
+      "google": {
+        "label": "Google Search Console + Analytics",
+        "whatYouGet": {
+          "0": "Rankings come from Google's own data instead of being scraped — more accurate, and it can't be rate-limited",
+          "1": "Real clicks, impressions and CTR per query",
+          "2": "Quick wins: the keywords you rank 4th-15th for, where one push reaches page one",
+          "3": "Content decay detection — pages quietly losing traffic"
+        },
+        "withoutIt": "Rank tracking falls back to loading search results in a headless browser. It works, it's free, and it's slower and noisier than Google telling you directly.",
+        "steps": {
+          "0": "Make sure the site is verified in Search Console — if you can see its data there, you're set.",
+          "1": "Open the Google page below and click Connect.",
+          "2": "Sign in and approve read-only access.",
+          "3": "Pick which Search Console property belongs to which client."
+        },
+        "setupLabel": "Connect Google",
+        "keyUrlLabel": "Google Search Console"
+      },
+      "bing": {
+        "label": "Bing Webmaster Tools",
+        "whatYouGet": {
+          "0": "Backlinks — Microsoft shares their own link graph for sites you've verified, which is the best free backlink data available",
+          "1": "Real search volume on keyword research, measured rather than estimated",
+          "2": "Submit URLs to Bing for indexing"
+        },
+        "withoutIt": "Backlinks are limited to what you log by hand or import from a CSV, and keyword research has no volume figures to sort by.",
+        "steps": {
+          "0": "Open Bing Webmaster Tools and sign in. You can import your sites straight from Search Console.",
+          "1": "Verify the site if it isn't already — Bing only shares link data for verified sites.",
+          "2": "Click the gear icon → Settings → API access → API key.",
+          "3": "Copy the key and paste it on the Bing page below."
+        },
+        "setupLabel": "Add the Bing key",
+        "keyUrlLabel": "Bing Webmaster Tools"
+      },
+      "pagespeed": {
+        "label": "PageSpeed Insights",
+        "whatYouGet": {
+          "0": "Higher rate limits on speed and Core Web Vitals checks",
+          "1": "Fewer 'try again later' errors when auditing several pages at once"
+        },
+        "withoutIt": "Speed checks still run — Google allows a small number of anonymous requests. You'll hit the limit if you audit a lot of pages in one go.",
+        "steps": {
+          "0": "Open the link below and click 'Get a Key'.",
+          "1": "Pick or create a Google Cloud project — the free quota is 25,000 requests a day.",
+          "2": "Copy the key and paste it on the AI settings page, under PageSpeed."
+        },
+        "setupLabel": "Add the PageSpeed key",
+        "keyUrlLabel": "PageSpeed API docs"
+      },
+      "wordpress": {
+        "label": "WordPress",
+        "whatYouGet": {
+          "0": "The agent can apply fixes directly — titles, meta descriptions, alt text, schema",
+          "1": "Every change is logged with its previous value and undoable in one click",
+          "2": "Stop copying suggestions into WordPress by hand"
+        },
+        "withoutIt": "The agent still finds problems and turns them into tasks. It just can't act on them — you apply the fixes yourself.",
+        "steps": {
+          "0": "Install the companion plugin on the client's WordPress site.",
+          "1": "In the plugin settings, copy the generated key.",
+          "2": "Open the client's page in this app, then Edit, and paste it under WordPress.",
+          "3": "Use 'Test connection' to confirm before turning the agent up."
+        },
+        "setupLabel": "Pick a client to connect"
+      },
+      "smtp": {
+        "label": "Email delivery",
+        "whatYouGet": {
+          "0": "Send reports to clients from this app",
+          "1": "Scheduled monthly reports that go out on their own",
+          "2": "Alerts when something drops"
+        },
+        "withoutIt": "Reports still generate and download as PDFs — you send them however you already do.",
+        "steps": {
+          "0": "Get SMTP details from your email provider (Gmail, Fastmail, your host, or a service like Resend).",
+          "1": "For Gmail you'll need an App Password, not your normal password.",
+          "2": "Enter the host, port, username and password on the email settings page.",
+          "3": "Send a test to yourself before relying on it."
+        },
+        "setupLabel": "Set up email"
+      }
+    },
+    "groups": {
+      "start": {
+        "label": "Start here",
+        "blurb": "Two connections, both free, about eight minutes total. They make the biggest difference to what this tool can tell you."
+      },
+      "data": {
+        "label": "Better data",
+        "blurb": "Optional, and each one improves a specific thing rather than the whole app."
+      },
+      "publishing": {
+        "label": "Let it make changes",
+        "blurb": "Only needed if you want the agent to fix things rather than just find them."
+      },
+      "delivery": {
+        "label": "Sending things out",
+        "blurb": "Only needed if you want this app to send email for you."
+      }
+    },
+    "tiers": {
+      "free": "Free",
+      "free-tier": "Free tier",
+      "paid": "Paid"
+    }
   }
 }

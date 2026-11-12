@@ -22,8 +22,8 @@ const CONFIDENCE_TONE: Record<string, string> = {
 };
 
 export default async function AiLearningPage() {
-  const tx = await getTranslations("ui.app_settings_ai-learning_page");
   await requireSettingsPage("/settings/ai-learning");
+  const tx = await getTranslations("ui.app_settings_ai-learning_page");
   const [prefs, [{ value: feedbackCount }], allClients] = await Promise.all([
     db
       .select()

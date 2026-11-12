@@ -14,8 +14,8 @@ import { UsageCharts } from "./usage-charts";
 import { requireSettingsPage } from "../access";
 
 export default async function AiUsagePage() {
-  const tx = await getTranslations("ui.app_settings_ai-usage_page");
   await requireSettingsPage("/settings/ai-usage");
+  const tx = await getTranslations("ui.app_settings_ai-usage_page");
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 30);
 

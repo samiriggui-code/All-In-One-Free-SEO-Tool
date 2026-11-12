@@ -81,8 +81,8 @@ export default async function LinkBuildingPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const tx = await getTranslations("ui.app_link-building_page");
   const total = await ensureSeoResourcesSeeded();
+  const tx = await getTranslations("ui.app_link-building_page");
 
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";

@@ -7405,5 +7405,133 @@
     "app_tools_rank-where_page": {
       "aiOverview": "AI Overview"
     }
+  },
+  "integrations": {
+    "items": {
+      "ai": {
+        "label": "Un fournisseur d’IA",
+        "whatYouGet": {
+          "0": "L’agent rédige des titres et des meta descriptions de remplacement, au lieu de seulement dire qu’ils sont mauvais",
+          "1": "Les synthèses en tête des rapports clients",
+          "2": "Le Chat SEO et l’assistant « Demander à l’outil »",
+          "3": "Les briefs de contenu, les brouillons d’articles et l’audit IA"
+        },
+        "withoutIt": "Tout ce qui repère des problèmes continue de marcher. Tout ce qui rédige un nouveau texte est indisponible : l’agent signale un titre de 102 caractères mais ne peut pas en proposer un plus court.",
+        "steps": {
+          "0": "Ouvrez Google AI Studio et connectez-vous avec n’importe quel compte Google.",
+          "1": "Cliquez sur « Create API key », puis sur « Create API key in new project » si c’est demandé.",
+          "2": "Copiez la clé : elle commence par AIza.",
+          "3": "Collez-la dans la page des paramètres IA et enregistrez.",
+          "4": "Groq est une alternative gratuite tout aussi bonne si vous préférez éviter Google."
+        },
+        "setupLabel": "Ajouter une clé d’IA",
+        "keyUrlLabel": "Google AI Studio"
+      },
+      "google": {
+        "label": "Google Search Console + Analytics",
+        "whatYouGet": {
+          "0": "Les positions viennent des données de Google au lieu d’être relevées sur les pages de résultats : plus exact, et sans limite de débit",
+          "1": "Les vrais clics, impressions et taux de clic par requête",
+          "2": "Les gains rapides : les mots-clés classés de la 4e à la 15e place, qu’un coup de pouce amène en première page",
+          "3": "La détection des contenus qui s’essoufflent : les pages qui perdent du trafic sans bruit"
+        },
+        "withoutIt": "Le suivi des positions se rabat sur le chargement des résultats de recherche dans un navigateur automatisé. Ça marche et c’est gratuit, mais c’est plus lent et moins précis que la réponse directe de Google.",
+        "steps": {
+          "0": "Vérifiez que le site est validé dans la Search Console : si vous y voyez ses données, c’est bon.",
+          "1": "Ouvrez la page Google ci-dessous et cliquez sur Connecter.",
+          "2": "Connectez-vous et acceptez l’accès en lecture seule.",
+          "3": "Indiquez quelle propriété Search Console correspond à quel projet."
+        },
+        "setupLabel": "Connecter Google",
+        "keyUrlLabel": "Google Search Console"
+      },
+      "bing": {
+        "label": "Bing Webmaster Tools",
+        "whatYouGet": {
+          "0": "Les backlinks : Microsoft partage son propre graphe de liens pour les sites que vous avez validés, la meilleure donnée gratuite sur les backlinks",
+          "1": "De vrais volumes de recherche pour la recherche de mots-clés, mesurés et non estimés",
+          "2": "L’envoi d’URL à Bing pour indexation"
+        },
+        "withoutIt": "Les backlinks se limitent à ceux que vous saisissez à la main ou importez d’un CSV, et la recherche de mots-clés n’a pas de volumes pour trier.",
+        "steps": {
+          "0": "Ouvrez Bing Webmaster Tools et connectez-vous. Vous pouvez importer vos sites directement depuis la Search Console.",
+          "1": "Validez le site si ce n’est pas fait : Bing ne partage les liens que pour les sites validés.",
+          "2": "Cliquez sur la roue dentée → Settings → API access → API key.",
+          "3": "Copiez la clé et collez-la dans la page Bing ci-dessous."
+        },
+        "setupLabel": "Ajouter la clé Bing",
+        "keyUrlLabel": "Bing Webmaster Tools"
+      },
+      "pagespeed": {
+        "label": "PageSpeed Insights",
+        "whatYouGet": {
+          "0": "Des limites de débit plus hautes pour les contrôles de vitesse et de Core Web Vitals",
+          "1": "Moins d’erreurs « réessayez plus tard » quand vous auditez plusieurs pages à la suite"
+        },
+        "withoutIt": "Les contrôles de vitesse tournent quand même : Google autorise un petit nombre de requêtes anonymes. La limite est atteinte si vous auditez beaucoup de pages d’un coup.",
+        "steps": {
+          "0": "Ouvrez le lien ci-dessous et cliquez sur « Get a Key ».",
+          "1": "Choisissez ou créez un projet Google Cloud : le quota gratuit est de 25 000 requêtes par jour.",
+          "2": "Copiez la clé et collez-la dans la page des paramètres IA, rubrique PageSpeed."
+        },
+        "setupLabel": "Ajouter la clé PageSpeed",
+        "keyUrlLabel": "Documentation de l’API PageSpeed"
+      },
+      "wordpress": {
+        "label": "WordPress",
+        "whatYouGet": {
+          "0": "L’agent applique les corrections directement : titres, meta descriptions, textes alternatifs, schema",
+          "1": "Chaque changement est consigné avec l’ancienne valeur et s’annule en un clic",
+          "2": "Fini de recopier les propositions à la main dans WordPress"
+        },
+        "withoutIt": "L’agent repère toujours les problèmes et en fait des tâches. Il ne peut simplement pas agir : c’est vous qui appliquez les corrections.",
+        "steps": {
+          "0": "Installez l’extension associée sur le site WordPress du client.",
+          "1": "Dans les réglages de l’extension, copiez la clé générée.",
+          "2": "Ouvrez la page du projet dans l’application, puis ses réglages, et collez-la dans la rubrique WordPress.",
+          "3": "Utilisez « Tester la connexion » pour vérifier avant de donner plus de latitude à l’agent."
+        },
+        "setupLabel": "Choisir un projet à connecter"
+      },
+      "smtp": {
+        "label": "Envoi d’e-mails",
+        "whatYouGet": {
+          "0": "Envoyer les rapports aux clients depuis l’application",
+          "1": "Des rapports mensuels planifiés qui partent tout seuls",
+          "2": "Des alertes quand quelque chose baisse"
+        },
+        "withoutIt": "Les rapports sont toujours générés et téléchargeables en PDF : vous les envoyez comme vous le faites déjà.",
+        "steps": {
+          "0": "Récupérez les paramètres SMTP auprès de votre fournisseur de messagerie (Gmail, Fastmail, votre hébergeur ou un service comme Resend).",
+          "1": "Pour Gmail, il faut un mot de passe d’application, pas votre mot de passe habituel.",
+          "2": "Saisissez l’hôte, le port, l’identifiant et le mot de passe dans la page des paramètres e-mail.",
+          "3": "Envoyez-vous un test avant de vous y fier."
+        },
+        "setupLabel": "Configurer l’e-mail"
+      }
+    },
+    "groups": {
+      "start": {
+        "label": "Commencer ici",
+        "blurb": "Deux connexions, toutes deux gratuites, environ huit minutes en tout. Ce sont elles qui changent le plus ce que l’outil peut vous apprendre."
+      },
+      "data": {
+        "label": "De meilleures données",
+        "blurb": "Facultatif : chacune améliore une chose précise plutôt que toute l’application."
+      },
+      "publishing": {
+        "label": "Le laisser faire des changements",
+        "blurb": "Utile seulement si vous voulez que l’agent corrige au lieu de seulement repérer."
+      },
+      "delivery": {
+        "label": "Envoyer des documents",
+        "blurb": "Utile seulement si vous voulez que l’application envoie des e-mails pour vous."
+      }
+    },
+    "tiers": {
+      "free": "Gratuit",
+      "free-tier": "Offre gratuite",
+      "paid": "Payant"
+    }
   }
 }

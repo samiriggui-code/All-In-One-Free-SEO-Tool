@@ -24,8 +24,8 @@ function fmtBytes(b: number): string {
 }
 
 export default async function BackupPage() {
-  const tx = await getTranslations("ui.app_settings_backup_page");
   await requireSettingsPage("/settings/backup", { owner: true });
+  const tx = await getTranslations("ui.app_settings_backup_page");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbs = path.resolve(dbPath);
   const dbExists = existsSync(dbAbs);

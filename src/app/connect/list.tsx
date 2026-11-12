@@ -1,5 +1,6 @@
 "use client";
 
+import { useIntegrationText } from "@/lib/integrations-text";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import Link from "next/link";
@@ -12,9 +13,6 @@ import {
   HelpCircle,
 } from "lucide-react";
 import {
-  GROUP_BLURBS,
-  GROUP_LABELS,
-  TIER_LABELS,
   type Integration,
   type IntegrationStatus,
 } from "@/lib/integrations";
@@ -34,6 +32,7 @@ export function ConnectList({
   status: Record<string, IntegrationStatus>;
 }) {
   const tx = useTranslations("ui.app_connect_list");
+  const it = useIntegrationText();
   const connected = integrations.filter(
     (i) => status[i.id] === "connected",
   ).length;
@@ -57,9 +56,9 @@ export function ConnectList({
         return (
           <section key={group} className="space-y-3">
             <div>
-              <h2 className="text-sm font-medium">{GROUP_LABELS[group]}</h2>
+              <h2 className="text-sm font-medium">{it.groupLabel(group)}</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {GROUP_BLURBS[group]}
+                {it.groupBlurb(group)}
               </p>
             </div>
             <div className="space-y-2">
@@ -79,13 +78,15 @@ export function ConnectList({
 }
 
 function Card({
-  integration: i,
+  integration: raw,
   status,
 }: {
   integration: Integration;
   status: IntegrationStatus;
 }) {
   const tx = useTranslations("ui.app_connect_list");
+  const it = useIntegrationText();
+  const i = it.item(raw);
   // Collapsed by default once connected — a done thing shouldn't take up
   // as much room as a thing you still need to do.
   const [open, setOpen] = useState(status !== "connected");
@@ -115,7 +116,7 @@ function Card({
                     : "bg-amber-500/10 text-amber-300 ring-amber-500/25"
               }`}
             >
-              {TIER_LABELS[i.tier]}
+              {it.tier(i.tier)}
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
               <Clock className="size-3" />{tx("min", { minutes: i.minutes })}

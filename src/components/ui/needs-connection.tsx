@@ -1,3 +1,4 @@
+import { useIntegrationText } from "@/lib/integrations-text";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, Plug } from "lucide-react";
@@ -27,8 +28,10 @@ export function NeedsConnection({
   compact?: boolean;
 }) {
   const tx = useTranslations("ui.components_ui_needs-connection");
-  const integration = integrationById(id);
-  if (!integration) return null;
+  const it = useIntegrationText();
+  const raw = integrationById(id);
+  if (!raw) return null;
+  const integration = it.item(raw);
 
   if (compact) {
     return (

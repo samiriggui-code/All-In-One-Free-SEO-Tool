@@ -24,8 +24,8 @@ import { requireSettingsPage } from "../access";
  * the reason is not obvious.
  */
 export default async function EdgeSettingsPage() {
-  const tx = await getTranslations("ui.app_settings_edge_page");
   await requireSettingsPage("/settings/edge", { owner: true });
+  const tx = await getTranslations("ui.app_settings_edge_page");
   const [token, rows] = await Promise.all([
     getEdgeToken(),
     db.select({ id: clients.id, name: clients.name, url: clients.url }).from(clients),

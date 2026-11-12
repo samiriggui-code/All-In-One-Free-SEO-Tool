@@ -51,8 +51,8 @@ function fmtAgo(d: Date | null): string {
 }
 
 export default async function HealthPage() {
-  const tx = await getTranslations("ui.app_settings_health_page");
   await requireSettingsPage("/settings/health");
+  const tx = await getTranslations("ui.app_settings_health_page");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbsolute = path.resolve(dbPath);
   const dbExists = existsSync(dbAbsolute);
