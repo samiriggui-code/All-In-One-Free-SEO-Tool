@@ -74,6 +74,30 @@ export default async function AiUsagePage() {
     .map(([k, v]) => ({ provider: k, ...v }))
     .sort((a, b) => b.cost - a.cost);
 
+  // Per channel: where the calls come from (a screen, the assistant,
+  // background jobs, the client portal) and how long they take.
+  const byChannel = new Map<string, { calls: number; cost: number; latency: number; timed: number }>();
+  for (const r of recentCalls) {
+    const k = r.channel ?? "unknown";
+    const cur = byChannel.get(k) ?? { calls: 0, cost: 0, latency: 0, timed: 0 };
+    cur.calls += 1;
+    cur.cost += r.costMicros;
+    if (r.latencyMs != null) {
+      cur.latency += r.latencyMs;
+      cur.timed += 1;
+    }
+    byChannel.set(k, cur);
+  }
+  const channelRows = Array.from(byChannel.entries())
+    .map(([channel, v]) => ({
+      channel,
+      calls: v.calls,
+      cost: v.cost,
+      avgMs: v.timed ? Math.round(v.latency / v.timed) : null,
+    }))
+    .sort((a, b) => b.calls - a.calls);
+  const channelLabel = (c: string) => (tx.has(`channels.${c}`) ? tx(`channels.${c}`) : c);
+
   // Per-client breakdown — full SQL aggregation (not limited to the
   // 500-row recentCalls window), so high-volume clients show their
   // real footprint even when other clients dominate the recent list.
@@ -249,6 +273,32 @@ export default async function AiUsagePage() {
         </section>
       )}
 
+      {/* Per channel */}
+      {channelRows.length > 0 && (
+        <section className="glass-apple relative overflow-hidden rounded-2xl">
+          <header className="border-b border-white/[0.06] px-5 py-3">
+            <h2 className="text-sm font-semibold">{tx("byChannel")}</h2>
+          </header>
+          <ul className="divide-y divide-white/[0.05]">
+            {channelRows.map((r) => (
+              <li
+                key={r.channel}
+                className="flex items-center justify-between gap-3 px-5 py-2.5 text-xs"
+              >
+                <span className="font-medium">{channelLabel(r.channel)}</span>
+                <span className="text-muted-foreground tabular-nums">
+                  {tx("channelStats", {
+                    calls: r.calls,
+                    cost: microsToDisplay(r.cost),
+                    latency: r.avgMs == null ? "—" : (r.avgMs / 1000).toFixed(1),
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Per client. Critical for agencies — see which clients are
           actually driving the AI bill, then either rein them in,
           bill them through, or upgrade the plan. Full-table SQL
@@ -305,6 +355,7 @@ export default async function AiUsagePage() {
                 <th className="px-4 py-2 text-left">{tx("when")}</th>
                 <th className="px-4 py-2 text-left">{tx("feature")}</th>
                 <th className="px-4 py-2 text-left">{tx("provider")}</th>
+                <th className="px-4 py-2 text-left">{tx("channel")}</th>
                 <th className="px-4 py-2 text-right">{tx("tokIn")}</th>
                 <th className="px-4 py-2 text-right">{tx("tokOut")}</th>
                 <th className="px-4 py-2 text-right">{tx("cost")}</th>
@@ -321,6 +372,9 @@ export default async function AiUsagePage() {
                   <td className="px-4 py-1.5 text-muted-foreground">
                     {r.provider}
                   </td>
+                  <td className="px-4 py-1.5 text-muted-foreground">
+                    {r.channel ? channelLabel(r.channel) : "—"}
+                  </td>
                   <td className="px-4 py-1.5 text-right tabular-nums">
                     {r.promptTokens.toLocaleString()}
                   </td>
@@ -335,6 +389,8 @@ export default async function AiUsagePage() {
                       <span className="text-emerald-300">✓</span>
                     ) : r.status === "blocked_by_cap" ? (
                       <span className="text-amber-300">{tx("capped")}</span>
+                    ) : r.status === "blocked_by_guardrail" ? (
+                      <span className="text-amber-300">{tx("guarded")}</span>
                     ) : (
                       <span
                         className="text-rose-300"

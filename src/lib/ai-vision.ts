@@ -10,6 +10,9 @@
 
 import { getActiveProvider, getApiKey, getOllamaUrl } from "./api-keys";
 import { logAiCall, checkMonthlyCap } from "./ai-usage";
+import { normalizePurposeModel, purposeSettingKey } from "./ai-purpose";
+import { guardText, normalizeGuardrails } from "./guardrails";
+import { getSetting } from "./settings-store";
 import { callGemini as sharedCallGemini } from "./providers/gemini";
 import { callAnthropic as sharedCallAnthropic } from "./providers/anthropic";
 import { callOpenAICompat as sharedCallOpenAICompat } from "./providers/openai-compat";
@@ -35,6 +38,34 @@ export type VisionCallOpts = {
 };
 
 export async function callAIVision(opts: VisionCallOpts): Promise<string | null> {
+  // The model chosen for images in Settings → AI → Defaults by use, when
+  // the caller did not name one.
+  if (!opts.providerOverride && !opts.modelOverride) {
+    const chosen = normalizePurposeModel(
+      await getSetting<unknown>(purposeSettingKey("vision")).catch(() => null),
+    );
+    if (chosen) opts = { ...opts, providerOverride: chosen.provider, modelOverride: chosen.model || undefined };
+  }
+
+  // Same local guardrails as text calls, on the text part of each turn.
+  // In block mode a finding stops the call (the caller gets null, as for
+  // any other failure); in mask mode the text is masked.
+  const guard = normalizeGuardrails({
+    mode: await getSetting<string>("guardrails.mode").catch(() => null),
+    blockedTerms: await getSetting<string[]>("guardrails.blocked_terms").catch(() => null),
+  });
+  let guardBlocked = false;
+  opts = {
+    ...opts,
+    messages: opts.messages.map((m) => {
+      if (m.role !== "user") return m;
+      const r = guardText(m.content, guard, "in");
+      if (r.action === "block") guardBlocked = true;
+      return { ...m, content: r.text };
+    }),
+  };
+  if (guardBlocked) return null;
+
   // Per-call provider override (only honored if user has a key for it)
   let provider: import("./api-keys").ActiveProvider | null = null;
   if (opts.providerOverride) {
@@ -60,6 +91,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
       status: "blocked_by_cap",
       errorMsg: `Monthly cap of $${cap.capUsd?.toFixed(2)} reached.`,
       clientId: opts.clientId ?? null,
+      channel: "app",
     });
     return null;
   }
@@ -169,6 +201,7 @@ export async function callAIVision(opts: VisionCallOpts): Promise<string | null>
     clientId: opts.clientId ?? null,
     status: text ? "ok" : "error",
     errorMsg,
+    channel: "app",
   });
 
   return text;

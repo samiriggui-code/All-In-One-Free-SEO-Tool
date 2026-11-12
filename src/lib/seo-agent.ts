@@ -96,6 +96,7 @@ export async function runSeoAgent(
   const userPrompt = buildUserPrompt(signals);
 
   const raw = await callAI({
+    purpose: "background",
     system: SYSTEM_PROMPT,
     user: userPrompt,
     maxTokens: 3000,

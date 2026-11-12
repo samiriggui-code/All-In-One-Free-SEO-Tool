@@ -972,6 +972,81 @@
         "tools_code-generator": "L’IA écrit le code des corrections SEO (WordPress, .htaccess, Shopify, Next.js), et une PR GitHub les envoie au développeur."
       },
       "sheetIncludes": "Cet outil regroupe"
+    },
+    "aiDefaults": {
+      "defaultsTitle": "Valeurs par défaut par usage",
+      "defaultsHint": "Le modèle utilisé pour chaque type de travail. Laissez « Modèle de l'espace » pour garder le modèle choisi plus haut. Seuls les fournisseurs qui ont une clé sont proposés.",
+      "workspaceModel": "Modèle de l'espace",
+      "noEmbeddings": "Aucun (recherche plein texte seule)",
+      "unavailable": "{model} (clé manquante)",
+      "saved": "Enregistré",
+      "saving": "Enregistrement…",
+      "purposes": {
+        "chat": {
+          "label": "Conversation",
+          "hint": "L'assistant et les chats : un modèle rapide suffit."
+        },
+        "writing": {
+          "label": "Rédaction longue",
+          "hint": "Articles et brouillons : un modèle plus fort donne de meilleurs textes."
+        },
+        "background": {
+          "label": "Tâches de fond",
+          "hint": "Agent quotidien, automatisations, résumés : le moins cher qui marche."
+        },
+        "vision": {
+          "label": "Images",
+          "hint": "Analyse de captures et d'images. Fournisseurs qui lisent les images seulement."
+        },
+        "embeddings": {
+          "label": "Vecteurs",
+          "hint": "Pour la recherche par le sens dans la base de connaissances (à venir). Anthropic n'en propose pas."
+        }
+      },
+      "guardTitle": "Garde-fous",
+      "guardHint": "Vérifications locales sur chaque appel IA, avant l'envoi et à la réception. Elles ne coûtent rien et ne quittent pas le serveur.",
+      "guardMode": "Mode",
+      "modes": {
+        "off": {
+          "label": "Désactivé",
+          "hint": "Aucune vérification."
+        },
+        "mask": {
+          "label": "Masquer",
+          "hint": "Les clés, IBAN, numéros de carte et termes refusés sont remplacés avant l'envoi. Les tentatives de détournement sont notées."
+        },
+        "block": {
+          "label": "Bloquer",
+          "hint": "Tout appel qui contient l'un de ces éléments est refusé, avec un message pour l'utilisateur."
+        }
+      },
+      "blockedTerms": "Termes refusés",
+      "blockedTermsHint": "Un par ligne : noms de projets confidentiels, concurrents à ne jamais citer… Masqués dans les questions comme dans les réponses.",
+      "blockedTermsPlaceholder": "Projet Atlas",
+      "saveTerms": "Enregistrer",
+      "incidentsTitle": "Derniers incidents",
+      "incidentsHint": "Ce qui a été masqué ou bloqué. Seul le type est noté, jamais le texte.",
+      "noIncidents": "Aucun incident pour l'instant.",
+      "actions": {
+        "mask": "Masqué",
+        "block": "Bloqué"
+      },
+      "directions": {
+        "in": "à l'envoi",
+        "out": "dans la réponse"
+      },
+      "kinds": {
+        "api_key": "clé d'API",
+        "private_key": "clé privée",
+        "iban": "IBAN",
+        "card": "carte bancaire",
+        "blocked_term": "terme refusé",
+        "injection": "tentative de détournement"
+      },
+      "errors": {
+        "unknownPurpose": "Usage inconnu.",
+        "unknownModel": "Ce modèle n'est pas disponible pour ce fournisseur."
+      }
     }
   },
   "reports": {
@@ -6210,7 +6285,18 @@
       "cost": "Coût",
       "status": "Statut",
       "capped": "plafonné",
-      "noAiCallsInThe": "Aucun appel à l’IA sur les 30 derniers jours."
+      "noAiCallsInThe": "Aucun appel à l’IA sur les 30 derniers jours.",
+      "byChannel": "Par canal (30 derniers jours)",
+      "channelStats": "{calls} appels · {cost} · {latency} s en moyenne",
+      "channel": "Canal",
+      "guarded": "garde-fou",
+      "channels": {
+        "app": "Écrans de l'outil",
+        "assistant": "Assistant",
+        "background": "Tâches de fond",
+        "portal": "Portail client",
+        "unknown": "Avant le suivi du canal"
+      }
     },
     "app_settings_ai-usage_usage-charts": {
       "last30DaysCallsPer": "30 derniers jours · appels par jour",
@@ -7606,7 +7692,10 @@
       "noUserMessageToRespond": "Aucun message auquel répondre.",
       "toAnswerItHereInstead": "Pour obtenir la réponse ici, ajoutez une clé gratuite Gemini ou Groq dans Paramètres → Connexion IA.",
       "noActiveAiProviderOpen": "Aucun fournisseur d’IA actif. Ouvrez Paramètres → Connexion IA, ajoutez une clé gratuite Gemini ou Groq, puis choisissez-la comme active.",
-      "activeProviderDidnTRespond": "Le fournisseur actif « {active} » n’a pas répondu. Vérifiez la clé dans les Paramètres ou choisissez un autre fournisseur actif."
+      "activeProviderDidnTRespond": "Le fournisseur actif « {active} » n’a pas répondu. Vérifiez la clé dans les Paramètres ou choisissez un autre fournisseur actif.",
+      "chatAppConnectedNeedsKey": "Cet assistant appelle un modèle lui-même, il lui faut donc une clé. {client} est bien connecté, mais dans l'autre sens : c'est lui qui interroge l'outil.",
+      "yourChatApp": "votre application de chat",
+      "askThereMeanwhile": "Vous pouvez poser la même question dans cette application dès maintenant : elle voit vos clients, audits, mots-clés et positions."
     },
     "app_audits_actions": {
       "auditFailedFor": "Échec de l’audit de {name}",

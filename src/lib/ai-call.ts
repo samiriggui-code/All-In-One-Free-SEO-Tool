@@ -19,8 +19,19 @@ import { dispatchProviderCall, defaultModelFor } from "./provider-dispatch";
 import { isModelForProvider } from "./ai-model-presets";
 import { estimateTokens } from "./ai-cost";
 import {
+  AI_PURPOSES,
+  channelFor,
+  normalizePurposeModel,
+  purposeFor,
+  purposeSettingKey,
+  type AiChannel,
+  type AiPurpose,
+} from "./ai-purpose";
+import { guardText, normalizeGuardrails, summarize, type GuardrailSettings } from "./guardrails";
+import {
   classifyProviderError,
   emptyResponseFailure,
+  guardrailFailure,
   monthlyCapFailure,
   noProviderFailure,
   type AiFailure,
@@ -36,6 +47,8 @@ export type AiFeatureName =
   | "content_idea"
   | "ai_sentiment"
   | "geo_swot"
+  | "assistant"
+  | "import_extract"
   | "general";
 
 export type AiCallOptions = {
@@ -67,7 +80,60 @@ export type AiCallOptions = {
   providerOverride?: import("./api-keys").ActiveProvider;
   /** Per-call model override paired with providerOverride (or active). */
   modelOverride?: string;
+  /**
+   * What the call is for. Picks the model chosen for that use in
+   * Settings → AI → Defaults by use (see ai-purpose.ts). A call that
+   * says nothing is read from its `feature`, else uses the workspace model.
+   */
+  purpose?: AiPurpose;
+  /** Where the call came from, for Settings → AI usage. Derived when absent. */
+  channel?: AiChannel;
+  /**
+   * A whole conversation, oldest first, ending with the user's turn. When
+   * set, it is sent instead of `user` (which is then only used for the
+   * log preview).
+   */
+  messages?: { role: "user" | "assistant"; content: string }[];
 };
+
+export { AI_PURPOSES };
+
+async function providerUsable(p: import("./api-keys").ActiveProvider): Promise<boolean> {
+  if (p === "ollama") return Boolean(await getOllamaUrl());
+  return Boolean(await getApiKey(p));
+}
+
+async function loadGuardrails(): Promise<GuardrailSettings> {
+  try {
+    return normalizeGuardrails({
+      mode: await getSetting<string>("guardrails.mode"),
+      blockedTerms: await getSetting<string[]>("guardrails.blocked_terms"),
+    });
+  } catch {
+    return normalizeGuardrails(null);
+  }
+}
+
+function recordIncident(row: {
+  direction: "in" | "out";
+  action: "mask" | "block";
+  kinds: Record<string, number>;
+  feature: string;
+  channel: AiChannel;
+  clientId: number | null;
+}): void {
+  void (async () => {
+    try {
+      const [{ db }, { guardrailIncidents }] = await Promise.all([
+        import("@/db/client"),
+        import("@/db/schema"),
+      ]);
+      await db.insert(guardrailIncidents).values(row);
+    } catch {
+      // The journal must never break the call it describes.
+    }
+  })();
+}
 
 /**
  * Calls whichever AI provider the user has set as active. Returns the text
@@ -150,29 +216,80 @@ export function lastAiFailure(): AiFailure | null {
  * code plus a sentence naming the fix and a link to the setting.
  */
 export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
+  const purpose = purposeFor(opts);
+  const channel = channelFor({ channel: opts.channel, purpose });
+  const feature = opts.feature ?? "general";
+
   // Per-call override takes precedence — but only if the user has a key
-  // for it. Otherwise fall back to the workspace active provider.
+  // for it. Then the model chosen for this purpose, then the workspace
+  // active provider.
   let active: import("./api-keys").ActiveProvider | null = null;
-  if (opts.providerOverride) {
-    if (opts.providerOverride === "ollama") {
-      const url = await getOllamaUrl();
-      if (url) active = "ollama";
-    } else {
-      const k = await getApiKey(opts.providerOverride);
-      if (k) active = opts.providerOverride;
+  let purposeModel: string | undefined;
+  if (opts.providerOverride && (await providerUsable(opts.providerOverride))) {
+    active = opts.providerOverride;
+  }
+  if (!active && !opts.modelOverride && purpose) {
+    const chosen = normalizePurposeModel(
+      await getSetting<unknown>(purposeSettingKey(purpose) as `ai.model.${string}`).catch(() => null),
+    );
+    if (chosen && (await providerUsable(chosen.provider))) {
+      active = chosen.provider;
+      purposeModel = chosen.model || undefined;
     }
   }
   if (!active) active = await getActiveProvider();
   if (!active) return { ok: false, failure: noProviderFailure() };
 
+  // Guardrails on what leaves the server: the user's text and any
+  // conversation turns. The system prompt is ours and is not checked.
+  const guard = await loadGuardrails();
+  const inKinds: Record<string, number> = {};
+  let inBlocked = false;
+  const guardIn = (text: string): string => {
+    const r = guardText(text, guard, "in");
+    if (r.action === "pass") return text;
+    for (const [k, n] of Object.entries(summarize(r.findings))) inKinds[k] = (inKinds[k] ?? 0) + (n ?? 0);
+    if (r.action === "block") inBlocked = true;
+    return r.text;
+  };
+  const guardedUser = guardIn(opts.user);
+  const guardedMessages = opts.messages?.map((m) =>
+    m.role === "user" ? { ...m, content: guardIn(m.content) } : m,
+  );
+  if (Object.keys(inKinds).length > 0) {
+    recordIncident({
+      direction: "in",
+      action: inBlocked ? "block" : "mask",
+      kinds: inKinds,
+      feature,
+      channel,
+      clientId: opts.clientId ?? null,
+    });
+  }
+  if (inBlocked) {
+    void logAiCall({
+      feature,
+      provider: active,
+      model: null,
+      promptText: "",
+      completionText: null,
+      status: "blocked_by_guardrail",
+      errorMsg: "Blocked by a local guardrail before sending.",
+      clientId: opts.clientId ?? null,
+      channel,
+    });
+    return { ok: false, failure: guardrailFailure("in") };
+  }
+
   // Enforce monthly cap if set
   const cap = await checkMonthlyCap();
   if (cap.capped) {
     void logAiCall({
-      feature: opts.feature ?? "general",
+      channel,
+      feature,
       provider: active,
       model: null,
-      promptText: logPreview(opts.user),
+      promptText: logPreview(guardedUser),
       completionText: null,
       status: "blocked_by_cap",
       errorMsg: `Monthly AI cap of $${cap.capUsd?.toFixed(2)} reached.`,
@@ -197,10 +314,22 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
   // legitimate prompts are under 5k chars; anything bigger usually means
   // a content-pasting tool forgot to summarize.
   const HARD_USER_CHARS = 50_000;
-  const safeUser =
-    opts.user.length > HARD_USER_CHARS
-      ? opts.user.slice(0, HARD_USER_CHARS) + "\n\n[truncated]"
-      : opts.user;
+  const clip = (t: string) =>
+    t.length > HARD_USER_CHARS ? t.slice(0, HARD_USER_CHARS) + "\n\n[truncated]" : t;
+  const safeUser = clip(guardedUser);
+  // A conversation keeps its most recent turns within the same budget.
+  let safeMessages: { role: "user" | "assistant"; content: string }[] | undefined;
+  if (guardedMessages && guardedMessages.length > 0) {
+    safeMessages = [];
+    let budget = HARD_USER_CHARS;
+    for (let i = guardedMessages.length - 1; i >= 0 && budget > 0; i--) {
+      const m = guardedMessages[i];
+      const content = m.content.length > budget ? m.content.slice(-budget) : m.content;
+      budget -= content.length;
+      safeMessages.unshift({ ...m, content });
+    }
+    while (safeMessages.length > 0 && safeMessages[0].role !== "user") safeMessages.shift();
+  }
 
   if (!opts.ignoreCreditSaver) {
     const saver = await getSetting<boolean>("ai.credit_saver.enabled");
@@ -217,7 +346,8 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
     try {
       const { getStylePromptForFeature } = await import("./ai-learn");
       const stylePrompt = await getStylePromptForFeature({
-        feature: opts.feature,
+        // Features with no learned rules (assistant, import) simply find none.
+        feature: opts.feature as import("./ai-learn").AiFeature,
         clientId: opts.clientId,
       });
       if (stylePrompt) {
@@ -240,6 +370,7 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
   const savedModel = (await getSetting<string>("ai.default_model"))?.trim();
   const pickedModel =
     opts.modelOverride?.trim() ||
+    purposeModel ||
     (savedModel && isModelForProvider(active, savedModel) ? savedModel : "") ||
     defaultModelFor(active);
 
@@ -263,6 +394,7 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
       text = await dispatchProviderCall(active!, {
         system,
         user: safeUser,
+        messages: safeMessages,
         model: pickedModel,
         maxTokens: max,
         temperature,
@@ -303,20 +435,41 @@ export async function callAIResult(opts: AiCallOptions): Promise<AiResult> {
   // prompt tokens by orders of magnitude, so spend tracking and the
   // monthly cap were both computed from a number that had no relation
   // to what was actually sent.
+  // Guardrails on the answer: blocked terms and sensitive data.
+  let outBlocked = false;
+  if (text) {
+    const r = guardText(text, guard, "out");
+    if (r.action !== "pass") {
+      recordIncident({
+        direction: "out",
+        action: r.action,
+        kinds: summarize(r.findings) as Record<string, number>,
+        feature,
+        channel,
+        clientId: opts.clientId ?? null,
+      });
+      if (r.action === "block") outBlocked = true;
+      else text = r.text;
+    }
+  }
+
+  const sentText = safeMessages ? safeMessages.map((m) => m.content).join("\n\n") : safeUser;
   void logAiCall({
-    feature: opts.feature ?? "general",
+    feature,
     provider: active,
     model,
-    promptText: logPreview(`${system}\n\n${opts.user}`),
-    promptTokens: estimateTokens(`${system}\n\n${safeUser}`),
+    promptText: logPreview(`${system}\n\n${sentText}`),
+    promptTokens: estimateTokens(`${system}\n\n${sentText}`),
     completionText: text,
     latencyMs: Date.now() - start,
     clientId: opts.clientId ?? null,
     status: text ? "ok" : "error",
     errorMsg: failure?.message ?? errorMsg,
+    channel,
   });
 
-  if (text) return { ok: true, text };
+  if (outBlocked) return { ok: false, failure: guardrailFailure("out") };
+  if (text) return { ok: true, text, provider: active, model };
   return { ok: false, failure: failure ?? emptyResponseFailure(active, pickedModel) };
 }
 

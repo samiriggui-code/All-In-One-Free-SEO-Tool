@@ -26,7 +26,8 @@ export type AiFailureReason =
   | "network"
   | "provider_error"
   | "bad_request"
-  | "empty_response";
+  | "empty_response"
+  | "guardrail_blocked";
 
 export type AiFailure = {
   reason: AiFailureReason;
@@ -42,7 +43,7 @@ export type AiFailure = {
 };
 
 export type AiResult =
-  | { ok: true; text: string }
+  | { ok: true; text: string; provider?: string; model?: string | null }
   | { ok: false; failure: AiFailure };
 
 /**
@@ -230,6 +231,18 @@ export function emptyResponseFailure(
     model,
     message: `${provider ?? "The provider"} returned an empty response. Try again, or switch models in Settings → AI.`,
     fixHref: "/settings#ai",
+  };
+}
+
+/** A local guardrail stopped the call (Settings → AI → Guardrails in block mode). */
+export function guardrailFailure(direction: "in" | "out"): AiFailure {
+  return {
+    reason: "guardrail_blocked",
+    message:
+      direction === "in"
+        ? "Request not sent: it contains a secret, bank details, a blocked term or an attempt to override the instructions. Remove it and try again."
+        : "The answer was withheld because it contained a blocked term or sensitive data.",
+    fixHref: "/settings/ai",
   };
 }
 

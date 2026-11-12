@@ -21,8 +21,10 @@ export async function logAiCall(opts: {
   completionTokens?: number;
   latencyMs?: number;
   clientId?: number | null;
-  status?: "ok" | "error" | "blocked_by_cap";
+  status?: "ok" | "error" | "blocked_by_cap" | "blocked_by_guardrail";
   errorMsg?: string;
+  /** "app", "assistant", "background" or "portal". */
+  channel?: string | null;
 }): Promise<void> {
   const promptTokens =
     opts.promptTokens ?? estimateTokens(opts.promptText);
@@ -44,6 +46,7 @@ export async function logAiCall(opts: {
       clientId: opts.clientId ?? null,
       status: opts.status ?? "ok",
       errorMsg: opts.errorMsg ?? null,
+      channel: opts.channel ?? null,
     });
   } catch (err) {
     // Never let usage logging block a real AI call, but DO surface

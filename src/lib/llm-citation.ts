@@ -10,6 +10,25 @@ import { callGemini as sharedCallGemini } from "./providers/gemini";
 import { callAnthropic as sharedCallAnthropic } from "./providers/anthropic";
 import { callOpenAICompat as sharedCallOpenAICompat } from "./providers/openai-compat";
 import { scrapeGoogleAiMode, scrapeCopilot } from "./ai-search-scrapers";
+import { checkMonthlyCap, logAiCall } from "./ai-usage";
+
+/**
+ * The model each API provider is asked, for the cost log. These calls
+ * stay outside lib/ai-call.ts on purpose: they measure what a given AI
+ * search answers (with its own web-search tool), so the provider and
+ * model are the subject of the test and must not follow the workspace
+ * settings. They still respect the monthly cap and are logged.
+ */
+const MEASURED_MODEL: Partial<Record<LlmProvider, string>> = {
+  anthropic: "claude-haiku-4-5",
+  openai: "gpt-4o-mini",
+  gemini: "gemini-2.5-flash",
+  perplexity: "sonar",
+  openrouter: "meta-llama/llama-3.3-70b-instruct:free",
+  groq: "llama-3.3-70b-versatile",
+};
+
+const SCRAPED: ReadonlySet<LlmProvider> = new Set(["google_ai_mode", "copilot"]);
 
 /**
  * All the AI-search surfaces we can track. Split into two categories:
@@ -441,6 +460,34 @@ export async function checkOneProvider(
   domain: string,
 ): Promise<CitationCheckResult> {
   const prompt = buildPrompt(query);
+  const metered = !SCRAPED.has(provider);
+
+  if (metered) {
+    const cap = await checkMonthlyCap();
+    if (cap.capped) {
+      void logAiCall({
+        feature: "ai_visibility",
+        provider,
+        model: MEASURED_MODEL[provider] ?? null,
+        promptText: prompt.slice(0, 300),
+        completionText: null,
+        status: "blocked_by_cap",
+        errorMsg: `Monthly AI cap of $${cap.capUsd?.toFixed(2)} reached.`,
+        channel: "background",
+      });
+      return {
+        provider,
+        prompt,
+        response: "",
+        citations: [],
+        mentionsDomain: false,
+        citationsForDomain: 0,
+        grounding: PROVIDER_GROUNDING[provider] ?? "memory",
+        error: `Monthly AI cap of $${cap.capUsd?.toFixed(2)} reached.`,
+      };
+    }
+  }
+  const started = Date.now();
 
   let response: string | null = null;
   let nativeCitations: string[] = [];
@@ -520,6 +567,20 @@ export async function checkOneProvider(
     }
   } catch (err) {
     error = (err as Error).message;
+  }
+
+  if (metered) {
+    void logAiCall({
+      feature: "ai_visibility",
+      provider,
+      model: MEASURED_MODEL[provider] ?? null,
+      promptText: prompt.slice(0, 300),
+      completionText: response,
+      latencyMs: Date.now() - started,
+      status: response ? "ok" : "error",
+      errorMsg: response ? undefined : error,
+      channel: "background",
+    });
   }
 
   if (!response) {
