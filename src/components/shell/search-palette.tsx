@@ -54,6 +54,7 @@ const typeTone: Record<SearchHit["type"], string> = {
 };
 
 export function SearchPalette() {
+  const tx = useTranslations("ui.components_shell_search-palette");
   const router = useRouter();
   const t = useTranslations("searchPalette");
   const tType = useTranslations("searchPalette.type");
@@ -192,7 +193,7 @@ export function SearchPalette() {
               />
               <button
                 onClick={() => setOpen(false)}
-                aria-label="Close"
+                aria-label={tx("close")}
                 className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
               >
                 <X className="size-3.5" />
@@ -268,25 +269,16 @@ export function SearchPalette() {
             <div className="flex items-center justify-between border-t border-white/5 px-4 py-2 text-[10px] text-muted-foreground">
               <span className="flex items-center gap-2">
                 <span>
-                  <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">
-                    ↑↓
-                  </kbd>{" "}
-                  navigate
+                  {tx.rich("navigate", { b0: (chunks) => <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">{chunks}</kbd> })}
                 </span>
                 <span>
-                  <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">
-                    ↵
-                  </kbd>{" "}
-                  open
+                  {tx.rich("open", { b0: (chunks) => <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">{chunks}</kbd> })}
                 </span>
                 <span>
-                  <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">
-                    esc
-                  </kbd>{" "}
-                  close
+                  {tx.rich("escClose", { b0: (chunks) => <kbd className="rounded bg-white/5 px-1 py-0.5 ring-1 ring-inset ring-white/10">{chunks}</kbd> })}
                 </span>
               </span>
-              <span>{hits.length} result{hits.length === 1 ? "" : "s"}</span>
+              <span>{tx("other", { length: hits.length })}</span>
             </div>
           </div>
         </div>

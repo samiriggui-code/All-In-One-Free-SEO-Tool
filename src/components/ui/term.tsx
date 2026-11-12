@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { lookupTerm } from "@/lib/glossary";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ type TermProps = {
  *   <Term definition={{ short: "...", why: "..." }}>custom term</Term>
  */
 export function Term({ term, definition, className, children }: TermProps) {
+  const tx = useTranslations("ui.components_ui_term");
   const resolvedTerm =
     term ?? (typeof children === "string" ? children : null);
   const def =
@@ -38,7 +40,7 @@ export function Term({ term, definition, className, children }: TermProps) {
       )}
       tabIndex={0}
       role="button"
-      aria-label={`Definition: ${def.short}`}
+      aria-label={tx("definition", { short: def.short })}
     >
       {children}
       <span
@@ -48,7 +50,7 @@ export function Term({ term, definition, className, children }: TermProps) {
         <span className="block text-foreground/95">{def.short}</span>
         {def.why && (
           <span className="mt-2 block text-muted-foreground">
-            <span className="font-medium text-foreground/80">Why it matters: </span>
+            <span className="font-medium text-foreground/80">{tx("whyItMatters")} </span>
             {def.why}
           </span>
         )}

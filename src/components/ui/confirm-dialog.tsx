@@ -19,6 +19,7 @@
  * for fade-in / scale-in.
  */
 
+import { useTranslations } from "next-intl";
 import { createContext, useContext, useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -65,6 +66,7 @@ export function ConfirmDialogProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const tx = useTranslations("ui.components_ui_confirm-dialog");
   const [pending, setPending] = useState<DialogRequest | null>(null);
 
   const open = (opts: DialogOptions): Promise<boolean> => {
@@ -146,7 +148,7 @@ export function ConfirmDialogProvider({
                 <button
                   type="button"
                   onClick={() => finish(false)}
-                  aria-label="Close"
+                  aria-label={tx("close")}
                   className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
                   <X className="size-3.5" />

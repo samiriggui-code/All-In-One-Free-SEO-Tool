@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useRef, useState } from "react";
 import {
   Image as ImageIcon,
@@ -18,6 +19,7 @@ import {
 } from "./actions";
 
 export function ScreenshotImportForm() {
+  const tx = useTranslations("ui.app_import_import-form");
   const fileRef = useRef<HTMLInputElement>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [filename, setFilename] = useState<string | null>(null);
@@ -31,11 +33,11 @@ export function ScreenshotImportForm() {
   const handleFile = (file: File) => {
     setFileError(null);
     if (file.size > 8 * 1024 * 1024) {
-      setFileError("Image too large (max 8 MB).");
+      setFileError(tx("imageTooLargeMax8"));
       return;
     }
     if (!/^image\/(png|jpeg|webp|bmp|tiff)$/i.test(file.type)) {
-      setFileError("Use PNG, JPEG, WebP, BMP, or TIFF.");
+      setFileError(tx("usePngJpegWebpBmp"));
       return;
     }
     setFilename(file.name);
@@ -76,14 +78,14 @@ export function ScreenshotImportForm() {
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground hover:underline"
               >
-                Clear
+                {tx("clear")}
               </button>
             </div>
             <div className="overflow-hidden rounded-xl border border-white/10 bg-black/20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageDataUrl}
-                alt="Uploaded screenshot"
+                alt={tx("uploadedScreenshot")}
                 className="max-h-96 w-full object-contain"
               />
             </div>
@@ -101,12 +103,12 @@ export function ScreenshotImportForm() {
                 {pending ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    Reading text…
+                    {tx("readingText")}
                   </>
                 ) : (
                   <>
                     <ScanText className="size-4" />
-                    Extract data
+                    {tx("extractData")}
                   </>
                 )}
               </Button>
@@ -121,13 +123,13 @@ export function ScreenshotImportForm() {
             >
               <Upload className="size-6" />
               <span className="font-medium">
-                Click to upload a screenshot
+                {tx("clickToUploadAScreenshot")}
               </span>
               <span className="text-xs">
-                Or paste from clipboard (Ctrl+V) anywhere on this page
+                {tx("orPasteFromClipboardCtrl")}
               </span>
               <span className="text-[10px]">
-                PNG · JPEG · WebP · BMP · TIFF · max 8 MB
+                {tx("pngJpegWebpBmpTiff")}
               </span>
             </button>
             <input
@@ -161,6 +163,7 @@ export function ScreenshotImportForm() {
 }
 
 function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
+  const tx = useTranslations("ui.app_import_import-form");
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     try {
@@ -179,8 +182,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
     <div className="space-y-4">
       <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-sm text-emerald-300">
         <CheckCircle2 className="size-4" />
-        Text extracted · structured by{" "}
-        <span className="font-semibold">{result.provider}</span>
+        {tx.rich("textExtractedStructuredBy", { provider: result.provider, b0: (chunks) => <span className="font-semibold">{chunks}</span> })}
       </div>
 
       {(m.length > 0 || q.length > 0 || result.structured.date) && (
@@ -188,7 +190,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
           {m.length > 0 && (
             <section className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
               <header className="border-b border-white/5 px-5 py-3 text-sm font-semibold">
-                Metrics found ({m.length})
+                {tx("metricsFound", { length: m.length })}
               </header>
               <ul className="divide-y divide-white/5">
                 {m.map((row, i) => (
@@ -201,7 +203,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
                       {row.value}
                       {row.previous && (
                         <span className="ml-2 text-xs text-muted-foreground">
-                          (was {row.previous})
+                          {tx("was", { previous: row.previous })}
                         </span>
                       )}
                     </span>
@@ -214,7 +216,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
           {q.length > 0 && (
             <section className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
               <header className="border-b border-white/5 px-5 py-3 text-sm font-semibold">
-                Queries found ({q.length})
+                {tx("queriesFound", { length: q.length })}
               </header>
               <ul className="divide-y divide-white/5">
                 {q.map((row, i) => (
@@ -226,7 +228,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
                     <span className="text-xs text-muted-foreground">
                       {row.position && `pos ${row.position}`}
                       {row.position && row.clicks ? " · " : ""}
-                      {row.clicks && `${row.clicks} clicks`}
+                      {row.clicks && tx("clicks", { clicks: row.clicks })}
                     </span>
                   </li>
                 ))}
@@ -240,12 +242,12 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
         <div className="flex flex-wrap gap-2 text-xs">
           {result.structured.date && (
             <span className="rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              Date: {result.structured.date}
+              {tx("date", { date: result.structured.date })}
             </span>
           )}
           {result.structured.source && (
             <span className="rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              Source: {result.structured.source}
+              {tx("source", { source: result.structured.source })}
             </span>
           )}
         </div>
@@ -254,7 +256,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
       {/* Raw text */}
       <section className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
         <header className="flex items-center justify-between border-b border-white/5 px-5 py-3 text-sm font-semibold">
-          Raw extracted text
+          {tx("rawExtractedText")}
           <button
             type="button"
             onClick={handleCopy}
@@ -265,7 +267,7 @@ function Results({ result }: { result: Extract<OcrResult, { ok: true }> }) {
             }
           >
             {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
-            {copied ? "Copied" : "Copy"}
+            {copied ? tx("copied") : tx("copy")}
           </button>
         </header>
         <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words p-5 font-mono text-xs leading-relaxed text-foreground/85">

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 /**
@@ -32,6 +33,7 @@ export function FreshnessBadge({
   source?: string;
   className?: string;
 }) {
+  const tx = useTranslations("ui.components_ui_freshness-badge");
   if (capturedAt === null || capturedAt === undefined) {
     return (
       <span
@@ -42,7 +44,7 @@ export function FreshnessBadge({
         title={source ? `${source}: no data yet` : "no data yet"}
       >
         <span className="size-1.5 rounded-full bg-muted-foreground/50" />
-        no data yet
+        {tx("noDataYet")}
       </span>
     );
   }

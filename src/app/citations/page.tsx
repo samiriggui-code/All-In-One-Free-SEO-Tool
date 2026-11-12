@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { MapPin } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, resourceSubmissions } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function CitationsIndexPage() {
+  const t = await getTranslations("pickers.citations");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -44,8 +46,8 @@ export default async function CitationsIndexPage() {
         niche: c.niche,
         primary:
           total === 0
-            ? `${napScore}% NAP ready`
-            : `${live}/${total} live`,
+            ? t("napReady", { percent: napScore })
+            : t("live", { live, total }),
         primaryTone:
           total === 0
             ? napScore >= 100
@@ -55,9 +57,9 @@ export default async function CitationsIndexPage() {
         secondary:
           total === 0
             ? napScore >= 100
-              ? "Click to start submissions"
-              : "Add address + phone for full local SEO power"
-            : `${total} citation${total === 1 ? "" : "s"} tracked`,
+              ? t("secondaryStart")
+              : t("secondaryNap")
+            : t("tracked", { count: total }),
       };
     }),
   );
@@ -65,8 +67,8 @@ export default async function CitationsIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Citations & local SEO"
-        description="Pick a client to manage their citation submissions across local directories. NAP consistency tracking + 5,000+ pre-loaded directories."
+        title={t("title")}
+        description={t("description")}
         icon={MapPin}
         accent="emerald"
       />

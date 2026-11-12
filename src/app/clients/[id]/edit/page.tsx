@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ export default async function EditClientPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_edit_page");
   const { id } = await params;
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
@@ -34,18 +36,18 @@ export default async function EditClientPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        Back to {client.name}
+        {tx("backTo", { name: client.name })}
       </Link>
 
       <PageHeader
-        title="Edit client"
-        description="Update any field. Changes save instantly. Use the auto-fill button to refresh from the live site."
+        title={tx("editClient")}
+        description={tx("updateAnyFieldChangesSave")}
         icon={Pencil}
         accent="violet"
         crumbs={[
-          { label: "Clients", href: "/clients" },
+          { label: tx("clients"), href: "/clients" },
           { label: client.name, href: `/clients/${client.id}` },
-          { label: "Edit" },
+          { label: tx("edit") },
         ]}
       />
 

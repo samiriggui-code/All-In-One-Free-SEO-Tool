@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,11 +24,11 @@ import { cn } from "@/lib/utils";
  */
 export type ConfidenceLevel = "definitely" | "probably" | "test";
 
-const LABEL: Record<ConfidenceLevel, string> = {
-  definitely: "Definitely fix",
-  probably: "Probably worth it",
-  test: "Worth testing",
-};
+const LABEL = (tx: Tx): Record<ConfidenceLevel, string> => ({
+  definitely: tx("definitelyFix"),
+  probably: tx("probablyWorthIt"),
+  test: tx("worthTesting"),
+});
 
 const CLS: Record<ConfidenceLevel, string> = {
   definitely:
@@ -55,6 +57,7 @@ export function ConfidenceBadge({
   showDot?: boolean;
   className?: string;
 }) {
+  const tx = useTranslations("ui.components_ui_confidence-badge");
   return (
     <span
       title={reason}
@@ -67,7 +70,7 @@ export function ConfidenceBadge({
       {showDot && (
         <span className={cn("size-1.5 rounded-full", DOT[level])} />
       )}
-      {LABEL[level]}
+      {LABEL(tx)[level]}
     </span>
   );
 }

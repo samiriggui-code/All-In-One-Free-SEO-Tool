@@ -9,6 +9,7 @@
  *   - "Cost by feature" — donut, cycling through the brand palette
  */
 
+import { useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -57,6 +58,7 @@ export function UsageCharts({
   days: DailyPoint[];
   featureRows: FeatureRow[];
 }) {
+  const tx = useTranslations("ui.app_settings_ai-usage_usage-charts");
   // Donut wants whole-dollar values (cost is in micros — divide once)
   const featureChart = featureRows
     .filter((r) => r.cost > 0)
@@ -74,10 +76,10 @@ export function UsageCharts({
         <header className="mb-4">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Activity className="size-4 text-[oklch(0.74_0.18_215)]" />
-            Last 30 days · calls per day
+            {tx("last30DaysCallsPer")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Hover bars for daily totals + estimated cost.
+            {tx("hoverBarsForDailyTotals")}
           </p>
         </header>
         <div className="h-52">
@@ -118,15 +120,15 @@ export function UsageCharts({
         <header className="mb-4">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <PieChartIcon className="size-4 text-[oklch(0.68_0.16_295)]" />
-            Cost by feature
+            {tx("costByFeature")}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Last 30 days. Top 8 features by spend.
+            {tx("last30DaysTop8")}
           </p>
         </header>
         {featureChart.length === 0 ? (
           <div className="flex h-44 items-center justify-center text-xs text-muted-foreground">
-            No cost data yet
+            {tx("noCostDataYet")}
           </div>
         ) : (
           <>

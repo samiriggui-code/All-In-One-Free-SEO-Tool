@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { db } from "@/db/client";
 import { clientMetricSnapshots } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
@@ -12,6 +14,7 @@ import { getRankingUpdates } from "@/lib/google-updates-store";
  * pointing to the daily-agent / weekly cron.
  */
 export async function SnapshotSparklines({ clientId }: { clientId: number }) {
+  const tx = await getTranslations("ui.components_snapshot-sparklines");
   const snapshots = await db
     .select()
     .from(clientMetricSnapshots)
@@ -25,7 +28,7 @@ export async function SnapshotSparklines({ clientId }: { clientId: number }) {
   const dates = snapshots.map((s) => s.capturedAt);
   const series = [
     {
-      label: "Organic clicks (28d)",
+      label: tx("organicClicks28d"),
       values: snapshots.map((s) => s.organicClicks),
       tone: "#34d399",
     },
@@ -40,7 +43,7 @@ export async function SnapshotSparklines({ clientId }: { clientId: number }) {
       tone: "#22d3ee",
     },
     {
-      label: "Health score",
+      label: tx("healthScore"),
       values: snapshots.map((s) => s.healthScore),
       tone: "#f59e0b",
     },
@@ -59,11 +62,9 @@ export async function SnapshotSparklines({ clientId }: { clientId: number }) {
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="border-b border-white/[0.06] px-5 py-3">
-        <h2 className="text-sm font-semibold">Trend over time</h2>
+        <h2 className="text-sm font-semibold">{tx("trendOverTime")}</h2>
         <p className="mt-0.5 text-[11px] text-muted-foreground">
-          {snapshots.length} snapshot{snapshots.length === 1 ? "" : "s"}{" "}
-          captured · earliest{" "}
-          {snapshots[0].capturedAt.toLocaleDateString()}
+          {tx("otherCapturedEarliest", { length: snapshots.length, v: snapshots[0].capturedAt.toLocaleDateString() })}
         </p>
       </header>
       <div className="grid gap-3 p-5 sm:grid-cols-2">
@@ -88,6 +89,7 @@ function Sparkline({
   tone: string;
   algoOverlaps: { date: string; endDate?: string; name: string; type: string }[];
 }) {
+  const tx = useTranslations("ui.components_snapshot-sparklines");
   const present = values
     .map((v, i) => ({ v, i }))
     .filter((p): p is { v: number; i: number } => typeof p.v === "number");
@@ -98,7 +100,7 @@ function Sparkline({
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
           {label}
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">no data yet</div>
+        <div className="mt-1 text-xs text-muted-foreground">{tx("noDataYet")}</div>
       </div>
     );
   }

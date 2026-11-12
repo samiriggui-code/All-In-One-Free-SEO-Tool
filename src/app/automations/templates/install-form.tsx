@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, Plus, AlertCircle } from "lucide-react";
@@ -13,6 +14,7 @@ export function InstallTemplateForm({
   template: WorkflowTemplate;
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_automations_templates_install-form");
   const [clientId, setClientId] = useState<string>("");
   const [webhookUrl, setWebhookUrl] = useState("");
   const [pending, startTransition] = useTransition();
@@ -26,7 +28,7 @@ export function InstallTemplateForm({
     setErr(null);
     setDone(false);
     if (needsWebhook && !/^https?:\/\//i.test(webhookUrl.trim())) {
-      setErr("Paste a Slack or Discord webhook URL first.");
+      setErr(tx("pasteASlackOrDiscord"));
       return;
     }
     startTransition(async () => {
@@ -49,18 +51,14 @@ export function InstallTemplateForm({
       <div className="flex items-center justify-between rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
         <span className="inline-flex items-center gap-1.5">
           <CheckCircle2 className="size-3.5" />
-          Installed. View in{" "}
-          <a href="/automations" className="underline">
-            Automations
-          </a>
-          .
+          {tx.rich("installedViewInAutomations", { b0: (chunks) => <a href="/automations" className="underline">{chunks}</a> })}
         </span>
         <button
           type="button"
           onClick={() => setDone(false)}
           className="text-emerald-300/70 hover:text-emerald-300"
         >
-          Install again
+          {tx("installAgain")}
         </button>
       </div>
     );
@@ -75,7 +73,7 @@ export function InstallTemplateForm({
           disabled={pending}
           className="flex h-9 rounded-md border border-input bg-background px-2 text-xs"
         >
-          <option value="">All clients</option>
+          <option value="">{tx("allClients")}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -85,7 +83,7 @@ export function InstallTemplateForm({
         {needsWebhook && (
           <input
             type="url"
-            placeholder="Slack/Discord webhook URL"
+            placeholder={tx("slackDiscordWebhookUrl")}
             value={webhookUrl}
             onChange={(e) => setWebhookUrl(e.target.value)}
             disabled={pending}
@@ -102,12 +100,12 @@ export function InstallTemplateForm({
         {pending ? (
           <>
             <Loader2 className="size-3 animate-spin" />
-            Installing…
+            {tx("installing")}
           </>
         ) : (
           <>
             <Plus className="size-3" />
-            Install
+            {tx("install")}
           </>
         )}
       </button>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import path from "node:path";
 import { statSync, existsSync } from "node:fs";
@@ -51,6 +52,7 @@ function fmtAgo(d: Date | null): string {
 
 export default async function HealthPage() {
   await requireSettingsPage("/settings/health");
+  const tx = await getTranslations("ui.app_settings_health_page");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbsolute = path.resolve(dbPath);
   const dbExists = existsSync(dbAbsolute);
@@ -103,8 +105,8 @@ export default async function HealthPage() {
     <div className="mx-auto max-w-5xl space-y-6">
 
       <PageHeader
-        title="System health"
-        description="At-a-glance view of where things stand: database size, last agent run, error count, AI provider status. Anything red below means there's something to look at."
+        title={tx("systemHealth")}
+        description={tx("atAGlanceViewOf")}
         icon={Activity}
         accent="emerald"
       />
@@ -112,7 +114,7 @@ export default async function HealthPage() {
       <section className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         <Card
           icon={Database}
-          title="Database"
+          title={tx("database")}
           value={fmtBytes(dbSize)}
           subtitle={dbAbsolute}
           tone={dbExists ? "ok" : "error"}
@@ -120,9 +122,9 @@ export default async function HealthPage() {
         />
         <Card
           icon={Clock}
-          title="Daily agent last ran"
+          title={tx("dailyAgentLastRan")}
           value={fmtAgo(lastDailyAgent)}
-          subtitle={lastDailyAgent?.toLocaleString() ?? "Never run"}
+          subtitle={lastDailyAgent?.toLocaleString() ?? tx("neverRun")}
           tone={
             lastDailyAgent &&
             now - lastDailyAgent.getTime() < 30 * 60 * 60 * 1000
@@ -132,30 +134,30 @@ export default async function HealthPage() {
         />
         <Card
           icon={Bug}
-          title="Open errors"
+          title={tx("openErrors")}
           value={String(errorCount)}
-          subtitle={`${errorsLast24h} in last 24h`}
+          subtitle={tx("inLast24h", { errorsLast24h })}
           tone={errorCount === 0 ? "ok" : errorCount < 5 ? "warn" : "error"}
           href="/settings/errors"
           ctaLabel="View log"
         />
         <Card
           icon={Bot}
-          title="AI active"
-          value={activeProvider ?? "Not set"}
-          subtitle={`${configuredProviderIds.length} provider${configuredProviderIds.length === 1 ? "" : "s"} configured`}
+          title={tx("aiActive")}
+          value={activeProvider ?? tx("notSet")}
+          subtitle={tx("otherConfigured", { length: configuredProviderIds.length })}
           tone={activeProvider ? "ok" : "warn"}
           href="/settings#ai"
           ctaLabel="Manage"
         />
         <Card
           icon={Cpu}
-          title="AI calls (24h)"
+          title={tx("aiCalls24h")}
           value={String(aiCallsLast24h)}
           subtitle={
             aiErrorsLast24h > 0
-              ? `${aiErrorsLast24h} failed — see AI usage log`
-              : "All succeeded"
+              ? tx("failedSeeAiUsageLog", { aiErrorsLast24h })
+              : tx("allSucceeded")
           }
           tone={aiErrorsLast24h === 0 ? "ok" : "warn"}
           href="/settings/ai-usage"
@@ -163,24 +165,24 @@ export default async function HealthPage() {
         />
         <Card
           icon={Globe}
-          title="Data summary"
-          value={`${clientCount} clients`}
-          subtitle={`${keywordCount} keywords · ${auditCount} audits · ${reportCount} reports · ${toolRunCount} tool runs`}
+          title={tx("dataSummary")}
+          value={tx("clients", { clientCount })}
+          subtitle={tx("keywordsAuditsReportsToolRuns", { keywordCount, auditCount, reportCount, toolRunCount })}
           tone="ok"
         />
       </section>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <h2 className="mb-3 text-sm font-semibold">Quick actions</h2>
+        <h2 className="mb-3 text-sm font-semibold">{tx("quickActions")}</h2>
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
             href="/settings/backup"
             className="flex items-center justify-between rounded-md bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5 transition-colors hover:bg-white/[0.06]"
           >
             <div>
-              <p className="text-sm font-medium">Backup &amp; restore</p>
+              <p className="text-sm font-medium">{tx("backupRestore")}</p>
               <p className="text-[11px] text-muted-foreground">
-                Download / restore data.db
+                {tx("downloadRestoreDataDb")}
               </p>
             </div>
             <span className="text-violet-300">→</span>
@@ -190,9 +192,9 @@ export default async function HealthPage() {
             className="flex items-center justify-between rounded-md bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5 transition-colors hover:bg-white/[0.06]"
           >
             <div>
-              <p className="text-sm font-medium">Error log</p>
+              <p className="text-sm font-medium">{tx("errorLog")}</p>
               <p className="text-[11px] text-muted-foreground">
-                Server + browser exceptions
+                {tx("serverBrowserExceptions")}
               </p>
             </div>
             <span className="text-violet-300">→</span>
@@ -202,9 +204,9 @@ export default async function HealthPage() {
             className="flex items-center justify-between rounded-md bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5 transition-colors hover:bg-white/[0.06]"
           >
             <div>
-              <p className="text-sm font-medium">AI usage log</p>
+              <p className="text-sm font-medium">{tx("aiUsageLog")}</p>
               <p className="text-[11px] text-muted-foreground">
-                Every AI call + cost
+                {tx("everyAiCallCost")}
               </p>
             </div>
             <span className="text-violet-300">→</span>
@@ -214,9 +216,9 @@ export default async function HealthPage() {
             className="flex items-center justify-between rounded-md bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5 transition-colors hover:bg-white/[0.06]"
           >
             <div>
-              <p className="text-sm font-medium">Automation overview</p>
+              <p className="text-sm font-medium">{tx("automationOverview")}</p>
               <p className="text-[11px] text-muted-foreground">
-                What runs on its own
+                {tx("whatRunsOnItsOwn")}
               </p>
             </div>
             <span className="text-violet-300">→</span>

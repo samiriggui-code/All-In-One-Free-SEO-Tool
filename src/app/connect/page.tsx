@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Plug } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -21,13 +22,14 @@ import { ConnectList } from "./list";
  * where it isn't.
  */
 export default async function ConnectPage() {
+  const tx = await getTranslations("ui.app_connect_page");
   const status = await currentStatus();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
-        title="Connect your accounts"
-        description="Everything this tool can plug into, what each one actually gets you, and how to set it up. All the ones that matter are free."
+        title={tx("connectYourAccounts")}
+        description={tx("everythingThisToolCanPlug")}
         icon={Plug}
         accent="cyan"
       />

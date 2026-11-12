@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
 import { useState, useTransition } from "react";
 import {
   Calendar,
@@ -17,15 +18,15 @@ import { composeGbpPost } from "@/app/gbp/actions";
 import { AiFeedback } from "@/components/ai-feedback";
 import { AiDisclaimer } from "@/components/ai-disclaimer";
 
-const POST_TYPES = [
-  { id: "offer", label: "Offer / promo", icon: Gift },
-  { id: "event", label: "Event", icon: Calendar },
-  { id: "update", label: "Update / news", icon: Newspaper },
-  { id: "product", label: "Product spotlight", icon: ImageIcon },
-  { id: "story", label: "Customer story", icon: MessageCircle },
-] as const;
+const POST_TYPES = (tx: Tx) => ([
+  { id: "offer", label: tx("offerPromo"), icon: Gift },
+  { id: "event", label: tx("event"), icon: Calendar },
+  { id: "update", label: tx("updateNews"), icon: Newspaper },
+  { id: "product", label: tx("productSpotlight"), icon: ImageIcon },
+  { id: "story", label: tx("customerStory"), icon: MessageCircle },
+] as const);
 
-type PostType = (typeof POST_TYPES)[number]["id"];
+type PostType = (ReturnType<typeof POST_TYPES>)[number]["id"];
 
 export function GbpPostComposer({
   clientId,
@@ -38,6 +39,7 @@ export function GbpPostComposer({
   niche: string | null;
   city: string | null;
 }) {
+  const tx = useTranslations("ui.app_gbp_c_clientId_post-composer");
   const [postType, setPostType] = useState<PostType>("update");
   const [topic, setTopic] = useState("");
   const [ctaUrl, setCtaUrl] = useState("");
@@ -90,7 +92,7 @@ export function GbpPostComposer({
 
       <div className="space-y-4 p-5">
         <div className="flex flex-wrap gap-2">
-          {POST_TYPES.map(({ id, label, icon: Icon }) => (
+          {POST_TYPES(tx).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"

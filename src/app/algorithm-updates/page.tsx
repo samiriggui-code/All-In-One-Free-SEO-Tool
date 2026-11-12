@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
+import type { Tx } from "@/lib/tx";
 import { ExternalLink, Lock, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { SHIPPED_UPDATES_FETCHED_AT } from "@/lib/algorithm-updates";
@@ -10,36 +12,37 @@ import {
 } from "@/lib/google-updates-store";
 import { RefreshGoogleUpdatesButton } from "./refresh-button";
 
-const typeStyle: Record<RankingUpdateType, { label: string; tone: string }> = {
+const typeStyle = (tx: Tx): Record<RankingUpdateType, { label: string; tone: string }> => ({
   core: {
-    label: "Core",
+    label: tx("core"),
     tone: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
   },
   spam: {
-    label: "Spam",
+    label: tx("spam"),
     tone: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
   },
   helpful_content: {
-    label: "Helpful content",
+    label: tx("helpfulContent"),
     tone: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
   },
   product_review: {
-    label: "Reviews",
+    label: tx("reviews"),
     tone: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
   },
   issue: {
-    label: "Ranking issue",
+    label: tx("rankingIssue"),
     tone: "bg-orange-500/15 text-orange-300 ring-orange-500/30",
   },
   other: {
-    label: "Update",
+    label: tx("update"),
     tone: "bg-white/5 text-muted-foreground ring-white/10",
   },
-};
+});
 
 const day = (iso: string) => new Date(iso).toLocaleDateString();
 
 export default async function AlgorithmUpdatesPage() {
+  const tx = await getTranslations("ui.app_algorithm-updates_page");
   const [updates, refreshedAt] = await Promise.all([
     getRankingUpdates(),
     rankingUpdatesRefreshedAt(),
@@ -48,8 +51,8 @@ export default async function AlgorithmUpdatesPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
-        title="Google algorithm updates"
-        description="Every ranking update and ranking issue Google has posted to its Search Status Dashboard, with Google's own announcement. Checked daily."
+        title={tx("googleAlgorithmUpdates")}
+        description={tx("everyRankingUpdateAndRanking")}
         icon={Lock}
         accent="violet"
         actions={<RefreshGoogleUpdatesButton />}
@@ -57,21 +60,21 @@ export default async function AlgorithmUpdatesPage() {
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-4 text-xs">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-medium text-foreground">Source:</span>
+          <span className="font-medium text-foreground">{tx("source")}</span>
           <a
             href="https://status.search.google.com/products/rGHU1u87FJnkP6W2GwMi/history"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2.5 py-1 text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/20"
           >
-            Search Status Dashboard
+            {tx("searchStatusDashboard")}
             <ExternalLink className="size-3" />
           </a>
           <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
             <RefreshCw className="size-3" />
             {refreshedAt
-              ? `Last checked ${day(refreshedAt)}`
-              : `Not checked yet · history as of ${day(SHIPPED_UPDATES_FETCHED_AT)}`}
+              ? tx("lastChecked", { v: day(refreshedAt) })
+              : tx("notCheckedYetHistoryAs", { v: day(SHIPPED_UPDATES_FETCHED_AT) })}
           </span>
         </div>
       </section>
@@ -79,14 +82,12 @@ export default async function AlgorithmUpdatesPage() {
       <div className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
           <p className="text-xs text-muted-foreground">
-            Dates are the US/Pacific dates Google prints. The text under each
-            one is Google&apos;s announcement. Google does not say which kinds of
-            site gained or lost, so neither does this page.
+            {tx("datesAreTheUsPacific")}
           </p>
         </header>
         <ul className="divide-y divide-white/[0.04]">
           {updates.map((u) => {
-            const cfg = typeStyle[u.type] ?? typeStyle.other;
+            const cfg = typeStyle(tx)[u.type] ?? typeStyle(tx).other;
             return (
               <li key={u.id} className="flex gap-4 px-5 py-4">
                 <div className="w-28 shrink-0 text-xs">
@@ -111,7 +112,7 @@ export default async function AlgorithmUpdatesPage() {
                       rel="noreferrer"
                       className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground hover:underline"
                     >
-                      Google&apos;s page
+                      {tx("googleSPage")}
                       <ExternalLink className="size-3" />
                     </a>
                   </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -33,6 +34,7 @@ export function ClientToolDrawer({
   title: string;
   onClose: () => void;
 }) {
+  const tx = useTranslations("ui.app_clients_id_client-tool-drawer");
   const [loading, setLoading] = useState(true);
   const [wide, setWide] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -71,7 +73,7 @@ export function ClientToolDrawer({
       className="fixed inset-0 z-50 flex"
       role="dialog"
       aria-modal="true"
-      aria-label={`Tool: ${title}`}
+      aria-label={tx("tool", { title })}
     >
       {/* Backdrop */}
       <div
@@ -96,7 +98,7 @@ export function ClientToolDrawer({
           <button
             type="button"
             onClick={reload}
-            title="Reload"
+            title={tx("reload")}
             className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <RefreshCw className="size-3.5" />
@@ -104,7 +106,7 @@ export function ClientToolDrawer({
           <button
             type="button"
             onClick={() => setWide((v) => !v)}
-            title={wide ? "Shrink drawer" : "Expand to almost full screen"}
+            title={wide ? tx("shrinkDrawer") : tx("expandToAlmostFullScreen")}
             className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             {wide ? (
@@ -117,16 +119,16 @@ export function ClientToolDrawer({
             href={standaloneUrl}
             target="_blank"
             rel="noreferrer noopener"
-            title="Open in a new tab (full-page view)"
+            title={tx("openInANewTab")}
             className="inline-flex h-8 items-center gap-1 rounded-md bg-white/5 px-2.5 text-[11px] text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
           >
             <ExternalLink className="size-3" />
-            New tab
+            {tx("newTab")}
           </a>
           <button
             type="button"
             onClick={onClose}
-            title="Close (Esc)"
+            title={tx("closeEsc")}
             className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
           >
             <X className="size-4" />
@@ -138,7 +140,7 @@ export function ClientToolDrawer({
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
               <div className="flex items-center gap-2 rounded-md bg-card px-3 py-2 text-xs ring-1 ring-inset ring-border">
                 <Loader2 className="size-3.5 animate-spin text-violet-300" />
-                Loading tool…
+                {tx("loadingTool")}
               </div>
             </div>
           )}
@@ -155,8 +157,7 @@ export function ClientToolDrawer({
 
         <footer className="flex shrink-0 items-center justify-between border-t border-border bg-card/40 px-4 py-1.5 text-[10px] text-muted-foreground">
           <span>
-            Tool runs in this drawer — the client context (left sidebar) stays
-            put.
+            {tx("toolRunsInThisDrawer")}
           </span>
           <a
             href={standaloneUrl}
@@ -164,7 +165,7 @@ export function ClientToolDrawer({
             rel="noreferrer noopener"
             className="inline-flex items-center gap-0.5 hover:text-foreground"
           >
-            Standalone view <ArrowUpRight className="size-2.5" />
+            {tx("standaloneView")} <ArrowUpRight className="size-2.5" />
           </a>
         </footer>
       </div>

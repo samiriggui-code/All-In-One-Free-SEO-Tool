@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Beaker, ExternalLink, X } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, titleTests } from "@/db/schema";
@@ -16,6 +17,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function TitleTestsPage() {
+  const tx = await getTranslations("ui.app_title-tests_page");
   const [allClients, tests] = await Promise.all([
     db
       .select({ id: clients.id, name: clients.name })
@@ -30,8 +32,8 @@ export default async function TitleTestsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Title A/B testing"
-        description="Rotate 2-5 candidate titles for a single page over multi-week periods. Daily-agent picks the winner by GSC CTR. Requires the WordPress bridge to push rotations."
+        title={tx("titleABTesting")}
+        description={tx("rotate25CandidateTitles")}
         icon={Beaker}
         accent="violet"
       />
@@ -41,12 +43,12 @@ export default async function TitleTestsPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="text-base font-semibold">
-            Active tests ({tests.length})
+            {tx("activeTests", { length: tests.length })}
           </h2>
         </header>
         {tests.length === 0 ? (
           <p className="px-5 py-6 text-sm text-muted-foreground">
-            No title tests yet. Create one above to start rotating variants.
+            {tx("noTitleTestsYetCreate")}
           </p>
         ) : (
           <ul className="divide-y divide-white/[0.05]">
@@ -70,10 +72,10 @@ export default async function TitleTestsPage() {
                         {t.status}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        {clientName.get(t.clientId) ?? `Client #${t.clientId}`}
+                        {clientName.get(t.clientId) ?? tx("client", { clientId: t.clientId })}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        · {t.variantDurationDays}d cycle
+                        {tx("dCycle", { variantDurationDays: t.variantDurationDays })}
                       </span>
                     </div>
                   </div>
@@ -84,14 +86,14 @@ export default async function TitleTestsPage() {
                           type="submit"
                           className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
                         >
-                          Pause
+                          {tx("pause")}
                         </button>
                       </form>
                     )}
                     <form action={deleteTitleTest.bind(null, t.id)}>
                       <button
                         type="submit"
-                        aria-label="Delete"
+                        aria-label={tx("delete")}
                         className="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
                       >
                         <X className="size-3.5" />
@@ -130,12 +132,12 @@ export default async function TitleTestsPage() {
                           </span>
                           {isWinner && (
                             <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
-                              winner
+                              {tx("winner")}
                             </span>
                           )}
                           {ctr !== null && (
                             <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
-                              {totalClicks}/{totalImpressions} · CTR {ctr.toFixed(2)}%
+                              {tx("ctr", { totalClicks, totalImpressions, ctr: ctr.toFixed(2) })}
                             </span>
                           )}
                         </li>

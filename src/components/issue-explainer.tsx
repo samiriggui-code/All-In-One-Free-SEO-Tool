@@ -1,5 +1,7 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   ChevronDown,
@@ -27,23 +29,23 @@ type Props = {
   explainer?: IssueExplainer | null;
 };
 
-const CONFIDENCE_META = {
+const CONFIDENCE_META = (tx: Tx) => ({
   definitely: {
-    label: "Definitely fix this",
+    label: tx("definitelyFixThis"),
     icon: CheckCircle2,
     tone: "text-emerald-300",
   },
   probably: {
-    label: "Probably worth fixing",
+    label: tx("probablyWorthFixing"),
     icon: AlertTriangle,
     tone: "text-amber-300",
   },
   test: {
-    label: "Worth testing",
+    label: tx("worthTesting"),
     icon: FlaskConical,
     tone: "text-violet-300",
   },
-} as const;
+} as const);
 
 export function IssueExplainer({
   issueType,
@@ -51,6 +53,7 @@ export function IssueExplainer({
   defaultOpen = false,
   explainer: explainerProp,
 }: Props) {
+  const tx = useTranslations("ui.components_issue-explainer");
   const [open, setOpen] = useState(defaultOpen);
   const [copied, setCopied] = useState(false);
   const explainer =
@@ -72,21 +75,17 @@ export function IssueExplainer({
     // stays because "unreachable" and "never happens" are not the same.
     return (
       <p className="mt-1 text-xs text-muted-foreground">
-        We haven&apos;t written the fix guide for this check yet.{" "}
-        <a
+        {tx.rich("weHavenTWrittenThe", { b0: (chunks) => <a
           href={REPO_NEW_ISSUE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="underline underline-offset-2 hover:text-foreground"
-        >
-          Tell us it&apos;s missing
-        </a>{" "}
-        and we&apos;ll add it.
+        >{chunks}</a> })}
       </p>
     );
   }
 
-  const conf = CONFIDENCE_META[explainer.confidence];
+  const conf = CONFIDENCE_META(tx)[explainer.confidence];
   const ConfIcon = conf.icon;
   const extTool = explainer.externalTool?.({ url });
 
@@ -103,21 +102,21 @@ export function IssueExplainer({
           <ChevronRight className="size-2.5" />
         )}
         <HelpCircle className="size-2.5" />
-        Why does this matter?
+        {tx("whyDoesThisMatter")}
       </button>
 
       {open && (
         <div className="space-y-3 rounded-md bg-white/[0.03] p-3 text-xs ring-1 ring-inset ring-white/5">
           <div>
             <p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-              What is it?
+              {tx("whatIsIt")}
             </p>
             <p>{explainer.whatIsIt}</p>
           </div>
 
           <div>
             <p className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-              Why it matters for SEO
+              {tx("whyItMattersForSeo")}
             </p>
             <p>{explainer.whyItMatters}</p>
           </div>
@@ -125,7 +124,7 @@ export function IssueExplainer({
           <div>
             <p className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
               <Wrench className="size-2.5" />
-              How to fix
+              {tx("howToFix")}
             </p>
             <ol className="space-y-1">
               {explainer.howToFix.map((step, i) => (
@@ -147,7 +146,7 @@ export function IssueExplainer({
           {explainer.snippet && (
             <div className="space-y-1.5 rounded-md border border-white/10 bg-black/20 p-2.5">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Where it goes
+                {tx("whereItGoes")}
               </p>
               <p className="text-[11px] leading-relaxed">
                 {explainer.snippet.where}
@@ -169,19 +168,19 @@ export function IssueExplainer({
                   }}
                   className="absolute right-1.5 top-2.5 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] shadow-sm hover:border-foreground/25"
                 >
-                  {copied ? "Copied" : "Copy"}
+                  {copied ? tx("copied") : tx("copy")}
                 </button>
               </div>
 
               {explainer.snippet.caution && (
                 <p className="rounded border border-amber-500/30 bg-amber-500/10 p-2 text-[11px] leading-relaxed text-amber-900 dark:text-amber-100/90">
-                  <strong>Before you paste this.</strong>{" "}
+                  <strong>{tx("beforeYouPasteThis")}</strong>{" "}
                   {explainer.snippet.caution}
                 </p>
               )}
 
               <p className="text-[11px] leading-relaxed text-muted-foreground">
-                <strong className="text-foreground">To undo:</strong>{" "}
+                <strong className="text-foreground">{tx("toUndo")}</strong>{" "}
                 {explainer.snippet.undo}
               </p>
             </div>
@@ -202,7 +201,7 @@ export function IssueExplainer({
                 className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-1.5 py-0.5 text-[10px] text-blue-300 ring-1 ring-inset ring-blue-500/30 hover:bg-blue-500/20"
               >
                 <BookOpen className="size-2.5" />
-                Google&apos;s docs
+                {tx("googleSDocs")}
                 <ExternalLink className="size-2.5" />
               </a>
             )}

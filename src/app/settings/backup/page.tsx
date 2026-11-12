@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import path from "node:path";
 import { statSync, existsSync, readdirSync } from "node:fs";
 import {
@@ -24,6 +25,7 @@ function fmtBytes(b: number): string {
 
 export default async function BackupPage() {
   await requireSettingsPage("/settings/backup", { owner: true });
+  const tx = await getTranslations("ui.app_settings_backup_page");
   const dbPath = process.env.SEO_DB_PATH ?? path.join(process.cwd(), "data.db");
   const dbAbs = path.resolve(dbPath);
   const dbExists = existsSync(dbAbs);
@@ -70,8 +72,8 @@ export default async function BackupPage() {
     <div className="mx-auto max-w-4xl space-y-6">
 
       <PageHeader
-        title="Backup & restore"
-        description="Every client, audit, keyword, ranking, report, AI chat, error log, integration credential lives in one SQLite file. Back it up to save everything. Restore overwrites the running database with whatever file you upload."
+        title={tx("backupRestore")}
+        description={tx("everyClientAuditKeywordRanking")}
         icon={Database}
         accent="cyan"
       />
@@ -81,30 +83,29 @@ export default async function BackupPage() {
         <header>
           <h2 className="text-base font-semibold inline-flex items-center gap-2">
             <Download className="size-4 text-cyan-300" />
-            Back up everything (recommended)
+            {tx("backUpEverythingRecommended")}
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            One click → downloads the entire data.db file. The single-file
-            backup is the whole point of SQLite — no per-table fuss.
+            {tx("oneClickDownloadsTheEntire")}
           </p>
         </header>
 
         <div className="grid gap-2 sm:grid-cols-3 text-xs">
           <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              File
+              {tx("file")}
             </p>
             <p className="font-mono break-all text-[11px]">{dbAbs}</p>
           </div>
           <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Current size
+              {tx("currentSize")}
             </p>
             <p>{fmtBytes(dbSize)}</p>
           </div>
           <div className="rounded-md bg-white/[0.03] p-2 ring-1 ring-inset ring-white/5">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Last modified
+              {tx("lastModified")}
             </p>
             <p>{dbMtime?.toLocaleString() ?? "—"}</p>
           </div>
@@ -116,11 +117,10 @@ export default async function BackupPage() {
           download
         >
           <Download className="size-4" />
-          Download data.db ({fmtBytes(dbSize)})
+          {tx("downloadDataDb", { v: fmtBytes(dbSize) })}
         </a>
         <p className="text-[10px] text-muted-foreground">
-          To move to a different computer: download this file, install on the
-          new machine, then upload it via Restore below. Done.
+          {tx("toMoveToADifferent")}
         </p>
       </section>
 
@@ -138,24 +138,23 @@ export default async function BackupPage() {
         <header>
           <h2 className="text-base font-semibold inline-flex items-center gap-2">
             <FileText className="size-4 text-violet-300" />
-            Export specific data as CSV
+            {tx("exportSpecificDataAsCsv")}
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            For sharing with Excel / Google Sheets. Pick what to export — each
-            link downloads a CSV instantly.
+            {tx("forSharingWithExcelGoogle")}
           </p>
         </header>
         <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4 text-xs">
           {[
-            { href: "/clients/export.csv", label: "Clients" },
-            { href: "/audits/export.csv", label: "Audits" },
-            { href: "/keywords/export.csv", label: "Keywords" },
-            { href: "/tasks/export.csv", label: "Tasks" },
-            { href: "/backlinks/export.csv", label: "Backlinks" },
-            { href: "/reports/export.csv", label: "Reports" },
-            { href: "/competitors/export.csv", label: "Competitors" },
-            { href: "/monitor/export.csv", label: "Page monitor" },
-            { href: "/outreach/export.csv", label: "Outreach" },
+            { href: "/clients/export.csv", label: tx("clients") },
+            { href: "/audits/export.csv", label: tx("audits") },
+            { href: "/keywords/export.csv", label: tx("keywords") },
+            { href: "/tasks/export.csv", label: tx("tasks") },
+            { href: "/backlinks/export.csv", label: tx("backlinks") },
+            { href: "/reports/export.csv", label: tx("reports") },
+            { href: "/competitors/export.csv", label: tx("competitors") },
+            { href: "/monitor/export.csv", label: tx("pageMonitor") },
+            { href: "/outreach/export.csv", label: tx("outreach") },
           ].map((x) => (
             <a
               key={x.href}
@@ -175,18 +174,14 @@ export default async function BackupPage() {
         <header>
           <h2 className="text-base font-semibold inline-flex items-center gap-2">
             <Upload className="size-4 text-amber-300" />
-            Restore from backup
+            {tx("restoreFromBackup")}
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            Upload a previously-downloaded data.db. The current data.db is
-            saved as <code className="font-mono">data.db.bak-...</code>{" "}
-            before overwriting, so you have a safety net.
+            {tx.rich("uploadAPreviouslyDownloadedData", { b0: (chunks) => <code className="font-mono">{chunks}</code> })}
           </p>
         </header>
         <div className="rounded-md bg-amber-500/10 p-3 text-[11px] text-amber-300 ring-1 ring-inset ring-amber-500/30">
-          ⚠ Restoring REPLACES all current data. The server needs a restart
-          after upload to release the file handle. Stop the dev server + re-run
-          the installer to fully reload.
+          {tx("restoringReplacesAllCurrentData")}
         </div>
         <RestoreForm />
       </section>
@@ -197,11 +192,10 @@ export default async function BackupPage() {
           <header>
             <h2 className="text-base font-semibold inline-flex items-center gap-2">
               <Clock className="size-4 text-muted-foreground" />
-              Auto-saved backups (last 5)
+              {tx("autoSavedBackupsLast5")}
             </h2>
             <p className="text-[11px] text-muted-foreground">
-              Created automatically before each restore. Files live next to
-              your data.db.
+              {tx("createdAutomaticallyBeforeEachRestore")}
             </p>
           </header>
           <ul className="space-y-1 text-xs">

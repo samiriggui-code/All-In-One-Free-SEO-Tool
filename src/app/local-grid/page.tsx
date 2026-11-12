@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Map } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, localGridChecks } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function LocalGridIndexPage() {
+  const t = await getTranslations("pickers.localGrid");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -26,12 +28,12 @@ export default async function LocalGridIndexPage() {
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "No grids yet" : `${total} grid runs`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "emerald" : "neutral",
         secondary:
           total > 0
-            ? "Click to run / view"
-            : "Click to map your local-pack visibility",
+            ? t("secondarySome")
+            : t("secondaryNone"),
       };
     }),
   );
@@ -39,8 +41,8 @@ export default async function LocalGridIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Local-pack heatmap"
-        description="Sample your Google ranking from a 5×5 grid across the service area. See exactly where you rank in the 3-pack vs where you're invisible. Free, browser-mode (no paid SERP API)."
+        title={t("title")}
+        description={t("description")}
         icon={Map}
         accent="emerald"
       />

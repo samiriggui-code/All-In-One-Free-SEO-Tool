@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Megaphone } from "lucide-react";
 import { db } from "@/db/client";
 import { brandMentions, clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function BrandMonitorIndexPage() {
+  const t = await getTranslations("pickers.brandMonitor");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -26,12 +28,12 @@ export default async function BrandMonitorIndexPage() {
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "Not scanned" : `${total} mentions`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "violet" : "neutral",
         secondary:
           total > 0
-            ? "Click to review"
-            : "Click to scan Reddit, HackerNews, Bluesky, Mastodon",
+            ? t("secondarySome")
+            : t("secondaryNone"),
       };
     }),
   );
@@ -39,8 +41,8 @@ export default async function BrandMonitorIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Brand monitoring"
-        description="Daily scan across Reddit, HackerNews, Bluesky, and Mastodon for mentions of each client. Surfaces unlinked-mention link-building opportunities + sentiment trends. Free, no API keys."
+        title={t("title")}
+        description={t("description")}
         icon={Megaphone}
         accent="amber"
       />

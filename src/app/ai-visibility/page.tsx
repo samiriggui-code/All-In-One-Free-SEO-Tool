@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, keywords, aiVisibilityChecks } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function AIVisibilityIndexPage() {
+  const t = await getTranslations("pickers.aiVisibility");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -48,12 +50,12 @@ export default async function AIVisibilityIndexPage() {
         logoUrl: c.logoUrl,
         niche: c.niche,
         primary:
-          mentions > 0 ? `${mentions} mentions` : kwCount > 0 ? "No mentions yet" : "No keywords",
+          mentions > 0 ? t("mentions", { count: mentions }) : kwCount > 0 ? t("noMentions") : t("noKeywords"),
         primaryTone: mentions > 0 ? "emerald" : "neutral",
         secondary:
           kwCount > 0
-            ? `${kwCount} tracked keyword${kwCount === 1 ? "" : "s"}`
-            : "Add keywords first",
+            ? t("tracked", { count: kwCount })
+            : t("addKeywords"),
       };
     }),
   );
@@ -61,8 +63,8 @@ export default async function AIVisibilityIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="AI visibility"
-        description="Pick a client to track whether ChatGPT, Claude, Gemini, Perplexity and others mention their domain on tracked queries."
+        title={t("title")}
+        description={t("description")}
         icon={Sparkles}
         accent="rose"
       />

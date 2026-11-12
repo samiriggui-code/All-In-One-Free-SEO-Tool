@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { Pin, PinOff, RotateCcw, Trash2 } from "lucide-react";
 import {
@@ -34,6 +35,7 @@ export function RecentRuns({
   refreshKey?: number | string;
   limit?: number;
 }) {
+  const tx = useTranslations("ui.components_recent-runs");
   const [runs, setRuns] = useState<ToolRun[]>([]);
   const [loading, setLoading] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -62,16 +64,16 @@ export function RecentRuns({
   return (
     <section className="rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-2.5">
-        <h3 className="text-xs font-semibold">Recent runs</h3>
+        <h3 className="text-xs font-semibold">{tx("recentRuns")}</h3>
         {runs.length > 0 && (
           <button
             type="button"
             disabled={pending}
             onClick={async () => {
               const ok = await confirmDialog({
-                title: "Clear all unpinned runs for this tool?",
-                description: "Pinned runs are kept. This can't be undone.",
-                confirmLabel: "Clear unpinned",
+                title: tx("clearAllUnpinnedRunsFor"),
+                description: tx("pinnedRunsAreKeptThis"),
+                confirmLabel: tx("clearUnpinned"),
                 destructive: true,
               });
               if (!ok) return;
@@ -83,13 +85,13 @@ export function RecentRuns({
             }}
             className="text-[10px] text-muted-foreground hover:text-rose-300 hover:underline disabled:opacity-50"
           >
-            Clear unpinned
+            {tx("clearUnpinned")}
           </button>
         )}
       </header>
       {loading && runs.length === 0 ? (
         <p className="px-4 py-3 text-[11px] text-muted-foreground">
-          Loading…
+          {tx("loading")}
         </p>
       ) : (
         <ul className="divide-y divide-white/[0.04]">
@@ -110,7 +112,7 @@ export function RecentRuns({
                 }`}
                 title={
                   onRestore
-                    ? `Click to restore — ${r.label}`
+                    ? tx("clickToRestore", { label: r.label })
                     : r.label
                 }
               >
@@ -153,7 +155,7 @@ export function RecentRuns({
                     type="button"
                     onClick={() => onRestore(r)}
                     className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-white/10 hover:text-foreground"
-                    title="Restore"
+                    title={tx("restore")}
                   >
                     <RotateCcw className="size-3" />
                   </button>
@@ -173,7 +175,7 @@ export function RecentRuns({
                     });
                   }}
                   className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-amber-500/15 hover:text-amber-300 disabled:opacity-50"
-                  title={r.pinned ? "Unpin" : "Pin"}
+                  title={r.pinned ? tx("unpin") : tx("pin")}
                 >
                   {r.pinned ? (
                     <PinOff className="size-3" />
@@ -186,9 +188,9 @@ export function RecentRuns({
                   disabled={pending}
                   onClick={async () => {
                     const ok = await confirmDialog({
-                      title: "Delete this run?",
+                      title: tx("deleteThisRun"),
                       description:
-                        "The result is removed permanently. Re-run the tool to regenerate it.",
+                        tx("theResultIsRemovedPermanently"),
                       confirmLabel: "Delete",
                       destructive: true,
                     });
@@ -204,7 +206,7 @@ export function RecentRuns({
                     });
                   }}
                   className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300 disabled:opacity-50"
-                  title="Delete"
+                  title={tx("delete")}
                 >
                   <Trash2 className="size-3" />
                 </button>

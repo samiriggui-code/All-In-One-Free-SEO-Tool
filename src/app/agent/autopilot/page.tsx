@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { and, desc, inArray, isNull, or } from "drizzle-orm";
 import { Bot } from "lucide-react";
 import { db } from "@/db/client";
@@ -12,6 +13,7 @@ import { BulkPanel } from "./bulk-panel";
 import { groupForBulk } from "@/lib/agent/bulk";
 
 export default async function AutopilotPage() {
+  const tx = await getTranslations("ui.app_agent_autopilot_page");
   const settings = await getAgentSettings();
 
   const visibleClients = await db
@@ -90,11 +92,11 @@ export default async function AutopilotPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Autopilot"
-        description="What the agent does on its own, what it's waiting to ask you about, and everything it has changed."
+        title={tx("autopilot")}
+        description={tx("whatTheAgentDoesOn")}
         icon={Bot}
         accent="violet"
-        crumbs={[{ href: "/agent", label: "Agent" }, { label: "Autopilot" }]}
+        crumbs={[{ href: "/agent", label: tx("agent") }, { label: tx("autopilot") }]}
       />
       {bulkByClient.map(({ client, groups }) => (
         <div key={client.id} className="space-y-2">
@@ -117,7 +119,7 @@ export default async function AutopilotPage() {
         runs={runs
           .map((r) => ({
             id: r.id,
-            clientName: r.clientId ? (nameOf.get(r.clientId) ?? "") : "All clients",
+            clientName: r.clientId ? (nameOf.get(r.clientId) ?? "") : tx("allClients"),
             mode: r.mode,
             trigger: r.trigger,
             startedAt: r.startedAt.toISOString(),

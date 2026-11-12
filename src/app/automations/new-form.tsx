@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import {
   Plus,
@@ -22,6 +23,7 @@ export function NewAutomationForm({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_automations_new-form");
   const [actionKind, setActionKind] = useState<
     "webhook" | "create_task" | "log"
   >("create_task");
@@ -39,40 +41,40 @@ export function NewAutomationForm({
       <input type="hidden" name="actionKind" value={actionKind} />
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">{tx("name")}</Label>
           <Input
             id="name"
             name="name"
-            placeholder="Alert on low scores"
+            placeholder={tx("alertOnLowScores")}
             required
             minLength={2}
             maxLength={120}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="trigger">When this happens…</Label>
+          <Label htmlFor="trigger">{tx("whenThisHappens")}</Label>
           <select
             id="trigger"
             name="trigger"
             defaultValue="audit_completed"
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           >
-            <option value="audit_completed">Audit completed</option>
-            <option value="audit_failed">Audit failed</option>
-            <option value="score_drop">Score dropped</option>
-            <option value="page_change">Page changed</option>
-            <option value="rank_drop">Rank dropped</option>
+            <option value="audit_completed">{tx("auditCompleted")}</option>
+            <option value="audit_failed">{tx("auditFailed")}</option>
+            <option value="score_drop">{tx("scoreDropped")}</option>
+            <option value="page_change">{tx("pageChanged")}</option>
+            <option value="rank_drop">{tx("rankDropped")}</option>
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="clientId">Client filter</Label>
+          <Label htmlFor="clientId">{tx("clientFilter")}</Label>
           <select
             id="clientId"
             name="clientId"
             defaultValue=""
             className="flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
           >
-            <option value="">All clients</option>
+            <option value="">{tx("allClients")}</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -83,25 +85,25 @@ export function NewAutomationForm({
       </div>
 
       <div className="mt-5">
-        <Label>Then do this…</Label>
+        <Label>{tx("thenDoThis")}</Label>
         <div className="mt-1.5 flex flex-wrap gap-2">
           <ActionTab
             active={actionKind === "create_task"}
             onClick={() => setActionKind("create_task")}
             icon={ListChecks}
-            label="Create task"
+            label={tx("createTask")}
           />
           <ActionTab
             active={actionKind === "webhook"}
             onClick={() => setActionKind("webhook")}
             icon={Webhook}
-            label="Send webhook"
+            label={tx("sendWebhook")}
           />
           <ActionTab
             active={actionKind === "log"}
             onClick={() => setActionKind("log")}
             icon={FileText}
-            label="Log activity"
+            label={tx("logActivity")}
           />
         </div>
       </div>
@@ -110,7 +112,7 @@ export function NewAutomationForm({
         {actionKind === "create_task" && (
           <div className="grid gap-3 md:grid-cols-[1fr_auto]">
             <div className="space-y-1.5">
-              <Label htmlFor="taskTitle">Task title</Label>
+              <Label htmlFor="taskTitle">{tx("taskTitle")}</Label>
               <Input
                 id="taskTitle"
                 name="taskTitle"
@@ -125,16 +127,16 @@ export function NewAutomationForm({
               </p>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="taskPriority">Priority</Label>
+              <Label htmlFor="taskPriority">{tx("priority")}</Label>
               <select
                 id="taskPriority"
                 name="taskPriority"
                 defaultValue="medium"
                 className="flex h-9 rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm"
               >
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="high">{tx("high")}</option>
+                <option value="medium">{tx("medium")}</option>
+                <option value="low">{tx("low")}</option>
               </select>
             </div>
           </div>
@@ -142,7 +144,7 @@ export function NewAutomationForm({
 
         {actionKind === "webhook" && (
           <div className="space-y-1.5">
-            <Label htmlFor="webhookUrl">Webhook URL</Label>
+            <Label htmlFor="webhookUrl">{tx("webhookUrl")}</Label>
             <Input
               id="webhookUrl"
               name="webhookUrl"
@@ -150,15 +152,14 @@ export function NewAutomationForm({
               type="url"
             />
             <p className="text-[11px] text-muted-foreground">
-              Same format detection as the global webhook in settings — works
-              with Slack / Discord / Teams / generic.
+              {tx("sameFormatDetectionAsThe")}
             </p>
           </div>
         )}
 
         {actionKind === "log" && (
           <div className="space-y-1.5">
-            <Label htmlFor="logMessage">Log message</Label>
+            <Label htmlFor="logMessage">{tx("logMessage")}</Label>
             <Input
               id="logMessage"
               name="logMessage"
@@ -181,7 +182,7 @@ export function NewAutomationForm({
           ) : (
             <AlertCircle className="size-3.5" />
           )}
-          {state.ok ? "Automation created." : state.error}
+          {state.ok ? tx("automationCreated") : state.error}
         </div>
       )}
 
@@ -192,7 +193,7 @@ export function NewAutomationForm({
           className="shadow-md shadow-fuchsia-500/20"
         >
           <Plus className="size-4" />
-          {pending ? "Creating…" : "Create automation"}
+          {pending ? tx("creating") : tx("createAutomation")}
         </Button>
       </div>
     </form>

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { db } from "@/db/client";
 import { newsFeeds } from "@/db/schema";
 import { desc } from "drizzle-orm";
@@ -15,6 +16,7 @@ import { CleanupBar, DeleteItemButton } from "./cleanup-bar";
 import { markSectionSeen } from "@/lib/unread-counts";
 
 export default async function NewsPage() {
+  const tx = await getTranslations("ui.app_news_page");
   // Seed defaults on first visit so user has something to read immediately
   await seedDefaultFeedsIfEmpty();
   await markSectionSeen("news").catch(() => {});
@@ -27,8 +29,8 @@ export default async function NewsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="SEO news"
-        description="Live feed from Google + top SEO publishers + any custom RSS you add. No API keys — just RSS / Atom / JSON Feed parsing. Click refresh to pull latest."
+        title={tx("seoNews")}
+        description={tx("liveFeedFromGoogleTop")}
         icon={Newspaper}
         accent="violet"
         actions={<RefreshFeedsButton />}
@@ -39,12 +41,11 @@ export default async function NewsPage() {
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
           <div>
             <h2 className="text-base font-semibold">
-              Latest items {items.length > 0 && `(${items.length})`}
+              {tx("latestItems")} {items.length > 0 && `(${items.length})`}
             </h2>
             {items.length === 0 && (
               <p className="mt-0.5 text-xs text-muted-foreground">
-                No items yet — click <strong>Refresh feeds</strong> above to
-                pull the first batch.
+                {tx.rich("noItemsYetClickRefresh", { b0: (chunks) => <strong>{chunks}</strong> })}
               </p>
             )}
           </div>
@@ -100,11 +101,9 @@ export default async function NewsPage() {
       {/* Add feed */}
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
-          <h2 className="text-base font-semibold">Add a custom feed</h2>
+          <h2 className="text-base font-semibold">{tx("addACustomFeed")}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Paste any RSS / Atom / JSON Feed URL. Works for blogs, GitHub
-            release feeds, Reddit subreddit feeds, and via RSSHub also Twitter
-            hashtags / YouTube channels / etc.
+            {tx("pasteAnyRssAtomJson")}
           </p>
         </header>
         <div className="p-5">
@@ -115,10 +114,9 @@ export default async function NewsPage() {
       {/* Feed list */}
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
-          <h2 className="text-base font-semibold">Configured feeds ({feeds.length})</h2>
+          <h2 className="text-base font-semibold">{tx("configuredFeeds", { length: feeds.length })}</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Toggle to disable without deleting. Removing a feed also deletes
-            its captured items.
+            {tx("toggleToDisableWithoutDeleting")}
           </p>
         </header>
         <ul className="divide-y divide-white/[0.04]">

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { GitCompare } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function ContentGapIndexPage() {
+  const t = await getTranslations("pickers.contentGap");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = all.map((c) => ({
@@ -20,18 +22,18 @@ export default async function ContentGapIndexPage() {
     url: c.url,
     logoUrl: c.logoUrl,
     niche: c.niche,
-    primary: c.gscProperty ? "Ready" : "GSC needed",
+    primary: c.gscProperty ? t("ready") : t("gscNeeded"),
     primaryTone: (c.gscProperty ? "emerald" : "amber") as "emerald" | "amber",
     secondary: c.gscProperty
-      ? "Click to find under-performing keywords"
-      : "Connect GSC on this client first",
+      ? t("secondaryReady")
+      : t("secondarySetup"),
   }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Content gap finder"
-        description="Pick a client. Find queries where you're being shown but losing the click — the highest-leverage content to refresh."
+        title={t("title")}
+        description={t("description")}
         icon={GitCompare}
         accent="cyan"
       />

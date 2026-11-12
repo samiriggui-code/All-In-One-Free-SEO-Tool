@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 import { listKpSnapshots, runKpCapture, type CaptureState } from "./actions";
@@ -10,6 +11,7 @@ export function KnowledgePanelClient({
 }: {
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_knowledge-panel_client");
   const [clientId, setClientId] = useState<string>(
     clients[0]?.id?.toString() ?? "",
   );
@@ -38,7 +40,7 @@ export function KnowledgePanelClient({
       >
         <div className="grid gap-3 md:grid-cols-[200px_1fr_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Client</span>
+            <span className="text-muted-foreground">{tx("client")}</span>
             <select
               name="clientId"
               value={clientId}
@@ -47,7 +49,7 @@ export function KnowledgePanelClient({
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm"
             >
               {clients.length === 0 ? (
-                <option value="">No clients yet</option>
+                <option value="">{tx("noClientsYet")}</option>
               ) : (
                 clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -59,7 +61,7 @@ export function KnowledgePanelClient({
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Brand query (defaults to client name)
+              {tx("brandQueryDefaultsToClient")}
             </span>
             <input
               name="query"
@@ -77,12 +79,12 @@ export function KnowledgePanelClient({
             {pending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Capturing…
+                {tx("capturing")}
               </>
             ) : (
               <>
                 <Sparkles className="mr-2 size-3" />
-                Capture now
+                {tx("captureNow")}
               </>
             )}
           </button>
@@ -98,19 +100,17 @@ export function KnowledgePanelClient({
       {state?.ok && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Latest capture</h2>
+            <h2 className="text-base font-semibold">{tx("latestCapture")}</h2>
             {!state.data.present && (
               <p className="mt-1 text-xs text-amber-300">
-                No Knowledge Panel found for this brand query. Smaller brands
-                may not yet have one — Google needs strong entity signals
-                (Wikipedia + multiple authoritative sameAs links).
+                {tx("noKnowledgePanelFoundFor")}
               </p>
             )}
           </header>
           <div className="space-y-3 p-5 text-sm">
             {state.changes.length > 0 && (
               <div className="rounded-md border border-amber-500/20 bg-amber-500/5 p-3">
-                <p className="font-medium text-amber-300">Changes since last snapshot</p>
+                <p className="font-medium text-amber-300">{tx("changesSinceLastSnapshot")}</p>
                 <ul className="mt-1 space-y-0.5 text-[11px]">
                   {state.changes.map((c, i) => (
                     <li key={i}>· {c}</li>
@@ -120,13 +120,13 @@ export function KnowledgePanelClient({
             )}
             {state.data.present && (
               <>
-                <Field label="Title" value={state.data.title} />
-                <Field label="Subtitle" value={state.data.subtitle} />
-                <Field label="Description" value={state.data.description} />
+                <Field label={tx("title")} value={state.data.title} />
+                <Field label={tx("subtitle")} value={state.data.subtitle} />
+                <Field label={tx("description")} value={state.data.description} />
                 {state.data.sameAs.length > 0 && (
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      sameAs (Wikipedia / Crunchbase / etc.)
+                      {tx("sameasWikipediaCrunchbaseEtc")}
                     </p>
                     <ul className="mt-1 space-y-0.5 text-[11px]">
                       {state.data.sameAs.map((u) => (
@@ -147,7 +147,7 @@ export function KnowledgePanelClient({
                 {state.data.facts.length > 0 && (
                   <div className="rounded-md bg-white/[0.03] p-3 text-xs">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Facts
+                      {tx("facts")}
                     </p>
                     <ul className="mt-1 space-y-0.5">
                       {state.data.facts.map((f, i) => (
@@ -167,7 +167,7 @@ export function KnowledgePanelClient({
       {history.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-3">
-            <h3 className="text-sm font-semibold">Snapshot history</h3>
+            <h3 className="text-sm font-semibold">{tx("snapshotHistory")}</h3>
           </header>
           <ul className="divide-y divide-white/[0.06]">
             {history.map((s) => (
@@ -181,7 +181,7 @@ export function KnowledgePanelClient({
                     s.present ? "text-emerald-300" : "text-muted-foreground"
                   }
                 >
-                  {s.present ? "Panel present" : "Panel absent"}
+                  {s.present ? tx("panelPresent") : tx("panelAbsent")}
                 </span>
                 <span className="truncate text-muted-foreground">
                   {s.title ?? s.query}

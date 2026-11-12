@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -58,6 +59,7 @@ export function BotLogsClient({
   clients: { id: number; name: string }[];
   uploads: Upload[];
 }) {
+  const tx = useTranslations("ui.app_bot-logs_bot-logs-client");
   const fileRef = useRef<HTMLInputElement>(null);
   const [clientId, setClientId] = useState<string>("");
   const [pending, startTransition] = useTransition();
@@ -87,8 +89,8 @@ export function BotLogsClient({
 
   async function remove(id: number) {
     const ok = await confirmDialog({
-      title: "Delete this log upload?",
-      description: "All parsed bot hits from this file will be removed.",
+      title: tx("deleteThisLogUpload"),
+      description: tx("allParsedBotHitsFrom"),
       confirmLabel: "Delete",
       destructive: true,
     });
@@ -102,11 +104,9 @@ export function BotLogsClient({
   return (
     <div className="space-y-5">
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <Label className="text-sm">Upload access log</Label>
+        <Label className="text-sm">{tx("uploadAccessLog")}</Label>
         <p className="mt-1 text-xs text-muted-foreground">
-          Combined log format expected (Nginx default / Apache common). Each
-          bot is counted by its user agent, then crawlers that publish their
-          IP ranges are checked against those ranges.
+          {tx("combinedLogFormatExpectedNginx")}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <input
@@ -126,19 +126,19 @@ export function BotLogsClient({
             {pending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Parsing…
+                {tx("parsing")}
               </>
             ) : (
               <>
                 <Upload className="size-4" />
-                Choose log file
+                {tx("chooseLogFile")}
               </>
             )}
           </Button>
           {clients.length > 0 && (
             <>
               <Label htmlFor="bl-client" className="text-xs">
-                Client (optional)
+                {tx("clientOptional")}
               </Label>
               <select
                 id="bl-client"
@@ -147,7 +147,7 @@ export function BotLogsClient({
                 disabled={pending}
                 className="flex h-9 rounded-md border border-input bg-background px-2 text-xs"
               >
-                <option value="">Not assigned</option>
+                <option value="">{tx("notAssigned")}</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -168,10 +168,7 @@ export function BotLogsClient({
           <div className="mt-4 space-y-3">
             <div className="rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <CheckCircle2 className="mr-1 inline size-3.5" />
-              Parsed {result.totalLines.toLocaleString()} lines —{" "}
-              {result.matchedLines.toLocaleString()} hits whose user agent
-              names a known bot, across {Object.keys(result.botCounts).length}{" "}
-              bots.
+              {tx("parsedLinesHitsWhoseUser", { v: result.totalLines.toLocaleString(), v2: result.matchedLines.toLocaleString(), length: Object.keys(result.botCounts).length })}
             </div>
 
             {result.addressWarning && (
@@ -184,7 +181,7 @@ export function BotLogsClient({
             {Object.keys(result.verification).length > 0 && (
               <div className="rounded-lg bg-white/[0.02] p-3 ring-1 ring-inset ring-white/[0.04]">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Checked against published addresses
+                  {tx("checkedAgainstPublishedAddresses")}
                 </div>
                 <ul className="mt-1.5 space-y-1 text-xs">
                   {Object.entries(result.verification)
@@ -200,18 +197,18 @@ export function BotLogsClient({
                         <span className="font-medium">{bot}</span>
                         {v.listError ? (
                           <span className="text-muted-foreground">
-                            Couldn&apos;t load its list: {v.listError}
+                            {tx("couldnTLoadItsList", { listError: v.listError })}
                           </span>
                         ) : (
                           <span className="tabular-nums">
                             <span className="text-emerald-300">
-                              {v.verified.toLocaleString()} verified
+                              {tx("verified", { v: v.verified.toLocaleString() })}
                             </span>
                             {v.unverified > 0 && (
                               <>
                                 {" · "}
                                 <span className="text-amber-300">
-                                  {v.unverified.toLocaleString()} from other addresses
+                                  {tx("fromOtherAddresses", { v: v.unverified.toLocaleString() })}
                                 </span>
                               </>
                             )}
@@ -219,7 +216,7 @@ export function BotLogsClient({
                               <>
                                 {" · "}
                                 <span className="text-muted-foreground">
-                                  {v.noAddress.toLocaleString()} with no address
+                                  {tx("withNoAddress", { v: v.noAddress.toLocaleString() })}
                                 </span>
                               </>
                             )}
@@ -230,8 +227,7 @@ export function BotLogsClient({
                 </ul>
                 {result.unverifiable.length > 0 && (
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    Counted by user agent only — no published address list:{" "}
-                    {result.unverifiable.join(", ")}.
+                    {tx("countedByUserAgentOnly", { v: result.unverifiable.join(", ") })}
                   </p>
                 )}
               </div>
@@ -240,7 +236,7 @@ export function BotLogsClient({
             {Object.keys(result.statusBreakdown).length > 0 && (
               <div className="rounded-lg bg-white/[0.02] p-3 ring-1 ring-inset ring-white/[0.04]">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Bot status codes
+                  {tx("botStatusCodes")}
                 </div>
                 <div className="mt-1 flex flex-wrap gap-2 text-xs">
                   {Object.entries(result.statusBreakdown).map(
@@ -273,8 +269,7 @@ export function BotLogsClient({
                   (result.statusBreakdown["5xx"] ?? 0) >
                   0 && (
                   <p className="mt-1.5 text-[11px] text-amber-300/80">
-                    Bots hitting 4xx / 5xx = wasted crawl budget. Fix or
-                    redirect those paths.
+                    {tx("botsHitting4xx5xxWasted")}
                   </p>
                 )}
               </div>
@@ -283,7 +278,7 @@ export function BotLogsClient({
             {result.topPaths.length > 0 && (
               <div className="rounded-lg bg-white/[0.02] p-3 ring-1 ring-inset ring-white/[0.04]">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Top {Math.min(20, result.topPaths.length)} bot-crawled paths
+                  {tx("topBotCrawledPaths", { Math: Math.min(20, result.topPaths.length) })}
                 </div>
                 <ul className="mt-1.5 space-y-0.5 text-xs">
                   {result.topPaths.map((p) => (
@@ -313,11 +308,9 @@ export function BotLogsClient({
       {uploads.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Recent uploads</h2>
+            <h2 className="text-base font-semibold">{tx("recentUploads")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              Each upload is a snapshot — re-upload weekly to spot trends in AI
-              bot crawl frequency. A check mark is the number of hits that came
-              from the crawler&apos;s published addresses.
+              {tx("eachUploadIsASnapshot")}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.04]">
@@ -336,7 +329,7 @@ export function BotLogsClient({
                       <div className="flex items-center gap-2">
                         <Bot className="size-4 text-violet-300" />
                         <span className="truncate font-medium">
-                          {u.sourceName ?? `Upload #${u.id}`}
+                          {u.sourceName ?? tx("upload", { id: u.id })}
                         </span>
                         {u.clientName && (
                           <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] ring-1 ring-inset ring-white/10">
@@ -345,9 +338,7 @@ export function BotLogsClient({
                         )}
                       </div>
                       <div className="mt-0.5 text-[11px] text-muted-foreground">
-                        {(u.lineCount ?? 0).toLocaleString()} lines ·{" "}
-                        {((u.rawByteSize ?? 0) / 1024).toFixed(1)} KB ·{" "}
-                        {u.uploadedAt.toLocaleString()}
+                        {tx("linesKb", { v: (u.lineCount ?? 0).toLocaleString(), v2: ((u.rawByteSize ?? 0) / 1024).toFixed(1), v3: u.uploadedAt.toLocaleString() })}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-1">
                         {sorted.map(([bot, count]) => {
@@ -368,7 +359,7 @@ export function BotLogsClient({
                               {v && !v.listError && (
                                 <span
                                   className="tabular-nums text-emerald-300"
-                                  title="Hits from the crawler's published addresses"
+                                  title={tx("hitsFromTheCrawlerS")}
                                 >
                                   ✓{v.verified.toLocaleString()}
                                 </span>
@@ -379,15 +370,14 @@ export function BotLogsClient({
                       </div>
                       {aiTotal > 0 && (
                         <div className="mt-1 text-[11px] text-violet-300">
-                          AI-bot hits this period, by user agent:{" "}
-                          {aiTotal.toLocaleString()}
+                          {tx("aiBotHitsThisPeriod", { aiTotal: aiTotal.toLocaleString() })}
                         </div>
                       )}
                     </div>
                     <button
                       type="button"
                       onClick={() => remove(u.id)}
-                      title="Delete"
+                      title={tx("delete")}
                       className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
                     >
                       <Trash2 className="size-3.5" />

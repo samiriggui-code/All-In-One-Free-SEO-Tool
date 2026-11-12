@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 
+import { getTranslations } from "next-intl/server";
 import { Crown } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -9,13 +10,14 @@ import { clientScope } from "@/lib/client-scope";
 import { BrandSerpView } from "./view";
 
 export default async function BrandSerpPage() {
+  const tx = await getTranslations("ui.app_brand-serp_page");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(clients.name);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Brand SERP monitor"
-        description="Capture the full first-page Google SERP for every brand name. We score 'brand-SERP control' — what % of the top 10 are properties you actually own (your domain, your social profiles, your knowledge panel). Goal: control 5+ of the top 10."
+        title={tx("brandSerpMonitor")}
+        description={tx("captureTheFullFirstPage")}
         icon={Crown}
         accent="amber"
       />

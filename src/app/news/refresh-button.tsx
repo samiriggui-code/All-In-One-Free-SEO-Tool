@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTransition, useState } from "react";
 import { CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { refreshFeeds } from "./actions";
 
 export function RefreshFeedsButton() {
+  const tx = useTranslations("ui.app_news_refresh-button");
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -28,12 +30,12 @@ export function RefreshFeedsButton() {
         {pending ? (
           <>
             <Loader2 className="size-3.5 animate-spin" />
-            Refreshing…
+            {tx("refreshing")}
           </>
         ) : (
           <>
             <RefreshCw className="size-3.5" />
-            Refresh feeds
+            {tx("refreshFeeds")}
           </>
         )}
       </Button>

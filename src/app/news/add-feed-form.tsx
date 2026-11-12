@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { addFeed, removeFeed, toggleFeed } from "./actions";
 
 export function AddFeedForm() {
+  const tx = useTranslations("ui.app_news_add-feed-form");
   const [url, setUrl] = useState("");
   const [name, setName] = useState("");
   const [pending, startTransition] = useTransition();
@@ -40,14 +42,10 @@ export function AddFeedForm() {
         tone: "success",
         text: r.autoDiscovered ? (
           <>
-            Found feed at{" "}
-            <code className="rounded bg-emerald-500/10 px-1 py-0.5 text-[11px]">
-              {r.resolvedUrl}
-            </code>{" "}
-            — added.
+            {tx.rich("foundFeedAtAdded", { resolvedUrl: r.resolvedUrl, b0: (chunks) => <code className="rounded bg-emerald-500/10 px-1 py-0.5 text-[11px]">{chunks}</code> })}
           </>
         ) : (
-          <>Feed added — refresh to pull items.</>
+          <>{tx("feedAddedRefreshToPull")}</>
         ),
       });
       setUrl("");
@@ -59,37 +57,37 @@ export function AddFeedForm() {
     <form onSubmit={submit} className="space-y-3">
       <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
         <div className="space-y-1.5">
-          <Label htmlFor="feed-url">Website or RSS URL</Label>
+          <Label htmlFor="feed-url">{tx("websiteOrRssUrl")}</Label>
           <Input
             id="feed-url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="example.com  ·  or  ·  example.com/feed"
+            placeholder={tx("exampleComOrExampleCom")}
           />
           <p className="text-[11px] text-muted-foreground">
             <Sparkles className="mr-0.5 inline size-3 text-violet-300" />
-            Paste a normal website URL — we&apos;ll auto-find its RSS feed.
+            {tx("pasteANormalWebsiteUrl")}
           </p>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="feed-name">Display name (optional)</Label>
+          <Label htmlFor="feed-name">{tx("displayNameOptional")}</Label>
           <Input
             id="feed-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Auto-filled from feed title"
+            placeholder={tx("autoFilledFromFeedTitle")}
           />
         </div>
         <Button type="submit" disabled={pending || !url.trim()}>
           {pending ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Finding feed…
+              {tx("findingFeed")}
             </>
           ) : (
             <>
               <Plus className="size-4" />
-              Add feed
+              {tx("addFeed")}
             </>
           )}
         </Button>
@@ -111,22 +109,12 @@ export function AddFeedForm() {
         </div>
       )}
       <div className="rounded-md border border-violet-500/20 bg-violet-500/[0.04] px-3 py-2 text-[11px] text-muted-foreground">
-        <strong className="text-violet-200">If auto-discovery fails:</strong>{" "}
-        the site doesn&apos;t expose an RSS feed at any standard location.
-        Paste the direct feed URL instead — they&apos;re usually at{" "}
-        <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">/feed</code>,{" "}
-        <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">/rss.xml</code>,{" "}
-        <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">/atom.xml</code>{" "}
-        — or use{" "}
-        <a
+        {tx.rich("ifAutoDiscoveryFailsThe", { b0: (chunks) => <strong className="text-violet-200">{chunks}</strong>, b1: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">{chunks}</code>, b2: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">{chunks}</code>, b3: (chunks) => <code className="rounded bg-white/5 px-1 py-0.5 text-[10px]">{chunks}</code>, b4: (chunks) => <a
           href="https://rsshub.app"
           target="_blank"
           rel="noreferrer"
           className="text-violet-300 hover:underline"
-        >
-          RSSHub
-        </a>{" "}
-        for sites without one (Twitter hashtags, YouTube channels, Reddit subs).
+        >{chunks}</a> })}
       </div>
     </form>
   );
@@ -145,6 +133,7 @@ export function FeedRow({
     lastError: string | null;
   };
 }) {
+  const tx = useTranslations("ui.app_news_add-feed-form");
   const [pending, startTransition] = useTransition();
   return (
     <li className="flex flex-wrap items-center gap-3 px-5 py-2.5 text-sm">
@@ -179,7 +168,7 @@ export function FeedRow({
         )}
         {feed.lastFetchedAt && !feed.lastError && (
           <div className="text-[11px] text-muted-foreground/70">
-            Last fetched {feed.lastFetchedAt.toLocaleString()}
+            {tx("lastFetched", { v: feed.lastFetchedAt.toLocaleString() })}
           </div>
         )}
       </div>
@@ -197,7 +186,7 @@ export function FeedRow({
             : "bg-white/5 text-muted-foreground ring-white/10"
         }`}
       >
-        {feed.enabled ? "On" : "Off"}
+        {feed.enabled ? "On" : tx("off")}
       </button>
       <button
         type="button"
@@ -209,7 +198,7 @@ export function FeedRow({
         disabled={pending}
         className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:bg-rose-500/15 hover:text-rose-300"
       >
-        Remove
+        {tx("remove")}
       </button>
     </li>
   );

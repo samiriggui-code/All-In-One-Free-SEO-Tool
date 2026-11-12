@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function MetaRewriteIndexPage() {
+  const t = await getTranslations("pickers.metaRewrite");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
   const cards: ClientToolCard[] = all.map((c) => ({
     id: c.id,
@@ -19,18 +21,18 @@ export default async function MetaRewriteIndexPage() {
     url: c.url,
     logoUrl: c.logoUrl,
     niche: c.niche,
-    primary: c.gscProperty ? "Ready" : "GSC needed",
+    primary: c.gscProperty ? t("ready") : t("gscNeeded"),
     primaryTone: (c.gscProperty ? "emerald" : "amber") as "emerald" | "amber",
     secondary: c.gscProperty
-      ? "Click to find low-CTR pages"
-      : "Connect GSC first",
+      ? t("secondaryReady")
+      : t("secondarySetup"),
   }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Meta-rewrite batch"
-        description="Find pages that get impressions but few clicks. AI rewrites the title + meta description grounded in the queries Google's already showing your page for. One-click push via the WordPress bridge."
+        title={t("title")}
+        description={t("description")}
         icon={Sparkles}
         accent="violet"
       />

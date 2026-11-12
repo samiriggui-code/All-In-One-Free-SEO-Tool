@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq, desc } from "drizzle-orm";
@@ -23,6 +25,7 @@ export default async function SerpDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_keywords_id_serp_page");
   const { id } = await params;
   const keywordId = Number(id);
   if (!Number.isFinite(keywordId)) notFound();
@@ -55,15 +58,15 @@ export default async function SerpDetailPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        Back to keywords
+        {tx("backToKeywords")}
       </Link>
 
       <PageHeader
-        title={`SERP intel · "${k.query}"`}
+        title={tx("serpIntel", { query: k.query })}
         description={
           client
-            ? `Live Google search analysis for ${client.name} — ${k.country} · ${k.device}`
-            : `Country: ${k.country} · Device: ${k.device}`
+            ? tx("liveGoogleSearchAnalysisFor", { name: client.name, country: k.country, device: k.device })
+            : tx("countryDevice", { country: k.country, device: k.device })
         }
         icon={Radar}
         accent="violet"
@@ -71,7 +74,7 @@ export default async function SerpDetailPage({
 
       {!latest ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          No SERP scans yet. Run one from the keywords page (radar icon).
+          {tx("noSerpScansYetRun")}
         </div>
       ) : (
         <ScanCard scan={latest} client={client ?? null} />
@@ -80,10 +83,9 @@ export default async function SerpDetailPage({
       {scans.length > 1 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Scan history</h2>
+            <h2 className="text-base font-semibold">{tx("scanHistory")}</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Track how the SERP has shifted over time — AI Overview presence,
-              top result changes, ranking volatility.
+              {tx("trackHowTheSerpHas")}
             </p>
           </header>
           <ul className="divide-y divide-white/[0.04]">
@@ -97,18 +99,18 @@ export default async function SerpDetailPage({
                     {s.scannedAt.toLocaleString()}
                   </div>
                   <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-                    <span>{s.topResults?.length ?? 0} results</span>
+                    <span>{tx("results", { v: s.topResults?.length ?? 0 })}</span>
                     {s.aiOverviewPresent && (
-                      <span className="text-violet-300">· AI Overview</span>
+                      <span className="text-violet-300">{tx("aiOverview")}</span>
                     )}
                     {s.featuredSnippet && (
-                      <span className="text-amber-300">· Featured snippet</span>
+                      <span className="text-amber-300">{tx("featuredSnippet")}</span>
                     )}
                     {s.localPackPresent && (
-                      <span className="text-cyan-300">· Local pack</span>
+                      <span className="text-cyan-300">{tx("localPack")}</span>
                     )}
                     {!s.ok && (
-                      <span className="text-rose-300">· Failed</span>
+                      <span className="text-rose-300">{tx("failed")}</span>
                     )}
                   </div>
                 </div>
@@ -153,17 +155,17 @@ function ScanCard({
   };
   client: { url: string; name: string } | null;
 }) {
+  const tx = useTranslations("ui.app_keywords_id_serp_page");
   if (!scan.ok) {
     return (
       <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 px-4 py-3 text-sm text-rose-200">
         <div className="flex items-start gap-2">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <div>
-            <div className="font-medium">Scan failed</div>
-            <div className="mt-0.5 text-xs">{scan.error ?? "Unknown error"}</div>
+            <div className="font-medium">{tx("scanFailed")}</div>
+            <div className="mt-0.5 text-xs">{scan.error ?? tx("unknownError")}</div>
             <div className="mt-2 text-[11px] text-rose-200/70">
-              Run again — Google sometimes blocks the headless browser
-              transiently.
+              {tx("runAgainGoogleSometimesBlocks")}
             </div>
           </div>
         </div>
@@ -178,29 +180,29 @@ function ScanCard({
       {/* Summary tiles */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Tile
-          label="Top results"
+          label={tx("topResults")}
           value={String(scan.topResults?.length ?? 0)}
           tone="violet"
           hint={scan.totalResults ? `of ~${scan.totalResults.toLocaleString()}` : undefined}
         />
         <Tile
-          label="AI Overview"
-          value={scan.aiOverviewPresent ? "Present" : "Not shown"}
+          label={tx("aiOverview2")}
+          value={scan.aiOverviewPresent ? tx("present") : tx("notShown")}
           tone={scan.aiOverviewPresent ? "rose" : "neutral"}
           hint={
             scan.aiOverviewSources && scan.aiOverviewSources.length > 0
-              ? `${scan.aiOverviewSources.length} sources cited`
+              ? tx("sourcesCited", { length: scan.aiOverviewSources.length })
               : undefined
           }
         />
         <Tile
-          label="Your position"
-          value={clientPosition ? `#${clientPosition}` : "Not in top 10"}
+          label={tx("yourPosition")}
+          value={clientPosition ? `#${clientPosition}` : tx("notInTop10")}
           tone={clientPosition ? "emerald" : "neutral"}
           hint={client ? `for ${client.name}` : undefined}
         />
         <Tile
-          label="Scanned"
+          label={tx("scanned")}
           value={scan.scannedAt.toLocaleDateString()}
           tone="neutral"
           hint={scan.scannedAt.toLocaleTimeString()}
@@ -214,14 +216,10 @@ function ScanCard({
           <header className="relative border-b border-white/[0.06] px-5 py-4">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Sparkles className="size-4 text-rose-300" />
-              AI Overview
-              <span className="ml-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30">
-                Captured
-              </span>
+              {tx.rich("aiOverviewCaptured", { b0: (chunks) => <span className="ml-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30">{chunks}</span> })}
             </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Google&apos;s AI-generated answer at the top. Where you ARE cited
-              matters more than your blue-link position now.
+              {tx("googleSAiGeneratedAnswer")}
             </p>
           </header>
           <div className="relative space-y-3 p-5">
@@ -231,7 +229,7 @@ function ScanCard({
             {scan.aiOverviewSources && scan.aiOverviewSources.length > 0 && (
               <div>
                 <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                  Sources cited
+                  {tx("sourcesCited2")}
                 </div>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {scan.aiOverviewSources.map((s, i) => (
@@ -256,7 +254,7 @@ function ScanCard({
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Trophy className="size-4 text-amber-300" />
-              Top {scan.topResults.length} organic results
+              {tx("topOrganicResults", { length: scan.topResults.length })}
             </h2>
           </header>
           <ol className="divide-y divide-white/[0.04]">
@@ -297,7 +295,7 @@ function ScanCard({
                     {r.isClient && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
                         <CheckCircle2 className="size-2.5" />
-                        You
+                        {tx("you")}
                       </span>
                     )}
                   </div>
@@ -318,10 +316,9 @@ function ScanCard({
         {scan.paaQuestions && scan.paaQuestions.length > 0 && (
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">People Also Ask</h2>
+              <h2 className="text-base font-semibold">{tx("peopleAlsoAsk")}</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Questions Google surfaces for this query — strong content
-                angles + FAQ section material.
+                {tx("questionsGoogleSurfacesForThis")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -337,9 +334,9 @@ function ScanCard({
         {scan.relatedSearches && scan.relatedSearches.length > 0 && (
           <section className="glass-apple relative overflow-hidden rounded-2xl">
             <header className="border-b border-white/[0.06] px-5 py-4">
-              <h2 className="text-base font-semibold">Related searches</h2>
+              <h2 className="text-base font-semibold">{tx("relatedSearches")}</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Adjacent intents to consider as supporting content.
+                {tx("adjacentIntentsToConsiderAs")}
               </p>
             </header>
             <ul className="divide-y divide-white/[0.04]">
@@ -359,7 +356,7 @@ function ScanCard({
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Trophy className="size-4 text-amber-300" />
-              Featured snippet
+              {tx("featuredSnippet2")}
             </h2>
             <p className="mt-2 text-sm font-medium">
               {scan.featuredSnippet.title}
@@ -384,11 +381,10 @@ function ScanCard({
           <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
             <h2 className="flex items-center gap-2 text-base font-semibold">
               <Map className="size-4 text-cyan-300" />
-              Local pack
+              {tx("localPack2")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              The 3-pack with map was visible. This query has local intent —
-              GBP optimization is critical to win it.
+              {tx("the3PackWithMap")}
             </p>
           </section>
         )}

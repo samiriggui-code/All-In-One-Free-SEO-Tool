@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { desc } from "drizzle-orm";
 import { Sparkles } from "lucide-react";
 import { db } from "@/db/client";
@@ -9,6 +10,7 @@ import { ReportDataPaste } from "./paste";
 export const dynamic = "force-dynamic";
 
 export default async function ReportDataPage() {
+  const tx = await getTranslations("ui.app_report-data_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name, url: clients.url })
     .from(clients)
@@ -18,8 +20,8 @@ export default async function ReportDataPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Add work to your reports"
-        description="Paste plain text — backlinks built, outreach sent, comments, social posts, milestones — and AI extracts each item, structures it (kind, title, URL, details), and saves it to the client's monthly report. No forms to fill, no fields to map. Just paste and review."
+        title={tx("addWorkToYourReports")}
+        description={tx("pastePlainTextBacklinksBuilt")}
         icon={Sparkles}
         accent="emerald"
       />

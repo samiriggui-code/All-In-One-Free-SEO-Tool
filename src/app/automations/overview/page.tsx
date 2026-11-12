@@ -1,3 +1,5 @@
+import type { Tx } from "@/lib/tx";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeft, Bot, Calendar, CheckCircle2, Clock, Mail, RefreshCw, ScanLine, ShieldAlert, Target, TrendingDown, Workflow, Globe, HandMetal } from "lucide-react";
 import { getSetting } from "@/lib/settings-store";
@@ -20,99 +22,99 @@ type Automation = {
   whereToSee?: { label: string; href: string };
 };
 
-const AUTOMATIONS: Automation[] = [
+const AUTOMATIONS = (tx: Tx): Automation[] => ([
   {
     id: "daily-agent",
-    title: "Daily SEO agent",
+    title: tx("dailySeoAgent"),
     cadence: "every 24h",
     icon: Bot,
     accent: "violet",
     description:
-      "Walks every active client and runs 17 automated steps — audit refresh on stale clients, news ingest, AI suggestions, brand monitoring, metric snapshots, watchlist alerts, mention digest, competitor monitor, lost-link check, scheduled local grids, outreach reply polling, anomaly detection, title-test rotation, robots.txt snapshot, sitemap health, traffic-drop alert.",
+      tx("walksEveryActiveClientAnd"),
     lastRunKey: "daily_agent_runner.last_run",
-    whereToSee: { label: "Activity log", href: "/activity" },
+    whereToSee: { label: tx("activityLog"), href: "/activity" },
   },
   {
     id: "weekly-rank-sweep",
-    title: "Weekly rank sweep",
+    title: tx("weeklyRankSweep"),
     cadence: "weekly (Monday)",
     icon: Target,
     accent: "emerald",
     description:
-      "Every Monday: re-checks all striking-distance keywords (positions 4-15) and persists new ranks per device.",
-    whereToSee: { label: "Keywords dashboard", href: "/keywords" },
+      tx("everyMondayReChecksAll"),
+    whereToSee: { label: tx("keywordsDashboard"), href: "/keywords" },
   },
   {
     id: "weekly-ai-audit",
-    title: "Weekly AI site audit",
+    title: tx("weeklyAiSiteAudit"),
     cadence: "weekly (Monday)",
     icon: ScanLine,
     accent: "violet",
     description:
       "Re-runs the AI audit (E-E-A-T, helpful content, structure, schema) for each client; surfaces drift from last week.",
-    whereToSee: { label: "Audits", href: "/audits" },
+    whereToSee: { label: tx("audits"), href: "/audits" },
   },
   {
     id: "weekly-serp-features",
-    title: "Weekly SERP feature snapshot",
+    title: tx("weeklySerpFeatureSnapshot"),
     cadence: "weekly (Monday)",
     icon: Calendar,
     accent: "cyan",
     description:
-      "Captures SERP feature presence (AI Overview, Featured Snippet, Local Pack, PAA) for tracked queries — so you see when Google adds/removes them.",
-    whereToSee: { label: "SERP features", href: "/tools/serp-features" },
+      tx("capturesSerpFeaturePresenceAi"),
+    whereToSee: { label: tx("serpFeatures"), href: "/tools/serp-features" },
   },
   {
     id: "page-monitor",
-    title: "Page change monitor",
+    title: tx("pageChangeMonitor"),
     cadence: "every check-in",
     icon: ShieldAlert,
     accent: "amber",
     description:
-      "Watches title, H1, meta, structured data on tracked pages. Diff + alert when anything important changes.",
-    whereToSee: { label: "Monitor", href: "/monitor" },
+      tx("watchesTitleH1MetaStructured"),
+    whereToSee: { label: tx("monitor"), href: "/monitor" },
   },
   {
     id: "uptime-check",
-    title: "Uptime monitor",
+    title: tx("uptimeMonitor"),
     cadence: "every check-in",
     icon: CheckCircle2,
     accent: "emerald",
     description:
       "HTTP-status + response-time check across all monitored URLs. Alerts on 5xx, 4xx, or significant latency spikes.",
-    whereToSee: { label: "Uptime tool", href: "/tools/uptime" },
+    whereToSee: { label: tx("uptimeTool"), href: "/tools/uptime" },
   },
   {
     id: "report-mailer",
-    title: "Scheduled report delivery",
+    title: tx("scheduledReportDelivery"),
     cadence: "on event",
     icon: Mail,
     accent: "violet",
     description:
-      "When a scheduled report time rolls around, generates the PDF + executive summary and emails it to the recipient list.",
-    whereToSee: { label: "Reports", href: "/reports" },
+      tx("whenAScheduledReportTime"),
+    whereToSee: { label: tx("reports"), href: "/reports" },
   },
   {
     id: "metric-snapshots",
-    title: "Client metric snapshots",
+    title: tx("clientMetricSnapshots"),
     cadence: "every 24h",
     icon: TrendingDown,
     accent: "cyan",
     description:
-      "Daily snapshot of every client's health score, organic clicks, average rank, top-10 count, critical issues. Powers all the dashboards' trend lines.",
-    whereToSee: { label: "Snapshots", href: "/snapshots" },
+      tx("dailySnapshotOfEveryClient"),
+    whereToSee: { label: tx("snapshots"), href: "/snapshots" },
   },
   {
     id: "morning-briefing",
-    title: "Morning briefing",
+    title: tx("morningBriefing"),
     cadence: "every 24h",
     icon: RefreshCw,
     accent: "amber",
     description:
       "Pre-renders the priority list, top 3 metrics, what-changed feed across all clients before you open the app.",
-    whereToSee: { label: "Dashboard", href: "/" },
+    whereToSee: { label: tx("dashboard"), href: "/" },
   },
-];
+]);
 
 type ManualGuide = {
   title: string;
@@ -122,106 +124,107 @@ type ManualGuide = {
   link?: { label: string; href: string };
 };
 
-const MANUAL_GUIDES: ManualGuide[] = [
+const MANUAL_GUIDES = (tx: Tx): ManualGuide[] => ([
   {
-    title: "Submit to backlink directories",
+    title: tx("submitToBacklinkDirectories"),
     whyManual:
-      "Most directories require a human form fill, phone verification, or editorial approval. We can't legally automate every submission.",
-    where: "Your library of curated prospects (35+ countries) + our suggestions per client.",
+      tx("mostDirectoriesRequireAHuman"),
+    where: tx("yourLibraryOfCuratedProspects"),
     steps: [
-      "Open the Backlink prospects library.",
-      "Filter by your country + niche + cost (start with 'free' + DA ≥ 40).",
-      "For each prospect: click 'Open' to load the site, click 'How to submit' for steps, submit, then track it in /backlinks.",
-      "Goal: 3-5 submissions/week is enough — quality > quantity.",
+      tx("openTheBacklinkProspectsLibrary"),
+      tx("filterByYourCountryNiche"),
+      tx("forEachProspectClickOpen"),
+      tx("goal35SubmissionsWeek"),
     ],
     link: {
-      label: "Open prospects library",
+      label: tx("openProspectsLibrary"),
       href: "/link-building/library",
     },
   },
   {
-    title: "Claim Google Business Profile",
+    title: tx("claimGoogleBusinessProfile"),
     whyManual:
-      "Google requires postcard, phone, video, or document verification — there's no API to bypass it.",
+      tx("googleRequiresPostcardPhoneVideo"),
     where: "google.com/business",
     steps: [
-      "Go to google.com/business.",
-      "Add your business with the EXACT name, address, phone as on your site.",
-      "Verify (postcard takes 5-14 days; phone/video is instant for eligible businesses).",
-      "Add categories, photos, services, hours.",
-      "Post a weekly update — Google ranks active GBPs higher.",
+      tx("goToGoogleComBusiness"),
+      tx("addYourBusinessWithThe"),
+      tx("verifyPostcardTakes514"),
+      tx("addCategoriesPhotosServicesHours"),
+      tx("postAWeeklyUpdateGoogle"),
     ],
-    link: { label: "GBP toolkit", href: "/gbp" },
+    link: { label: tx("gbpToolkit"), href: "/gbp" },
   },
   {
-    title: "Connect Google Search Console",
+    title: tx("connectGoogleSearchConsole"),
     whyManual:
-      "GSC needs you to verify domain ownership — we can't do this remotely.",
-    where: "Settings → Integrations → Google Search Console",
+      tx("gscNeedsYouToVerify"),
+    where: tx("settingsIntegrationsGoogleSearchConsole"),
     steps: [
-      "Open Settings → Integrations.",
-      "Click 'Connect Google account'.",
-      "Approve the GSC + GA4 read scopes.",
-      "Pick your GSC property + GA4 property per client.",
-      "Wait 24h for the first sync to backfill 28 days of data.",
+      tx("openSettingsIntegrations"),
+      tx("clickConnectGoogleAccount"),
+      tx("approveTheGscGa4Read"),
+      tx("pickYourGscPropertyGa4"),
+      tx("wait24hForTheFirst"),
     ],
-    link: { label: "Settings → Integrations", href: "/settings#integrations" },
+    link: { label: tx("settingsIntegrations"), href: "/settings#integrations" },
   },
   {
-    title: "Apply for HARO / Connectively responses",
+    title: tx("applyForHaroConnectivelyResponses"),
     whyManual:
-      "Journalist queries are time-sensitive (sub-2h response wins) and require human judgment + factual accuracy.",
+      tx("journalistQueriesAreTimeSensitive"),
     where: "connectively.us or qwoted.com",
     steps: [
-      "Subscribe to Connectively for your beats.",
-      "When a query lands, reply within 30-120 minutes.",
+      tx("subscribeToConnectivelyForYour"),
+      tx("whenAQueryLandsReply"),
       "300 words max with a 1-line credentialed bio.",
-      "Include 1 specific link + a quotable line.",
-      "Track wins in /backlinks as they go live.",
+      tx("include1SpecificLinkA"),
+      tx("trackWinsInBacklinksAs"),
     ],
-    link: { label: "Open backlinks tracker", href: "/backlinks" },
+    link: { label: tx("openBacklinksTracker"), href: "/backlinks" },
   },
   {
-    title: "Apply WordPress fixes via plugin",
+    title: tx("applyWordpressFixesViaPlugin"),
     whyManual:
-      "Bulk site-wide changes can break things — the plugin requires a human click-Apply for each.",
-    where: "Your WordPress admin (after installing the SEO Tool Bridge plugin)",
+      tx("bulkSiteWideChangesCan"),
+    where: tx("yourWordpressAdminAfterInstalling"),
     steps: [
-      "Install the SEO Tool Bridge plugin from your WP admin.",
-      "Paste your tool's bridge key (from Settings → Integrations).",
-      "Audit results show 'Apply via WP' buttons on title/meta/alt fixes.",
-      "Click Apply — plugin patches the post + saves a revision for one-click undo.",
+      tx("installTheSeoToolBridge"),
+      tx("pasteYourToolSBridge"),
+      tx("auditResultsShowApplyVia"),
+      tx("clickApplyPluginPatchesThe"),
     ],
-    link: { label: "Settings → WordPress bridge", href: "/settings" },
+    link: { label: tx("settingsWordpressBridge"), href: "/settings" },
   },
   {
-    title: "Outreach for guest posts",
+    title: tx("outreachForGuestPosts"),
     whyManual:
-      "Personalization wins. We auto-personalize the message, but you still hit Send and handle replies.",
-    where: "Outreach hub + Gmail (or your inbox)",
+      tx("personalizationWinsWeAutoPersonalize"),
+    where: tx("outreachHubGmailOrYour"),
     steps: [
-      "Find guest-post targets in the Prospects library (filter: 'guest-post' category).",
-      "Use the Outreach personalizer tool to draft the pitch with site-specific hooks.",
-      "Send from your real inbox (Gmail / Outlook) for deliverability.",
-      "Log the contact in /outreach so we poll for replies.",
+      tx("findGuestPostTargetsIn"),
+      tx("useTheOutreachPersonalizerTool"),
+      tx("sendFromYourRealInbox"),
+      tx("logTheContactInOutreach"),
     ],
-    link: { label: "Outreach hub", href: "/outreach" },
+    link: { label: tx("outreachHub"), href: "/outreach" },
   },
   {
-    title: "Verify NAP consistency across citations",
+    title: tx("verifyNapConsistencyAcrossCitations"),
     whyManual:
-      "Most directories require a phone/email confirmation per listing.",
-    where: "Each citation site you've submitted to",
+      tx("mostDirectoriesRequireAPhone"),
+    where: tx("eachCitationSiteYouVe"),
     steps: [
-      "After submitting, check email for verification links.",
+      tx("afterSubmittingCheckEmailFor"),
       "Phone-verify where requested.",
-      "After 4-6 weeks, run /tools/local-cwv with your NAP to spot inconsistencies.",
+      tx("after46WeeksRun"),
     ],
-    link: { label: "Local citations tool", href: "/citations" },
+    link: { label: tx("localCitationsTool"), href: "/citations" },
   },
-];
+]);
 
 export default async function AutomationsOverviewPage() {
+  const tx = await getTranslations("ui.app_automations_overview_page");
   // Pull last-run timestamps for automations that have them
   const lastRunTs = await getSetting<number>(
     "daily_agent_runner.last_run",
@@ -235,12 +238,12 @@ export default async function AutomationsOverviewPage() {
         href="/automations"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to automations
+        <ArrowLeft className="size-3" /> {tx("backToAutomations")}
       </Link>
 
       <PageHeader
-        title="What's automated · what's manual"
-        description="A complete map of every task this tool runs on its own + every task that needs your hand. For manual tasks, you get the where + how step-by-step. No black box."
+        title={tx("whatSAutomatedWhatS")}
+        description={tx("aCompleteMapOfEvery")}
         icon={Workflow}
         accent="cyan"
       />
@@ -250,24 +253,22 @@ export default async function AutomationsOverviewPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
           <div>
-            <h2 className="text-sm font-semibold">Automated by the tool</h2>
+            <h2 className="text-sm font-semibold">{tx("automatedByTheTool")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              These run on their own — you don&apos;t need to remember.
+              {tx("theseRunOnTheirOwn")}
             </p>
           </div>
           {lastDailyAgent && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
               <Clock className="size-3" />
-              Daily agent last ran{" "}
-              {Math.round(
+              {tx("dailyAgentLastRanMin", { Math: Math.round(
                 (Date.now() - lastDailyAgent.getTime()) / 60000,
-              )}{" "}
-              min ago
+              ) })}
             </span>
           )}
         </header>
         <ul className="divide-y divide-white/[0.06]">
-          {AUTOMATIONS.map((a) => {
+          {AUTOMATIONS(tx).map((a) => {
             const Icon = a.icon;
             return (
               <li key={a.id} className="flex items-start gap-3 px-5 py-4">
@@ -289,7 +290,7 @@ export default async function AutomationsOverviewPage() {
                       href={a.whereToSee.href}
                       className="inline-flex items-center gap-1 text-[11px] text-violet-300 hover:underline"
                     >
-                      See output in {a.whereToSee.label} →
+                      {tx("seeOutputIn", { label: a.whereToSee.label })}
                     </Link>
                   )}
                 </div>
@@ -301,13 +302,13 @@ export default async function AutomationsOverviewPage() {
 
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-3">
-          <h2 className="text-sm font-semibold">Tasks that need you (with guides)</h2>
+          <h2 className="text-sm font-semibold">{tx("tasksThatNeedYouWith")}</h2>
           <p className="text-[11px] text-muted-foreground">
-            For each: why it&apos;s manual, where you do it, and a numbered how-to.
+            {tx("forEachWhyItS")}
           </p>
         </header>
         <ul className="divide-y divide-white/[0.06]">
-          {MANUAL_GUIDES.map((g, i) => (
+          {MANUAL_GUIDES(tx).map((g, i) => (
             <li key={i} className="px-5 py-4">
               <div className="flex items-start gap-3">
                 <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-500/15 ring-1 ring-inset ring-amber-500/30">
@@ -317,19 +318,19 @@ export default async function AutomationsOverviewPage() {
                   <p className="text-sm font-medium">{g.title}</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-md bg-amber-500/5 p-2 text-[11px] ring-1 ring-inset ring-amber-500/20">
-                      <p className="font-medium text-amber-300">Why it&apos;s manual</p>
+                      <p className="font-medium text-amber-300">{tx("whyItSManual")}</p>
                       <p className="text-muted-foreground">{g.whyManual}</p>
                     </div>
                     <div className="rounded-md bg-emerald-500/5 p-2 text-[11px] ring-1 ring-inset ring-emerald-500/20">
                       <p className="font-medium text-emerald-300 inline-flex items-center gap-1">
-                        <Globe className="size-3" /> Where
+                        <Globe className="size-3" /> {tx("where")}
                       </p>
                       <p className="text-muted-foreground">{g.where}</p>
                     </div>
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-                      How — step by step
+                      {tx("howStepByStep")}
                     </p>
                     <ol className="space-y-1 text-xs">
                       {g.steps.map((s, j) => (
@@ -359,20 +360,10 @@ export default async function AutomationsOverviewPage() {
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 text-xs text-muted-foreground">
         <h3 className="text-sm font-semibold text-foreground mb-2">
-          Want it more automated?
+          {tx("wantItMoreAutomated")}
         </h3>
         <p className="leading-relaxed">
-          Build a custom workflow on{" "}
-          <Link href="/automations" className="text-violet-300 hover:underline">
-            /automations
-          </Link>{" "}
-          — trigger an action on any event (rank drop, page change, new
-          backlink, audit issue surfaced) and chain it to Slack, email,
-          webhook, or a task auto-created for your team. Plus the{" "}
-          <Link href="/settings" className="text-violet-300 hover:underline">
-            Settings → AI
-          </Link>{" "}
-          page lets you pick which AI provider runs the AI-driven automation.
+          {tx.rich("buildACustomWorkflowOn", { b0: (chunks) => <Link href="/automations" className="text-violet-300 hover:underline">{chunks}</Link>, b1: (chunks) => <Link href="/settings" className="text-violet-300 hover:underline">{chunks}</Link> })}
         </p>
       </section>
     </div>

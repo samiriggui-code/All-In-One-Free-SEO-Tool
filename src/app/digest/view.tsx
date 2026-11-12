@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { Check, Copy, Loader2, Mail, Power, PowerOff } from "lucide-react";
 import type { WeeklyDigest } from "@/lib/weekly-digest";
@@ -21,6 +22,7 @@ export function DigestView({
   autoSendEnabled: boolean;
   lastSentAt: string | null;
 }) {
+  const tx = useTranslations("ui.app_digest_view");
   const [tab, setTab] = useState<"summary" | "text" | "html">("summary");
   const [copied, setCopied] = useState<string | null>(null);
   const [sendState, sendAction, sending] = useActionState<
@@ -42,22 +44,20 @@ export function DigestView({
   return (
     <>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-5">
-        <Stat label="Period" value={`${digest.weekStart} → ${digest.weekEnd}`} />
-        <Stat label="Audits" value={digest.totals.auditsRun.toString()} />
-        <Stat label="Tasks shipped" value={digest.totals.tasksDone.toString()} tone="emerald" />
-        <Stat label="Improved" value={digest.totals.clientsImproved.toString()} tone="emerald" />
-        <Stat label="Dropped" value={digest.totals.clientsDropped.toString()} tone={digest.totals.clientsDropped > 0 ? "rose" : "emerald"} />
+        <Stat label={tx("period")} value={`${digest.weekStart} → ${digest.weekEnd}`} />
+        <Stat label={tx("audits")} value={digest.totals.auditsRun.toString()} />
+        <Stat label={tx("tasksShipped")} value={digest.totals.tasksDone.toString()} tone="emerald" />
+        <Stat label={tx("improved")} value={digest.totals.clientsImproved.toString()} tone="emerald" />
+        <Stat label={tx("dropped")} value={digest.totals.clientsDropped.toString()} tone={digest.totals.clientsDropped > 0 ? "rose" : "emerald"} />
       </div>
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Mail className="size-4 text-cyan-300" />
-          Send + auto-schedule
+          {tx("sendAutoSchedule")}
         </h3>
         <p className="text-xs text-muted-foreground">
-          Send this digest right now, or auto-send every Monday 09:00 UTC via
-          your configured SMTP. Configure SMTP in Settings → Email if you
-          haven&apos;t already.
+          {tx("sendThisDigestRightNow")}
         </p>
         <form action={sendAction} className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
           <input
@@ -81,19 +81,19 @@ export function DigestView({
             {sending ? (
               <>
                 <Loader2 className="mr-2 size-3 animate-spin" />
-                Sending…
+                {tx("sending")}
               </>
             ) : (
               <>
                 <Mail className="mr-2 size-3" />
-                Send now
+                {tx("sendNow")}
               </>
             )}
           </button>
         </form>
         {sendState?.ok && (
           <p className="text-xs text-emerald-300">
-            ✓ Sent. {lastSentAt ? `(last: ${lastSentAt})` : ""}
+            {tx("sent")} {lastSentAt ? `(last: ${lastSentAt})` : ""}
           </p>
         )}
         {sendState && !sendState.ok && (
@@ -113,9 +113,9 @@ export function DigestView({
             className="size-4"
           />
           <label htmlFor="digest-auto" className="text-xs">
-            Auto-send every Monday 09:00 UTC to{" "}
+            {tx("autoSendEveryMonday09")}
             <code className="rounded bg-white/5 px-1 py-0.5">
-              {initialEmail || "(set above first)"}
+              {initialEmail || tx("setAboveFirst")}
             </code>
           </label>
           <button
@@ -130,17 +130,17 @@ export function DigestView({
             {savingSched ? (
               <>
                 <Loader2 className="mr-1 size-3 animate-spin" />
-                Saving…
+                {tx("saving")}
               </>
             ) : autoSendEnabled ? (
               <>
                 <Power className="mr-1 size-3" />
-                Enabled — save changes
+                {tx("enabledSaveChanges")}
               </>
             ) : (
               <>
                 <PowerOff className="mr-1 size-3" />
-                Save schedule
+                {tx("saveSchedule")}
               </>
             )}
           </button>
@@ -155,7 +155,7 @@ export function DigestView({
 
       {digest.algoOverlaps.length > 0 && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-2">
-          <h3 className="text-sm font-semibold">Algorithm updates this week</h3>
+          <h3 className="text-sm font-semibold">{tx("algorithmUpdatesThisWeek")}</h3>
           <ul className="space-y-1 text-xs">
             {digest.algoOverlaps.map((u) => (
               <li
@@ -181,7 +181,7 @@ export function DigestView({
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t === "summary" ? "Per-client" : t === "text" ? "Plain text" : "HTML email"}
+            {t === "summary" ? tx("perClient") : t === "text" ? tx("plainText") : tx("htmlEmail")}
           </button>
         ))}
       </div>
@@ -192,13 +192,13 @@ export function DigestView({
             <table className="w-full text-xs">
               <thead className="bg-white/[0.02] text-[10px] uppercase tracking-wider text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-2 text-left">Client</th>
-                  <th className="px-4 py-2 text-right">Score</th>
+                  <th className="px-4 py-2 text-left">{tx("client")}</th>
+                  <th className="px-4 py-2 text-right">{tx("score")}</th>
                   <th className="px-4 py-2 text-right">Δ</th>
-                  <th className="px-4 py-2 text-left">Trend</th>
-                  <th className="px-4 py-2 text-right">Tasks</th>
-                  <th className="px-4 py-2 text-left">Wins</th>
-                  <th className="px-4 py-2 text-left">Concerns</th>
+                  <th className="px-4 py-2 text-left">{tx("trend")}</th>
+                  <th className="px-4 py-2 text-right">{tx("tasks")}</th>
+                  <th className="px-4 py-2 text-left">{tx("wins")}</th>
+                  <th className="px-4 py-2 text-left">{tx("concerns")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -243,7 +243,7 @@ export function DigestView({
 
       {tab === "text" && (
         <CopyBlock
-          label="Plain text"
+          label={tx("plainText")}
           code={digest.textVersion}
           copied={copied === "text"}
           onCopy={() => copy("text", digest.textVersion)}
@@ -251,7 +251,7 @@ export function DigestView({
       )}
       {tab === "html" && (
         <CopyBlock
-          label="HTML email"
+          label={tx("htmlEmail")}
           code={digest.htmlVersion}
           copied={copied === "html"}
           onCopy={() => copy("html", digest.htmlVersion)}
@@ -333,6 +333,7 @@ function CopyBlock({
   copied: boolean;
   onCopy: () => void;
 }) {
+  const tx = useTranslations("ui.app_digest_view");
   return (
     <section className="glass-apple relative overflow-hidden rounded-2xl">
       <header className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
@@ -345,12 +346,12 @@ function CopyBlock({
           {copied ? (
             <>
               <Check className="mr-1 size-3 text-emerald-300" />
-              Copied
+              {tx("copied")}
             </>
           ) : (
             <>
               <Copy className="mr-1 size-3" />
-              Copy
+              {tx("copy")}
             </>
           )}
         </button>

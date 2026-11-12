@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Globe } from "lucide-react";
@@ -24,6 +25,7 @@ import { requireSettingsPage } from "../access";
  */
 export default async function EdgeSettingsPage() {
   await requireSettingsPage("/settings/edge", { owner: true });
+  const tx = await getTranslations("ui.app_settings_edge_page");
   const [token, rows] = await Promise.all([
     getEdgeToken(),
     db.select({ id: clients.id, name: clients.name, url: clients.url }).from(clients),
@@ -43,8 +45,8 @@ export default async function EdgeSettingsPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <PageHeader
-          title="Edge worker"
-          description="Apply fixes to any site behind Cloudflare — PHP, static HTML, React, anything. No plugin, no CMS required."
+          title={tx("edgeWorker")}
+          description={tx("applyFixesToAnySite")}
           icon={Globe}
           accent="cyan"
         />
@@ -52,21 +54,13 @@ export default async function EdgeSettingsPage() {
 
       <section className="glass-apple rounded-2xl p-5 text-sm text-muted-foreground">
         <h2 className="mb-2 text-sm font-semibold text-foreground">
-          Why a worker and not a script tag
+          {tx("whyAWorkerAndNot")}
         </h2>
         <p>
-          The paid tools that apply fixes to any site mostly use a JavaScript
-          snippet that rewrites the page in the visitor&apos;s browser. It is
-          easier to install and it has a problem: AI crawlers do not run
-          JavaScript. Vercel and MERJ measured over 500 million GPTBot fetches
-          and found no evidence of execution, and ClaudeBot downloaded scripts
-          in roughly a quarter of requests without running any of them.
+          {tx("thePaidToolsThatApply")}
         </p>
         <p className="mt-2">
-          So a fix applied that way is invisible to ChatGPT, Claude and
-          Perplexity. A worker rewrites the HTML before it leaves the server,
-          which means a crawler that never executes anything still sees it.
-          The fixes also stay in your own infrastructure rather than ours.
+          {tx("soAFixAppliedThat")}
         </p>
       </section>
 
@@ -78,19 +72,15 @@ export default async function EdgeSettingsPage() {
       />
 
       <section className="glass-apple rounded-2xl p-5">
-        <h2 className="mb-2 text-sm font-semibold">Checking it works</h2>
+        <h2 className="mb-2 text-sm font-semibold">{tx("checkingItWorks")}</h2>
         <p className="text-sm text-muted-foreground">
-          The worker sets a header naming what it changed, so this is
-          answerable with one command rather than by reading the page and
-          guessing.
+          {tx("theWorkerSetsAHeader")}
         </p>
         <pre className="mt-3 overflow-x-auto rounded-lg bg-black/40 p-3 text-[12px] leading-relaxed text-foreground/90">
           curl -sI https://yoursite.com | grep x-seo-tool
         </pre>
         <p className="mt-2 text-xs text-muted-foreground">
-          <code>x-seo-tool: title,description</code> means it rewrote those two.{" "}
-          <code>none</code> means the worker is running and has no fix for that
-          page yet. No header at all means the route is not matching.
+          {tx.rich("xSeoToolTitleDescription", { b0: (chunks) => <code>{chunks}</code>, b1: (chunks) => <code>{chunks}</code> })}
         </p>
       </section>
     </div>

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Send, ArrowLeft } from "lucide-react";
 import { db } from "@/db/client";
@@ -15,6 +16,7 @@ import {
 import { TemplateForm } from "./template-form";
 
 export default async function OutreachTemplatesPage() {
+  const tx = await getTranslations("ui.app_outreach_templates_page");
   await seedDefaultTemplatesIfEmpty();
 
   const [templates, allClients] = await Promise.all([
@@ -35,20 +37,20 @@ export default async function OutreachTemplatesPage() {
         href="/outreach"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-3" /> Back to outreach
+        <ArrowLeft className="size-3" /> {tx("backToOutreach")}
       </Link>
 
       <PageHeader
-        title="Outreach templates"
+        title={tx("outreachTemplates")}
         description="Reusable email templates with variables. Use {{name}}, {{client_name}}, {{client_url}} and more — they get filled in per contact when you send."
         icon={Send}
         accent="violet"
       />
 
       <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
-        <h2 className="text-base font-semibold">Available variables</h2>
+        <h2 className="text-base font-semibold">{tx("availableVariables")}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Drop these into the subject or body. Empty values render as blank.
+          {tx("dropTheseIntoTheSubject")}
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {TEMPLATE_VARIABLES.map((v) => (
@@ -67,12 +69,12 @@ export default async function OutreachTemplatesPage() {
       <section className="glass-apple relative overflow-hidden rounded-2xl">
         <header className="border-b border-white/[0.06] px-5 py-4">
           <h2 className="text-base font-semibold">
-            Saved templates ({templates.length})
+            {tx("savedTemplates", { length: templates.length })}
           </h2>
         </header>
         {templates.length === 0 ? (
           <p className="px-5 py-6 text-sm text-muted-foreground">
-            No templates yet. Create your first above.
+            {tx("noTemplatesYetCreateYour")}
           </p>
         ) : (
           <ul className="divide-y divide-white/[0.05]">
@@ -85,11 +87,11 @@ export default async function OutreachTemplatesPage() {
                       {t.clientId ? (
                         <span className="rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] text-violet-300 ring-1 ring-inset ring-violet-500/30">
                           {allClients.find((c) => c.id === t.clientId)?.name ??
-                            `Client #${t.clientId}`}
+                            tx("client", { clientId: t.clientId })}
                         </span>
                       ) : (
                         <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                          Workspace-wide
+                          {tx("workspaceWide")}
                         </span>
                       )}
                     </div>
@@ -106,7 +108,7 @@ export default async function OutreachTemplatesPage() {
                       type="submit"
                       className="rounded-md bg-rose-500/10 px-2.5 py-1 text-[10px] font-medium text-rose-300 ring-1 ring-inset ring-rose-500/30 hover:bg-rose-500/20"
                     >
-                      Delete
+                      {tx("delete")}
                     </button>
                   </form>
                 </div>

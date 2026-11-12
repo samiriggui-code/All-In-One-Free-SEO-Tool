@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { Keyboard } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 
@@ -7,47 +9,48 @@ type Shortcut = {
   description: string;
 };
 
-const SHORTCUTS: Shortcut[] = [
+const SHORTCUTS = (tx: Tx): Shortcut[] => ([
   {
     combo: ["⌘", "K"],
     context: "Anywhere",
-    description: "Open the quick-search palette (Cmd / Ctrl + K)",
+    description: tx("openTheQuickSearchPalette"),
   },
   {
     combo: ["?"],
     context: "Anywhere",
-    description: "Open this keyboard shortcuts reference",
+    description: tx("openThisKeyboardShortcutsReference"),
   },
   {
     combo: ["Esc"],
-    context: "Modal open",
+    context: tx("modalOpen"),
     description:
-      "Close any open modal: tool drawer, confirm dialog, power widget, search palette",
+      tx("closeAnyOpenModalTool"),
   },
   {
     combo: ["↑", "↓"],
-    context: "Search palette",
-    description: "Navigate through search results",
+    context: tx("searchPalette"),
+    description: tx("navigateThroughSearchResults"),
   },
   {
     combo: ["Enter"],
-    context: "Search palette",
-    description: "Open the selected result",
+    context: tx("searchPalette"),
+    description: tx("openTheSelectedResult"),
   },
   {
-    combo: ["Click + ⌘"],
+    combo: [tx("click")],
     context: "Per-client tool sidebar",
     description:
-      "Cmd / Ctrl / Shift / middle-click any tool to open in a new browser tab (standalone), instead of in the drawer",
+      tx("cmdCtrlShiftMiddleClick"),
   },
-];
+]);
 
 export default function ShortcutsPage() {
+  const tx = useTranslations("ui.app_shortcuts_page");
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        title="Keyboard shortcuts"
-        description="Every binding the app responds to."
+        title={tx("keyboardShortcuts")}
+        description={tx("everyBindingTheAppResponds")}
         icon={Keyboard}
         accent="violet"
       />
@@ -56,13 +59,13 @@ export default function ShortcutsPage() {
         <table className="w-full text-sm">
           <thead className="border-b border-white/[0.06] bg-white/[0.02] text-left text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             <tr>
-              <th className="px-5 py-3 font-semibold">Shortcut</th>
-              <th className="px-5 py-3 font-semibold">Context</th>
-              <th className="px-5 py-3 font-semibold">What it does</th>
+              <th className="px-5 py-3 font-semibold">{tx("shortcut")}</th>
+              <th className="px-5 py-3 font-semibold">{tx("context")}</th>
+              <th className="px-5 py-3 font-semibold">{tx("whatItDoes")}</th>
             </tr>
           </thead>
           <tbody>
-            {SHORTCUTS.map((s, i) => (
+            {SHORTCUTS(tx).map((s, i) => (
               <tr
                 key={i}
                 className="border-t border-white/[0.04] hover:bg-white/[0.02]"
@@ -92,15 +95,7 @@ export default function ShortcutsPage() {
       </section>
 
       <p className="text-xs text-muted-foreground">
-        Tip: most platforms use{" "}
-        <kbd className="rounded bg-white/[0.06] px-1 text-[10px] ring-1 ring-inset ring-white/15">
-          Ctrl
-        </kbd>{" "}
-        instead of{" "}
-        <kbd className="rounded bg-white/[0.06] px-1 text-[10px] ring-1 ring-inset ring-white/15">
-          ⌘
-        </kbd>{" "}
-        — the bindings respond to either.
+        {tx.rich("tipMostPlatformsUseCtrl", { b0: (chunks) => <kbd className="rounded bg-white/[0.06] px-1 text-[10px] ring-1 ring-inset ring-white/15">{chunks}</kbd>, b1: (chunks) => <kbd className="rounded bg-white/[0.06] px-1 text-[10px] ring-1 ring-inset ring-white/15">{chunks}</kbd> })}
       </p>
     </div>
   );

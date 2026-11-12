@@ -158,6 +158,7 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_page");
   const { id } = await params;
   const t = await getTranslations("clientPage");
   const clientId = Number(id);
@@ -487,7 +488,7 @@ export default async function ClientDetailPage({
             <div className="p-6 sm:p-8">
               {/* Breadcrumb — editorial micro caps */}
               <nav
-                aria-label="Breadcrumb"
+                aria-label={tx("breadcrumb")}
                 className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground"
               >
                 <Link

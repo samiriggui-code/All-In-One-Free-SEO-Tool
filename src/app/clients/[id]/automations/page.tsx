@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Inbox } from "lucide-react";
@@ -14,6 +15,7 @@ export default async function ClientAutomationsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_automations_page");
   const { id } = await params;
   const clientId = Number(id);
   if (!Number.isFinite(clientId)) notFound();
@@ -44,12 +46,12 @@ export default async function ClientAutomationsPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3.5" />
-        Back to {client.name}
+        {tx("backTo", { name: client.name })}
       </Link>
 
       <PageHeader
-        title={`Daily automation · ${client.name}`}
-        description="Schedule recurring auto-generation: blog posts (drafts to WordPress), Google Business Profile posts, social copy, and daily task checklists. Each generation lands in the review queue unless you mark it auto-publish."
+        title={tx("dailyAutomation", { name: client.name })}
+        description={tx("scheduleRecurringAutoGenerationBlog")}
         icon={Calendar}
         accent="cyan"
         actions={
@@ -58,7 +60,7 @@ export default async function ClientAutomationsPage({
             className="inline-flex items-center gap-1.5 rounded-md bg-violet-500/15 px-3 py-2 text-xs font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25"
           >
             <Inbox className="size-3.5" />
-            Review queue ({pendingCount})
+            {tx("reviewQueue", { pendingCount })}
           </Link>
         }
       />

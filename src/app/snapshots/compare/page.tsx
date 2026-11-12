@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
@@ -22,6 +24,7 @@ export default async function CompareSnapshotsPage({
 }: {
   searchParams: Promise<{ a?: string; b?: string }>;
 }) {
+  const tx = await getTranslations("ui.app_snapshots_compare_page");
   const { a, b } = await searchParams;
   const idA = Number(a);
   const idB = Number(b);
@@ -53,15 +56,15 @@ export default async function CompareSnapshotsPage({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3" />
-        All snapshots
+        {tx("allSnapshots")}
       </Link>
 
       <PageHeader
-        title="Compare snapshots"
+        title={tx("compareSnapshots")}
         description={
           sameTarget
-            ? `Two snapshots of ${snapshotKindLabel(snapA.kind)} for ${snapA.label}.`
-            : "These two snapshots are for different targets — comparing anyway."
+            ? tx("twoSnapshotsOfFor", { v: snapshotKindLabel(snapA.kind), label: snapA.label })
+            : tx("theseTwoSnapshotsAreFor")
         }
         icon={GitCompare}
         accent="violet"
@@ -75,7 +78,7 @@ export default async function CompareSnapshotsPage({
       {delta !== null && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5">
           <h2 className="text-base font-semibold">
-            {snapA.primaryMetricLabel ?? "metric"} change
+            {snapA.primaryMetricLabel ?? "metric"} {tx("change")}
           </h2>
           <div className="mt-3 flex items-center gap-4">
             <div className="flex items-center gap-3 text-3xl font-bold tabular-nums">
@@ -154,10 +157,11 @@ function SnapshotPanel({
 }
 
 function RawDump({ label, data }: { label: string; data: unknown }) {
+  const tx = useTranslations("ui.app_snapshots_compare_page");
   return (
     <details className="glass-apple relative overflow-hidden rounded-2xl">
       <summary className="cursor-pointer px-5 py-3 text-sm font-medium hover:bg-white/[0.02]">
-        Raw JSON · Snapshot {label}
+        {tx("rawJsonSnapshot", { label })}
       </summary>
       <pre className="max-h-[400px] overflow-auto border-t border-white/[0.06] p-5 font-mono text-[11px] leading-relaxed text-foreground/80">
         {JSON.stringify(data, null, 2)}

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { OTHER_COUNTRIES, POPULAR_COUNTRIES } from "@/lib/countries";
 
 /**
@@ -26,6 +27,7 @@ export function CountrySelect({
   className?: string;
   required?: boolean;
 }) {
+  const tx = useTranslations("ui.components_country-select");
   return (
     <select
       id={id}
@@ -37,14 +39,14 @@ export function CountrySelect({
         "flex h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 py-1 text-sm shadow-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
       }
     >
-      <optgroup label="Most used">
+      <optgroup label={tx("mostUsed")}>
         {POPULAR_COUNTRIES.map((c) => (
           <option key={c.code} value={c.code}>
             {c.code} · {c.name}
           </option>
         ))}
       </optgroup>
-      <optgroup label="All countries">
+      <optgroup label={tx("allCountries")}>
         {OTHER_COUNTRIES.map((c) => (
           <option key={c.code} value={c.code}>
             {c.code} · {c.name}

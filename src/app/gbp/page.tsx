@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Building } from "lucide-react";
 import { db } from "@/db/client";
 import { clients } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function GbpIndexPage() {
+  const t = await getTranslations("pickers.gbp");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = all.map((c) => ({
@@ -20,21 +22,21 @@ export default async function GbpIndexPage() {
     url: c.url,
     logoUrl: c.logoUrl,
     niche: c.niche,
-    primary: c.gbpUrl ? "GBP linked" : "Not linked",
+    primary: c.gbpUrl ? t("linked") : t("notLinked"),
     primaryTone: (c.gbpUrl ? "emerald" : "amber") as "emerald" | "amber",
     secondary: c.gbpUrl
-      ? "Click to fetch reviews + drafts AI replies"
-      : "Add GBP URL on the client page first",
+      ? t("secondaryReady")
+      : t("secondarySetup"),
     badges: c.gbpUrl
-      ? [{ label: "Ready", tone: "emerald" as const }]
-      : [{ label: "Setup needed", tone: "amber" as const }],
+      ? [{ label: t("badgeReady"), tone: "emerald" as const }]
+      : [{ label: t("badgeSetup"), tone: "amber" as const }],
   }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Google Business Profile"
-        description="Pick a client. Pull their public GBP page — rating, review count, hours, recent reviews — then have the AI draft personalized replies you can copy + paste back into GBP."
+        title={t("title")}
+        description={t("description")}
         icon={Building}
         accent="cyan"
       />

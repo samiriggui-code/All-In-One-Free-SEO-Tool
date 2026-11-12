@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import type { Tx } from "@/lib/tx";
+import { getTranslations } from "next-intl/server";
 import { asc } from "drizzle-orm";
 import {
   Bell,
@@ -30,21 +32,22 @@ const categoryTone: Record<WorkflowTemplate["category"], string> = {
   logs: "bg-cyan-500/15 text-cyan-300 ring-cyan-500/30",
 };
 
-const triggerLabel: Record<WorkflowTemplate["trigger"], string> = {
-  audit_completed: "Audit completed",
-  audit_failed: "Audit failed",
-  score_drop: "Score drop",
-  page_change: "Page change",
-  rank_drop: "Rank drop",
-};
+const triggerLabel = (tx: Tx): Record<WorkflowTemplate["trigger"], string> => ({
+  audit_completed: tx("auditCompleted"),
+  audit_failed: tx("auditFailed"),
+  score_drop: tx("scoreDrop"),
+  page_change: tx("pageChange"),
+  rank_drop: tx("rankDrop"),
+});
 
-const actionLabel: Record<WorkflowTemplate["action"]["kind"], string> = {
-  webhook: "Slack / Discord webhook",
-  create_task: "Create task",
-  log: "Activity log",
-};
+const actionLabel = (tx: Tx): Record<WorkflowTemplate["action"]["kind"], string> => ({
+  webhook: tx("slackDiscordWebhook"),
+  create_task: tx("createTask"),
+  log: tx("activityLog"),
+});
 
 export default async function WorkflowTemplatesPage() {
+  const tx = await getTranslations("ui.app_automations_templates_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -54,8 +57,8 @@ export default async function WorkflowTemplatesPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Automation templates"
-        description="One-click install for the most common SEO automations. Trigger an action when something changes — no n8n / Zapier subscription needed."
+        title={tx("automationTemplates")}
+        description={tx("oneClickInstallForThe")}
         icon={Workflow}
         accent="violet"
       />
@@ -81,7 +84,7 @@ export default async function WorkflowTemplatesPage() {
                       {tmpl.recommended && (
                         <span className="inline-flex items-center gap-0.5 rounded-md bg-violet-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-violet-300 ring-1 ring-inset ring-violet-500/30">
                           <Sparkles className="size-2.5" />
-                          Recommended
+                          {tx("recommended")}
                         </span>
                       )}
                     </div>
@@ -93,16 +96,16 @@ export default async function WorkflowTemplatesPage() {
 
                 <div className="flex flex-wrap gap-2 rounded-xl bg-white/[0.02] px-3 py-2 text-[11px] ring-1 ring-inset ring-white/[0.04]">
                   <span className="inline-flex items-center gap-1">
-                    <span className="text-muted-foreground">When</span>
+                    <span className="text-muted-foreground">{tx("when")}</span>
                     <span className="font-mono font-semibold text-foreground">
-                      {triggerLabel[tmpl.trigger]}
+                      {triggerLabel(tx)[tmpl.trigger]}
                     </span>
                   </span>
                   <span className="text-muted-foreground/50">→</span>
                   <span className="inline-flex items-center gap-1">
-                    <span className="text-muted-foreground">do</span>
+                    <span className="text-muted-foreground">{tx("do")}</span>
                     <span className="font-mono font-semibold text-foreground">
-                      {actionLabel[tmpl.action.kind]}
+                      {actionLabel(tx)[tmpl.action.kind]}
                     </span>
                   </span>
                 </div>

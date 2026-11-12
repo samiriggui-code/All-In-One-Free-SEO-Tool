@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Cpu } from "lucide-react";
 import {
@@ -36,6 +37,7 @@ export function AiModelPicker({
   onChange: (s: ModelSelection) => void;
   size?: "sm" | "md";
 }) {
+  const tx = useTranslations("ui.components_ai-model-picker");
   const [configured, setConfigured] = useState<ActiveProvider[]>([]);
   const [active, setActive] = useState<ActiveProvider | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -82,7 +84,7 @@ export function AiModelPicker({
         value={effectiveProvider}
         onChange={(e) => pickProvider(e.target.value as ActiveProvider)}
         className={`${cls} rounded-md border border-white/10 bg-card/60 px-1.5 focus:outline-none focus:ring-1 focus:ring-ring/40`}
-        title="AI provider"
+        title={tx("aiProvider")}
       >
         {configured.map((p) => (
           <option key={p} value={p}>

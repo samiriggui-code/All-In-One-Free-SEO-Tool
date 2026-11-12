@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { useActionState, useState, useTransition } from "react";
 import { ExternalLink, Plus, Check } from "lucide-react";
 import {
@@ -8,20 +10,21 @@ import {
   type ProspectSearchResult,
 } from "./actions";
 
-const STRATEGY_LABELS: Record<string, string> = {
-  resource_pages: "Resource page",
-  links_pages: "Links page",
-  guest_post: "Guest post",
-  competitor_mentions: "Competitor mention",
-  broken_link: "Broken link",
+const STRATEGY_LABELS = (tx: Tx): Record<string, string> => ({
+  resource_pages: tx("resourcePage"),
+  links_pages: tx("linksPage"),
+  guest_post: tx("guestPost"),
+  competitor_mentions: tx("competitorMention"),
+  broken_link: tx("brokenLink"),
   industry_directories: "Directory",
-};
+});
 
 export function ProspectFinder({
   clients,
 }: {
   clients: { id: number; name: string; url: string }[];
 }) {
+  const tx = useTranslations("ui.app_link-building_prospects_prospect-finder");
   const [state, formAction, pending] = useActionState<
     ProspectSearchResult | null,
     FormData
@@ -39,7 +42,7 @@ export function ProspectFinder({
       >
         <div className="grid gap-3 md:grid-cols-[200px_1fr_1fr_auto]">
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Client</span>
+            <span className="text-muted-foreground">{tx("client")}</span>
             <select
               name="clientId"
               value={clientId}
@@ -54,17 +57,17 @@ export function ProspectFinder({
             </select>
           </label>
           <label className="space-y-1 text-xs">
-            <span className="text-muted-foreground">Topic / niche</span>
+            <span className="text-muted-foreground">{tx("topicNiche")}</span>
             <input
               name="topic"
               required
-              placeholder="vegan recipes"
+              placeholder={tx("veganRecipes")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </label>
           <label className="space-y-1 text-xs">
             <span className="text-muted-foreground">
-              Competitor domain (optional)
+              {tx("competitorDomainOptional")}
             </span>
             <input
               name="competitor"
@@ -77,13 +80,11 @@ export function ProspectFinder({
             disabled={pending}
             className="inline-flex h-9 items-center self-end rounded-md bg-emerald-500/15 px-4 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50"
           >
-            {pending ? "Searching…" : "Find prospects"}
+            {pending ? tx("searching") : tx("findProspects")}
           </button>
         </div>
         <p className="mt-3 text-[11px] text-muted-foreground">
-          Uses search operators across resource pages, write-for-us pages,
-          directories, and competitor mentions. Free — no API key, no
-          quotas.
+          {tx("usesSearchOperatorsAcrossResource")}
         </p>
       </form>
 
@@ -97,15 +98,15 @@ export function ProspectFinder({
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
             <h2 className="text-base font-semibold">
-              {state.results.length} prospects
+              {tx("prospects", { length: state.results.length })}
             </h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Click + to track as a submission for the selected client.
+              {tx("clickToTrackAsA")}
             </p>
           </header>
           {state.results.length === 0 ? (
             <p className="px-5 py-6 text-sm text-muted-foreground">
-              No results. Try a broader topic.
+              {tx("noResultsTryABroader")}
             </p>
           ) : (
             <ul className="divide-y divide-white/[0.05]">
@@ -118,7 +119,7 @@ export function ProspectFinder({
                     className="flex items-start gap-3 px-5 py-3 text-sm"
                   >
                     <span className="mt-0.5 shrink-0 rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-muted-foreground ring-1 ring-inset ring-white/10">
-                      {STRATEGY_LABELS[p.strategy] ?? p.strategy}
+                      {STRATEGY_LABELS(tx)[p.strategy] ?? p.strategy}
                     </span>
                     <div className="min-w-0 flex-1">
                       <a
@@ -163,12 +164,12 @@ export function ProspectFinder({
                       {isTracked ? (
                         <>
                           <Check className="size-3" />
-                          Tracked
+                          {tx("tracked")}
                         </>
                       ) : (
                         <>
                           <Plus className="size-3" />
-                          Track
+                          {tx("track")}
                         </>
                       )}
                     </button>

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { asc } from "drizzle-orm";
 import {
   Calendar,
@@ -42,6 +43,7 @@ const priorityTone: Record<string, string> = {
 };
 
 export default async function TasksTemplatesPage() {
+  const tx = await getTranslations("ui.app_tasks_templates_page");
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -51,15 +53,15 @@ export default async function TasksTemplatesPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Task playbooks"
-        description="Prebuilt task bundles that work for any client, regardless of niche or stack. Apply one to a client and we'll create every task with staggered due dates."
+        title={tx("taskPlaybooks")}
+        description={tx("prebuiltTaskBundlesThatWork")}
         icon={LayoutTemplate}
         accent="violet"
       />
 
       {allClients.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          Add a client first — playbooks need a client to assign tasks to.
+          {tx("addAClientFirstPlaybooks")}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -130,15 +132,10 @@ export default async function TasksTemplatesPage() {
           </div>
           <div className="space-y-1">
             <h2 className="text-base font-semibold">
-              Why playbooks vs. niche templates?
+              {tx("whyPlaybooksVsNicheTemplates")}
             </h2>
             <p className="text-muted-foreground">
-              <strong className="text-foreground">Playbooks</strong> are
-              workflow-based — what you do every week / month / quarter
-              regardless of the client. <strong className="text-foreground">Niche templates</strong>{" "}
-              (auto-applied when you add a client) cover the launch checklist
-              specific to local SEO, ecommerce, SaaS, blog, or services. Use
-              both — niche for the kickoff, playbooks for ongoing rhythm.
+              {tx.rich("playbooksAreWorkflowBasedWhat", { b0: (chunks) => <strong className="text-foreground">{chunks}</strong>, b1: (chunks) => <strong className="text-foreground">{chunks}</strong> })}
             </p>
           </div>
         </div>

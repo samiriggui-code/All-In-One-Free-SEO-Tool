@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { AlertCircle, ArrowRight } from "lucide-react";
 import type { AiFailure } from "@/lib/ai-error";
@@ -18,6 +19,7 @@ export function AiFailureNotice({
   failure: AiFailure;
   className?: string;
 }) {
+  const tx = useTranslations("ui.components_ui_ai-failure-notice");
   return (
     <div
       role="status"
@@ -31,7 +33,7 @@ export function AiFailureNotice({
             href={failure.fixHref}
             className="inline-flex items-center gap-1 text-xs font-medium text-amber-200 underline-offset-4 hover:underline"
           >
-            Open settings
+            {tx("openSettings")}
             <ArrowRight className="size-3" />
           </Link>
         )}

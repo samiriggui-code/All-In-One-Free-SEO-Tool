@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import type { Tx } from "@/lib/tx";
 import Link from "next/link";
 import { and, asc, count, desc, eq, gte, like, or } from "drizzle-orm";
 
@@ -43,36 +45,36 @@ type SearchParams = {
 
 const PAGE_SIZE = 50;
 
-const statusConfig: Record<
+const statusConfig = (tx: Tx): Record<
   string,
   { label: string; tone: string; icon: typeof Send }
-> = {
+> => ({
   pending: {
-    label: "Pending",
+    label: tx("pending"),
     tone: "bg-white/5 text-muted-foreground ring-white/10",
     icon: Send,
   },
   submitted: {
-    label: "Submitted",
+    label: tx("submitted"),
     tone: "bg-violet-500/15 text-violet-300 ring-violet-500/30",
     icon: Send,
   },
   live: {
-    label: "Live",
+    label: tx("live"),
     tone: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
     icon: CheckCircle2,
   },
   rejected: {
-    label: "Rejected",
+    label: tx("rejected"),
     tone: "bg-rose-500/15 text-rose-300 ring-rose-500/30",
     icon: XCircle,
   },
   lost: {
-    label: "Lost",
+    label: tx("lost"),
     tone: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
     icon: Eye,
   },
-};
+});
 
 export default async function LinkBuildingPage({
   searchParams,
@@ -80,6 +82,7 @@ export default async function LinkBuildingPage({
   searchParams: Promise<SearchParams>;
 }) {
   const total = await ensureSeoResourcesSeeded();
+  const tx = await getTranslations("ui.app_link-building_page");
 
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";
@@ -170,31 +173,31 @@ export default async function LinkBuildingPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Link building"
-        description={`Curated database of ${total.toLocaleString()} sites across ${countsMap.size} link-building categories. Filter, track per client, mark status.`}
+        title={tx("linkBuilding")}
+        description={tx("curatedDatabaseOfSitesAcross", { total: total.toLocaleString(), size: countsMap.size })}
         icon={Link2}
         accent="emerald"
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10">
-              {total.toLocaleString()} resources
+              {tx("resources", { total: total.toLocaleString() })}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/20">
-              {trackedRows.length} tracked
+              {tx("tracked", { length: trackedRows.length })}
             </span>
             <Link
               href="/link-building/prospects"
               className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/10 px-2.5 py-1 text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/20"
             >
               <Compass className="size-3" />
-              Find new prospects
+              {tx("findNewProspects")}
             </Link>
             <Link
               href="/link-building/library"
               className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/20"
             >
               <ExternalLink className="size-3" />
-              Curated library (30+ countries)
+              {tx("curatedLibrary30Countries")}
             </Link>
           </div>
         }
@@ -211,7 +214,7 @@ export default async function LinkBuildingPage({
             <input
               name="q"
               defaultValue={q}
-              placeholder="Search by domain or URL…"
+              placeholder={tx("searchByDomainOrUrl")}
               className="h-9 w-full rounded-md border border-white/10 bg-card/60 pl-9 pr-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
             />
           </div>
@@ -220,7 +223,7 @@ export default async function LinkBuildingPage({
             defaultValue={category}
             className="flex h-9 rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="">All categories</option>
+            <option value="">{tx("allCategories")}</option>
             {Array.from(countsMap.entries())
               .sort((a, b) =>
                 (CATEGORY_LABELS[a[0]] ?? a[0]).localeCompare(
@@ -238,18 +241,18 @@ export default async function LinkBuildingPage({
             defaultValue={String(minDa)}
             className="flex h-9 rounded-md border border-white/10 bg-card/60 px-3 text-sm"
           >
-            <option value="0">Any DA</option>
-            <option value="20">DA 20+</option>
-            <option value="40">DA 40+</option>
-            <option value="60">DA 60+</option>
-            <option value="80">DA 80+</option>
+            <option value="0">{tx("anyDa")}</option>
+            <option value="20">{tx("da20")}</option>
+            <option value="40">{tx("da40")}</option>
+            <option value="60">{tx("da60")}</option>
+            <option value="80">{tx("da80")}</option>
           </select>
           <button
             type="submit"
             className="inline-flex h-9 items-center gap-1.5 rounded-md bg-emerald-500/15 px-3 text-xs font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
           >
             <Filter className="size-3.5" />
-            Apply
+            {tx("apply")}
           </button>
         </div>
       </form>
@@ -257,16 +260,15 @@ export default async function LinkBuildingPage({
       {/* Resources list */}
       <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
         <header className="border-b border-white/5 px-5 py-3">
-          <h2 className="text-sm font-semibold">Browse resources</h2>
+          <h2 className="text-sm font-semibold">{tx("browseResources")}</h2>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Showing {resources.length} of{" "}
-            {(where ? "filtered" : "total")}{" "}
-            {total.toLocaleString()} · sorted by DA descending
+            {tx("showingOf", { length: resources.length })}
+            {(where ? "filtered" : "total")}{tx("sortedByDaDescending", { total: total.toLocaleString() })}
           </p>
         </header>
         {resources.length === 0 ? (
           <p className="px-5 py-8 text-center text-xs text-muted-foreground">
-            No resources match. Try clearing filters.
+            {tx("noResourcesMatchTryClearing")}
           </p>
         ) : (
           <ul className="divide-y divide-white/5">
@@ -291,12 +293,12 @@ export default async function LinkBuildingPage({
                     </span>
                     {r.da !== null && (
                       <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-emerald-300 ring-1 ring-inset ring-emerald-500/20">
-                        DA {r.da}
+                        {tx("da", { da: r.da })}
                       </span>
                     )}
                     {r.alexa !== null && (
                       <span className="rounded-md bg-cyan-500/10 px-1.5 py-0.5 text-cyan-300 ring-1 ring-inset ring-cyan-500/20">
-                        Alexa {r.alexa.toLocaleString()}
+                        {tx("alexa", { v: r.alexa.toLocaleString() })}
                       </span>
                     )}
                   </div>
@@ -319,9 +321,9 @@ export default async function LinkBuildingPage({
         <section className="overflow-hidden rounded-2xl border border-white/5 bg-card/40 backdrop-blur-md">
           <header className="flex items-center justify-between border-b border-white/5 px-5 py-3">
             <div>
-              <h2 className="text-sm font-semibold">Tracked submissions</h2>
+              <h2 className="text-sm font-semibold">{tx("trackedSubmissions")}</h2>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
-                {submissions.length} active across your clients
+                {tx("activeAcrossYourClients", { length: submissions.length })}
               </p>
             </div>
             {filterClientId !== null && (
@@ -330,13 +332,13 @@ export default async function LinkBuildingPage({
                 className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground hover:underline"
               >
                 <X className="size-3" />
-                Clear client filter
+                {tx("clearClientFilter")}
               </Link>
             )}
           </header>
           <ul className="divide-y divide-white/5">
             {submissions.map((s) => {
-              const cfg = statusConfig[s.status] ?? statusConfig.pending;
+              const cfg = statusConfig(tx)[s.status] ?? statusConfig(tx).pending;
               const Icon = cfg.icon;
               const removeAction = deleteSubmission.bind(null, s.id);
               return (
@@ -364,7 +366,7 @@ export default async function LinkBuildingPage({
                       <span>
                         {CATEGORY_LABELS[s.category ?? ""] ?? s.category}
                       </span>
-                      {s.da !== null && <span>· DA {s.da}</span>}
+                      {s.da !== null && <span>{tx("da2", { da: s.da })}</span>}
                       {s.submittedAt && (
                         <span>
                           · {s.status} {s.submittedAt.toLocaleDateString()}
@@ -378,7 +380,7 @@ export default async function LinkBuildingPage({
                         rel="noreferrer"
                         className="text-[11px] text-emerald-300 hover:underline"
                       >
-                        live: {s.submittedUrl.replace(/^https?:\/\//, "").slice(0, 60)}
+                        {tx("live2", { v: s.submittedUrl.replace(/^https?:\/\//, "").slice(0, 60) })}
                       </a>
                     )}
                   </div>
@@ -396,7 +398,7 @@ export default async function LinkBuildingPage({
                           type="submit"
                           className="rounded-md bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30 hover:bg-violet-500/25"
                         >
-                          Mark submitted
+                          {tx("markSubmitted")}
                         </button>
                       </form>
                     )}
@@ -407,23 +409,23 @@ export default async function LinkBuildingPage({
                       >
                         <input
                           name="submittedUrl"
-                          placeholder="live URL"
+                          placeholder={tx("liveUrl")}
                           defaultValue={s.submittedUrl ?? ""}
                           className="h-6 w-32 rounded-md border border-white/10 bg-card/60 px-2 text-[10px]"
                         />
                         <button
                           type="submit"
                           className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30 hover:bg-emerald-500/25"
-                          title="Mark live"
+                          title={tx("markLive")}
                         >
-                          Live
+                          {tx("live")}
                         </button>
                       </form>
                     )}
                     <form action={removeAction}>
                       <button
                         type="submit"
-                        aria-label="Delete"
+                        aria-label={tx("delete")}
                         className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/15 hover:text-rose-300"
                       >
                         <X className="size-3" />

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { useEffect, useRef, useState, useTransition } from "react";
 import {
   AlignJustify,
@@ -44,16 +46,17 @@ function estimateTokens(
   return inputTokens + systemBaseline + knowledgeBaseline + researchBaseline + outputCap;
 }
 
-const STARTER_PROMPTS = [
-  "Walk me through Google's confirmed ranking factors in 2026 — by importance.",
-  "How do I get cited in Google AI Overviews for commercial queries?",
-  "My LCP is 4.2s on mobile — what do I fix first?",
-  "Audit this title and meta — give me 3 better variants.",
-  "Generate the hreflang block for en-US, en-GB, fr-FR, de-DE, x-default.",
-  "Should I block GPTBot? Tradeoffs?",
-];
+const STARTER_PROMPTS = (tx: Tx) => ([
+  tx("walkMeThroughGoogleS"),
+  tx("howDoIGetCited"),
+  tx("myLcpIs42s"),
+  tx("auditThisTitleAndMeta"),
+  tx("generateTheHreflangBlockFor"),
+  tx("shouldIBlockGptbotTradeoffs"),
+]);
 
 export function SeoChatUi() {
+  const tx = useTranslations("ui.app_seo-chat_chat-ui");
   const [messages, setMessages] = useState<SeoChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
@@ -119,11 +122,11 @@ export function SeoChatUi() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(file.type)) {
-      setError("Image must be PNG / JPEG / GIF / WebP.");
+      setError(tx("imageMustBePngJpeg"));
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      setError("Image too large (>4MB).");
+      setError(tx("imageTooLarge4mb"));
       return;
     }
     const reader = new FileReader();
@@ -137,16 +140,15 @@ export function SeoChatUi() {
         <div className="min-w-0">
           <h3 className="flex items-center gap-2 text-sm font-semibold">
             <Bot className="size-4 text-violet-300" />
-            SEO Chat
+            {tx("seoChat")}
           </h3>
           <p className="mt-0.5 text-[10px] text-muted-foreground">
-            One chat for every SEO topic — the AI picks the right specialty
-            from your question.
+            {tx("oneChatForEverySeo")}
           </p>
         </div>
         {inferredSkill && (
           <span
-            title="The specialty the AI focused on for the last reply"
+            title={tx("theSpecialtyTheAiFocused")}
             className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 text-[10px] font-medium text-violet-200 ring-1 ring-inset ring-violet-500/30"
           >
             <Sparkles className="size-3" />
@@ -162,12 +164,10 @@ export function SeoChatUi() {
         {messages.length === 0 && (
           <div className="space-y-3">
             <div className="rounded-xl bg-white/[0.03] p-3 text-muted-foreground ring-1 ring-inset ring-white/5">
-              Ask anything SEO. I&apos;ll auto-focus on the right specialty —
-              technical, on-page, AI visibility, schema, local, hreflang,
-              CWV, etc. Drop an image for image-SEO analysis.
+              {tx("askAnythingSeoILl")}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {STARTER_PROMPTS.map((p) => (
+              {STARTER_PROMPTS(tx).map((p) => (
                 <button
                   key={p}
                   type="button"
@@ -194,7 +194,7 @@ export function SeoChatUi() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={m.imageDataUrl}
-                alt="upload"
+                alt={tx("upload")}
                 className="max-h-48 rounded-lg ring-1 ring-inset ring-white/10"
               />
             )}
@@ -216,7 +216,7 @@ export function SeoChatUi() {
         {pending && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="size-3 animate-spin" />
-            Thinking…
+            {tx("thinking")}
           </div>
         )}
 
@@ -232,11 +232,11 @@ export function SeoChatUi() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageDataUrl}
-            alt="staged"
+            alt={tx("staged")}
             className="h-12 rounded ring-1 ring-inset ring-white/10"
           />
           <span className="text-xs text-muted-foreground">
-            Image staged — will send with your next message.
+            {tx("imageStagedWillSendWith")}
           </span>
           <button
             type="button"
@@ -247,7 +247,7 @@ export function SeoChatUi() {
             className="ml-auto inline-flex h-7 items-center rounded-md bg-white/5 px-2 text-[11px] text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10"
           >
             <X className="mr-1 size-3" />
-            Remove
+            {tx("remove")}
           </button>
         </div>
       )}
@@ -269,7 +269,7 @@ export function SeoChatUi() {
         />
         <label
           htmlFor="seo-chat-file"
-          title="Upload image for image-SEO analysis"
+          title={tx("uploadImageForImageSeo")}
           className="inline-flex h-9 cursor-pointer items-center rounded-md bg-white/5 px-3 text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
         >
           <ImagePlus className="size-4" />
@@ -279,8 +279,8 @@ export function SeoChatUi() {
           onClick={() => setResearch((v) => !v)}
           title={
             research
-              ? "Live research ON — fetches a Google SERP before each answer"
-              : "Live research OFF — click to fetch live SERP data with each question"
+              ? tx("liveResearchOnFetchesA")
+              : tx("liveResearchOffClickTo")
           }
           className={`inline-flex h-9 items-center rounded-md px-3 text-xs font-medium ring-1 ring-inset transition-colors ${
             research
@@ -289,15 +289,15 @@ export function SeoChatUi() {
           }`}
         >
           <Globe className="mr-1 size-3" />
-          {research ? "Research: ON" : "Research"}
+          {research ? tx("researchOn") : tx("research")}
         </button>
         <button
           type="button"
           onClick={() => setLength(length === "short" ? "detailed" : "short")}
           title={
             length === "short"
-              ? "Short answers (~250 tokens — saves credits). Click to switch to Detailed."
-              : "Detailed answers (~1500 tokens). Click to switch back to Short."
+              ? tx("shortAnswers250TokensSaves")
+              : tx("detailedAnswers1500TokensClick")
           }
           className={`inline-flex h-9 items-center rounded-md px-3 text-xs font-medium ring-1 ring-inset transition-colors ${
             length === "short"
@@ -308,19 +308,19 @@ export function SeoChatUi() {
           {length === "short" ? (
             <>
               <Wind className="mr-1 size-3" />
-              Short
+              {tx("short")}
             </>
           ) : (
             <>
               <AlignJustify className="mr-1 size-3" />
-              Detailed
+              {tx("detailed")}
             </>
           )}
         </button>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask anything SEO…"
+          placeholder={tx("askAnythingSeo")}
           disabled={pending}
           className="h-9 w-full rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:opacity-50"
         />
@@ -339,8 +339,7 @@ export function SeoChatUi() {
 
       <div className="flex items-center justify-between gap-3 border-t border-white/[0.04] bg-white/[0.01] px-3 py-1.5 text-[10px] text-muted-foreground">
         <span className="flex shrink-0 items-center gap-1.5">
-          <Zap className="size-3" />~{estimateTokens(input, length, research)}{" "}
-          tok
+          <Zap className="size-3" />{tx("tok", { v: estimateTokens(input, length, research) })}
         </span>
         <AiModelPicker
           selection={modelSel}
@@ -348,7 +347,7 @@ export function SeoChatUi() {
           size="sm"
         />
         <span className="truncate italic text-muted-foreground/70">
-          AI can make mistakes — verify before applying
+          {tx("aiCanMakeMistakesVerify")}
         </span>
         <span className="shrink-0">
           {length === "short" ? "≈ $0.0001-$0.001" : "≈ $0.001-$0.01"}

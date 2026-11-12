@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Gauge } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, cwvReports } from "@/db/schema";
@@ -12,6 +13,8 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function CwvIndexPage() {
+  const t = await getTranslations("pickers.cwv");
+  const format = await getFormatter();
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -35,7 +38,7 @@ export default async function CwvIndexPage() {
         logoUrl: c.logoUrl,
         niche: c.niche,
         primary:
-          score !== null ? `${score}/100` : total === 0 ? "Not scanned" : "—",
+          score !== null ? `${score}/100` : total === 0 ? t("none") : "—",
         primaryTone:
           score === null
             ? "neutral"
@@ -46,13 +49,13 @@ export default async function CwvIndexPage() {
                 : "rose",
         secondary:
           total === 0
-            ? "Click to run the first scan"
-            : `${total} report${total === 1 ? "" : "s"} · last ${latest?.scannedAt.toLocaleDateString() ?? "—"}`,
+            ? t("secondaryNone")
+            : t("reports", { count: total, date: latest ? format.dateTime(latest.scannedAt, { dateStyle: "short" }) : "—" }),
         badges:
           latest?.overall === "pass"
-            ? [{ label: "CWV pass", tone: "emerald" as const }]
+            ? [{ label: t("pass"), tone: "emerald" as const }]
             : latest?.overall === "fail"
-              ? [{ label: "CWV fail", tone: "amber" as const }]
+              ? [{ label: t("fail"), tone: "amber" as const }]
               : undefined,
       };
     }),
@@ -61,8 +64,8 @@ export default async function CwvIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Core Web Vitals"
-        description="Pick a client to run free PageSpeed Insights scans on any URL — Lighthouse scores + LCP/INP/CLS verdicts + ranked optimization opportunities."
+        title={t("title")}
+        description={t("description")}
         icon={Gauge}
         accent="cyan"
       />

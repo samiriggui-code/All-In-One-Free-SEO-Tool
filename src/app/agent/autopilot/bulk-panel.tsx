@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { AlertTriangle, Check, Layers, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ export function BulkPanel({
   clientId: number;
   groups: BulkGroup[];
 }) {
+  const tx = useTranslations("ui.app_agent_autopilot_bulk-panel");
   const [busy, setBusy] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, BulkResult>>({});
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -47,12 +49,9 @@ export function BulkPanel({
       <header className="flex items-start gap-3 border-b border-border px-5 py-4">
         <Layers className="mt-0.5 size-4 shrink-0 text-cyan-400" />
         <span>
-          <h2 className="text-sm font-semibold">Apply a whole group</h2>
+          <h2 className="text-sm font-semibold">{tx("applyAWholeGroup")}</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            The per-run caps mean a site with two hundred pages missing a
-            description takes ten days of coming back and clicking. The
-            decision was made on day one. Every change is still logged
-            individually and can still be undone one at a time.
+            {tx("thePerRunCapsMean")}
           </p>
         </span>
       </header>
@@ -69,7 +68,7 @@ export function BulkPanel({
                 {g.risk === "needs_review" && (
                   <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
                     <AlertTriangle className="size-3" />
-                    contains judgement calls
+                    {tx("containsJudgementCalls")}
                   </span>
                 )}
               </div>
@@ -89,7 +88,7 @@ export function BulkPanel({
                   ))}
                   {g.count > g.samples.length && (
                     <li className="text-[11px] text-muted-foreground opacity-60">
-                      and {g.count - g.samples.length} more
+                      {tx("andMore", { v: g.count - g.samples.length })}
                     </li>
                   )}
                 </ul>
@@ -103,30 +102,29 @@ export function BulkPanel({
                 ) : done ? (
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-300">
                     <Check className="size-3.5" />
-                    {done.applied} applied
+                    {tx("applied", { applied: done.applied })}
                     {done.failed > 0 && `, ${done.failed} failed`}
-                    {done.skipped > 0 && `, ${done.skipped} left for review`}
+                    {done.skipped > 0 && tx("leftForReview", { skipped: done.skipped })}
                   </span>
                 ) : busy === g.kind ? (
                   <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Loader2 className="size-3.5 animate-spin" />
-                    applying {g.count}, one at a time
+                    {tx("applyingOneAtATime", { count: g.count })}
                   </span>
                 ) : confirming === g.kind ? (
                   <>
                     <span className="text-[11px] text-amber-700 dark:text-amber-300">
-                      This group includes changes the agent wanted a person to
-                      read. Apply all {g.count}?
+                      {tx("thisGroupIncludesChangesThe", { count: g.count })}
                     </span>
                     <Button size="sm" onClick={() => run(g.kind, true)}>
-                      Yes, apply all
+                      {tx("yesApplyAll")}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setConfirming(null)}
                     >
-                      Cancel
+                      {tx("cancel")}
                     </Button>
                   </>
                 ) : (
@@ -140,7 +138,7 @@ export function BulkPanel({
                         : setConfirming(g.kind)
                     }
                   >
-                    Apply all {g.count}
+                    {tx("applyAll", { count: g.count })}
                   </Button>
                 )}
               </div>

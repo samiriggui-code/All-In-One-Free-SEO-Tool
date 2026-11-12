@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import {
   Check,
@@ -69,6 +70,7 @@ export function ChecklistView({
   audit: AuditRow;
   issues: IssueRow[];
 }) {
+  const tx = useTranslations("ui.app_clients_id_ai-audit_auditId_checklist-view");
   // Group by category
   const grouped = useMemo(() => {
     const m = new Map<string, IssueRow[]>();
@@ -160,7 +162,7 @@ export function ChecklistView({
     <>
       <div className="grid gap-3 sm:grid-cols-4">
         <Stat
-          label="Score"
+          label={tx("score")}
           value={`${audit.score ?? "—"}/100`}
           tone={
             audit.score === null
@@ -172,19 +174,19 @@ export function ChecklistView({
                   : "rose"
           }
         />
-        <Stat label="Total checks" value={total.toString()} />
+        <Stat label={tx("totalChecks")} value={total.toString()} />
         <Stat
-          label="Resolved"
+          label={tx("resolved")}
           value={`${resolved} / ${total}`}
           tone={completionPct === 100 ? "emerald" : "amber"}
           hint={`${completionPct}% done`}
         />
-        <Stat label="Status" value={audit.status} />
+        <Stat label={tx("status")} value={audit.status} />
       </div>
 
       {audit.summary && (
         <section className="glass-apple relative overflow-hidden rounded-2xl p-5 space-y-3">
-          <h3 className="text-sm font-semibold">Executive summary</h3>
+          <h3 className="text-sm font-semibold">{tx("executiveSummary")}</h3>
           <p className="text-sm leading-relaxed">{audit.summary}</p>
 
           {/* Cite-or-bust: every claim in the summary maps to an issue
@@ -203,10 +205,7 @@ export function ChecklistView({
             return (
               <details className="rounded-md border border-white/[0.06] bg-white/[0.02] open:bg-white/[0.04]">
                 <summary className="cursor-pointer select-none px-3 py-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground">
-                  Data behind this summary ({evidence.length})
-                  <span className="ml-2 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-normal text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                    AI-generated — verify each
-                  </span>
+                  {tx.rich("dataBehindThisSummaryAi", { length: evidence.length, b0: (chunks) => <span className="ml-2 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-normal text-amber-300 ring-1 ring-inset ring-amber-500/30">{chunks}</span> })}
                 </summary>
                 <ul className="space-y-1.5 border-t border-white/[0.06] px-3 py-2 text-[12px]">
                   {evidence.map((e) => (
@@ -245,7 +244,7 @@ export function ChecklistView({
           className="inline-flex h-8 items-center rounded-md bg-white/5 px-3 text-xs text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
         >
           <Download className="mr-1.5 size-3" />
-          Export markdown
+          {tx("exportMarkdown")}
         </button>
         <button
           type="button"
@@ -253,10 +252,10 @@ export function ChecklistView({
           className="inline-flex h-8 items-center rounded-md bg-white/5 px-3 text-xs text-muted-foreground ring-1 ring-inset ring-white/10 hover:bg-white/10 hover:text-foreground"
         >
           <Copy className="mr-1.5 size-3" />
-          Copy markdown
+          {tx("copyMarkdown")}
         </button>
         <span className="text-[10px] text-muted-foreground">
-          Resolved items can be included in client-facing reports.
+          {tx("resolvedItemsCanBeIncluded")}
         </span>
       </div>
 
@@ -274,6 +273,7 @@ function CategorySection({
   category: string;
   list: IssueRow[];
 }) {
+  const tx = useTranslations("ui.app_clients_id_ai-audit_auditId_checklist-view");
   const tone = CATEGORY_TONE[category] ?? "bg-white/5 text-muted-foreground";
   const total = list.length;
   const done = list.filter((i) => i.status === "resolved").length;
@@ -286,7 +286,7 @@ function CategorySection({
           {category}
         </span>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {done} / {total} resolved
+          {tx("resolved2", { done, total })}
         </span>
       </header>
       <ul className="divide-y divide-white/[0.05]">
@@ -299,6 +299,7 @@ function CategorySection({
 }
 
 function ChecklistItem({ issue }: { issue: IssueRow }) {
+  const tx = useTranslations("ui.app_clients_id_ai-audit_auditId_checklist-view");
   const [resolved, setResolved] = useState(issue.status === "resolved");
   const [open, setOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(false);
@@ -327,7 +328,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
           type="button"
           onClick={toggle}
           className="mt-0.5 grid size-5 shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:text-emerald-300"
-          aria-label={resolved ? "Mark not resolved" : "Mark resolved"}
+          aria-label={resolved ? tx("markNotResolved") : tx("markResolved")}
         >
           {resolved ? (
             <CheckCircle2 className="size-5 text-emerald-300" />
@@ -362,7 +363,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
                 ) : (
                   <ChevronDown className="size-3" />
                 )}
-                {open ? "Hide fix steps" : "Show fix steps"}
+                {open ? tx("hideFixSteps") : tx("showFixSteps")}
               </button>
               {open && (
                 <pre className="mt-2 whitespace-pre-wrap rounded-md bg-black/30 p-3 font-sans text-xs leading-relaxed">
@@ -377,7 +378,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
               {note ? (
                 <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-amber-300 ring-1 ring-inset ring-amber-500/30">
-                  Note: {note}
+                  {tx("note", { note })}
                 </span>
               ) : null}
               <button
@@ -386,7 +387,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
                 className="inline-flex items-center gap-1 hover:text-foreground"
               >
                 <Edit3 className="size-3" />
-                {note ? "Edit note" : "Add note"}
+                {note ? tx("editNote") : tx("addNote")}
               </button>
             </div>
           )}
@@ -395,7 +396,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="e.g. waiting on dev to deploy fix"
+                placeholder={tx("eGWaitingOnDev")}
                 className="h-7 w-full rounded-md border border-white/10 bg-card/60 px-2 text-xs"
               />
               <button
@@ -404,7 +405,7 @@ function ChecklistItem({ issue }: { issue: IssueRow }) {
                 className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-[11px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30"
               >
                 <Check className="mr-1 size-3" />
-                Save
+                {tx("save")}
               </button>
             </div>
           )}

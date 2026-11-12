@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { saveCap, type SaveCapState } from "./actions";
 
 export function CapForm({ initial }: { initial: string }) {
+  const tx = useTranslations("ui.app_settings_ai-usage_cap-form");
   const [state, formAction, pending] = useActionState<
     SaveCapState | null,
     FormData
@@ -13,14 +15,14 @@ export function CapForm({ initial }: { initial: string }) {
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <label className="space-y-1 text-xs">
-        <span className="text-muted-foreground">Monthly cap (USD)</span>
+        <span className="text-muted-foreground">{tx("monthlyCapUsd")}</span>
         <input
           name="cap"
           type="number"
           step="0.01"
           min="0"
           defaultValue={initial}
-          placeholder="(blank = no cap)"
+          placeholder={tx("blankNoCap")}
           className="h-9 w-40 rounded-md border border-white/10 bg-card/60 px-3 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/40"
         />
       </label>
@@ -32,12 +34,12 @@ export function CapForm({ initial }: { initial: string }) {
         {pending ? (
           <>
             <Loader2 className="mr-2 size-3 animate-spin" />
-            Saving…
+            {tx("saving")}
           </>
         ) : (
           <>
             <Save className="mr-2 size-3" />
-            Save cap
+            {tx("saveCap")}
           </>
         )}
       </button>

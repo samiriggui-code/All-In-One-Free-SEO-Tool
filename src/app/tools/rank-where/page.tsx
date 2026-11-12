@@ -11,6 +11,7 @@ import { CountrySelect } from "@/components/country-select";
 
 
 export default function RankWherePage() {
+  const tx = useTranslations("ui.app_tools_rank-where_page");
   const t = useTranslations("tools.ui.rank-where");
   const [state, formAction, pending] = useActionState<RankWhereState, FormData>(
     checkRank,
@@ -172,7 +173,7 @@ export default function RankWherePage() {
                       : "bg-amber-500/15 text-amber-300 ring-amber-500/30"
                   }`}
                 >
-                  AI Overview{" "}
+                  {tx("aiOverview")}
                   {state.result.citedInAiOverview ? t("cited") : t("notCited")}
                 </span>
               )}

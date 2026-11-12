@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Bot } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, aiSuggestions } from "@/db/schema";
@@ -14,6 +15,7 @@ import { markSectionSeen } from "@/lib/unread-counts";
 import { clientScope } from "@/lib/client-scope";
 
 export default async function AgentIndexPage() {
+  const t = await getTranslations("pickers.agent");
   await markSectionSeen("suggestions").catch(() => {});
   const all = await db
     .select()
@@ -55,19 +57,19 @@ export default async function AgentIndexPage() {
         primary:
           pending === 0
             ? applied > 0
-              ? "All addressed"
-              : "Ready to run"
-            : `${pending} suggestion${pending === 1 ? "" : "s"}`,
+              ? t("allAddressed")
+              : t("readyToRun")
+            : t("suggestions", { count: pending }),
         primaryTone: pending > 0 ? "violet" : applied > 0 ? "emerald" : "neutral",
         secondary:
           applied > 0
-            ? `${applied} applied so far`
+            ? t("applied", { count: applied })
             : pending > 0
-              ? "Click to review and apply"
-              : "Click to run the agent",
+              ? t("secondaryReview")
+              : t("secondaryRun"),
         badges:
           pending > 0
-            ? [{ label: `${pending} pending`, tone: "violet" as const }]
+            ? [{ label: t("pending", { count: pending }), tone: "violet" as const }]
             : undefined,
       };
     }),
@@ -76,23 +78,22 @@ export default async function AgentIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="AI agent"
-        description="Pick a client. The agent reads their audit findings + Search Console data, then drafts concrete title rewrites, meta descriptions, quick-win actions, and content ideas — using your active AI provider."
+        title={t("title")}
+        description={t("description")}
         icon={Bot}
         accent="violet"
       />
 
       {!aiReady && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-200">
-          <strong>No AI provider configured.</strong> Add a free API key
-          (Gemini, Groq, or OpenRouter) in{" "}
-          <a
-            href="/settings"
-            className="text-amber-100 underline-offset-2 hover:underline"
-          >
-            Settings → AI provider keys
-          </a>{" "}
-          to start running the agent.
+          {t.rich("noProvider", {
+            b: (chunks) => <strong>{chunks}</strong>,
+            link: (chunks) => (
+              <a href="/settings" className="text-amber-100 underline-offset-2 hover:underline">
+                {chunks}
+              </a>
+            ),
+          })}
         </div>
       )}
 

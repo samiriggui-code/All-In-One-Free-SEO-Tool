@@ -1,5 +1,7 @@
 "use client";
 
+import type { Tx } from "@/lib/tx";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   Wand2,
@@ -18,17 +20,17 @@ import {
 } from "@/app/audits/fix-actions";
 import { applyFixViaWp } from "@/app/audits/wp-apply-actions";
 
-const issueLabels: Record<string, string> = {
-  missing_title: "Add a <title>",
-  short_title: "Lengthen the <title>",
-  long_title: "Shorten the <title>",
-  missing_meta_description: "Add a meta description",
-  short_meta_description: "Lengthen the meta description",
-  long_meta_description: "Shorten the meta description",
-  missing_h1: "Add an <h1>",
-  missing_canonical: "Add a canonical link",
-  missing_viewport: "Add a viewport meta tag",
-};
+const issueLabels = (tx: Tx): Record<string, string> => ({
+  missing_title: tx("addA"),
+  short_title: tx("lengthenThe"),
+  long_title: tx("shortenThe"),
+  missing_meta_description: tx("addAMetaDescription"),
+  short_meta_description: tx("lengthenTheMetaDescription"),
+  long_meta_description: tx("shortenTheMetaDescription"),
+  missing_h1: tx("addAn"),
+  missing_canonical: tx("addACanonicalLink"),
+  missing_viewport: tx("addAViewportMetaTag"),
+});
 
 import { isFixable } from "@/lib/fix-suggestions";
 
@@ -45,6 +47,7 @@ export function FixWizard({
   /** Whether the client has WP bridge plugin connected. */
   wpBridgeConnected?: boolean;
 }) {
+  const tx = useTranslations("ui.components_fix-wizard");
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<FixResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -72,7 +75,7 @@ export function FixWizard({
           className="border-violet-500/30 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20"
         >
           <Wand2 className="size-3.5" />
-          Fix it for me
+          {tx("fixItForMe")}
         </Button>
       ) : (
         <div className="relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/8 via-card/40 to-fuchsia-500/5 p-4 backdrop-blur-md">
@@ -82,13 +85,13 @@ export function FixWizard({
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Wand2 className="size-4 text-violet-300" />
               <span className="text-gradient-violet">
-                {issueLabels[issueType] ?? "Fix it"}
+                {issueLabels(tx)[issueType] ?? tx("fixIt")}
               </span>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Close"
+              aria-label={tx("close")}
               className="grid size-6 place-items-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
             >
               <X className="size-3.5" />
@@ -99,7 +102,7 @@ export function FixWizard({
             {pending && !result ? (
               <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin" />
-                Fetching the page and building suggestions…
+                {tx("fetchingThePageAndBuilding")}
               </div>
             ) : result && !result.ok ? (
               <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-3 py-2 text-sm text-rose-300">
@@ -134,6 +137,7 @@ function FixWizardBody({
   clientId?: number;
   wpBridgeConnected?: boolean;
 }) {
+  const tx = useTranslations("ui.components_fix-wizard");
   const titleFamily =
     issueType === "missing_title" ||
     issueType === "short_title" ||
@@ -161,7 +165,7 @@ function FixWizardBody({
       {/* Current state */}
       <div>
         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Currently
+          {tx("currently")}
         </div>
         <div className="mt-1.5 rounded-lg border border-white/5 bg-black/20 p-3">
           {currentValue ? (
@@ -171,13 +175,13 @@ function FixWizardBody({
               </div>
               {(titleFamily || metaFamily) && (
                 <div className="mt-1 text-[11px] text-muted-foreground">
-                  {currentValue.length} characters
+                  {tx("characters", { length: currentValue.length })}
                 </div>
               )}
             </>
           ) : (
             <div className="text-xs italic text-muted-foreground">
-              Nothing set on this page.
+              {tx("nothingSetOnThisPage")}
             </div>
           )}
         </div>
@@ -190,7 +194,7 @@ function FixWizardBody({
           description={
             metaFamily
               ? suggestions[0].value
-              : ctx.description ?? "Your meta description will appear here."
+              : ctx.description ?? tx("yourMetaDescriptionWillAppear")
           }
           url={ctx.pageUrl}
         />
@@ -199,14 +203,12 @@ function FixWizardBody({
       {/* Suggestions */}
       {suggestions.length === 0 ? (
         <div className="rounded-lg border border-white/5 bg-black/20 p-3 text-xs text-muted-foreground">
-          We couldn&apos;t generate suggestions automatically. The page may not
-          have enough context (no H1, no first paragraph). Write something
-          custom for now.
+          {tx("weCouldnTGenerateSuggestions")}
         </div>
       ) : (
         <div className="space-y-2">
           <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Suggested fixes
+            {tx("suggestedFixes")}
           </div>
           {suggestions.map((s, i) => (
             <SuggestionRow
@@ -229,7 +231,7 @@ function FixWizardBody({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
       >
         <ExternalLink className="size-3" />
-        Open page in new tab
+        {tx("openPageInNewTab")}
       </a>
     </div>
   );
@@ -248,6 +250,7 @@ function SuggestionRow({
   clientId?: number;
   wpBridgeConnected?: boolean;
 }) {
+  const tx = useTranslations("ui.components_fix-wizard");
   const [copied, setCopied] = useState(false);
   const [applyState, setApplyState] = useState<
     "idle" | "applying" | "applied" | "error"
@@ -283,7 +286,7 @@ function SuggestionRow({
       }
     } catch (err) {
       setApplyState("error");
-      setApplyError((err as Error).message ?? "Apply failed");
+      setApplyError((err as Error).message ?? tx("applyFailed"));
     }
   };
 
@@ -300,7 +303,7 @@ function SuggestionRow({
             <span>{suggestion.rationale}</span>
             {suggestion.charCount !== undefined && (
               <span className="rounded bg-white/5 px-1.5 py-0.5 ring-1 ring-inset ring-white/10">
-                {suggestion.charCount} chars
+                {tx("chars", { charCount: suggestion.charCount })}
               </span>
             )}
           </div>
@@ -318,27 +321,27 @@ function SuggestionRow({
                     ? "inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-1 text-[11px] font-medium text-rose-200 ring-1 ring-inset ring-rose-500/40"
                     : "inline-flex items-center gap-1 rounded-md bg-violet-500/15 px-2 py-1 text-[11px] font-medium text-violet-200 ring-1 ring-inset ring-violet-500/40 transition-colors hover:bg-violet-500/25 disabled:opacity-60"
               }
-              title="Apply this fix on the WordPress site via the SEO Tool Bridge plugin"
+              title={tx("applyThisFixOnThe")}
             >
               {applyState === "applying" ? (
                 <>
                   <Loader2 className="size-3 animate-spin" />
-                  Applying…
+                  {tx("applying")}
                 </>
               ) : applyState === "applied" ? (
                 <>
                   <Check className="size-3" />
-                  Applied
+                  {tx("applied")}
                 </>
               ) : applyState === "error" ? (
                 <>
                   <AlertCircle className="size-3" />
-                  Retry
+                  {tx("retry")}
                 </>
               ) : (
                 <>
                   <Send className="size-3" />
-                  Apply via WP
+                  {tx("applyViaWp")}
                 </>
               )}
             </button>
@@ -353,7 +356,7 @@ function SuggestionRow({
             }
           >
             {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
-            {copied ? "Copied" : "Copy"}
+            {copied ? tx("copied") : tx("copy")}
           </button>
         </div>
       </div>
@@ -375,6 +378,7 @@ function SerpPreview({
   description: string;
   url: string;
 }) {
+  const tx = useTranslations("ui.components_fix-wizard");
   let displayUrl = url;
   try {
     const u = new URL(url);
@@ -385,7 +389,7 @@ function SerpPreview({
   return (
     <div className="rounded-lg border border-white/5 bg-white/95 p-3 text-black">
       <div className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">
-        Google preview
+        {tx("googlePreview")}
       </div>
       <div className="mt-1 text-[11px] text-zinc-600">{displayUrl}</div>
       <div className="mt-0.5 text-base font-medium text-blue-700 leading-tight line-clamp-1">

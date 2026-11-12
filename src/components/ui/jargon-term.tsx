@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import type { Tx } from "@/lib/tx";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,70 +21,70 @@ import { cn } from "@/lib/utils";
  * For a custom definition on the fly:
  *   <JargonTerm term="rel=canonical" definition="..." />
  */
-const GLOSSARY: Record<string, string> = {
+const GLOSSARY = (tx: Tx): Record<string, string> => ({
   canonical:
-    "A signal to Google about the main version of this page when similar pages exist. Prevents duplicate content from competing with itself.",
+    tx("aSignalToGoogleAbout"),
   "meta description":
-    "The snippet of text shown under a page's title in Google search results. Not a direct ranking factor, but heavily influences click-through rate.",
+    tx("theSnippetOfTextShown"),
   "title tag":
-    "The page title shown in the browser tab and as the clickable headline in search results. Most important on-page SEO element.",
+    tx("thePageTitleShownIn"),
   serp:
-    "Search Engine Results Page — the page Google shows after someone runs a search.",
+    tx("searchEngineResultsPageThe"),
   ctr:
     "Click-Through Rate — the percentage of people who see your search result and actually click it.",
   cwv:
-    "Core Web Vitals — Google's three speed/UX metrics: LCP (loading), INP (responsiveness), CLS (visual stability).",
+    tx("coreWebVitalsGoogleS"),
   lcp:
-    "Largest Contentful Paint — how long it takes for the biggest element on the page (usually a hero image) to load. Target: under 2.5 seconds.",
+    tx("largestContentfulPaintHowLong"),
   cls:
-    "Cumulative Layout Shift — how much elements jump around as the page loads. Target: under 0.1.",
+    tx("cumulativeLayoutShiftHowMuch"),
   inp:
-    "Interaction to Next Paint — how quickly the page responds when you tap or click something. Target: under 200ms.",
+    tx("interactionToNextPaintHow"),
   schema:
-    "Structured data (JSON-LD) you embed on a page so Google can show rich results — review stars, FAQ accordions, recipe cards, product prices, etc.",
+    tx("structuredDataJsonLdYou"),
   "rich result":
-    "An enhanced Google search listing — stars, prices, FAQs, images — driven by structured data.",
+    tx("anEnhancedGoogleSearchListing"),
   "alt text":
-    "The descriptive text on an image used by screen readers and shown when an image fails to load. Helps accessibility AND image-search ranking.",
+    tx("theDescriptiveTextOnAn"),
   hreflang:
-    "An HTML tag that tells Google which language/region version of a page to show different visitors. Used by international sites.",
+    tx("anHtmlTagThatTells"),
   "robots.txt":
-    "A file at the root of your site that tells crawlers which pages they're allowed to fetch.",
+    tx("aFileAtTheRoot"),
   sitemap:
-    "An XML file listing every page on your site, given to Google so it can discover and re-crawl pages faster.",
+    tx("anXmlFileListingEvery"),
   cannibalization:
-    "When two or more pages on the same site target the same query — they end up competing with each other and neither ranks well.",
+    tx("whenTwoOrMorePages"),
   "content decay":
-    "The slow drop in traffic to a page that used to perform well. Usually means the content has gone stale or competitors have updated theirs.",
+    tx("theSlowDropInTraffic"),
   "striking distance":
-    "A keyword you rank for in positions 11-20 — close enough to page one that a small content tweak can push you over.",
+    tx("aKeywordYouRankFor"),
   "share of voice":
-    "Your slice of total search-result impressions for a set of tracked keywords, vs your competitors.",
+    tx("yourSliceOfTotalSearch"),
   "e-e-a-t":
-    "Experience, Expertise, Authoritativeness, Trustworthiness — Google's guidelines for what makes content worth ranking.",
+    tx("experienceExpertiseAuthoritativenessTrustworthinessGoogle"),
   "ai overview":
-    "Google's AI-generated answer that appears above the regular search results on commercial queries. Now shows on roughly 47% of queries.",
+    tx("googleSAiGeneratedAnswer"),
   geo:
-    "Generative Engine Optimization — getting your content cited inside AI-generated answers (ChatGPT, Perplexity, Claude, Gemini, Google AI Overviews).",
+    tx("generativeEngineOptimizationGettingYour"),
   "llms.txt":
-    "A proposed plain-text file (analogous to robots.txt) that lets a site tell LLMs which content they can use and how.",
+    tx("aProposedPlainTextFile"),
   backlink:
-    "A link from someone else's website to yours. Still one of the strongest ranking signals.",
+    tx("aLinkFromSomeoneElse"),
   "anchor text":
-    "The clickable text of a link. Tells Google what the linked page is about.",
+    tx("theClickableTextOfA"),
   nap:
-    "Name, Address, Phone — the three pieces of business info that need to match exactly everywhere online (Google Business Profile, Yelp, your site, etc.) for local SEO.",
+    tx("nameAddressPhoneTheThree"),
   gbp:
-    "Google Business Profile — your business listing in Google Maps and the local pack.",
+    tx("googleBusinessProfileYourBusiness"),
   gsc:
-    "Google Search Console — Google's free dashboard showing how often your pages appear in search, who clicks, and what queries trigger them.",
+    tx("googleSearchConsoleGoogleS"),
   ga4:
-    "Google Analytics 4 — the current version of Google Analytics; tracks traffic, behavior, and conversions on your site.",
+    tx("googleAnalytics4TheCurrent"),
   "indexability":
-    "Whether Google is allowed to add a page to its search index (it can crawl + isn't blocked by noindex/canonical).",
+    tx("whetherGoogleIsAllowedTo"),
   "page experience":
-    "Google's bundle of UX signals: Core Web Vitals + mobile-friendliness + HTTPS + no intrusive interstitials.",
-};
+    tx("googleSBundleOfUx"),
+});
 
 export function JargonTerm({
   term,
@@ -98,7 +100,8 @@ export function JargonTerm({
   children?: React.ReactNode;
   className?: string;
 }) {
-  const def = definition ?? GLOSSARY[term.toLowerCase()];
+  const tx = useTranslations("ui.components_ui_jargon-term");
+  const def = definition ?? GLOSSARY(tx)[term.toLowerCase()];
   const text = children ?? term;
   if (!def) {
     // Unknown term — render plain text so this component is safe to

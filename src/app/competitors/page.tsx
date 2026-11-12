@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import { Network } from "lucide-react";
 import { db } from "@/db/client";
 import { clients, competitors } from "@/db/schema";
@@ -12,6 +13,7 @@ import {
 } from "@/components/shell/client-tool-grid";
 
 export default async function CompetitorsIndexPage() {
+  const t = await getTranslations("pickers.competitors");
   const all = await db.select().from(clients).where(await clientScope()).orderBy(desc(clients.createdAt));
 
   const cards: ClientToolCard[] = await Promise.all(
@@ -26,9 +28,9 @@ export default async function CompetitorsIndexPage() {
         url: c.url,
         logoUrl: c.logoUrl,
         niche: c.niche,
-        primary: total === 0 ? "None tracked" : `${total} competitor${total === 1 ? "" : "s"}`,
+        primary: total === 0 ? t("none") : t("count", { count: total }),
         primaryTone: total > 0 ? "rose" : "neutral",
-        secondary: total > 0 ? "Click to view + add more" : "Click to add the first one",
+        secondary: total > 0 ? t("secondarySome") : t("secondaryNone"),
       };
     }),
   );
@@ -36,8 +38,8 @@ export default async function CompetitorsIndexPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Competitors"
-        description="Pick a client to see who they're up against, with notes and SERP context per competitor."
+        title={t("title")}
+        description={t("description")}
         icon={Network}
         accent="rose"
       />

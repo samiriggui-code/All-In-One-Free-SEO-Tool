@@ -47,6 +47,7 @@ const INTENT_LABEL_KEY: Record<string, string> = {
 };
 
 export default function KeywordDifficultyPage() {
+  const tx = useTranslations("ui.app_tools_keyword-difficulty_page");
   const t = useTranslations("tools.ui.keyword-difficulty");
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DifficultyApiResult | null>(null);
@@ -205,7 +206,7 @@ export default function KeywordDifficultyPage() {
                 }
               />
               <SignalItem
-                label="AI Overview"
+                label={tx("aiOverview")}
                 value={result.signals.aiOverviewPresent ? t("present") : t("absent")}
                 hint={
                   result.signals.aiOverviewPresent

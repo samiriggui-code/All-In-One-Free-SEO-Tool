@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, asc, eq } from "drizzle-orm";
@@ -28,6 +29,7 @@ export default async function ClientPlanPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const tx = await getTranslations("ui.app_clients_id_plan_page");
   const { id } = await params;
   const clientId = Number.parseInt(id, 10);
   if (!Number.isInteger(clientId)) notFound();
@@ -63,11 +65,11 @@ export default async function ClientPlanPage({
           className="mb-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-3" />
-          Back to {client.name}
+          {tx("backTo", { name: client.name })}
         </Link>
         <PageHeader
-          title="The 30-day plan"
-          description={`What happens in which week for ${client.name}, in the order it was scheduled. Tick items off on the tasks board — this is the view to read, and the one to send.`}
+          title={tx("the30DayPlan")}
+          description={tx("whatHappensInWhichWeek", { name: client.name })}
           icon={CalendarRange}
           accent="violet"
         />
@@ -76,32 +78,30 @@ export default async function ClientPlanPage({
       {plan.weeks.length === 0 ? (
         <div className="glass-apple rounded-2xl p-6">
           <p className="text-sm text-muted-foreground">
-            No plan yet. Run smart onboarding for this client and it will
-            generate thirty days of work with due dates.
+            {tx("noPlanYetRunSmart")}
           </p>
           <Link
             href={`/clients/${clientId}/onboarding`}
             className="mt-3 inline-block text-xs text-primary hover:underline"
           >
-            Open smart onboarding
+            {tx("openSmartOnboarding")}
           </Link>
         </div>
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
             <span className="font-semibold">
-              {plan.done} of {plan.total} done
+              {tx("ofDone", { done: plan.done, total: plan.total })}
             </span>
             <span className="text-xs text-muted-foreground">
-              about {Math.round(plan.totalMinutes / 60)} hours across{" "}
-              {plan.weeks.length} week{plan.weeks.length === 1 ? "" : "s"}
+              {tx("aboutHoursAcrossOther", { Math: Math.round(plan.totalMinutes / 60), length: plan.weeks.length })}
             </span>
             <a
               href={`/clients/${clientId}/plan/plan.pdf`}
               className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs hover:bg-muted/70"
             >
               <Download className="size-3.5" />
-              Download PDF
+              {tx("downloadPdf")}
             </a>
             <a
               href={`/clients/${clientId}/plan/export.csv`}
@@ -113,7 +113,7 @@ export default async function ClientPlanPage({
               href={`/tasks?client=${clientId}`}
               className="text-xs text-primary hover:underline"
             >
-              Open on the tasks board
+              {tx("openOnTheTasksBoard")}
             </Link>
           </div>
 
@@ -128,8 +128,7 @@ export default async function ClientPlanPage({
                   {w.range}
                 </span>
                 <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-                  {w.items.filter((t) => t.status === "done").length} of{" "}
-                  {w.items.length} done
+                  {w.items.filter((t) => t.status === "done").length} {tx("ofDone2", { length: w.items.length })}
                 </span>
               </header>
               <ul className="divide-y divide-border">

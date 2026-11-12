@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
@@ -14,6 +15,7 @@ export function ApplyPlaybookForm({
   taskCount: number;
   clients: { id: number; name: string }[];
 }) {
+  const tx = useTranslations("ui.app_tasks_templates_apply-form");
   const router = useRouter();
   const [clientId, setClientId] = useState<number>(clients[0]?.id ?? 0);
   const [pending, startTransition] = useTransition();
@@ -40,18 +42,14 @@ export function ApplyPlaybookForm({
       <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
         <span className="inline-flex items-center gap-1.5">
           <CheckCircle2 className="size-3.5" />
-          Created {done.count} tasks. View in{" "}
-          <a href="/tasks" className="underline">
-            Tasks
-          </a>
-          .
+          {tx.rich("createdTasksViewInTasks", { count: done.count, b0: (chunks) => <a href="/tasks" className="underline">{chunks}</a> })}
         </span>
         <button
           type="button"
           onClick={() => setDone(null)}
           className="text-emerald-300/70 hover:text-emerald-300"
         >
-          Apply again
+          {tx("applyAgain")}
         </button>
       </div>
     );
@@ -80,12 +78,12 @@ export function ApplyPlaybookForm({
         {pending ? (
           <>
             <Loader2 className="size-3 animate-spin" />
-            Creating…
+            {tx("creating")}
           </>
         ) : (
           <>
             <Sparkles className="size-3" />
-            Apply ({taskCount} tasks)
+            {tx("applyTasks", { taskCount })}
           </>
         )}
       </button>

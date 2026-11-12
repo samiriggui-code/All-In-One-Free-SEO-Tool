@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { count, eq, sql, and, gte } from "drizzle-orm";
 import {
@@ -17,6 +18,7 @@ import { clientScope } from "@/lib/client-scope";
 const ESTIMATED_HOURS_PER_TASK = 0.75;
 
 export default async function CapacityPage() {
+  const tx = await getTranslations("ui.app_capacity_page");
   const allClients = await db
     .select({
       id: clients.id,
@@ -100,8 +102,8 @@ export default async function CapacityPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader
-        title="Capacity"
-        description="What every client owes you and what every client is getting. Quick read on overbooked weeks, retainer burn, and which clients are getting starved."
+        title={tx("capacity")}
+        description={tx("whatEveryClientOwesYou")}
         icon={Users}
         accent="violet"
       />
@@ -110,25 +112,25 @@ export default async function CapacityPage() {
       <div className="grid gap-3 sm:grid-cols-4">
         <Stat
           icon={ClipboardList}
-          label="Open tasks"
+          label={tx("openTasks")}
           value={totalOpen.toString()}
           tone="amber"
         />
         <Stat
           icon={AlertTriangle}
-          label="High priority open"
+          label={tx("highPriorityOpen")}
           value={totalHighPri.toString()}
           tone="rose"
         />
         <Stat
           icon={CheckCircle2}
-          label="Tasks done · 30d"
+          label={tx("tasksDone30d")}
           value={totalDone.toString()}
           tone="emerald"
         />
         <Stat
           icon={Clock}
-          label="Hours delivered · 30d"
+          label={tx("hoursDelivered30d")}
           value={`${totalDeliveredHours.toFixed(1)}h`}
           tone="violet"
         />
@@ -136,27 +138,25 @@ export default async function CapacityPage() {
 
       {allClients.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
-          Add clients first — capacity is a per-client view.
+          {tx("addClientsFirstCapacityIs")}
         </div>
       ) : (
         <section className="glass-apple relative overflow-hidden rounded-2xl">
           <header className="border-b border-white/[0.06] px-5 py-4">
-            <h2 className="text-base font-semibold">Per-client load</h2>
+            <h2 className="text-base font-semibold">{tx("perClientLoad")}</h2>
             <p className="text-[11px] text-muted-foreground">
-              Estimates assume {ESTIMATED_HOURS_PER_TASK}h average per task.
-              Sorted by open task count — top rows are where you owe the most
-              work.
+              {tx("estimatesAssumeHAveragePer", { ESTIMATEDHOURSPERTASK: ESTIMATED_HOURS_PER_TASK })}
             </p>
           </header>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06] text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Client</th>
-                <th className="px-3 py-3 text-right font-medium">Open</th>
-                <th className="px-3 py-3 text-right font-medium">High pri</th>
-                <th className="px-3 py-3 text-right font-medium">Done · 30d</th>
-                <th className="px-3 py-3 text-right font-medium">Audits · 30d</th>
-                <th className="px-3 py-3 text-right font-medium">Hours</th>
+                <th className="px-5 py-3 text-left font-medium">{tx("client")}</th>
+                <th className="px-3 py-3 text-right font-medium">{tx("open")}</th>
+                <th className="px-3 py-3 text-right font-medium">{tx("highPri")}</th>
+                <th className="px-3 py-3 text-right font-medium">{tx("done30d")}</th>
+                <th className="px-3 py-3 text-right font-medium">{tx("audits30d")}</th>
+                <th className="px-3 py-3 text-right font-medium">{tx("hours")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
@@ -197,7 +197,7 @@ export default async function CapacityPage() {
                       <div>{s.deliveredHours.toFixed(1)}h</div>
                       {s.projectedOpenHours > 0 && (
                         <div className="text-[10px] text-muted-foreground">
-                          +{s.projectedOpenHours.toFixed(1)}h queued
+                          {tx("hQueued", { v: s.projectedOpenHours.toFixed(1) })}
                         </div>
                       )}
                     </td>
@@ -209,20 +209,17 @@ export default async function CapacityPage() {
       )}
 
       <div className="glass-apple relative overflow-hidden rounded-2xl p-5 text-sm">
-        <h2 className="text-base font-semibold">Reading this view</h2>
+        <h2 className="text-base font-semibold">{tx("readingThisView")}</h2>
         <ul className="mt-2 space-y-1.5 text-muted-foreground">
           <li>
-            <strong className="text-foreground">High open + 0 done:</strong>{" "}
-            client is being starved — pull tasks from a less-busy client this
-            week.
+            {tx.rich("highOpen0DoneClient", { b0: (chunks) => <strong className="text-foreground">{chunks}</strong> })}
           </li>
           <li>
-            <strong className="text-foreground">High pri &gt; 0:</strong>{" "}
+            <strong className="text-foreground">{tx("highPri0")}</strong>{" "}
             urgent items waiting. Triage before adding new work.
           </li>
           <li>
-            <strong className="text-foreground">0 audits in 30d:</strong>{" "}
-            run a fresh audit so you have data for the next monthly report.
+            {tx.rich("n0AuditsIn30dRun", { b0: (chunks) => <strong className="text-foreground">{chunks}</strong> })}
           </li>
         </ul>
       </div>

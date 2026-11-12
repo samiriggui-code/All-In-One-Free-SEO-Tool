@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { Plus, Check, Loader2 } from "lucide-react";
 import { trackResource } from "./actions";
@@ -13,13 +14,14 @@ export function TrackResourceButton({
   clients: { id: number; name: string }[];
   alreadyTrackedClientIds: number[];
 }) {
+  const tx = useTranslations("ui.app_link-building_track-button");
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   if (clients.length === 0) {
     return (
       <span className="text-[10px] text-muted-foreground">
-        Add a client first
+        {tx("addAClientFirst")}
       </span>
     );
   }
@@ -32,7 +34,7 @@ export function TrackResourceButton({
     return (
       <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300">
         <Check className="size-3" />
-        All tracked
+        {tx("allTracked")}
       </span>
     );
   }
@@ -50,7 +52,7 @@ export function TrackResourceButton({
         ) : (
           <Plus className="size-3" />
         )}
-        Track
+        {tx("track")}
       </button>
       {open && (
         <div className="absolute right-0 top-full z-10 mt-1 w-48 overflow-hidden rounded-lg border border-white/10 bg-card/95 shadow-xl backdrop-blur-md">

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Activity } from "lucide-react";
 import { gte, sum } from "drizzle-orm";
@@ -14,6 +15,7 @@ import { checkMonthlyCap } from "@/lib/ai-usage";
  * users who haven't configured an AI provider yet.
  */
 export async function AiUsagePill() {
+  const tx = await getTranslations("ui.components_shell_ai-usage-pill");
   let todayCount = 0;
   let todayMicros = 0;
   try {
@@ -54,8 +56,8 @@ export async function AiUsagePill() {
       href="/settings/ai-usage"
       title={
         capPct !== null
-          ? `Today: ${microsToDisplay(todayMicros)} · monthly cap ${capPct.toFixed(0)}% used`
-          : `Today's AI usage`
+          ? tx("todayMonthlyCapUsed", { v: microsToDisplay(todayMicros), capPct: capPct.toFixed(0) })
+          : tx("todaySAiUsage")
       }
       className={`hidden md:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs ring-1 ring-inset ${tone}`}
     >

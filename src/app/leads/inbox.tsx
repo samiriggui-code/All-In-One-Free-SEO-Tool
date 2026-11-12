@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ExternalLink, Loader2, Trash2, UserPlus } from "lucide-react";
@@ -37,6 +38,7 @@ const statusTone: Record<string, string> = {
 };
 
 export function LeadsInbox({ leads }: { leads: Lead[] }) {
+  const tx = useTranslations("ui.app_leads_inbox");
   const [error, setError] = useState<string | null>(null);
   // Anonymous grades are real signal — someone checked their site and
   // didn't leave an email — but they're not a sales pipeline, so they
@@ -58,11 +60,10 @@ export function LeadsInbox({ leads }: { leads: Lead[] }) {
       <section className="glass-apple rounded-xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-medium">
-            {withEmail.length} lead{withEmail.length === 1 ? "" : "s"}
+            {tx("other", { length: withEmail.length })}
             {anonymous.length > 0 && (
               <span className="ml-2 text-xs font-normal text-muted-foreground">
-                + {anonymous.length} anonymous check
-                {anonymous.length === 1 ? "" : "s"}
+                {tx("anonymousOther", { length: anonymous.length })}
               </span>
             )}
           </h2>
@@ -72,15 +73,14 @@ export function LeadsInbox({ leads }: { leads: Lead[] }) {
               onClick={() => setShowAnonymous((v) => !v)}
               className="text-xs underline underline-offset-2 hover:text-foreground"
             >
-              {showAnonymous ? "Hide anonymous" : "Show anonymous"}
+              {showAnonymous ? tx("hideAnonymous") : tx("showAnonymous")}
             </button>
           )}
         </div>
 
         {shown.length === 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">
-            Nothing yet. Once the widget is on your site, everyone who grades
-            their domain shows up here — with their score and what&apos;s wrong.
+            {tx("nothingYetOnceTheWidget")}
           </p>
         ) : (
           <ul className="mt-4 divide-y divide-white/5">
@@ -101,6 +101,7 @@ function LeadRow({
   lead: Lead;
   onError: (m: string) => void;
 }) {
+  const tx = useTranslations("ui.app_leads_inbox");
   const router = useRouter();
   const [pending, start] = useTransition();
   const [status, setStatus] = useState(lead.status);
@@ -163,7 +164,7 @@ function LeadRow({
               const next = e.target.value as LeadStatus;
               setStatus(next);
               const r = await setLeadStatus(lead.id, next);
-              if (!r.ok) onError(r.error ?? "Couldn't update that.");
+              if (!r.ok) onError(r.error ?? tx("couldnTUpdateThat"));
             })
           }
           className="h-8 rounded-md border border-white/10 bg-white/5 px-2 text-xs"
@@ -177,7 +178,7 @@ function LeadRow({
 
         {lead.findings.length > 0 && (
           <Button size="sm" variant="ghost" onClick={() => setOpen((v) => !v)}>
-            {open ? "Hide" : "What's wrong"}
+            {open ? tx("hide") : tx("whatSWrong")}
           </Button>
         )}
 
@@ -188,7 +189,7 @@ function LeadRow({
           onClick={() =>
             start(async () => {
               const r = await convertLeadToClient(lead.id);
-              if (!r.ok) onError(r.error ?? "Couldn't convert that.");
+              if (!r.ok) onError(r.error ?? tx("couldnTConvertThat"));
               else if (r.clientId) router.push(`/clients/${r.clientId}`);
             })
           }
@@ -198,7 +199,7 @@ function LeadRow({
           ) : (
             <UserPlus className="size-3.5" />
           )}
-          Add as client
+          {tx("addAsClient")}
         </Button>
 
         <Button
@@ -209,7 +210,7 @@ function LeadRow({
             start(async () => {
               const r = await deleteLead(lead.id);
               if (r.ok) setGone(true);
-              else onError(r.error ?? "Couldn't delete that.");
+              else onError(r.error ?? tx("couldnTDeleteThat"));
             })
           }
         >
@@ -220,8 +221,7 @@ function LeadRow({
       {open && (
         <div className="mt-2 rounded-md bg-white/5 p-3">
           <p className="text-xs text-muted-foreground">
-            What the widget found on their homepage — useful as the opening line
-            of a reply.
+            {tx("whatTheWidgetFoundOn")}
           </p>
           <ul className="mt-2 space-y-1 text-xs">
             {lead.findings.map((f, i) => (
@@ -242,7 +242,7 @@ function LeadRow({
           {lead.sourcePage && (
             <p className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
               <ExternalLink className="size-3" />
-              Came from {lead.sourcePage}
+              {tx("cameFrom", { sourcePage: lead.sourcePage })}
             </p>
           )}
         </div>
