@@ -1054,7 +1054,18 @@
       "charter": "Charter",
       "charterHint": "Tone, vocabulary, things never to say. 2,000 characters at most.",
       "charterPlaceholder": "E.g. Never promise a ranking. Cite the source of every figure.",
-      "saveCharter": "Save the charter"
+      "saveCharter": "Save the charter",
+      "memoryMode": "Assistant memory",
+      "memoryModes": {
+        "on_request": {
+          "label": "On request",
+          "hint": "The assistant only keeps what it is asked to (“Remember that…”)."
+        },
+        "auto": {
+          "label": "Automatic",
+          "hint": "After each exchange the assistant also suggests what seems worth keeping. Nothing is used until kept in My memory."
+        }
+      }
     }
   },
   "reports": {

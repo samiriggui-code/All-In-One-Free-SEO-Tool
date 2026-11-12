@@ -66,4 +66,29 @@ describe("assistant memory", () => {
     expect([m?.text, m?.edited]).toEqual(["Réponses très courtes.", true]);
     expect((await mem.removeMemory(null, a.id)).ok).toBe(true);
   });
+
+  it("proposes memories to confirm in automatic mode only, and never a refused one again", async () => {
+    const exchange = { userMessage: "Pour mes rapports, je veux toujours un résumé en trois points.", reply: "D'accord." };
+    expect(await mem.extractMemories(null, null, exchange)).toBe(0); // on request by default
+    await setSetting("memory.mode", "auto");
+    script.push('Voici : [{"text":"Résumé des rapports en trois points.","scope":"me","category":"preference"}]');
+    expect(await mem.extractMemories(null, null, exchange)).toBe(1);
+    const rows = (await mem.listVisibleMemories(null)).filter((m) => m.text === "Résumé des rapports en trois points.");
+    expect(rows.map((m) => [m.status, m.source])).toEqual([["pending", "auto"]]);
+    // Pending is not used.
+    expect(await mem.memoryPrompt(null, null)).not.toContain("trois points");
+    await mem.changeMemory(null, rows[0].id, { status: "rejected" });
+    script.push('[{"text":"Résumé des rapports en trois points.","scope":"me","category":"preference"}]');
+    expect(await mem.extractMemories(null, null, exchange)).toBe(0);
+    await deleteSetting("memory.mode");
+  });
+
+  it("reads only a well-formed JSON array", () => {
+    expect(mem.parseExtracted("[]")).toEqual([]);
+    expect(mem.parseExtracted("rien à retenir")).toEqual([]);
+    expect(mem.parseExtracted('[{"text":"court"}]')).toEqual([]);
+    expect(mem.parseExtracted('[{"text":"Le client vise les familles.","scope":"client","category":"bogus"}]')).toEqual([
+      { text: "Le client vise les familles.", scope: "client", category: "fact" },
+    ]);
+  });
 });
