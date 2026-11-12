@@ -8391,10 +8391,14 @@
       "badUrl": "Adresse invalide : elle doit commencer par http:// ou https://.",
       "fetchStatus": "La page a répondu {status}.",
       "fetchFailed": "Impossible de lire cette page (adresse privée, délai dépassé ou site injoignable).",
-      "notHtml": "Ce n'est pas une page web. Les fichiers PDF et Word arrivent bientôt.",
+      "notHtml": "Ce n'est pas une page web. Pour un PDF ou un document Word, utilisez « Ajouter un fichier ».",
       "noText": "Aucun texte lisible sur cette page.",
       "notFound": "Document introuvable.",
-      "syncedDocument": "Ce document vient de l'outil et reviendrait à la prochaine mise à jour. Modifiez sa source à la place."
+      "syncedDocument": "Ce document vient de l'outil et reviendrait à la prochaine mise à jour. Modifiez sa source à la place.",
+      "fileTooBig": "Fichier trop lourd ({mb} Mo au plus).",
+      "fileUnsupported": "Format non pris en charge : PDF, Word (.docx), texte ou Markdown.",
+      "fileEmpty": "Aucun texte dans ce fichier (un PDF scanné n'a pas de texte à lire).",
+      "fileUnreadable": "Impossible de lire ce fichier."
     },
     "vectors": "recherche par le sens : {done}/{total} passages",
     "wordsOnly": "recherche par les mots (choisissez un modèle « Vecteurs » dans Paramètres → IA pour chercher aussi par le sens)",
@@ -8402,6 +8406,8 @@
     "match": {
       "meaning": "par le sens",
       "both": "mots et sens"
-    }
+    },
+    "addFile": "Ajouter un fichier",
+    "fileAdded": "« {name} » ajouté ({count, plural, one {# passage} other {# passages}})."
   }
 }
