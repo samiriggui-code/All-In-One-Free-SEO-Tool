@@ -311,6 +311,8 @@ export async function bulkDeleteTasks(ids: number[]) {
 }
 
 import { getPlaybook } from "@/lib/niche-templates";
+import { getReportLocale } from "@/lib/report-i18n";
+import { localizeTemplate } from "@/lib/template-i18n";
 
 export async function applyPlaybookToClient(input: {
   playbookId: string;
@@ -332,7 +334,8 @@ export async function applyPlaybookToClient(input: {
   await requireClientAccess(client.id, { edit: true });
 
   const now = Date.now();
-  const rows = pb.tasks.map((t) => ({
+  const locale = await getReportLocale();
+  const rows = pb.tasks.map((raw) => localizeTemplate(raw, locale)).map((t) => ({
     clientId: input.clientId,
     title: t.title,
     description: t.description,

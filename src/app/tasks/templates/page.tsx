@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { asc } from "drizzle-orm";
 import {
   Calendar,
@@ -18,6 +18,7 @@ import { clients } from "@/db/schema";
 import { PageHeader } from "@/components/shell/page-header";
 import { playbooks, type Playbook } from "@/lib/niche-templates";
 import { clientScope } from "@/lib/client-scope";
+import { localizePlaybook } from "@/lib/template-i18n";
 import { ApplyPlaybookForm } from "./apply-form";
 
 const categoryIcon: Record<Playbook["category"], typeof Clock> = {
@@ -44,6 +45,8 @@ const priorityTone: Record<string, string> = {
 
 export default async function TasksTemplatesPage() {
   const tx = await getTranslations("ui.app_tasks_templates_page");
+  const tPriority = await getTranslations("tasks.priorityShort");
+  const locale = await getLocale();
   const allClients = await db
     .select({ id: clients.id, name: clients.name })
     .from(clients)
@@ -65,7 +68,8 @@ export default async function TasksTemplatesPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {playbooks.map((pb) => {
+          {playbooks.map((raw) => {
+            const pb = localizePlaybook(raw, locale);
             const Icon = categoryIcon[pb.category];
             return (
               <section
@@ -80,7 +84,7 @@ export default async function TasksTemplatesPage() {
                           className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset ${categoryTone[pb.category]}`}
                         >
                           <Icon className="size-3" />
-                          {pb.category}
+                          {pb.categoryLabel}
                         </span>
                         <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                           <TrendingUp className="size-3" />
@@ -107,7 +111,7 @@ export default async function TasksTemplatesPage() {
                         <span
                           className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ring-1 ring-inset ${priorityTone[t.priority] ?? priorityTone.low}`}
                         >
-                          {t.priority}
+                          {tPriority(t.priority)}
                         </span>
                       </li>
                     ))}
