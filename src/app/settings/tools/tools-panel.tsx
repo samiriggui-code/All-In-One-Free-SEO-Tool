@@ -47,6 +47,8 @@ export type ToolCard = {
   aiUsage: "none" | "partial" | "required";
   usesBrowser: boolean;
   needsGsc: boolean;
+  /** Off until turned on: outside SEO work, or needs a paid key. */
+  offByDefault: boolean;
   state: ToolCardState;
 };
 
@@ -332,6 +334,7 @@ function ToolSheet({
               {t("enabled")}
             </label>
             <p className="gsk-row-desc">{canToggle ? t("enabledHint") : t("adminOnly")}</p>
+            {c.offByDefault ? <p className="gsk-row-desc">{t("offByDefault")}</p> : null}
           </div>
           <div className="gsk-row-control">
             <input

@@ -3,8 +3,8 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 242 routes · 88 need AI · 59 use a browser.
-// 92 are /tools/* · 33 need AI · 92 carry copy.
+// 239 routes · 85 need AI · 58 use a browser.
+// 89 are /tools/* · 30 need AI · 89 carry copy.
 
 export const TOOL_CAPABILITIES = [
   { route: "/", needsAI: true, aiUsage: "required", usesBrowser: true },
@@ -166,7 +166,6 @@ export const TOOL_CAPABILITIES = [
   { route: "/tools/backlink-discovery", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Backlink discovery", description: "Point it at any domain, yours or a rival's. Searches DuckDuckGo, then reads each candidate page to confirm a real link and its anchor text and follow status. Dozens, not thousands — but every one has been read." },
   { route: "/tools/bing", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Bing Webmaster Tools", description: "Free Bing organic data — top queries, top pages, crawl issues, URL submission. Add a free Bing API key once." },
   { route: "/tools/branded-split", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Branded vs non-branded GSC split", description: "28-day clicks split with delta vs prior 28 days, separately for branded and non-branded queries. Different drops, different fixes." },
-  { route: "/tools/browser-agent", needsAI: true, aiUsage: "required", usesBrowser: true, title: "Browser agent (goal-driven)", description: "Plain-English goal + a starting URL. Headless Chrome reads the page, decides the next step, and narrates each move with a screenshot. Replaces 'I need an API for that site' with browser automation." },
   { route: "/tools/bulk-alt", needsAI: true, aiUsage: "required", usesBrowser: false, title: "Bulk image alt-text generator", description: "Crawl a URL, AI writes SEO alt text for every image based on nearby context. RankMath bulk image SEO equivalent." },
   { route: "/tools/bulk-scan", needsAI: false, aiUsage: "none", usesBrowser: true, title: "Bulk URL scanner", description: "Paste up to 25 URLs. Run the full health check on each in parallel + save every result as a snapshot. Sortable table." },
   { route: "/tools/cannibalization", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Keyword cannibalization", description: "Finds queries where 2+ of your pages compete in the SERP — Google can't pick a winner, both suffer. GSC-powered, severity-ranked, suggests which page to keep." },
@@ -210,14 +209,12 @@ export const TOOL_CAPABILITIES = [
   { route: "/tools/migration-map", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Migration redirect-map generator", description: "Old URL list + new URL list → 301 map. Token-overlap + path similarity scoring. Outputs Nginx, Apache .htaccess, and Next.js redirect blocks." },
   { route: "/tools/migration-parity", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Migration URL-parity auditor", description: "Pre/post-launch URL parity check. Surfaces 404s, drifted redirects, off-host hops. Companion to the migration map generator." },
   { route: "/tools/mobile-friendly", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Mobile-friendly checker", description: "Google deprecated theirs in 2023; this replaces it. Viewport, charset, responsive images, fixed-width elements, tap-target sizes, intrusive interstitials." },
-  { route: "/tools/news-headline", needsAI: true, aiUsage: "required", usesBrowser: false, title: "News SEO — headline audit", description: "Score journalistic headlines for Top Stories fit, AP-style hook, length. AI suggests 3-5 alternates." },
   { route: "/tools/og-image", needsAI: false, aiUsage: "none", usesBrowser: false, title: "OG image generator", description: "1200×630 PNG cover image from a title + brand. 4 templates rendered in headless Chrome. No paid AI image API." },
   { route: "/tools/outreach-personalize", needsAI: true, aiUsage: "required", usesBrowser: false, title: "Outreach personalizer", description: "Paste prospect URL + your generic template. AI mines their site for recent posts and topical signals, rewrites your opener with a specific reference. 2% → 15% reply rates." },
   { route: "/tools/pagerank", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Internal PageRank simulator", description: "Crawls site, builds link graph, runs 30 iterations of PageRank. Surfaces authority hubs and starved pages so you know where to add internal links." },
   { route: "/tools/perf-budget", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Performance budget enforcement", description: "Define byte / request / Core Web Vitals budgets. We measure actuals via PageSpeed + CrUX and surface every line item over budget. Catch regressions before prod." },
   { route: "/tools/person-schema", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Person schema generator (E-E-A-T) ⭐", description: "Person JSON-LD is the top E-E-A-T signal in 2026 — Google's AI Mode uses it for entity verification. Fill in author details, get a copy-paste <script>." },
   { route: "/tools/pixel-preview", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Pixel preview", description: "See exactly how your title + meta description will look in Google's SERP. Click pre-cut, character counts, mobile + desktop." },
-  { route: "/tools/plagiarism", needsAI: true, aiUsage: "required", usesBrowser: false, title: "Plagiarism + AI detector", description: "AI-likelihood + originality scores on any draft. Flags AI-template phrases. Links to Copyleaks, GPTZero, Originality.ai for definitive web check." },
   { route: "/tools/programmatic-seo", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Programmatic SEO toolkit", description: "CSV + four templates → 100s-1000s of landing pages with sitemap + interlinking. Ideal for city × service combos and SaaS comparison pages." },
   { route: "/tools/rank-where", needsAI: false, aiUsage: "none", usesBrowser: true, title: "Where do I rank? (country-aware) ⭐", description: "Find your exact position for any keyword × country in Google's top 100. See who outranks you, AI Overview presence + citation, specific fixes to climb." },
   { route: "/tools/reddit-research", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Reddit research", description: "Reddit is in 40% of LLM citations. Mine real questions and pain points your audience asks — perfect FAQ + content brief seeds." },

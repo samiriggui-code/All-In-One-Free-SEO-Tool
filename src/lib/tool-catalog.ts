@@ -49,6 +49,12 @@ export type CatalogEntry = {
   href: string;
   category: MissionCategoryId;
   needs?: CatalogNeed;
+  /**
+   * Off until someone turns it on in Settings → Tools: outside the core of
+   * SEO work, or needs a paid key. Only applies while nobody has saved
+   * their own list.
+   */
+  offByDefault?: true;
 };
 
 const gsc = "gsc" as const;
@@ -107,7 +113,7 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/tools/serp-features", category: "strategy" },
   { href: "/tools/branded-split", category: "strategy", needs: gsc },
   { href: "/tools/trending", category: "strategy" },
-  { href: "/tools/youtube", category: "strategy" },
+  { href: "/tools/youtube", category: "strategy", offByDefault: true },
 
   // Contenu & optimisation des pages
   { href: "/content", category: "content" },
@@ -126,12 +132,10 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/tools/bulk-alt", category: "content" },
   { href: "/tools/social-preview", category: "content" },
   { href: "/tools/og-image", category: "content" },
-  { href: "/tools/image-gen", category: "content" },
+  { href: "/tools/image-gen", category: "content", offByDefault: true },
   { href: "/tools/content-helpers", category: "content" },
   { href: "/tools/summarizer", category: "content" },
-  { href: "/tools/plagiarism", category: "content" },
-  { href: "/tools/news-headline", category: "content" },
-  { href: "/tools/youtube-audit", category: "content" },
+  { href: "/tools/youtube-audit", category: "content", offByDefault: true },
 
   // Netlinking & maillage
   { href: "/backlinks", category: "links" },
@@ -159,17 +163,16 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/tools/geo-swot", category: "ai" },
   { href: "/tools/ai-overview", category: "ai" },
   { href: "/tools/aio-passage", category: "ai" },
-  { href: "/tools/ai-citation-tactics", category: "ai" },
   { href: "/tools/ai-schema", category: "ai" },
   { href: "/tools/llms-txt", category: "ai" },
   { href: "/tools/ai-robots", category: "ai" },
   { href: "/bot-logs", category: "ai" },
   { href: "/tools/reddit-research", category: "ai" },
-  { href: "/tools/reputation-abuse-risk", category: "ai" },
+  { href: "/tools/reputation-abuse-risk", category: "ai", offByDefault: true },
 
   // Publicité
-  { href: "/tools/ads-funnel", category: "ads" },
-  { href: "/tools/utm-attribution", category: "ads" },
+  { href: "/tools/ads-funnel", category: "ads", offByDefault: true },
+  { href: "/tools/utm-attribution", category: "ads", offByDefault: true },
 
   // Suivi & reporting
   { href: "/reports/batch", category: "reporting" },
@@ -192,13 +195,11 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/tools/migration-map", category: "special" },
   { href: "/tools/migration-parity", category: "special" },
   { href: "/tools/hreflang", category: "special" },
-  { href: "/tools/programmatic-seo", category: "special" },
+  { href: "/tools/programmatic-seo", category: "special", offByDefault: true },
   { href: "/tools/code-generator", category: "special" },
   { href: "/tools/github-pr", category: "special" },
-  { href: "/tools/browser-agent", category: "special" },
   { href: "/tools/dns-whois", category: "special" },
   { href: "/tools/wayback", category: "special" },
-  { href: "/tools/external", category: "special" },
 
   // Cabinet & automatisation
   { href: "/morning", category: "agency" },
@@ -215,6 +216,11 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/links", category: "agency" },
   { href: "/knowledge", category: "agency" },
 ];
+
+/** The list used until Settings → Tools has been saved once. */
+export const DEFAULT_DISABLED: readonly string[] = TOOL_CATALOG.filter((e) => e.offByDefault).map(
+  (e) => e.href,
+);
 
 const BY_HREF = new Map(TOOL_CATALOG.map((e) => [e.href, e]));
 

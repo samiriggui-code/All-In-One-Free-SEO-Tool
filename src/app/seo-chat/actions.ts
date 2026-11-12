@@ -51,7 +51,6 @@ When the user asks "how do I do X", reference the specific tool inside this app 
 - /tools/og-image (OG image generator)
 - /tools/social-preview (OG / Twitter card preview)
 - /tools/bulk-alt (bulk alt-text)
-- /tools/news-headline (News SEO headline audit)
 - /tools/disavow (disavow file generator)
 - /tools/branded-split (branded vs non-branded GSC split)
 - /tools/uptime (uptime + TTFB monitor)

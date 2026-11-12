@@ -47,6 +47,7 @@ export default async function ToolsSettingsPage() {
       aiUsage: aiRequired ? "required" : usage === "none" ? "none" : "partial",
       usesBrowser: Boolean(cap?.usesBrowser),
       needsGsc: e.needs === "gsc",
+      offByDefault: Boolean(e.offByDefault),
       state: off ? "off" : blocked ? "setup" : "ready",
     };
   });

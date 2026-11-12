@@ -27,28 +27,6 @@
     "applyAll": "Apply all + copy content",
     "copyTag": "Copy '<'a'>'"
   },
-  "browser-agent": {
-    "pageTitle": "Browser agent",
-    "pageDescription": "Goal-driven headless Chrome. Give it a starting URL + a plain-English goal — it reads the page, decides the next step, executes, and narrates each move with a screenshot. Replaces 'I need an API for that site' with browser automation.",
-    "errInvalidUrl": "Invalid start URL.",
-    "errGoal": "The goal must be 10 to 500 characters long.",
-    "errMaxSteps": "Max steps must be between 1 and 25.",
-    "errInvalidInput": "Invalid input",
-    "errRunFailed": "Agent run failed",
-    "startUrlLabel": "Start URL",
-    "goalLabel": "Goal (plain English)",
-    "goalPlaceholder": "Find the pricing page and extract every plan name + monthly price",
-    "maxStepsLabel": "Max steps",
-    "running": "Driving Chrome…",
-    "submit": "Run agent",
-    "help": "The agent runs entirely in your local headless Chrome via the browser pool — no third-party automation API. Each step is logged with a screenshot for review.",
-    "goalCompleted": "✓ Goal completed",
-    "stoppedAfter": "Stopped after {count, plural, one {# step} other {# steps}}",
-    "finalUrl": "Final URL:",
-    "extractedTitle": "Extracted data",
-    "stepLogTitle": "Step log ({count})",
-    "stepAlt": "step {index}"
-  },
   "bulk-alt": {
     "pageTitle": "Bulk image alt-text generator",
     "pageDescription": "Paste any URL — we crawl every '<'img'>', AI generates SEO-friendly alt text for each based on nearby context. Replaces RankMath's bulk image SEO. Copy the output to your CMS or run via the WP bridge.",

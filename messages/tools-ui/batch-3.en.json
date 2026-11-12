@@ -344,25 +344,6 @@
     "colHops": "Hops",
     "colNotes": "Notes"
   },
-  "news-headline": {
-    "pageTitle": "News SEO — headline audit",
-    "pageDescription": "Score a journalistic headline. Length, Top Stories fit (30-110 chars sweet spot), AP-style hook, primary keyword placement. AI suggests 3-5 alternates.",
-    "headlineRequired": "Headline required.",
-    "headlinePlaceholder": "Senate passes infrastructure bill in 67-32 vote",
-    "topicPlaceholder": "Topic / context (optional)",
-    "running": "Auditing…",
-    "submit": "Audit",
-    "score": "Score",
-    "chars": "Chars",
-    "charsHint": "ideal 30-110",
-    "words": "Words",
-    "topStoriesFit": "Top Stories fit",
-    "yes": "yes",
-    "no": "no",
-    "issues": "Issues",
-    "alternates": "AI alternates",
-    "charCount": "({count} chars)"
-  },
   "outreach-personalize": {
     "pageTitle": "Outreach personalizer",
     "pageDescription": "Paste a prospect URL + your generic template. AI fetches their site, finds their recent posts and topical signals, and rewrites your opener with one specific reference. Turns a 2% reply rate into 15%.",

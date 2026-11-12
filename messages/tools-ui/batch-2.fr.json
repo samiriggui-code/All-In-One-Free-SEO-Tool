@@ -27,28 +27,6 @@
     "applyAll": "Tout appliquer et copier le contenu",
     "copyTag": "Copier '<'a'>'"
   },
-  "browser-agent": {
-    "pageTitle": "Agent navigateur",
-    "pageDescription": "Chrome headless piloté par objectif. Donnez-lui une URL de départ et un objectif en langage courant : il lit la page, choisit l’étape suivante, l’exécute et commente chaque action avec une capture d’écran. Remplace « il me faudrait une API pour ce site » par de l’automatisation de navigateur.",
-    "errInvalidUrl": "URL de départ invalide.",
-    "errGoal": "L’objectif doit faire entre 10 et 500 caractères.",
-    "errMaxSteps": "Le nombre d’étapes doit être compris entre 1 et 25.",
-    "errInvalidInput": "Saisie invalide",
-    "errRunFailed": "Échec de l’exécution de l’agent",
-    "startUrlLabel": "URL de départ",
-    "goalLabel": "Objectif (en langage courant)",
-    "goalPlaceholder": "Trouver la page des tarifs et extraire le nom et le prix mensuel de chaque offre",
-    "maxStepsLabel": "Étapes max.",
-    "running": "Pilotage de Chrome…",
-    "submit": "Lancer l’agent",
-    "help": "L’agent tourne entièrement dans votre Chrome headless local, via le pool de navigateurs : aucune API d’automatisation tierce. Chaque étape est journalisée avec une capture d’écran.",
-    "goalCompleted": "✓ Objectif atteint",
-    "stoppedAfter": "Arrêt après {count, plural, one {# étape} other {# étapes}}",
-    "finalUrl": "URL finale :",
-    "extractedTitle": "Données extraites",
-    "stepLogTitle": "Journal des étapes ({count})",
-    "stepAlt": "étape {index}"
-  },
   "bulk-alt": {
     "pageTitle": "Génération d’attributs alt en masse",
     "pageDescription": "Collez n’importe quelle URL : nous parcourons chaque '<'img'>' et l’IA rédige pour chacune un texte alt optimisé SEO à partir du contexte. Remplace l’optimisation d’images en masse de RankMath. Copiez le résultat dans votre CMS ou appliquez-le via le pont WP.",

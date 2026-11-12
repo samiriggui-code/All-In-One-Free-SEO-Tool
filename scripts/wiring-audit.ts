@@ -54,7 +54,7 @@ const NOT_A_CHECK = new Set([
   "screenshot-import", "social-preview", "pixel-preview", "indexnow",
   "github-pr", "gbp-reply", "ai-citation-tactics", "geo-swot", "bulk-alt",
   "refresh", "link-recommender", "auto-link", "migration-map",
-  "redirects-manager", "browser-agent",
+  "redirects-manager",
   // Research and lookup: they answer a question about the world rather
   // than about this site, so there is no finding to record.
   "trending", "reddit-research", "youtube", "wayback", "dns-whois",
@@ -83,7 +83,7 @@ const NOT_A_CHECK = new Set([
   // geo-score — record findings, with their provenance stated in the
   // details, because there the page is real even though the judgement
   // is a model's.
-  "content-score", "content-grader", "news-headline", "plagiarism",
+  "content-score", "content-grader",
   "aio-passage",
 ]);
 

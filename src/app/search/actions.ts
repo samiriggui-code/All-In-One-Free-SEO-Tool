@@ -81,9 +81,7 @@ const TOOL_INDEX: Array<{
   { href: "/tools/content-grader", title: "Content grader", subtitle: "Score content for SEO + readability", keywords: "content grade score readability" },
   { href: "/tools/content-score", title: "Content scorer", subtitle: "Real-time SEO score with LSI suggestions", keywords: "content score lsi" },
   { href: "/tools/refresh", title: "Content refresh detector", subtitle: "Pages losing traffic, ranked by recovery value", keywords: "content refresh decay update" },
-  { href: "/tools/plagiarism", title: "Plagiarism + AI detection", subtitle: "Originality + AI-likelihood scoring", keywords: "plagiarism ai detection originality" },
   { href: "/tools/summarizer", title: "Content summarizer", subtitle: "Summarize any URL or text", keywords: "summarize content text url" },
-  { href: "/tools/news-headline", title: "News headline audit", subtitle: "Headline + lead audit for news SEO", keywords: "news headline editorial publisher" },
   { href: "/tools/social-preview", title: "Social preview (OG / Twitter)", subtitle: "Preview how a URL renders on Twitter / Facebook / LinkedIn", keywords: "og open graph twitter facebook social preview" },
   { href: "/tools/og-image", title: "OG image generator", subtitle: "Auto-generated Open Graph images per template", keywords: "og open graph image generator social" },
   { href: "/tools/image-gen", title: "AI image generation", subtitle: "DALL-E images for blog heroes (BYO OpenAI key)", keywords: "ai image generation dalle hero" },
@@ -126,7 +124,6 @@ const TOOL_INDEX: Array<{
   { href: "/tools/bulk-scan", title: "Bulk URL scan", subtitle: "Full audit on many URLs in one go", keywords: "bulk url scan audit batch" },
   { href: "/tools/bing", title: "Bing webmaster insights", subtitle: "Bing-only queries + crawl issues", keywords: "bing webmaster insights" },
   { href: "/tools/github-pr", title: "GitHub PR — SEO fixes", subtitle: "Open a PR with auto SEO fixes", keywords: "github pr pull request fixes" },
-  { href: "/tools/browser-agent", title: "Browser agent (experimental)", subtitle: "AI controls a real browser for a goal", keywords: "browser agent ai automation" },
   { href: "/tools/content-helpers", title: "Content helpers (categories / image prompts)", subtitle: "AI suggests categories + cover image prompts", keywords: "content helpers categories tags" },
 ];
 

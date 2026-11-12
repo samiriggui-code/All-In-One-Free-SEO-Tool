@@ -52,6 +52,18 @@ export function KnowledgeFr() {
           >
             Appliquer tout ça avec l&apos;outil : les guides pas à pas
           </Link>
+          <Link
+            href="/tools/ai-citation-tactics"
+            className="rounded-md bg-sky-500/15 px-3 py-1.5 text-sky-300 ring-1 ring-inset ring-sky-500/30 hover:bg-sky-500/25"
+          >
+            Se faire citer par ChatGPT, Perplexity et Gemini : les tactiques par plateforme
+          </Link>
+          <Link
+            href="/tools/external"
+            className="rounded-md bg-amber-500/15 px-3 py-1.5 text-amber-300 ring-1 ring-inset ring-amber-500/30 hover:bg-amber-500/25"
+          >
+            Les outils externes gratuits (Moz, Ahrefs, SSL Labs…), préremplis pour un site
+          </Link>
         </div>
       </section>
 

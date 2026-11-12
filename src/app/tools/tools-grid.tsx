@@ -30,7 +30,6 @@ import {
   Megaphone,
   MessageCircle,
   Network,
-  Newspaper,
   RefreshCw,
   ScanText,
   Send,
@@ -75,14 +74,6 @@ const tools = [
     title: "Full SEO health check ⭐",
     description:
       "One URL → audit + robots + hreflang + security + Core Web Vitals + image audit + redirect chain in parallel. Save snapshots to compare before / after.",
-    accent: "violet",
-  },
-  {
-    href: "/tools/browser-agent",
-    icon: Bot,
-    title: "Browser agent (goal-driven)",
-    description:
-      "Plain-English goal + a starting URL. Headless Chrome reads the page, decides the next step, and narrates each move with a screenshot. Replaces 'I need an API for that site' with browser automation.",
     accent: "violet",
   },
   {
@@ -236,14 +227,6 @@ const tools = [
     description:
       "Crawl a URL, AI writes SEO alt text for every image based on nearby context. RankMath bulk image SEO equivalent.",
     accent: "emerald",
-  },
-  {
-    href: "/tools/news-headline",
-    icon: Newspaper,
-    title: "News SEO — headline audit",
-    description:
-      "Score journalistic headlines for Top Stories fit, AP-style hook, length. AI suggests 3-5 alternates.",
-    accent: "rose",
   },
   {
     href: "/tools/auto-link",
@@ -659,14 +642,6 @@ const tools = [
     description:
       "Free directional volume bucket. Combines Google Trends, Google + Bing autocomplete, SERP characteristics. No paid keyword DB.",
     accent: "cyan",
-  },
-  {
-    href: "/tools/plagiarism",
-    icon: ScanText,
-    title: "Plagiarism + AI detector",
-    description:
-      "AI-likelihood + originality scores on any draft. Flags AI-template phrases. Links to Copyleaks, GPTZero, Originality.ai for definitive web check.",
-    accent: "rose",
   },
   {
     href: "/tools/meta-tag-generator",

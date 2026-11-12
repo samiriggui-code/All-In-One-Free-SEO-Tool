@@ -87,14 +87,6 @@ function cases(): Case[] {
         ),
     },
     {
-      id: "news-headline",
-      run: async () =>
-        (await import("@/app/tools/news-headline/actions")).runHeadline(
-          null,
-          fd({ topic: "Google core update", headline: "Google rolls out a core update" }),
-        ),
-    },
-    {
       id: "code-generator",
       run: async () =>
         (await import("@/app/tools/code-generator/actions")).generateCode(
@@ -229,18 +221,8 @@ function cases(): Case[] {
       run: async () => null,
     },
     {
-      id: "plagiarism",
-      skip: "Sends content to an external checker; nothing here to compare against.",
-      run: async () => null,
-    },
-    {
       id: "screenshot-import",
       skip: "Needs an uploaded screenshot.",
-      run: async () => null,
-    },
-    {
-      id: "browser-agent",
-      skip: "Drives a real browser session; too slow and stateful for a sweep.",
       run: async () => null,
     },
   ];

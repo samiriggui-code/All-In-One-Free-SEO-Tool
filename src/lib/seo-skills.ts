@@ -225,7 +225,6 @@ export const SEO_SKILLS: SeoSkill[] = [
       "How fast does Google News index new articles in 2026?",
     ],
     tools: [
-      "/tools/news-headline",
       "/tools/ai-schema",
       "/tools/schema-validate",
     ],

@@ -3,10 +3,6 @@
     "title": "Bilan SEO complet ⭐",
     "description": "Une URL → audit, robots, hreflang, sécurité, Core Web Vitals, images et chaîne de redirections, analysés en parallèle. Enregistrez des instantanés pour comparer avant / après."
   },
-  "browser-agent": {
-    "title": "Agent navigateur (par objectif)",
-    "description": "Décrivez un objectif en langage courant et donnez une URL de départ. Un Chrome headless lit la page, choisit l’étape suivante et commente chaque action avec une capture d’écran. Plus besoin d’API : le navigateur s’en charge."
-  },
   "trending": {
     "title": "Idées de contenus tendance",
     "description": "Exploite les requêtes en hausse de Google Trends, l’autocomplétion de a à z, les « Autres questions posées », les recherches associées et les fils Reddit. L’IA en tire 10 à 15 idées prêtes à publier."
@@ -82,10 +78,6 @@
   "bulk-alt": {
     "title": "Textes alternatifs d’images en masse",
     "description": "Crawlez une URL : l’IA rédige un texte alternatif optimisé pour chaque image d’après le contexte. L’équivalent du SEO d’images en masse de RankMath."
-  },
-  "news-headline": {
-    "title": "SEO actualités : audit des titres",
-    "description": "Note les titres journalistiques selon leur adéquation aux « À la une », leur accroche et leur longueur. L’IA propose 3 à 5 alternatives."
   },
   "auto-link": {
     "title": "Suggestions de liens automatiques (façon RankMath)",
@@ -274,10 +266,6 @@
   "search-volume": {
     "title": "Estimation du volume de recherche",
     "description": "Une fourchette de volume indicative et gratuite, qui combine Google Trends, l’autocomplétion Google et Bing et les caractéristiques de la SERP. Sans base de mots-clés payante."
-  },
-  "plagiarism": {
-    "title": "Détecteur de plagiat + IA",
-    "description": "Probabilité de texte IA et score d’originalité pour n’importe quel brouillon. Signale les tournures typiques de l’IA. Liens vers Copyleaks, GPTZero et Originality.ai pour une vérification web définitive."
   },
   "meta-tag-generator": {
     "title": "Générateur de balises meta",
