@@ -43,6 +43,19 @@ export const TOOL_FAMILIES: readonly ToolFamily[] = [
     ["/tools/crux-origin", "origin"],
     ["/cwv/archive", "archive"],
   ),
+  // The seven checks the site audit also runs on every crawl. Kept as
+  // one tool for looking at a single page or digging further; the family
+  // carries a note that sends back to the audit (toolFamilies.auditChecks.note).
+  family(
+    "auditChecks",
+    ["/tools/canonical-audit", "canonical"],
+    ["/tools/soft-404", "soft404"],
+    ["/tools/facet-trap", "facets"],
+    ["/tools/mobile-friendly", "mobile"],
+    ["/image-audit", "images"],
+    ["/tools/security", "security"],
+    ["/tools/freshness", "freshness"],
+  ),
   family("brokenLinks", ["/broken-links", "site"], ["/tools/link-checker", "page"]),
   family("render", ["/tools/render", "render"], ["/tools/headers", "headers"]),
   family(
@@ -162,6 +175,7 @@ export function familyEntry(route: string): string | null {
 export const PROJECT_VIEWS: ReadonlySet<string> = new Set([
   "/cwv",
   "/broken-links",
+  "/image-audit",
   "/cannibalization",
   "/competitors",
   "/keywords",

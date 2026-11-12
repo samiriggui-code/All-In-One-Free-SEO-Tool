@@ -77,19 +77,14 @@ export const TOOL_CATALOG: CatalogEntry[] = [
   { href: "/landing-perf", category: "audit" },
   { href: "/broken-links", category: "audit" },
   { href: "/tools/redirects-manager", category: "audit" },
-  { href: "/tools/soft-404", category: "audit" },
   { href: "/tools/canonical-audit", category: "audit" },
-  { href: "/tools/security", category: "audit" },
   { href: "/tools/wp-hack-scan", category: "audit" },
-  { href: "/tools/mobile-friendly", category: "audit" },
   { href: "/tools/render", category: "audit" },
-  { href: "/tools/facet-trap", category: "audit" },
   { href: "/tools/robots", category: "audit" },
   { href: "/tools/sitemap", category: "audit" },
   { href: "/tools/gsc-coverage", category: "audit", needs: gsc },
   { href: "/tools/indexnow", category: "audit" },
   { href: "/tools/cannibalization", category: "audit", needs: gsc },
-  { href: "/image-audit", category: "audit" },
 
   // Mots-clés & stratégie
   { href: "/keywords", category: "strategy" },
@@ -105,7 +100,6 @@ export const TOOL_CATALOG: CatalogEntry[] = [
 
   // Contenu & optimisation des pages
   { href: "/content", category: "content" },
-  { href: "/tools/freshness", category: "content" },
   { href: "/tools/eeat-audit", category: "content" },
   { href: "/tools/sxo", category: "content" },
   { href: "/title-tests", category: "content" },

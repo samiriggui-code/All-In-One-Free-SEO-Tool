@@ -510,6 +510,32 @@ export const ISSUE_EXPLAINERS: Record<string, IssueExplainer> = {
     googleDoc:
       "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls",
   },
+  facet_trap: {
+    whatIsIt:
+      "The site links to many filter URLs (colour, size, sort, price…) that search engines are free to crawl and index.",
+    whyItMatters:
+      "Every filter combination is a near-copy of the same listing. They spend crawl budget, compete with the real category page and dilute its signals.",
+    howToFix: [
+      "Point the canonical of every filtered URL to the unfiltered listing.",
+      "Or set filtered URLs to noindex, follow.",
+      "For sort and view parameters that never change the content, disallow them in robots.txt.",
+    ],
+    confidence: "probably",
+    googleDoc:
+      "https://developers.google.com/search/docs/crawling-indexing/crawling-managing-faceted-navigation",
+  },
+  stale_content: {
+    whatIsIt:
+      "The dates these pages give for themselves (schema dateModified, article meta tags) are more than two years old.",
+    whyItMatters:
+      "Search engines and AI answers favour recent pages on topics that move. A page that says it is old is passed over for one that looks current, even when its content is better.",
+    howToFix: [
+      "Review the oldest pages first: update what changed, remove what is no longer true.",
+      "Update dateModified when the content really changed, never without a change.",
+      "Merge or redirect pages that are no longer worth keeping.",
+    ],
+    confidence: "probably",
+  },
 
   // --- robots.txt and sitemaps ----------------------------------------
 

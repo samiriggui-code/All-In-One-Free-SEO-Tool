@@ -48,6 +48,18 @@ function Tabs() {
           </Link>
         ))}
       </div>
+      {/* A family the site audit already covers says so, and leads there. */}
+      {t.has(`${family.id}.note`) ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {t(`${family.id}.note`)}{" "}
+          <Link
+            href={project ? `/audits/c/${project.id}` : "/audits"}
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            {t(`${family.id}.noteLink`)}
+          </Link>
+        </p>
+      ) : null}
     </nav>
   );
 }

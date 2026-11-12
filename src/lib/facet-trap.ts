@@ -26,7 +26,7 @@
 const USER_AGENT =
   "Mozilla/5.0 (compatible; seo-tool-facet-detector/1.0; +https://example.com)";
 
-const FILTER_PARAM_HINTS = new Set([
+export const FILTER_PARAM_HINTS = new Set([
   "color",
   "colour",
   "size",

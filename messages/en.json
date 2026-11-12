@@ -5035,6 +5035,20 @@
         "archive": "Archive"
       }
     },
+    "auditChecks": {
+      "title": "Audit checks",
+      "note": "The site audit already runs these checks on every page. Use them here to check one page or one point.",
+      "noteLink": "See the audit",
+      "tabs": {
+        "canonical": "Canonical",
+        "soft404": "Soft 404",
+        "facets": "Filters and facets",
+        "mobile": "Mobile",
+        "images": "Images",
+        "security": "Security",
+        "freshness": "Freshness"
+      }
+    },
     "brokenLinks": {
       "title": "Broken links",
       "tabs": {

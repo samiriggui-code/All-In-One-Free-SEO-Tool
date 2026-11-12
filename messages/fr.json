@@ -5035,6 +5035,20 @@
         "archive": "Archive"
       }
     },
+    "auditChecks": {
+      "title": "Contrôles de l’audit",
+      "note": "Ces contrôles tournent déjà dans l’audit du site, sur toutes les pages. Ici, vous vérifiez une page ou un point précis.",
+      "noteLink": "Voir l’audit",
+      "tabs": {
+        "canonical": "Canonical",
+        "soft404": "Soft 404",
+        "facets": "Filtres et facettes",
+        "mobile": "Mobile",
+        "images": "Images",
+        "security": "Sécurité",
+        "freshness": "Fraîcheur"
+      }
+    },
     "brokenLinks": {
       "title": "Liens cassés",
       "tabs": {
