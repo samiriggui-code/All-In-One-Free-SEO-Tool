@@ -3,7 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Loader2, Trash2, UserPlus } from "lucide-react";
+import { ExternalLink, FileText, Loader2, Trash2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   convertLeadToClient,
@@ -102,6 +102,8 @@ function LeadRow({
   onError: (m: string) => void;
 }) {
   const tx = useTranslations("ui.app_leads_inbox");
+  const tPitch = useTranslations("leads.pitch");
+  const tStatus = useTranslations("leads.status");
   const locale = useLocale();
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -138,7 +140,7 @@ function LeadRow({
             <span
               className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset ${statusTone[status] ?? ""}`}
             >
-              {status}
+              {tStatus(status)}
             </span>
           </div>
           <div className="truncate text-xs text-muted-foreground">
@@ -151,7 +153,7 @@ function LeadRow({
             >
               {domain}
             </a>
-            {serious > 0 && ` · ${serious} serious issue${serious === 1 ? "" : "s"}`}
+            {serious > 0 && ` · ${tPitch("serious", { count: serious })}`}
             {" · "}
             {new Date(lead.createdAt).toLocaleDateString(locale)}
           </div>
@@ -172,7 +174,7 @@ function LeadRow({
         >
           {STATUSES.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {tStatus(s)}
             </option>
           ))}
         </select>
@@ -182,6 +184,14 @@ function LeadRow({
             {open ? tx("hide") : tx("whatSWrong")}
           </Button>
         )}
+
+        <a
+          href={`/leads/${lead.id}/argumentaire`}
+          className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs hover:bg-white/5"
+        >
+          <FileText className="size-3.5" />
+          {tPitch("open")}
+        </a>
 
         <Button
           size="sm"
