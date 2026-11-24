@@ -1651,6 +1651,7 @@
     "setUpAccounts": "Set up accounts so everyone signs in as themselves.",
     "yourName": "Your name",
     "namePlaceholder": "Priya Sharma",
+    "emailRequired": "Enter an email address.",
     "passwordHint": "At least 10 characters. A short phrase you'll remember beats a short jumble you won't.",
     "creating": "Creating your account…",
     "createFailed": "Could not create the account.",

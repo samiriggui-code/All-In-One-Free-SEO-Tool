@@ -1651,6 +1651,7 @@
     "setUpAccounts": "Créez des comptes pour que chacun se connecte avec son identité.",
     "yourName": "Votre nom",
     "namePlaceholder": "Camille Martin",
+    "emailRequired": "Saisissez une adresse e-mail.",
     "passwordHint": "Au moins 10 caractères. Une courte phrase facile à retenir vaut mieux qu’un mot de passe court et compliqué.",
     "creating": "Création du compte…",
     "createFailed": "Impossible de créer le compte.",
