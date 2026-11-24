@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
   // automatically; this disables it in dev too.
   devIndicators: false,
 
+  // `pnpm dev` opened from a phone on the same network (http://192.168.x.x:3000):
+  // Next blocks its own dev scripts for any origin other than localhost, so
+  // the page never hydrates — the sign-up button stays disabled and nothing
+  // reaches the server. Private LAN addresses only; dev mode only.
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
+
   /**
    * Framing policy.
    *

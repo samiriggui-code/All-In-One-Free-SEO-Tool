@@ -52,11 +52,26 @@ export function AccountForm({
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    // Read what the fields show, not only React's state: a browser or a
+    // password manager that fills them in does not always fire onChange,
+    // and the button used to stay disabled on fields that looked filled.
+    const form = new FormData(e.currentTarget);
+    const nameNow = String(form.get("name") ?? name);
+    const emailNow = lockedEmail ?? String(form.get("email") ?? email).trim();
+    const passwordNow = String(form.get("password") ?? password);
+    if (!emailNow) {
+      setError(t("emailRequired"));
+      return;
+    }
+    if (passwordNow.length < 10) {
+      setError(t("passwordHint"));
+      return;
+    }
     startTransition(async () => {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, password, token }),
+        body: JSON.stringify({ name: nameNow, email: emailNow, password: passwordNow, token }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -81,6 +96,7 @@ export function AccountForm({
           <Label htmlFor="name">{t("yourName")}</Label>
           <Input
             id="name"
+            name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
@@ -92,6 +108,7 @@ export function AccountForm({
           <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -104,6 +121,7 @@ export function AccountForm({
           <Label htmlFor="pwd">{t("password")}</Label>
           <Input
             id="pwd"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -128,7 +146,7 @@ export function AccountForm({
         )}
         <Button
           type="submit"
-          disabled={pending || !email || password.length < 10}
+          disabled={pending}
           className="w-full"
         >
           {pending ? (
